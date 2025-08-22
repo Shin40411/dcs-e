@@ -66,12 +66,12 @@ export function AuthProvider({ children }: Props) {
     () => ({
       user: state.user
         ? {
-            ...state.user,
-            id: state.user?.id,
-            accessToken: state.user?.access_token,
-            displayName: state.user?.user_metadata.display_name,
-            role: state.user?.role ?? 'admin',
-          }
+          ...state.user,
+          id: state.user?.id,
+          accessToken: state.user?.access_token,
+          displayName: state.user?.user_metadata.display_name,
+          role: state.user?.role ?? 'admin',
+        }
         : null,
       checkUserSession,
       loading: status === 'loading',

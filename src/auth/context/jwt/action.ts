@@ -6,7 +6,7 @@ import { JWT_STORAGE_KEY } from './constant';
 // ----------------------------------------------------------------------
 
 export type SignInParams = {
-  email: string;
+  username: string;
   password: string;
 };
 
@@ -20,21 +20,28 @@ export type SignUpParams = {
 /** **************************************
  * Sign in
  *************************************** */
-export const signInWithPassword = async ({ email, password }: SignInParams): Promise<void> => {
+export const signInWithPassword = async ({ username, password }: SignInParams): Promise<void> => {
   try {
-    const params = { email, password };
+    const params = { username, password };
 
     const res = await axios.post(endpoints.auth.signIn, params);
 
-    const { accessToken } = res.data;
+    const { data } = res.data;
 
-    if (!accessToken) {
-      throw new Error('Access token not found in response');
+    if (!data?.token) {
+      throw new Error('Token không được tìm thấy');
     }
 
-    setSession(accessToken);
+    sessionStorage.setItem(JWT_STORAGE_KEY, data.token);
+    sessionStorage.setItem('user',
+      JSON.stringify({
+        userName: data.userName, role: data.role
+      })
+    );
+
+    setSession(data.token);
   } catch (error) {
-    console.error('Error during sign in:', error);
+    console.error('Đã có lỗi nghiêm trọng khi đăng nhập:', error);
     throw error;
   }
 };

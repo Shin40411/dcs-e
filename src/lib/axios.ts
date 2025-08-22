@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from 'axios';
 
 import axios from 'axios';
+import { create } from 'domain';
 
 import { CONFIG } from 'src/global-config';
 
@@ -38,7 +39,7 @@ export const endpoints = {
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
-    signIn: '/api/auth/sign-in',
+    signIn: '/api/v1/auth/auth/login',
     signUp: '/api/auth/sign-up',
   },
   mail: {
@@ -53,8 +54,21 @@ export const endpoints = {
     search: '/api/post/search',
   },
   product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
+    list: (params: string) => `/api/v1/products${params}`,
+    details: (id: string) => `/api/v1/products/get-detail/${id}`,
     search: '/api/product/search',
+    create: `/api/v1/products/create`,
+    update: (id: string) => `/api/v1/products/update/${id}`,
   },
+  category: {
+    list: (params: string) => `/api/v1/product-categories/categories${params}`,
+    createOrUpdate: (params: string) => `/api/v1/product-categories/categories${params}`,
+  },
+  unit: {
+    list: (params: string) => `/api/v1/units/units${params}`,
+  },
+  upload: {
+    uploadImage: '/api/v1/uploads/upload',
+    uploadMultipleImages: '/api/v1/uploads/upload-xml',
+  }
 };

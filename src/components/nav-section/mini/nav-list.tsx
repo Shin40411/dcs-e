@@ -10,7 +10,7 @@ import { NavItem } from './nav-item';
 import { navSectionClasses } from '../styles';
 import { NavUl, NavLi, NavDropdown, NavDropdownPaper } from '../components';
 
-import type { NavListProps, NavSubListProps } from '../types';
+import type { NavItemDataProps, NavListProps, NavSubListProps } from '../types';
 
 // ----------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ export function NavList({
 
   const pathname = usePathname();
 
-  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  const isActive = checkActive(pathname, data);
 
   const {
     open,
@@ -162,4 +162,16 @@ function NavSubList({
       ))}
     </NavUl>
   );
+}
+
+function checkActive(pathname: string, item: NavItemDataProps): boolean {
+  if (isActiveLink(pathname, item.path, !!item.children)) {
+    return true;
+  }
+
+  if (item.children?.length) {
+    return item.children.some((child) => checkActive(pathname, child));
+  }
+
+  return false;
 }

@@ -36,7 +36,7 @@ export function Editor({
   editable = true,
   fullItem = false,
   value: content = '',
-  placeholder = 'Write something awesome...',
+  placeholder = 'Nhập mô tả sản phẩm...',
   ...other
 }: EditorProps) {
   const [fullScreen, setFullScreen] = useState(false);

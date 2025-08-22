@@ -18,7 +18,7 @@ export default function Page() {
     <>
       <title>{metadata.title}</title>
 
-      <ProductShopDetailsView product={product} loading={productLoading} error={productError} />
+      {/* <ProductShopDetailsView product={product} loading={productLoading} error={productError} /> */}
     </>
   );
 }

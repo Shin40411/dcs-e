@@ -4,7 +4,7 @@ import { ProductListView } from 'src/sections/product/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Product list | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Sản phẩm - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

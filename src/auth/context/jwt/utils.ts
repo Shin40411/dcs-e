@@ -73,13 +73,12 @@ export async function setSession(accessToken: string | null) {
   try {
     if (accessToken) {
       sessionStorage.setItem(JWT_STORAGE_KEY, accessToken);
-
       axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
-      const decodedToken = jwtDecode(accessToken); // ~3 days by minimals server
+      const decodedToken = jwtDecode(accessToken);
 
       if (decodedToken && 'exp' in decodedToken) {
-        tokenExpired(decodedToken.exp);
+        // tokenExpired(decodedToken.exp);
       } else {
         throw new Error('Invalid access token!');
       }

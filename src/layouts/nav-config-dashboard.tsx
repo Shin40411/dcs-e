@@ -86,7 +86,7 @@ export const navData: NavSectionProps['data'] = [
         path: paths.dashboard.product.root,
         icon: ICONS.folder,
         children: [
-          // { title: 'Nhóm sản phẩm', path: paths.dashboard.product.root },
+          { title: 'Nhóm sản phẩm', path: paths.dashboard.category.root },
           { title: 'Sản phẩm', path: paths.dashboard.product.root },
           // { title: 'Khách hàng', path: paths.dashboard.product.root },
           { title: 'Tài khoản ngân hàng', path: paths.dashboard.general.banking },

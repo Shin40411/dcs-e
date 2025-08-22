@@ -1,4 +1,6 @@
+import { InputValue } from 'minimal-shared/utils';
 import { formatNumberLocale } from 'src/locales';
+import numeral from 'numeral';
 
 // ----------------------------------------------------------------------
 
@@ -37,21 +39,11 @@ export function fNumber(inputValue: InputNumberValue, options?: Options) {
 
 // ----------------------------------------------------------------------
 
-export function fCurrency(inputValue: InputNumberValue, options?: Options) {
-  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+export function fCurrency(number: InputValue) {
+  if (!number || Number(number) === 0) return '0 đ';
+  const format = number ? numeral(number).format('0,0.00') : '';
 
-  const number = processInput(inputValue);
-  if (number === null) return '';
-
-  const fm = new Intl.NumberFormat(locale.code, {
-    style: 'currency',
-    currency: locale.currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-    ...options,
-  }).format(number);
-
-  return fm;
+  return `${result(format, '.00')} đ`;
 }
 
 // ----------------------------------------------------------------------
@@ -103,4 +95,10 @@ export function fData(inputValue: InputNumberValue) {
   const fm = `${parseFloat((number / baseValue ** index).toFixed(decimal))} ${units[index]}`;
 
   return fm;
+}
+
+function result(format: string, key = '.00') {
+  const isInteger = format.includes(key);
+
+  return isInteger ? format.replace(key, '') : format;
 }

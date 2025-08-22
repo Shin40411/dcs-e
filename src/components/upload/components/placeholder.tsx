@@ -29,11 +29,10 @@ export function UploadPlaceholder({ sx, className, ...other }: UploadPlaceholder
     >
       <UploadIllustration hideBackground sx={{ width: 200 }} />
       <PlaceholderContent>
-        <div className={uploadPlaceholderClasses.title}>Drop or select file</div>
+        <div className={uploadPlaceholderClasses.title}>Kéo thả hoặc chọn tệp</div>
         <div className={uploadPlaceholderClasses.description}>
-          Drop files here or click to
-          <span>browse</span>
-          through your machine.
+          Tải lên tệp của bạn
+          <span>tại đây</span>
         </div>
       </PlaceholderContent>
     </PlaceholderRoot>

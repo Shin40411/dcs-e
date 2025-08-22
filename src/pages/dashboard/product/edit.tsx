@@ -18,7 +18,7 @@ export default function Page() {
     <>
       <title>{metadata.title}</title>
 
-      <ProductEditView product={product} />
+      {/* <ProductEditView product={product} /> */}
     </>
   );
 }

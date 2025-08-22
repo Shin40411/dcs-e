@@ -77,14 +77,14 @@ export function AuthSplitSection({
             {subtitle}
           </Typography>
         )} */}
-        <Logo sx={{ width: '100%', height: '100%' }} />
+        <Logo sx={{ pointerEvents: 'none', userSelect: 'none', width: '100%', height: '100%' }} />
       </div>
 
       <Box
         component="img"
         alt="Dashboard illustration"
         src={imgUrl}
-        sx={{ width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
+        sx={{ pointerEvents: 'none', userSelect: 'none', width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
       />
 
       {!!methods?.length && method && (

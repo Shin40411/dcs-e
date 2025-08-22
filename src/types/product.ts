@@ -67,3 +67,68 @@ export type IProductItem = {
     reviewCount: number;
   }[];
 };
+
+export type ProductTableFilters = {
+  Search: string;
+  Filter: string;
+}
+
+export type ProductItem = {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  purchasePrice: number;
+  price: number;
+  unit: string;
+  unitId: number;
+  stock: number;
+  warranty: number;
+  createdDate: IDateValue;
+  createBy: string;
+  modified: IDateValue;
+  modifiedBy: string;
+  status: number;
+  manufacturer: string;
+  vat: number;
+  image: string;
+  category: string;
+  categoryID: number;
+};
+
+export type ProductListData = {
+  pageNumber: number;
+  pageSize: number;
+  totalRecord: number;
+  totalPages: number;
+  items: ProductItem[];
+};
+
+export type ResProductList = {
+  statusCode: number;
+  message: string;
+  data: ProductListData;
+};
+
+export type ProductDto = {
+  name: string;
+  description: string;
+  code: string;
+  image: string | null;
+  moreImages?: string[] | null;
+  purchasePrice: number;
+  price: number;
+  priceList?: number | 0;
+  stock: number;
+  unitId: number;
+  warranty: number;
+  manufacturer: string;
+  vat: number;
+  categoryID: number;
+}
+
+export type ResProductItem = {
+  statusCode: number;
+  message: string;
+  data: ProductItem;
+}

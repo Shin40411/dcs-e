@@ -91,7 +91,7 @@ export function UploadView() {
           onDrop={handleDropAvatar}
           validator={(fileData) => {
             if (fileData.size > 1000000) {
-              return { code: 'file-too-large', message: `File is larger than ${fData(1000000)}` };
+              return { code: 'file-too-large', message: `Tệp tin lớn hơn ${fData(1000000)}` };
             }
             return null;
           }}

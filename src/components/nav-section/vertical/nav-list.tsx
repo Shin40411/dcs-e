@@ -8,7 +8,7 @@ import { NavItem } from './nav-item';
 import { navSectionClasses } from '../styles';
 import { NavUl, NavLi, NavCollapse } from '../components';
 
-import type { NavListProps, NavSubListProps } from '../types';
+import type { NavItemDataProps, NavListProps, NavSubListProps } from '../types';
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ export function NavList({
   const pathname = usePathname();
   const navItemRef = useRef<HTMLButtonElement>(null);
 
-  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  const isActive = checkActive(pathname, data);
 
   const { value: open, onFalse: onClose, onToggle } = useBoolean(isActive);
 
@@ -31,7 +31,6 @@ export function NavList({
     if (!isActive) {
       onClose();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleToggleMenu = useCallback(() => {
@@ -125,4 +124,16 @@ function NavSubList({
       ))}
     </NavUl>
   );
+}
+
+function checkActive(pathname: string, item: NavItemDataProps): boolean {
+  if (isActiveLink(pathname, item.path, !!item.children)) {
+    return true;
+  }
+
+  if (item.children?.length) {
+    return item.children.some((child) => checkActive(pathname, child));
+  }
+
+  return false;
 }

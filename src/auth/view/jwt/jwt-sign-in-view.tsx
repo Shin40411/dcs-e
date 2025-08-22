@@ -28,14 +28,13 @@ import { signInWithPassword } from '../../context/jwt';
 export type SignInSchemaType = zod.infer<typeof SignInSchema>;
 
 export const SignInSchema = zod.object({
-  email: zod
+  username: zod
     .string()
-    .min(1, { message: 'Bạn chưa nhập email!' })
-    .email({ message: 'Email chưa hợp lệ!' }),
+    .min(1, { message: 'Bạn chưa nhập tên đăng nhập!' }),
   password: zod
     .string()
     .min(1, { message: 'Bạn chưa nhập mật khẩu!' })
-    .min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
+    .min(3, { message: 'Mật khẩu phải có ít nhất 3 ký tự' }),
 });
 // ----------------------------------------------------------------------
 
@@ -49,8 +48,8 @@ export function JwtSignInView() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const defaultValues: SignInSchemaType = {
-    email: 'demo@minimals.cc',
-    password: '@2Minimal',
+    username: 'admin',
+    password: '12345',
   };
 
   const methods = useForm<SignInSchemaType>({
@@ -65,7 +64,7 @@ export function JwtSignInView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await signInWithPassword({ email: data.email, password: data.password });
+      await signInWithPassword({ username: data.username, password: data.password });
       await checkUserSession?.();
 
       router.refresh();
@@ -78,7 +77,7 @@ export function JwtSignInView() {
 
   const renderForm = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Field.Text name="email" label="Email" slotProps={{ inputLabel: { shrink: true } }} />
+      <Field.Text name="username" label="Tên đăng nhập" slotProps={{ inputLabel: { shrink: true } }} />
 
       <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
         {/* <Link
@@ -94,7 +93,7 @@ export function JwtSignInView() {
         <Field.Text
           name="password"
           label="Mật khẩu"
-          placeholder="6+ characters"
+          placeholder="3+ Ký tự trở lên"
           type={showPassword.value ? 'text' : 'password'}
           slotProps={{
             inputLabel: { shrink: true },
@@ -131,22 +130,8 @@ export function JwtSignInView() {
     <>
       <FormHead
         title="Đăng nhập tài khoản"
-        // description={
-        //   <>
-        //     {`Don’t have an account? `}
-        //     <Link component={RouterLink} href={paths.auth.jwt.signUp} variant="subtitle2">
-        //       Get started
-        //     </Link>
-        //   </>
-        // }
         sx={{ textAlign: { xs: 'center', md: 'left' } }}
       />
-
-      {/* <Alert severity="info" sx={{ mb: 3 }}>
-        Use <strong>{defaultValues.email}</strong>
-        {' with password '}
-        <strong>{defaultValues.password}</strong>
-      </Alert> */}
 
       {!!errorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>

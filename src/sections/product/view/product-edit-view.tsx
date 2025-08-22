@@ -6,8 +6,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ProductNewEditForm } from '../product-new-edit-form';
-
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -27,8 +25,6 @@ export function ProductEditView({ product }: Props) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-
-      <ProductNewEditForm currentProduct={product} />
     </DashboardContent>
   );
 }
