@@ -158,6 +158,16 @@ export const navData: NavSectionProps['data'] = [
       // { title: 'Kanban', path: paths.dashboard.kanban, icon: ICONS.kanban },
     ],
   },
+  {
+    subheader: 'Cấu hình',
+    items: [
+      {
+        title: 'Đơn vị tính',
+        path: paths.dashboard.settings.unit,
+        icon: ICONS.menuItem,
+      }
+    ]
+  }
   /**
    * Item state
    */

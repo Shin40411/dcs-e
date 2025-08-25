@@ -1,0 +1,135 @@
+import { Box } from "@mui/material";
+import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid"
+import { UseBooleanReturn } from "minimal-shared/hooks";
+import { Iconify } from "src/components/iconify";
+import { RenderCellCreatedAt, RenderCellDescription, RenderCellPrice, RenderCellProduct, RenderCellPurchasePrice, RenderCellStatus, RenderCellStock, RenderCellVAT } from "src/sections/product/product-table-row";
+
+type ColumnProps = {
+  openDetailsForm?: UseBooleanReturn;
+  openCrudForm: UseBooleanReturn;
+  confirmDelRowDialog: UseBooleanReturn;
+  setRowIdSelected: (id: any) => void;
+}
+
+export const PRODUCT_COLUMNS: ({
+  openCrudForm,
+  confirmDelRowDialog,
+  setRowIdSelected
+}: ColumnProps) => GridColDef[] = ({
+  openCrudForm,
+  confirmDelRowDialog,
+  setRowIdSelected
+}) => [
+      {
+        field: 'name',
+        headerName: 'Tên sản phẩm',
+        flex: 1,
+        minWidth: 260,
+        renderCell: (params) => (
+          <RenderCellProduct params={params} />
+        ),
+      },
+      {
+        field: 'code',
+        headerName: 'Mã sản phẩm',
+        width: 160,
+        renderCell: (params) => <Box>{params.row.code}</Box>
+      },
+      {
+        field: 'description',
+        headerName: 'Mô tả',
+        flex: 1,
+        minWidth: 300,
+        renderCell: (params) => <RenderCellDescription params={params} />
+      },
+      {
+        field: 'purchasePrice',
+        headerName: 'Giá nhập',
+        width: 140,
+        renderCell: (params) => <RenderCellPurchasePrice params={params} />
+      },
+      {
+        field: 'price',
+        headerName: 'Giá bán',
+        width: 140,
+        renderCell: (params) => <RenderCellPrice params={params} />
+      },
+      {
+        field: 'unit',
+        headerName: 'Đơn vị',
+        width: 100,
+        renderCell: (params) => <Box>{params.row.unit}</Box>
+      },
+      {
+        field: 'stock',
+        headerName: 'Tồn kho',
+        width: 120,
+        renderCell: (params) => <RenderCellStock params={params} />,
+      },
+      {
+        field: 'warranty',
+        headerName: 'Bảo hành (tháng)',
+        width: 160,
+        renderCell: (params) => <Box>{params.row.warranty}</Box>
+      },
+      {
+        field: 'createdDate',
+        headerName: 'Ngày tạo',
+        width: 180,
+        renderCell: (params) => <RenderCellCreatedAt params={params} />,
+      },
+      {
+        field: 'manufacturer',
+        headerName: 'Hãng SX',
+        width: 140,
+        renderCell: (params) => <Box>{params.row.manufacturer}</Box>
+      },
+      {
+        field: 'vat',
+        headerName: 'VAT (%)',
+        sortable: false,
+        width: 100,
+        renderCell: (params) => <RenderCellVAT params={params} />,
+      },
+      {
+        field: 'status',
+        headerName: 'Trạng thái',
+        width: 120,
+        type: 'singleSelect',
+        sortable: false,
+        renderCell: (params) => <RenderCellStatus params={params} />,
+      },
+      {
+        type: 'actions',
+        field: 'actions',
+        headerName: ' ',
+        align: 'right',
+        headerAlign: 'right',
+        width: 80,
+        sortable: false,
+        hideable: false,
+        filterable: false,
+        editable: false,
+        getActions: (params) => [
+          <GridActionsCellItem
+            showInMenu
+            icon={<Iconify icon="solar:eye-bold" />}
+            label="Chi tiết"
+            onClick={() => { }}
+          />,
+          <GridActionsCellItem
+            showInMenu
+            icon={<Iconify icon="solar:pen-bold" />}
+            label="Chỉnh sửa"
+            onClick={() => { setRowIdSelected(params.row.id); openCrudForm.onTrue(); }}
+          />,
+          <GridActionsCellItem
+            showInMenu
+            icon={<Iconify icon="solar:trash-bin-trash-bold" />}
+            label="Xóa"
+            onClick={() => { confirmDelRowDialog.onTrue(); setRowIdSelected(params.row.id) }}
+            sx={{ color: 'error.main' }}
+          />
+        ]
+      }
+    ];

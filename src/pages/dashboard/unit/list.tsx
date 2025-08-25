@@ -1,16 +1,16 @@
 import { CONFIG } from 'src/global-config';
-import { CategoryListView } from 'src/sections/category/view/category-list-view';
+import { UnitListView } from 'src/sections/unit/view/unit-list-view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Nhóm sản phẩm - ${CONFIG.appName}` };
+const metadata = { title: `Đơn vị tính - ${CONFIG.appName}` };
 
 export default function Page() {
     return (
         <>
             <title>{metadata.title}</title>
 
-            <CategoryListView />
+            <UnitListView />
         </>
     );
 }

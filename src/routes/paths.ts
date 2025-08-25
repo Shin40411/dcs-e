@@ -127,7 +127,7 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
       },
     },
-    category:{
+    category: {
       root: `${ROOTS.DASHBOARD}/category`
     },
     invoice: {
@@ -175,5 +175,9 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}/edit`,
       },
     },
+    settings: {
+      root: `${ROOTS.DASHBOARD}/settings`,
+      unit: `${ROOTS.DASHBOARD}/settings/unit`,
+    }
   },
 };

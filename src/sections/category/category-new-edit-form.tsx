@@ -146,17 +146,25 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                     </CardContent>
 
                     <CardActions sx={{ justifyContent: 'flex-end' }}>
-                        <Button variant="outlined" color="inherit" onClick={onClose}>
-                            Hủy bỏ
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            sx={{ ml: 1 }}
-                            loading={isSubmitting}
-                        >
-                            {!currentCategory ? 'Tạo mới' : 'Lưu thay đổi'}
-                        </Button>
+                        <Stack direction="row" spacing={2} width="100%">
+                            <Button
+                                variant="outlined"
+                                color="inherit"
+                                onClick={onClose}
+                                fullWidth
+                            >
+                                Hủy bỏ
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                sx={{ ml: 1 }}
+                                loading={isSubmitting}
+                                fullWidth
+                            >
+                                {!currentCategory ? 'Tạo mới' : 'Lưu thay đổi'}
+                            </Button>
+                        </Stack>
                     </CardActions>
                 </Box>
             </Form>

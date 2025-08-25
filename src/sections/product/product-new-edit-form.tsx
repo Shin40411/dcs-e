@@ -18,7 +18,7 @@ import {
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
-import { CardContent, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { useGetCategories } from 'src/actions/category';
 import { useDebounce } from 'minimal-shared/hooks';
 import { useGetUnits } from 'src/actions/unit';
@@ -367,19 +367,27 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
   );
 
   const renderActions = () => (
-    <DialogActions>
-      <Button variant="outlined" color="inherit" onClick={onClose}>
-        Hủy bỏ
-      </Button>
-      <Button
-        type="submit"
-        variant="contained"
-        sx={{ ml: 1 }}
-        loading={isSubmitting}
-      >
-        {!currentProduct ? 'Tạo mới' : 'Lưu thay đổi'}
-      </Button>
-    </DialogActions>
+    <Box sx={{ width: '100%' }}>
+      <Stack direction="row" spacing={2} width="100%">
+        <Button
+          variant="outlined"
+          color="inherit"
+          onClick={onClose}
+          fullWidth
+        >
+          Hủy bỏ
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{ ml: 1 }}
+          loading={isSubmitting}
+          fullWidth
+        >
+          {!currentProduct ? 'Tạo mới' : 'Lưu thay đổi'}
+        </Button>
+      </Stack>
+    </Box>
   );
 
   return (
@@ -389,18 +397,17 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       </DialogTitle>
       <DialogContent dividers={true}>
         <Form methods={methods} onSubmit={onSubmit}>
-          <Box sx={{ p: 3, pt: 0 }}>
-            <CardContent sx={{ pt: 0, px: 0 }}>
-              <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-                {renderDetails()}
-              </Stack>
-            </CardContent>
-          </Box>
+          <CardContent sx={{ pt: 0, px: 0 }}>
+            <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+              {renderDetails()}
+            </Stack>
+          </CardContent>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }} />
+          <CardActions>
+            {renderActions()}
+          </CardActions>
         </Form>
       </DialogContent>
-      <DialogActions>
-        {renderActions()}
-      </DialogActions>
     </Dialog >
   );
 }

@@ -83,6 +83,8 @@ const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission')
 // Blank page
 const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
+// Settings page
+const UnitListPage = lazy(() => import('src/pages/dashboard/unit/list'));
 
 // ----------------------------------------------------------------------
 
@@ -213,6 +215,13 @@ export const dashboardRoutes: RouteObject[] = [
       { path: 'permission', element: <PermissionDeniedPage /> },
       { path: 'params', element: <ParamsPage /> },
       { path: 'blank', element: <BlankPage /> },
+      {
+        path: 'settings',
+        children: [
+          { index: true, element: <UnitListPage /> },
+          { path: 'unit', element: <UnitListPage /> }
+        ]
+      }
     ],
   },
 ];
