@@ -1,0 +1,87 @@
+import { Button } from "@mui/material";
+import { GridRowSelectionModel } from "@mui/x-data-grid";
+import { useBoolean } from "minimal-shared/hooks";
+import { useEffect, useState } from "react";
+import { useGetEmployeeTypes } from "src/actions/employeeType";
+import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
+import { UseGridTableList } from "src/components/data-grid-table/data-grid-table";
+import { Iconify } from "src/components/iconify";
+import { EMPLOYEETYPES_COLUMNS } from "src/const/employeeTypes";
+import { DashboardContent } from "src/layouts/dashboard";
+import { paths } from "src/routes/paths";
+import { IEmployeeTypeItem } from "src/types/employeeType";
+
+export function EmployeeTypeListView() {
+    const openCrudForm = useBoolean();
+    const confirmDialog = useBoolean();
+    const confirmDelRowDialog = useBoolean();
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const { employeeTypes, pagination, employeeTypesLoading } = useGetEmployeeTypes({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+    });
+
+    const handleChangePage = (_: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    const [tableData, setTableData] = useState<IEmployeeTypeItem[]>(employeeTypes);
+    const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
+    const [tableRowSelected, setTableRowSelected] = useState<IEmployeeTypeItem | null>(null);
+    const [rowIdSelected, setRowIdSelected] = useState(0);
+
+    useEffect(() => {
+        if (employeeTypes.length) {
+            setTableData(employeeTypes);
+        }
+    }, [employeeTypes]);
+
+    const dataFiltered = tableData;
+
+    return (
+        <>
+            <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                <CustomBreadcrumbs
+                    heading="Chức vụ"
+                    links={[
+                        { name: 'Tổng quan', href: paths.dashboard.root },
+                        { name: 'Cấu hình' },
+                        { name: 'Chức vụ' },
+                    ]}
+                    action={
+                        <Button
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                            onClick={() => {
+
+                            }}
+                        >
+                            Tạo chức vụ
+                        </Button>
+                    }
+                    sx={{ mb: { xs: 3, md: 5 } }}
+                />
+                <UseGridTableList
+                    dataFiltered={dataFiltered}
+                    loading={employeeTypesLoading}
+                    columns={EMPLOYEETYPES_COLUMNS({ openCrudForm, confirmDelRowDialog, setTableRowSelected, setRowIdSelected, page, rowsPerPage })}
+                    rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
+                    paginationCount={pagination?.totalRecord ?? 0}
+                    page={page}
+                    handleChangePage={handleChangePage}
+                    rowsPerPage={rowsPerPage}
+                    handleChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+            </DashboardContent>
+        </>
+    );
+}

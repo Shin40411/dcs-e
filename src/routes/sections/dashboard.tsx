@@ -31,6 +31,12 @@ const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
 const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
 // Category
 const CategoryPage = lazy(() => import('src/pages/dashboard/category/list'));
+// Customer
+const CustomerPage = lazy(() => import('src/pages/dashboard/customer/list'));
+// Suppliers
+const SuppliersPage = lazy(() => import('src/pages/dashboard/suppliers/list'));
+// Employees
+const EmployeesPage = lazy(() => import('src/pages/dashboard/employee/list'));
 
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
@@ -85,6 +91,7 @@ const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 // Settings page
 const UnitListPage = lazy(() => import('src/pages/dashboard/unit/list'));
+const EmployeeTypeListPage = lazy(() => import('src/pages/dashboard/employeeType/list'));
 
 // ----------------------------------------------------------------------
 
@@ -160,6 +167,24 @@ export const dashboardRoutes: RouteObject[] = [
         ],
       },
       {
+        path: 'customer',
+        children: [
+          { index: true, element: <CustomerPage /> },
+        ],
+      },
+      {
+        path: 'suppliers',
+        children: [
+          { index: true, element: <SuppliersPage /> },
+        ],
+      },
+      {
+        path: 'employees',
+        children: [
+          { index: true, element: <EmployeesPage /> },
+        ],
+      },
+      {
         path: 'order',
         children: [
           { index: true, element: <OrderListPage /> },
@@ -219,7 +244,8 @@ export const dashboardRoutes: RouteObject[] = [
         path: 'settings',
         children: [
           { index: true, element: <UnitListPage /> },
-          { path: 'unit', element: <UnitListPage /> }
+          { path: 'unit', element: <UnitListPage /> },
+          { path: 'employee-type', element: <EmployeeTypeListPage /> }
         ]
       }
     ],

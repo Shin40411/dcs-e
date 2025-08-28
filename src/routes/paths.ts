@@ -1,4 +1,5 @@
 import { kebabCase } from 'es-toolkit';
+import { em } from 'node_modules/@fullcalendar/core/internal-common';
 
 import { _id, _postTitles } from 'src/_mock/assets';
 
@@ -128,7 +129,16 @@ export const paths = {
       },
     },
     category: {
-      root: `${ROOTS.DASHBOARD}/category`
+      root: `${ROOTS.DASHBOARD}/category`,
+    },
+    customer: {
+      root: `${ROOTS.DASHBOARD}/customer`,
+    },
+    suppliers: {
+      root: `${ROOTS.DASHBOARD}/suppliers`,
+    },
+    employees: {
+      root: `${ROOTS.DASHBOARD}/employees`,
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
@@ -178,6 +188,7 @@ export const paths = {
     settings: {
       root: `${ROOTS.DASHBOARD}/settings`,
       unit: `${ROOTS.DASHBOARD}/settings/unit`,
+      employeeType: `${ROOTS.DASHBOARD}/settings/employee-type`,
     }
   },
 };

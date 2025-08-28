@@ -1,7 +1,9 @@
 import { DataGrid, gridClasses, GridColDef, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton } from "@mui/x-data-grid";
 import { EmptyContent } from "../empty-content";
-import { Card, TablePagination } from "@mui/material";
-import { ChangeEvent } from "react";
+import { Box, Card, TablePagination, TextField } from "@mui/material";
+import { ChangeEvent, useState } from "react";
+import type { GridToolbarProps } from "@mui/x-data-grid";
+import { Iconify } from "../iconify";
 
 type GridProps = {
     dataFiltered: any[];
@@ -26,6 +28,7 @@ export function UseGridTableList({
     rowsPerPage,
     handleChangeRowsPerPage
 }: GridProps) {
+    const [searchText, setSearchText] = useState("");
     return (
         <Card
             sx={{
@@ -98,6 +101,12 @@ export function UseGridTableList({
                     noRowsOverlay: () => <EmptyContent />,
                     noResultsOverlay: () => <EmptyContent title="Không có kết quả" />,
                 }}
+                slotProps={{
+                    toolbar: {
+                        searchText,
+                        onSearchChange: (value: string) => setSearchText(value),
+                    } as any,
+                }}
                 sx={{
                     [`& .${gridClasses.cell}`]: {
                         alignItems: 'center',
@@ -128,12 +137,36 @@ declare module '@mui/x-data-grid' {
     }
 }
 
-function CustomToolbar() {
+
+type CustomToolbarProps = GridToolbarProps & {
+    searchText?: string;
+    onSearchChange?: (value: string) => void;
+};
+
+function CustomToolbar(props: CustomToolbarProps) {
+    const { searchText = "", onSearchChange = () => { }, ...rest } = props;
     return (
-        <GridToolbarContainer>
+        <GridToolbarContainer {...rest}>
             <GridToolbarColumnsButton />
             <GridToolbarFilterButton />
             <GridToolbarDensitySelector />
+
+            <Box sx={{ flexGrow: 1 }} />
+            <TextField
+                size="small"
+                variant="outlined"
+                value={searchText}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="Tìm kiếm..."
+                InputProps={{
+                    startAdornment: (
+                        <Iconify
+                            icon="eva:search-fill"
+                            sx={{ color: 'text.disabled', width: 20, height: 20, mr: 1 }}
+                        />
+                    ),
+                }}
+            />
         </GridToolbarContainer>
     );
 }

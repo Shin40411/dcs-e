@@ -67,6 +67,21 @@ export const endpoints = {
   unit: {
     list: (params: string) => `/api/v1/units/units${params}`,
   },
+  employeeType: {
+    list: (params: string) => `/api/v1/employee-type/employee-types${params}`,
+  },
+  customer: {
+    list: (params: string) => `/api/v1/customers/customers${params}`,
+  },
+  bankAccount: {
+    list: (params: string) => `/api/v1/bank-accounts/bank-accounts${params}`,
+  },
+  suppliers: {
+    list: (params: string) => `/api/v1/suppliers/suppliers${params}`,
+  },
+  employees: {
+    list: (params: string) => `/api/v1/employees/employees${params}`,
+  },
   upload: {
     uploadImage: '/api/v1/uploads/upload',
     uploadMultipleImages: '/api/v1/uploads/upload-xml',

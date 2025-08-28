@@ -18,7 +18,7 @@ import {
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
-import { CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
 import { useGetCategories } from 'src/actions/category';
 import { useDebounce } from 'minimal-shared/hooks';
 import { useGetUnits } from 'src/actions/unit';
@@ -33,17 +33,17 @@ import { ICategoryItem } from 'src/types/category';
 export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 
 export const NewProductSchema = zod.object({
-  name: zod.string().min(1, { message: 'Tên sản phẩm là bắt buộc' }),
-  code: zod.string().min(1, { message: 'Mã sản phẩm là bắt buộc' }),
+  name: zod.string().min(1, { message: 'Tên sản phẩm là trường bắt buộc' }),
+  code: zod.string().min(1, { message: 'Mã sản phẩm là trường bắt buộc' }),
   description: zod
     .string()
     .min(20, { message: 'Mô tả sản phẩm phải có ít nhất 20 ký tự' }),
   purchasePrice: zod
     .number({ coerce: true })
-    .min(1, { message: 'Giá nhập là bắt buộc và phải lớn hơn 0' }),
+    .min(1, { message: 'Giá nhập là trường bắt buộc và phải lớn hơn 0' }),
   price: zod
     .number({ coerce: true })
-    .min(1, { message: 'Giá bán là bắt buộc và phải lớn hơn 0' }),
+    .min(1, { message: 'Giá bán là trường bắt buộc và phải lớn hơn 0' }),
   unitId: zod.number().min(1, { message: 'Đơn vị tính là trường bắt buộc' }),
   categoryID: zod.number().min(1, { message: 'Nhóm sản phẩm là trường bắt buộc' }),
   stock: zod
@@ -54,7 +54,7 @@ export const NewProductSchema = zod.object({
     .min(0, { message: 'Thời gian bảo hành không được nhỏ hơn 0' }),
   manufacturer: zod
     .string()
-    .min(1, { message: 'Nhà sản xuất là bắt buộc' }),
+    .min(1, { message: 'Nhà sản xuất là trường bắt buộc' }),
   vat: zod
     .number({ coerce: true })
     .min(0, { message: 'VAT không được nhỏ hơn 0%' })
@@ -63,7 +63,8 @@ export const NewProductSchema = zod.object({
     .any()
     .refine((file) => file instanceof File || typeof file === 'string', {
       message: 'Ảnh sản phẩm không hợp lệ',
-    }).nullable().optional()
+    }).nullable().optional(),
+  Folder: zod.string().min(1, { message: 'Thư mục tải lên là trường bắt buộc' }),
 });
 
 // ----------------------------------------------------------------------
@@ -113,6 +114,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
     manufacturer: '',
     vat: 0,
     image: null,
+    Folder: 'HoaDon',
   };
 
   const methods = useForm<NewProductSchemaType>({
@@ -186,7 +188,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
         imagePayload = data.image;
       } else if (data.image instanceof File) {
         try {
-          const res = await uploadImage(data.image);
+          const res = await uploadImage(data.image, data.Folder);
           imagePayload = res.data.data;
         } catch (error) {
           console.error("Error uploading image:", error);
@@ -349,6 +351,13 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       />
       <Stack spacing={1.5}>
         <Typography variant="subtitle2">Ảnh sản phẩm</Typography>
+        {!currentProduct && (
+          <Field.Select label='Thư mục tải lên' name="Folder">
+            <MenuItem key={'Hopdong'} value={'Hopdong'} sx={{ textTransform: 'capitalize' }}>Hợp đồng</MenuItem>
+            <MenuItem key={'HoaDon'} value={'HoaDon'} sx={{ textTransform: 'capitalize' }}>Hóa đơn</MenuItem>
+            <MenuItem key={'XuatKho'} value={'XuatKho'} sx={{ textTransform: 'capitalize' }}>Xuất kho</MenuItem>
+          </Field.Select>
+        )}
         <Field.Upload
           // multiple
           thumbnail

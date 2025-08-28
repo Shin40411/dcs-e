@@ -1,8 +1,9 @@
 import axiosInstance, { endpoints } from "src/lib/axios";
 
-export function uploadImage(file: File) {
+export function uploadImage(file: File, folder: string) {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('Folder', folder);
 
     return axiosInstance.post(endpoints.upload.uploadImage, formData, {
         headers: {

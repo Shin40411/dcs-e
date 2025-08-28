@@ -4,7 +4,7 @@ import { OverviewBankingView } from 'src/sections/overview/banking/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Banking | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Tài khoản ngân hàng - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

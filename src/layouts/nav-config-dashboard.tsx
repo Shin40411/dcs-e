@@ -84,12 +84,14 @@ export const navData: NavSectionProps['data'] = [
       {
         title: 'Danh mục',
         path: paths.dashboard.product.root,
-        icon: ICONS.folder,
+        icon: <Iconify icon={'material-symbols:category-rounded'} />,
         children: [
-          { title: 'Nhóm sản phẩm', path: paths.dashboard.category.root },
-          { title: 'Sản phẩm', path: paths.dashboard.product.root },
-          // { title: 'Khách hàng', path: paths.dashboard.product.root },
-          { title: 'Tài khoản ngân hàng', path: paths.dashboard.general.banking },
+          { title: 'Nhóm sản phẩm', path: paths.dashboard.category.root, icon: <Iconify icon={'streamline-cyber-color:package-stack-2'} /> },
+          { title: 'Sản phẩm', path: paths.dashboard.product.root, icon: <Iconify icon={'streamline-cyber-color:shopping-product'} /> },
+          { title: 'Khách hàng', path: paths.dashboard.customer.root, icon: <Iconify icon={'streamline-cyber-color:businessman'} /> },
+          { title: 'Tài khoản ngân hàng', path: paths.dashboard.general.banking, icon: <Iconify icon={'streamline-cyber-color:bank-1'} /> },
+          { title: 'Nhà cung cấp', path: paths.dashboard.suppliers.root, icon: <Iconify icon={'streamline-cyber-color:business-handshake-deal'} /> },
+          { title: 'Nhân viên', path: paths.dashboard.employees.root, icon: <Iconify icon={'streamline-cyber-color:account-group'} /> },
         ],
       },
       {
@@ -97,7 +99,7 @@ export const navData: NavSectionProps['data'] = [
         path: paths.dashboard.user.root,
         icon: ICONS.user,
         children: [
-          { title: 'Người dùng', path: paths.dashboard.user.list },
+          { title: 'Người dùng', path: paths.dashboard.user.list, icon: <Iconify icon={'streamline-cyber-color:headset-user'} /> },
         ],
       },
       {
@@ -105,8 +107,8 @@ export const navData: NavSectionProps['data'] = [
         path: paths.dashboard.order.root,
         icon: ICONS.invoice,
         children: [
-          { title: 'Phiếu thu', path: paths.dashboard.invoice.root },
-          { title: 'Phiếu chi', path: paths.dashboard.order.root },
+          { title: 'Phiếu thu', path: paths.dashboard.invoice.root, icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} /> },
+          { title: 'Phiếu chi', path: paths.dashboard.order.root, icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} /> },
         ],
       },
       // {
@@ -162,10 +164,22 @@ export const navData: NavSectionProps['data'] = [
     subheader: 'Cấu hình',
     items: [
       {
-        title: 'Đơn vị tính',
+        title: 'Cấu hình danh mục',
         path: paths.dashboard.settings.unit,
-        icon: ICONS.menuItem,
-      }
+        icon: <Iconify icon={'carbon:category'} />,
+        children: [
+          {
+            title: 'Đơn vị tính',
+            path: paths.dashboard.settings.unit,
+            icon: <Iconify icon={'streamline-cyber-color:coin-stack'} />
+          },
+          {
+            title: 'Chức vụ',
+            path: paths.dashboard.settings.employeeType,
+            icon: <Iconify icon={'streamline-cyber-color:business-pick-user'} />
+          }
+        ],
+      },
     ]
   }
   /**

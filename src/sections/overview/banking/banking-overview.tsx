@@ -64,7 +64,7 @@ export function BankingOverview({ sx, ...other }: CardProps) {
           typography: 'subtitle2',
         }}
       >
-        Total balance
+        Tổng số dư
         <Tooltip title="Vestibulum ullamcorper mauris">
           <Iconify width={16} icon="eva:info-outline" sx={{ color: 'text.disabled' }} />
         </Tooltip>
@@ -76,27 +76,27 @@ export function BankingOverview({ sx, ...other }: CardProps) {
 
   const renderActions = () => (
     <Box sx={{ gap: 1, display: 'flex' }}>
-      <Button
+      {/* <Button
         variant="soft"
         size="small"
         startIcon={<Iconify width={16} icon="eva:arrow-upward-fill" />}
       >
         Send
-      </Button>
+      </Button> */}
       <Button
         variant="soft"
         size="small"
         startIcon={<Iconify width={16} icon="mingcute:add-line" />}
       >
-        Add card
+        Thêm tài khoản
       </Button>
-      <Button
+      {/* <Button
         variant="soft"
         size="small"
         startIcon={<Iconify width={16} icon="eva:arrow-downward-fill" />}
       >
         Request
-      </Button>
+      </Button> */}
     </Box>
   );
 

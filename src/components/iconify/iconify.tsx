@@ -15,21 +15,21 @@ import type { IconifyName } from './register-icons';
 
 export type IconifyProps = React.ComponentProps<typeof IconRoot> &
   Omit<IconProps, 'icon'> & {
-    icon: IconifyName;
+    icon: string;
   };
 
 export function Iconify({ className, icon, width = 20, height, sx, ...other }: IconifyProps) {
   const id = useId();
 
-  if (!allIconNames.includes(icon)) {
-    console.warn(
-      [
-        `Icon "${icon}" is currently loaded online, which may cause flickering effects.`,
-        `To ensure a smoother experience, please register your icon collection for offline use.`,
-        `More information is available at: https://docs.minimals.cc/icons/`,
-      ].join('\n')
-    );
-  }
+  // if (!allIconNames.includes(icon)) {
+  //   console.warn(
+  //     [
+  //       `Icon "${icon}" is currently loaded online, which may cause flickering effects.`,
+  //       `To ensure a smoother experience, please register your icon collection for offline use.`,
+  //       `More information is available at: https://docs.minimals.cc/icons/`,
+  //     ].join('\n')
+  //   );
+  // }
 
   registerIcons();
 
