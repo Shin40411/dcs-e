@@ -1,10 +1,58 @@
 import { Button } from "@mui/material"
+import { GridRowSelectionModel } from "@mui/x-data-grid"
+import { useBoolean } from "minimal-shared/hooks"
+import { useEffect, useState } from "react"
+import { useGetSuppliers } from "src/actions/suppliers"
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs"
+import { UseGridTableList } from "src/components/data-grid-table/data-grid-table"
 import { Iconify } from "src/components/iconify"
+import { SUPPLIERS_COLUMNS } from "src/const/supplier"
 import { DashboardContent } from "src/layouts/dashboard"
 import { paths } from "src/routes/paths"
+import { ISuppliersItem } from "src/types/suppliers"
+import { SupplierNewEditForm } from "../supplier-new-edit-form"
 
 export function SuppliersListView() {
+    const openCrudForm = useBoolean();
+    const confirmDialog = useBoolean();
+    const confirmDelRowDialog = useBoolean();
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const { suppliers, pagination, suppliersLoading } = useGetSuppliers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+    });
+    const handleChangePage = (_: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+    const handleChangeRowsPerPage = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+    const [tableData, setTableData] = useState<ISuppliersItem[]>(suppliers);
+    const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
+    const [rowIdSelected, setRowIdSelected] = useState(0);
+
+    useEffect(() => {
+        if (suppliers.length) {
+            setTableData(suppliers);
+        }
+    }, [suppliers]);
+
+    const dataFiltered = tableData;
+
+    const renderCRUDForm = () => (
+        <SupplierNewEditForm
+            open={openCrudForm.value}
+            onClose={openCrudForm.onFalse}
+            selectedId={rowIdSelected || undefined}
+            page={page}
+            rowsPerPage={rowsPerPage}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -20,7 +68,7 @@ export function SuppliersListView() {
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
-
+                                openCrudForm.onTrue();
                             }}
                         >
                             Tạo nhà cung cấp
@@ -28,6 +76,18 @@ export function SuppliersListView() {
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+                <UseGridTableList
+                    dataFiltered={dataFiltered}
+                    loading={suppliersLoading}
+                    columns={SUPPLIERS_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected })}
+                    rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
+                    paginationCount={pagination?.totalRecord ?? 0}
+                    page={page}
+                    handleChangePage={handleChangePage}
+                    rowsPerPage={rowsPerPage}
+                    handleChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+                {renderCRUDForm()}
             </DashboardContent>
         </>
     );

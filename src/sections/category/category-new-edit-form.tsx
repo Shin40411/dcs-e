@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, Card, CardActions, CardContent, Dialog, DialogTitle, Grid, Stack } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, Dialog, DialogContent, DialogTitle, Grid, Stack } from "@mui/material";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -112,62 +112,64 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                         : 'Tạo nhóm sản phẩm'
                 }
             </DialogTitle>
-            <Form methods={methods} onSubmit={onSubmit}>
-                <Box sx={{ p: 3, pt: 0 }}>
-                    <CardContent sx={{ px: 0 }}>
-                        <Stack spacing={2}>
-                            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <DialogContent dividers={true}>
+                <Form methods={methods} onSubmit={onSubmit}>
+                    <Box sx={{ pt: 0 }}>
+                        <CardContent sx={{ px: 0 }}>
+                            <Stack spacing={2}>
+                                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                                    <Field.Text
+                                        name="name"
+                                        label="Tên nhóm sản phẩm"
+                                        fullWidth
+                                    />
+
+                                    <Field.NumberInput
+                                        name="vat"
+                                        helperText={
+                                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                                <Iconify width={16} icon="solar:info-circle-bold" />
+                                                <span>VAT áp dụng</span>
+                                            </Stack>
+                                        }
+                                        sx={{ maxWidth: { md: 200, xs: '100%' } }}
+                                    />
+                                </Stack>
+
                                 <Field.Text
-                                    name="name"
-                                    label="Tên nhóm sản phẩm"
+                                    name="description"
+                                    label="Mô tả nhóm sản phẩm"
+                                    multiline
+                                    rows={3}
                                     fullWidth
                                 />
-
-                                <Field.NumberInput
-                                    name="vat"
-                                    helperText={
-                                        <Stack direction="row" spacing={0.5} alignItems="center">
-                                            <Iconify width={16} icon="solar:info-circle-bold" />
-                                            <span>VAT áp dụng</span>
-                                        </Stack>
-                                    }
-                                    sx={{ maxWidth: { md: 200, xs: '100%' } }}
-                                />
                             </Stack>
-
-                            <Field.Text
-                                name="description"
-                                label="Mô tả nhóm sản phẩm"
-                                multiline
-                                rows={3}
-                                fullWidth
-                            />
-                        </Stack>
-                    </CardContent>
-
-                    <CardActions sx={{ justifyContent: 'flex-end' }}>
-                        <Stack direction="row" spacing={2} width="100%">
-                            <Button
-                                variant="outlined"
-                                color="inherit"
-                                onClick={onClose}
-                                fullWidth
-                            >
-                                Hủy bỏ
-                            </Button>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                sx={{ ml: 1 }}
-                                loading={isSubmitting}
-                                fullWidth
-                            >
-                                {!currentCategory ? 'Tạo mới' : 'Lưu thay đổi'}
-                            </Button>
-                        </Stack>
-                    </CardActions>
-                </Box>
-            </Form>
+                        </CardContent>
+                        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }} />
+                        <CardActions sx={{ justifyContent: 'flex-end' }}>
+                            <Stack direction="row" spacing={2} width="100%">
+                                <Button
+                                    variant="outlined"
+                                    color="inherit"
+                                    onClick={onClose}
+                                    fullWidth
+                                >
+                                    Hủy bỏ
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    sx={{ ml: 1 }}
+                                    loading={isSubmitting}
+                                    fullWidth
+                                >
+                                    {!currentCategory ? 'Tạo mới' : 'Lưu thay đổi'}
+                                </Button>
+                            </Stack>
+                        </CardActions>
+                    </Box>
+                </Form>
+            </DialogContent>
         </Dialog>
     );
 }

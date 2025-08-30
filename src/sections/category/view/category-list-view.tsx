@@ -23,7 +23,7 @@ export function CategoryListView() {
     const openDetailsForm = useBoolean();
 
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     const { categories, categoriesLoading, pagination } = useGetCategories({
         pageNumber: page + 1,

@@ -1,3 +1,5 @@
+import { IDateValue } from "./common";
+
 export type ResSuppliersList = {
     statusCode: number;
     message: string;
@@ -20,9 +22,9 @@ export type ISuppliersItem = {
     bankAccount: string;
     bankName: string;
     address: string;
-    createDate: string;
+    createDate: IDateValue;
     createBy: string;
-    modifyDate: string;
+    modifyDate: IDateValue;
     modifyBy: string;
     status: boolean;
     balance: number;

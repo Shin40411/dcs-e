@@ -10,6 +10,7 @@ import { UNIT_COLUMNS } from "src/const/unit";
 import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
 import { IUnitItem } from "src/types/unit";
+import { UnitNewEditForm } from "../unit-new-edit-form";
 
 export function UnitListView() {
     const openCrudForm = useBoolean();
@@ -47,6 +48,16 @@ export function UnitListView() {
 
     const dataFiltered = tableData;
 
+    const renderCRUDForm = () => (
+        <UnitNewEditForm
+            open={openCrudForm.value}
+            onClose={openCrudForm.onFalse}
+            selectedId={rowIdSelected || undefined}
+            page={page}
+            rowsPerPage={rowsPerPage}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -62,7 +73,7 @@ export function UnitListView() {
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
-
+                                openCrudForm.onTrue();
                             }}
                         >
                             Tạo đơn vị tính
@@ -81,6 +92,7 @@ export function UnitListView() {
                     rowsPerPage={rowsPerPage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                 />
+                {renderCRUDForm()}
             </DashboardContent>
         </>
     );

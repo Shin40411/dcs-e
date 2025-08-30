@@ -10,13 +10,14 @@ import { EMPLOYEETYPES_COLUMNS } from "src/const/employeeTypes";
 import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
 import { IEmployeeTypeItem } from "src/types/employeeType";
+import { EmployeeTypeNewEditForm } from "../employee-type-new-edit-form";
 
 export function EmployeeTypeListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     const { employeeTypes, pagination, employeeTypesLoading } = useGetEmployeeTypes({
         pageNumber: page + 1,
@@ -47,6 +48,16 @@ export function EmployeeTypeListView() {
 
     const dataFiltered = tableData;
 
+    const renderCRUDForm = () => (
+        <EmployeeTypeNewEditForm
+            open={openCrudForm.value}
+            onClose={openCrudForm.onFalse}
+            selectedId={rowIdSelected || undefined}
+            page={page}
+            rowsPerPage={rowsPerPage}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -62,7 +73,7 @@ export function EmployeeTypeListView() {
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
-
+                                openCrudForm.onTrue();
                             }}
                         >
                             Tạo chức vụ
@@ -81,6 +92,7 @@ export function EmployeeTypeListView() {
                     rowsPerPage={rowsPerPage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                 />
+                {renderCRUDForm()}
             </DashboardContent>
         </>
     );

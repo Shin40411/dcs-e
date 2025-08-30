@@ -1,3 +1,5 @@
+import { IDateValue } from "./common";
+
 export type ResEmployeesList = {
     statusCode: number;
     message: string;
@@ -14,7 +16,7 @@ export type IEmployeeItem = {
     id: number;
     name: string;
     status: boolean;
-    createDate: string;
+    createDate: IDateValue;
     createBy: string;
     lastLogin: string | null;
     gender: string;
@@ -23,7 +25,7 @@ export type IEmployeeItem = {
     departmentId: number;
     department: string;
     image: string;
-    birthday: string;
+    birthday: IDateValue;
     address: string;
     phone: string;
     bankAccount: string;

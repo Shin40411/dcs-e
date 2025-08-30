@@ -29,7 +29,7 @@ export function ProductListView() {
   const confirmDialog = useBoolean();
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const { products, pagination, productsLoading } = useGetProducts({
     pageNumber: page + 1,
     pageSize: rowsPerPage,

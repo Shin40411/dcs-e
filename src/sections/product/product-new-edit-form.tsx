@@ -241,40 +241,46 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
 
   const renderDetails = () => (
     <Stack spacing={3} sx={{ p: 3 }}>
-      <Field.Text name="name" label="Tên sản phẩm" />
-      <Field.Text
-        name="code"
-        label="Mã sản phẩm"
-      />
-      <Field.Autocomplete
-        name="categoryID"
-        label="Chọn nhóm sản phẩm"
-        options={categories}
-        loading={categoriesLoading}
-        getOptionLabel={(opt) => opt?.name ?? ''}
-        isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-        onInputChange={(_, value) => setCategoryKeyword(value)}
-        value={selectedCategory}
-        onChange={(_, newValue) => {
-          setSelectedCategory(newValue ?? null);
-          setValue('categoryID', newValue?.id ?? 0, { shouldValidate: true });
-        }}
-        noOptionsText="Không có dữ liệu"
-      />
-      <Field.Autocomplete
-        name="unitId"
-        label="Chọn đơn vị tính"
-        options={units}
-        loading={unitsLoading}
-        getOptionLabel={(opt) => opt?.name ?? ''}
-        isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-        onInputChange={(_, value) => setUnitKeyword(value)}
-        value={units.find((c) => c.id === watch('unitId')) ?? null}
-        onChange={(_, newValue) => {
-          setValue('unitId', newValue?.id ?? 0, { shouldValidate: true });
-        }}
-        noOptionsText="Không có dữ liệu"
-      />
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+        <Field.Text name="name" label="Tên sản phẩm" />
+        <Field.Text
+          name="code"
+          label="Mã sản phẩm"
+        />
+      </Stack>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+        <Field.Autocomplete
+          name="categoryID"
+          label="Chọn nhóm sản phẩm"
+          options={categories}
+          loading={categoriesLoading}
+          getOptionLabel={(opt) => opt?.name ?? ''}
+          isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+          onInputChange={(_, value) => setCategoryKeyword(value)}
+          value={selectedCategory}
+          fullWidth
+          onChange={(_, newValue) => {
+            setSelectedCategory(newValue ?? null);
+            setValue('categoryID', newValue?.id ?? 0, { shouldValidate: true });
+          }}
+          noOptionsText="Không có dữ liệu"
+        />
+        <Field.Autocomplete
+          name="unitId"
+          label="Chọn đơn vị tính"
+          options={units}
+          loading={unitsLoading}
+          getOptionLabel={(opt) => opt?.name ?? ''}
+          isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+          onInputChange={(_, value) => setUnitKeyword(value)}
+          value={units.find((c) => c.id === watch('unitId')) ?? null}
+          fullWidth
+          onChange={(_, newValue) => {
+            setValue('unitId', newValue?.id ?? 0, { shouldValidate: true });
+          }}
+          noOptionsText="Không có dữ liệu"
+        />
+      </Stack>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
         <Field.Text
           name="purchasePrice"
@@ -320,7 +326,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
               <span>Số lượng tồn kho (cái)</span>
             </Stack>
           }
-          sx={{ maxWidth: { md: 200, xs: '100%' } }}
+          sx={{ width: 110 }}
         />
         <Field.NumberInput
           name="warranty"
@@ -330,7 +336,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
               <span>Bảo hành (tháng)</span>
             </Stack>
           }
-          sx={{ maxWidth: { md: 200, xs: '100%' } }}
+          sx={{ width: 110 }}
         />
         <Field.NumberInput
           name="vat"
@@ -340,15 +346,15 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
               <span>VAT áp dụng</span>
             </Stack>
           }
-          sx={{ maxWidth: { md: 200, xs: '100%' } }}
+          sx={{ width: 110 }}
+        />
+        <Field.Text
+          name='manufacturer'
+          label='Nhà sản xuất'
+          placeholder='Nhà sản xuất'
+          fullWidth
         />
       </Stack>
-      <Field.Text
-        name='manufacturer'
-        label='Nhà sản xuất'
-        placeholder='Nhà sản xuất'
-        fullWidth
-      />
       <Stack spacing={1.5}>
         <Typography variant="subtitle2">Ảnh sản phẩm</Typography>
         {!currentProduct && (
@@ -400,7 +406,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
   );
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth={false} scroll={'paper'}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth={"md"} scroll={'paper'}>
       <DialogTitle>
         {currentProduct ? 'Chỉnh sửa sản phẩm' : 'Tạo sản phẩm'}
       </DialogTitle>

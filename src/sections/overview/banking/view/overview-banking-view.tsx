@@ -14,6 +14,7 @@ import { useGetBankAccounts } from 'src/actions/bankAccount';
 import { useBoolean } from 'minimal-shared/hooks';
 import { BANKACCOUNT_COLUMNS } from 'src/const/bankAccount';
 import { BankingDetails } from '../banking-details';
+import { BankingNewEditForm } from '../banking-new-edit-form';
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +24,7 @@ export function OverviewBankingView() {
   const confirmDialog = useBoolean();
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const { bankAccounts, pagination, bankAccountsLoading } = useGetBankAccounts({
     pageNumber: page + 1,
@@ -62,6 +63,16 @@ export function OverviewBankingView() {
     />
   );
 
+  const renderCRUDForm = () => (
+    <BankingNewEditForm
+      open={openCrudForm.value}
+      onClose={openCrudForm.onFalse}
+      selectedId={rowIdSelected || undefined}
+      page={page}
+      rowsPerPage={rowsPerPage}
+    />
+  );
+
   return (
     <DashboardContent maxWidth="xl">
       <CustomBreadcrumbs
@@ -76,7 +87,7 @@ export function OverviewBankingView() {
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             onClick={() => {
-
+              openCrudForm.onTrue();
             }}
           >
             Tạo tài khoản ngân hàng
@@ -96,6 +107,7 @@ export function OverviewBankingView() {
         handleChangeRowsPerPage={handleChangeRowsPerPage}
       />
       {renderDetails()}
+      {renderCRUDForm()}
     </DashboardContent>
   );
 }
