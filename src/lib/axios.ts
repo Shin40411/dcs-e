@@ -67,6 +67,9 @@ export const endpoints = {
   unit: {
     list: (params: string) => `/api/v1/units/units${params}`,
   },
+  department: {
+    list: (params: string) => `/api/v1/departments/departments${params}`,
+  },
   employeeType: {
     list: (params: string) => `/api/v1/employee-type/employee-types${params}`,
   },

@@ -241,149 +241,144 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
 
   const renderDetails = () => (
     <Stack spacing={3} sx={{ p: 3 }}>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-        <Field.Text name="name" label="Tên sản phẩm" />
-        <Field.Text
-          name="code"
-          label="Mã sản phẩm"
-        />
-      </Stack>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-        <Field.Autocomplete
-          name="categoryID"
-          label="Chọn nhóm sản phẩm"
-          options={categories}
-          loading={categoriesLoading}
-          getOptionLabel={(opt) => opt?.name ?? ''}
-          isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-          onInputChange={(_, value) => setCategoryKeyword(value)}
-          value={selectedCategory}
-          fullWidth
-          onChange={(_, newValue) => {
-            setSelectedCategory(newValue ?? null);
-            setValue('categoryID', newValue?.id ?? 0, { shouldValidate: true });
-          }}
-          noOptionsText="Không có dữ liệu"
-        />
-        <Field.Autocomplete
-          name="unitId"
-          label="Chọn đơn vị tính"
-          options={units}
-          loading={unitsLoading}
-          getOptionLabel={(opt) => opt?.name ?? ''}
-          isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-          onInputChange={(_, value) => setUnitKeyword(value)}
-          value={units.find((c) => c.id === watch('unitId')) ?? null}
-          fullWidth
-          onChange={(_, newValue) => {
-            setValue('unitId', newValue?.id ?? 0, { shouldValidate: true });
-          }}
-          noOptionsText="Không có dữ liệu"
-        />
-      </Stack>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-        <Field.Text
-          name="purchasePrice"
-          label="Giá nhập"
-          type="number"
-          slotProps={{
-            inputLabel: { shrink: true },
-            input: {
-              endAdornment: (
-                <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                  <Box component="span" sx={{ color: 'text.disabled' }}>
-                    đ
-                  </Box>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
-        <Field.Text
-          name="price"
-          label="Giá bán"
-          type="number"
-          slotProps={{
-            inputLabel: { shrink: true },
-            input: {
-              endAdornment: (
-                <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                  <Box component="span" sx={{ color: 'text.disabled' }}>
-                    đ
-                  </Box>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
-      </Stack>
-      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent={'space-between'} spacing={2}>
-        <Field.NumberInput
-          name="stock"
-          helperText={
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <Iconify width={16} icon="solar:info-circle-bold" />
-              <span>Số lượng tồn kho (cái)</span>
-            </Stack>
-          }
-          sx={{ width: 110 }}
-        />
-        <Field.NumberInput
-          name="warranty"
-          helperText={
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <Iconify width={16} icon="solar:info-circle-bold" />
-              <span>Bảo hành (tháng)</span>
-            </Stack>
-          }
-          sx={{ width: 110 }}
-        />
-        <Field.NumberInput
-          name="vat"
-          helperText={
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <Iconify width={16} icon="solar:info-circle-bold" />
-              <span>VAT áp dụng</span>
-            </Stack>
-          }
-          sx={{ width: 110 }}
-        />
-        <Field.Text
-          name='manufacturer'
-          label='Nhà sản xuất'
-          placeholder='Nhà sản xuất'
-          fullWidth
-        />
-      </Stack>
-      <Stack spacing={1.5}>
-        <Typography variant="subtitle2">Ảnh sản phẩm</Typography>
-        {!currentProduct && (
-          <Field.Select label='Thư mục tải lên' name="Folder">
-            <MenuItem key={'Hopdong'} value={'Hopdong'} sx={{ textTransform: 'capitalize' }}>Hợp đồng</MenuItem>
-            <MenuItem key={'HoaDon'} value={'HoaDon'} sx={{ textTransform: 'capitalize' }}>Hóa đơn</MenuItem>
-            <MenuItem key={'XuatKho'} value={'XuatKho'} sx={{ textTransform: 'capitalize' }}>Xuất kho</MenuItem>
-          </Field.Select>
-        )}
-        <Field.Upload
-          // multiple
-          thumbnail
-          name="image"
-          maxSize={3145728}
-          onDelete={handleRemoveFile}
-          // onRemoveAll={handleRemoveAllFiles}
-          onUpload={() => console.log('ON UPLOAD')}
-        />
-      </Stack>
-      <Stack spacing={1.5}>
-        <Typography variant="subtitle2">Mô tả sản phẩm</Typography>
-        <Field.Editor name="description" sx={{ maxHeight: 480 }} />
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+        <Stack spacing={2} sx={{ flex: 1 }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <Field.Text name="name" label="Tên sản phẩm" />
+            <Field.Text name="code" label="Mã sản phẩm" />
+          </Stack>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <Field.Autocomplete
+              name="categoryID"
+              label="Chọn nhóm sản phẩm"
+              options={categories}
+              loading={categoriesLoading}
+              getOptionLabel={(opt) => opt?.name ?? ''}
+              isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+              onInputChange={(_, value) => setCategoryKeyword(value)}
+              value={selectedCategory}
+              fullWidth
+              onChange={(_, newValue) => {
+                setSelectedCategory(newValue ?? null);
+                setValue('categoryID', newValue?.id ?? 0, { shouldValidate: true });
+              }}
+              noOptionsText="Không có dữ liệu"
+            />
+            <Field.Autocomplete
+              name="unitId"
+              label="Chọn đơn vị tính"
+              options={units}
+              loading={unitsLoading}
+              getOptionLabel={(opt) => opt?.name ?? ''}
+              isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+              onInputChange={(_, value) => setUnitKeyword(value)}
+              value={units.find((c) => c.id === watch('unitId')) ?? null}
+              fullWidth
+              onChange={(_, newValue) => {
+                setValue('unitId', newValue?.id ?? 0, { shouldValidate: true });
+              }}
+              noOptionsText="Không có dữ liệu"
+            />
+          </Stack>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <Field.Text
+              name="purchasePrice"
+              label="Giá nhập"
+              type="number"
+              slotProps={{
+                inputLabel: { shrink: true },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                      <Box component="span" sx={{ color: 'text.disabled' }}>
+                        đ
+                      </Box>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Field.Text
+              name="price"
+              label="Giá bán"
+              type="number"
+              slotProps={{
+                inputLabel: { shrink: true },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                      <Box component="span" sx={{ color: 'text.disabled' }}>
+                        đ
+                      </Box>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          </Stack>
+          <Stack spacing={1.5}>
+            <Typography variant="subtitle2">Mô tả sản phẩm</Typography>
+            <Field.Editor name="description" sx={{ minHeight: 311, maxHeight: 480 }} />
+          </Stack>
+        </Stack>
+        <Stack spacing={3} sx={{ flex: 1 }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent={'space-between'} spacing={2}>
+            <Field.Select label="VAT áp dụng" name="vat">
+              <MenuItem key={'0'} value={'0'} sx={{ textTransform: 'capitalize' }}>0%</MenuItem>
+              <MenuItem key={'5'} value={'5'} sx={{ textTransform: 'capitalize' }}>5%</MenuItem>
+              <MenuItem key={'10'} value={'10'} sx={{ textTransform: 'capitalize' }}>10%</MenuItem>
+            </Field.Select>
+            <Field.Text name='manufacturer' label='Nhà sản xuất' placeholder='Nhà sản xuất' fullWidth />
+          </Stack>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <Field.NumberInput
+              name="stock"
+              helperText={
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Iconify width={16} icon="solar:info-circle-bold" />
+                  <span>Số lượng tồn kho (cái)</span>
+                </Stack>
+              }
+              sx={{ width: 110 }}
+            />
+            <Field.NumberInput
+              name="warranty"
+              helperText={
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Iconify width={16} icon="solar:info-circle-bold" />
+                  <span>Bảo hành (tháng)</span>
+                </Stack>
+              }
+              sx={{ width: 110 }}
+            />
+          </Stack>
+          <Stack spacing={1.5}>
+            <Typography variant="subtitle2">Ảnh sản phẩm</Typography>
+            {!currentProduct && (
+              <Field.Select label='Thư mục tải lên' name="Folder">
+                <MenuItem key={'Hopdong'} value={'Hopdong'} sx={{ textTransform: 'capitalize' }}>Hợp đồng</MenuItem>
+                <MenuItem key={'HoaDon'} value={'HoaDon'} sx={{ textTransform: 'capitalize' }}>Hóa đơn</MenuItem>
+                <MenuItem key={'XuatKho'} value={'XuatKho'} sx={{ textTransform: 'capitalize' }}>Xuất kho</MenuItem>
+              </Field.Select>
+            )}
+            <Field.Upload
+              // multiple
+              thumbnail
+              name="image"
+              maxSize={3145728}
+              onDelete={handleRemoveFile}
+              // onRemoveAll={handleRemoveAllFiles}
+              onUpload={() => console.log('ON UPLOAD')}
+            />
+          </Stack>
+        </Stack>
       </Stack>
     </Stack>
   );
 
   const renderActions = () => (
     <Box sx={{ width: '100%' }}>
-      <Stack direction="row" spacing={2} width="100%">
+      <Stack direction="row" spacing={2} width="100%" minHeight={40}>
         <Button
           variant="outlined"
           color="inherit"
@@ -406,14 +401,14 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
   );
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth={"md"} scroll={'paper'}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth={"xl"} scroll={'paper'}>
       <DialogTitle>
         {currentProduct ? 'Chỉnh sửa sản phẩm' : 'Tạo sản phẩm'}
       </DialogTitle>
       <DialogContent dividers={true}>
         <Form methods={methods} onSubmit={onSubmit}>
           <CardContent sx={{ pt: 0, px: 0 }}>
-            <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
+            <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto' }}>
               {renderDetails()}
             </Stack>
           </CardContent>

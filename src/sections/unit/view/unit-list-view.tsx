@@ -17,11 +17,12 @@ export function UnitListView() {
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [searchText, setSearchText] = useState('');
     const { units, pagination, unitsLoading } = useGetUnits({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
+        key: searchText,
     });
 
     const handleChangePage = (_: unknown, newPage: number) => {
@@ -91,6 +92,8 @@ export function UnitListView() {
                     handleChangePage={handleChangePage}
                     rowsPerPage={rowsPerPage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
+                    searchText={searchText}
+                    onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
             </DashboardContent>

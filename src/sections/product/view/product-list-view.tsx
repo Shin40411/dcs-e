@@ -30,9 +30,11 @@ export function ProductListView() {
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [searchText, setSearchText] = useState('');
   const { products, pagination, productsLoading } = useGetProducts({
     pageNumber: page + 1,
     pageSize: rowsPerPage,
+    key: searchText,
   });
 
   const handleChangePage = (_: unknown, newPage: number) => {
@@ -178,6 +180,8 @@ export function ProductListView() {
           handleChangePage={handleChangePage}
           rowsPerPage={rowsPerPage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
+          searchText={searchText}
+          onSearchChange={setSearchText}
         />
       </DashboardContent>
 

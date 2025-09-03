@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { endpoints, fetcher } from "src/lib/axios";
-import { ResUnitList } from "src/types/unit";
+import { ResDepartmentList } from "src/types/department";
 import useSWR, { SWRConfiguration } from "swr";
 
-type unitsProps = {
+type departmentProps = {
     pageNumber: number,
     pageSize: number,
     key?: string,
@@ -16,30 +16,30 @@ const swrOptions: SWRConfiguration = {
     revalidateOnReconnect: false,
 };
 
-export function useGetUnits({ pageNumber, pageSize, key, enabled = true }: unitsProps) {
+export function useGetDepartments({ pageNumber, pageSize, key, enabled = true }: departmentProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
     if (key) params += `&search=${key}`;
 
-    const url = enabled ? endpoints.unit.list(params) : null;
+    const url = enabled ? endpoints.department.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResUnitList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating } = useSWR<ResDepartmentList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
-            units: data?.data.items || [],
+            departments: data?.data.items || [],
             pagination: {
                 pageNumber: data?.data.pageNumber ?? 1,
                 pageSize: data?.data.pageSize ?? pageSize,
                 totalPages: data?.data.totalPages ?? 0,
                 totalRecord: data?.data.totalRecord ?? 0,
             },
-            unitsLoading: isLoading,
-            unitsError: error,
-            unitsValidating: isValidating,
-            unitsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            departmentsLoading: isLoading,
+            departmentsError: error,
+            departmentsValidating: isValidating,
+            departmentsEmpty: !isLoading && !isValidating && !data?.data.items.length,
         }),
         [data, error, isLoading, isValidating]
     );

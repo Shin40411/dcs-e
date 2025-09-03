@@ -18,13 +18,16 @@ const swrOptions: SWRConfiguration = {
 type productsProps = {
   pageNumber: number,
   pageSize: number,
+  key?: string,
 }
 
-export function useGetProducts({ pageNumber, pageSize }: productsProps) {
+export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
   let params = '';
 
   if (pageNumber || pageSize)
     params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+
+  if (key) params += `&search=${key}`;
 
   const url = endpoints.product.list(params);
 

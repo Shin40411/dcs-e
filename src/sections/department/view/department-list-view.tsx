@@ -2,17 +2,17 @@ import { Button } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { useBoolean } from "minimal-shared/hooks";
 import { useEffect, useState } from "react";
-import { useGetEmployeeTypes } from "src/actions/employeeType";
+import { useGetDepartments } from "src/actions/department";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { UseGridTableList } from "src/components/data-grid-table/data-grid-table";
 import { Iconify } from "src/components/iconify";
-import { EMPLOYEETYPES_COLUMNS } from "src/const/employeeTypes";
+import { DEPARTMENT_COLUMNS } from "src/const/department";
 import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
-import { IEmployeeTypeItem } from "src/types/employeeType";
-import { EmployeeTypeNewEditForm } from "../employee-type-new-edit-form";
+import { IDepartmentItem } from "src/types/department";
+import { DepartmentNewEditForm } from "../department-new-edit-form";
 
-export function EmployeeTypeListView() {
+export function DepartmentListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
@@ -20,7 +20,7 @@ export function EmployeeTypeListView() {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [searchText, setSearchText] = useState('');
 
-    const { employeeTypes, pagination, employeeTypesLoading } = useGetEmployeeTypes({
+    const { departments, pagination, departmentsLoading } = useGetDepartments({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -37,21 +37,21 @@ export function EmployeeTypeListView() {
         setPage(0);
     };
 
-    const [tableData, setTableData] = useState<IEmployeeTypeItem[]>(employeeTypes);
+    const [tableData, setTableData] = useState<IDepartmentItem[]>(departments);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
-    const [tableRowSelected, setTableRowSelected] = useState<IEmployeeTypeItem | null>(null);
+    const [tableRowSelected, setTableRowSelected] = useState<IDepartmentItem | null>(null);
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
-        if (employeeTypes.length) {
-            setTableData(employeeTypes);
+        if (departments.length) {
+            setTableData(departments);
         }
-    }, [employeeTypes]);
+    }, [departments]);
 
     const dataFiltered = tableData;
 
     const renderCRUDForm = () => (
-        <EmployeeTypeNewEditForm
+        <DepartmentNewEditForm
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedId={rowIdSelected || undefined}
@@ -64,11 +64,11 @@ export function EmployeeTypeListView() {
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Chức vụ"
+                    heading="Khách hàng"
                     links={[
                         { name: 'Tổng quan', href: paths.dashboard.root },
                         { name: 'Cấu hình' },
-                        { name: 'Chức vụ' },
+                        { name: 'Phòng ban' },
                     ]}
                     action={
                         <Button
@@ -78,15 +78,15 @@ export function EmployeeTypeListView() {
                                 openCrudForm.onTrue();
                             }}
                         >
-                            Tạo chức vụ
+                            Tạo phòng ban
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
-                    loading={employeeTypesLoading}
-                    columns={EMPLOYEETYPES_COLUMNS({ openCrudForm, confirmDelRowDialog, setTableRowSelected, setRowIdSelected, page, rowsPerPage })}
+                    loading={departmentsLoading}
+                    columns={DEPARTMENT_COLUMNS({ openCrudForm, confirmDelRowDialog, setTableRowSelected, setRowIdSelected, page, rowsPerPage })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}
@@ -96,6 +96,7 @@ export function EmployeeTypeListView() {
                     searchText={searchText}
                     onSearchChange={setSearchText}
                 />
+
                 {renderCRUDForm()}
             </DashboardContent>
         </>

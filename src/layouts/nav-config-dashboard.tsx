@@ -177,6 +177,11 @@ export const navData: NavSectionProps['data'] = [
             title: 'Chức vụ',
             path: paths.dashboard.settings.employeeType,
             icon: <Iconify icon={'streamline-cyber-color:business-pick-user'} />
+          },
+          {
+            title: 'Phòng ban',
+            path: paths.dashboard.settings.department,
+            icon: <Iconify icon={'streamline-cyber-color:hierarchy-business-2'} />
           }
         ],
       },

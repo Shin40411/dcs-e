@@ -189,6 +189,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/settings`,
       unit: `${ROOTS.DASHBOARD}/settings/unit`,
       employeeType: `${ROOTS.DASHBOARD}/settings/employee-type`,
+      department: `${ROOTS.DASHBOARD}/settings/department`
     }
   },
 };

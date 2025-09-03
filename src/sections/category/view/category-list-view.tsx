@@ -24,10 +24,12 @@ export function CategoryListView() {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [searchText, setSearchText] = useState('');
 
     const { categories, categoriesLoading, pagination } = useGetCategories({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
+        key: searchText,
     });
 
     const handleChangePage = (_: unknown, newPage: number) => {
@@ -175,6 +177,9 @@ export function CategoryListView() {
                     handleChangePage={handleChangePage}
                     rowsPerPage={rowsPerPage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
+                    searchText={searchText}
+                    onSearchChange={setSearchText}
+
                 />
             </DashboardContent>
 

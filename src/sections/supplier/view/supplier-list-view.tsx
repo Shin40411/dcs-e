@@ -18,9 +18,11 @@ export function SuppliersListView() {
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [searchText, setSearchText] = useState('');
     const { suppliers, pagination, suppliersLoading } = useGetSuppliers({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
+        key: searchText,
     });
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
@@ -86,6 +88,8 @@ export function SuppliersListView() {
                     handleChangePage={handleChangePage}
                     rowsPerPage={rowsPerPage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
+                    searchText={searchText}
+                    onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
             </DashboardContent>

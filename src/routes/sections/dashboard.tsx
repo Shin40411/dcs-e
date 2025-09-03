@@ -92,7 +92,7 @@ const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 // Settings page
 const UnitListPage = lazy(() => import('src/pages/dashboard/unit/list'));
 const EmployeeTypeListPage = lazy(() => import('src/pages/dashboard/employeeType/list'));
-
+const DepartmentListPage = lazy(() => import('src/pages/dashboard/department/list'));
 // ----------------------------------------------------------------------
 
 function SuspenseOutlet() {
@@ -245,7 +245,8 @@ export const dashboardRoutes: RouteObject[] = [
         children: [
           { index: true, element: <UnitListPage /> },
           { path: 'unit', element: <UnitListPage /> },
-          { path: 'employee-type', element: <EmployeeTypeListPage /> }
+          { path: 'employee-type', element: <EmployeeTypeListPage /> },
+          { path: 'department', element: <DepartmentListPage /> }
         ]
       }
     ],

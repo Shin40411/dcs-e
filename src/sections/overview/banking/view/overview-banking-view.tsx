@@ -25,10 +25,12 @@ export function OverviewBankingView() {
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [searchText, setSearchText] = useState('');
 
   const { bankAccounts, pagination, bankAccountsLoading } = useGetBankAccounts({
     pageNumber: page + 1,
     pageSize: rowsPerPage,
+    key: searchText,
   });
 
   const handleChangePage = (_: unknown, newPage: number) => {
@@ -105,6 +107,8 @@ export function OverviewBankingView() {
         handleChangePage={handleChangePage}
         rowsPerPage={rowsPerPage}
         handleChangeRowsPerPage={handleChangeRowsPerPage}
+        searchText={searchText}
+        onSearchChange={setSearchText}
       />
       {renderDetails()}
       {renderCRUDForm()}

@@ -15,6 +15,8 @@ type GridProps = {
     handleChangePage: (event: unknown, newPage: number) => void;
     rowsPerPage: number;
     handleChangeRowsPerPage: (event: ChangeEvent<HTMLInputElement>) => void;
+    searchText?: string;
+    onSearchChange?: (value: string) => void;
 }
 
 export function UseGridTableList({
@@ -26,9 +28,10 @@ export function UseGridTableList({
     page,
     handleChangePage,
     rowsPerPage,
-    handleChangeRowsPerPage
+    handleChangeRowsPerPage,
+    searchText = '',
+    onSearchChange = () => { },
 }: GridProps) {
-    const [searchText, setSearchText] = useState("");
     return (
         <Card
             sx={{
@@ -104,8 +107,8 @@ export function UseGridTableList({
                 slotProps={{
                     toolbar: {
                         searchText,
-                        onSearchChange: (value: string) => setSearchText(value),
-                    } as any,
+                        onSearchChange,
+                    },
                 }}
                 sx={{
                     [`& .${gridClasses.cell}`]: {
@@ -134,6 +137,8 @@ export function UseGridTableList({
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
         setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+        searchText?: string;
+        onSearchChange?: (value: string) => void;
     }
 }
 
