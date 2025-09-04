@@ -43,6 +43,7 @@ export function DepartmentNewEditForm({ currentDepartment, open, onClose, select
         if (currentDepartment) {
             methods.reset({
                 ...defaultValues,
+                name: currentDepartment.name,
             });
         } else {
             methods.reset(defaultValues);

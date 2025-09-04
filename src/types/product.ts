@@ -93,6 +93,7 @@ export type ProductItem = {
   vat: number;
   image: string;
   category: string;
+  categoryName: string;
   categoryID: number;
 };
 

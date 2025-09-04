@@ -4,6 +4,7 @@ import { Iconify } from "src/components/iconify";
 import { RenderCellAddress, RenderCellBankAccount, RenderCellCompanyName, RenderCellName, RenderCellPhone, RenderCellTaxCode } from "src/sections/customer/customer-table-row";
 
 type ColumnProps = {
+    setTableRowSelected: (obj: any) => void;
     openDetailsForm?: UseBooleanReturn;
     openCrudForm: UseBooleanReturn;
     confirmDelRowDialog: UseBooleanReturn;
@@ -11,10 +12,12 @@ type ColumnProps = {
 }
 
 export const CUSTOMER_COLUMNS: ({
+    setTableRowSelected,
     openCrudForm,
     confirmDelRowDialog,
     setRowIdSelected,
 }: ColumnProps) => GridColDef[] = ({
+    setTableRowSelected,
     openCrudForm,
     confirmDelRowDialog,
     setRowIdSelected,
@@ -83,7 +86,7 @@ export const CUSTOMER_COLUMNS: ({
                         showInMenu
                         icon={<Iconify icon="solar:pen-bold" />}
                         label="Chỉnh sửa"
-                        onClick={() => { setRowIdSelected(params.row.id); openCrudForm.onTrue(); }}
+                        onClick={() => { setRowIdSelected(params.row.id); openCrudForm.onTrue(); setTableRowSelected(params.row) }}
                     />,
                     <GridActionsCellItem
                         showInMenu

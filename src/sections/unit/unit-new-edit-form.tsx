@@ -42,6 +42,7 @@ export function UnitNewEditForm({ currentUnit, open, onClose, selectedId, page, 
         if (currentUnit) {
             methods.reset({
                 ...defaultValues,
+                name: currentUnit.name,
             });
         } else {
             methods.reset(defaultValues);

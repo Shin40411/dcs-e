@@ -56,6 +56,7 @@ export function EmployeeTypeListView() {
             onClose={openCrudForm.onFalse}
             selectedId={rowIdSelected || undefined}
             page={page}
+            currentEmployeeType={tableRowSelected || undefined}
             rowsPerPage={rowsPerPage}
         />
     );
@@ -76,6 +77,7 @@ export function EmployeeTypeListView() {
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
                                 openCrudForm.onTrue();
+                                setTableRowSelected(null);
                             }}
                         >
                             Tạo chức vụ

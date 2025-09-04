@@ -56,6 +56,7 @@ export function UnitListView() {
             selectedId={rowIdSelected || undefined}
             page={page}
             rowsPerPage={rowsPerPage}
+            currentUnit={tableRowSelected || undefined}
         />
     );
 
@@ -75,6 +76,7 @@ export function UnitListView() {
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
                                 openCrudForm.onTrue();
+                                setTableRowSelected(null);
                             }}
                         >
                             Tạo đơn vị tính

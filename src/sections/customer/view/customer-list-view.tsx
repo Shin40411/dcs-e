@@ -55,6 +55,7 @@ export function CustomerListView() {
             selectedId={rowIdSelected || undefined}
             page={page}
             rowsPerPage={rowsPerPage}
+            currentCustomer={tableRowSelected || undefined}
         />
     );
 
@@ -74,6 +75,7 @@ export function CustomerListView() {
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
                                 openCrudForm.onTrue();
+                                setTableRowSelected(null);
                             }}
                         >
                             Tạo khách hàng
@@ -84,7 +86,7 @@ export function CustomerListView() {
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={customersLoading}
-                    columns={CUSTOMER_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected })}
+                    columns={CUSTOMER_COLUMNS({ openCrudForm, confirmDelRowDialog, setTableRowSelected, setRowIdSelected })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}

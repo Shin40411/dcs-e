@@ -21,11 +21,13 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { ProductNewEditForm } from '../product-new-edit-form';
 import { UseGridTableList } from 'src/components/data-grid-table/data-grid-table';
 import { PRODUCT_COLUMNS } from 'src/const/product';
+import { ProductDetails } from '../product-details';
 
 // ----------------------------------------------------------------------
 
 export function ProductListView() {
   const openCrudForm = useBoolean();
+  const openDetailsForm = useBoolean();
   const confirmDialog = useBoolean();
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
@@ -145,6 +147,14 @@ export function ProductListView() {
     />
   );
 
+  const renderDetails = () => (
+    <ProductDetails
+      open={openDetailsForm.value}
+      selectedId={rowIdSelected}
+      onClose={openDetailsForm.onFalse}
+    />
+  );
+
   return (
     <>
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -173,7 +183,7 @@ export function ProductListView() {
         <UseGridTableList
           dataFiltered={dataFiltered}
           loading={productsLoading}
-          columns={PRODUCT_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected })}
+          columns={PRODUCT_COLUMNS({ openDetailsForm, openCrudForm, confirmDelRowDialog, setRowIdSelected })}
           rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
           paginationCount={pagination?.totalRecord ?? 0}
           page={page}
@@ -188,6 +198,7 @@ export function ProductListView() {
       {renderConfirmDialog()}
       {renderConfirmDeleteRow()}
       {renderCRUDForm()}
+      {renderDetails()}
     </>
   );
 }

@@ -74,6 +74,17 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
         if (currentCustomer) {
             methods.reset({
                 ...defaultValues,
+                name: currentCustomer.name,
+                phone: currentCustomer.phone,
+                email: currentCustomer.email,
+                taxCode: currentCustomer.taxCode ?? "",
+                companyName: currentCustomer.companyName ?? "",
+                bankAccount: currentCustomer.bankAccount ?? "",
+                bankName: currentCustomer.bankName ?? "",
+                address: currentCustomer.address ?? "",
+                isPartner: currentCustomer.isPartner ?? false,
+                rewardPoint: currentCustomer.rewardPoint ?? 0,
+                balance: currentCustomer.balance ?? 0,
             });
         } else {
             methods.reset(defaultValues);

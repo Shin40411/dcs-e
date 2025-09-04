@@ -41,6 +41,7 @@ export function EmployeeTypeNewEditForm({ currentEmployeeType, open, onClose, se
         if (currentEmployeeType) {
             methods.reset({
                 ...defaultValues,
+                name: currentEmployeeType.name,
             });
         } else {
             methods.reset(defaultValues);

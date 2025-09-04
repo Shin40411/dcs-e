@@ -57,6 +57,7 @@ export function DepartmentListView() {
             selectedId={rowIdSelected || undefined}
             page={page}
             rowsPerPage={rowsPerPage}
+            currentDepartment={tableRowSelected || undefined}
         />
     );
 
@@ -64,7 +65,7 @@ export function DepartmentListView() {
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Khách hàng"
+                    heading="Phòng ban"
                     links={[
                         { name: 'Tổng quan', href: paths.dashboard.root },
                         { name: 'Cấu hình' },
@@ -76,6 +77,7 @@ export function DepartmentListView() {
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
                                 openCrudForm.onTrue();
+                                setTableRowSelected(null);
                             }}
                         >
                             Tạo phòng ban

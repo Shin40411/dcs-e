@@ -12,10 +12,12 @@ type ColumnProps = {
 }
 
 export const PRODUCT_COLUMNS: ({
+  openDetailsForm,
   openCrudForm,
   confirmDelRowDialog,
   setRowIdSelected
 }: ColumnProps) => GridColDef[] = ({
+  openDetailsForm,
   openCrudForm,
   confirmDelRowDialog,
   setRowIdSelected
@@ -115,7 +117,7 @@ export const PRODUCT_COLUMNS: ({
             showInMenu
             icon={<Iconify icon="solar:eye-bold" />}
             label="Chi tiết"
-            onClick={() => { }}
+            onClick={() => { setRowIdSelected(params.row.id); openDetailsForm?.onTrue(); }}
           />,
           <GridActionsCellItem
             showInMenu
