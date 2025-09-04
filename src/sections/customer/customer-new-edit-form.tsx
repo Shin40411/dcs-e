@@ -1,8 +1,17 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, Stack } from "@mui/material";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { createOrUpdateCustomer } from "src/actions/customer";
 import { Field, Form } from "src/components/hook-form";
+import { endpoints } from "src/lib/axios";
+import { ICustomerDto, ICustomerItem } from "src/types/customer";
+import { mutate } from "swr";
+import { z as zod } from 'zod';
 
 type Props = {
+    currentCustomer?: ICustomerItem;
     open: boolean;
     onClose: () => void;
     selectedId?: number;
@@ -10,8 +19,102 @@ type Props = {
     rowsPerPage: number;
 };
 
-export function CustomerNewEditForm({ open, onClose, selectedId, page, rowsPerPage }: Props) {
-    const methods = useForm();
+export const NewCustomerSchema = zod.object({
+    name: zod.string().min(1, "Họ và tên khách hàng là bắt buộc"),
+    phone: zod.string().min(10, "Số điện thoại không hợp lệ"),
+    email: zod.string().email("Email không hợp lệ"),
+    taxCode: zod.string().optional(),
+    companyName: zod.string().optional(),
+    bankAccount: zod.string().optional(),
+    bankName: zod.string().optional(),
+    address: zod.string().optional(),
+    isPartner: zod.boolean().default(false),
+    rewardPoint: zod.number().nonnegative().default(0),
+    balance: zod.number().nonnegative().default(0),
+});
+
+export type NewCustomerSchemaType = Zod.infer<typeof NewCustomerSchema>;
+
+export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId, page, rowsPerPage }: Props) {
+    const defaultValues: NewCustomerSchemaType = {
+        name: "",
+        phone: "",
+        email: "",
+        taxCode: "",
+        companyName: "",
+        bankAccount: "",
+        bankName: "",
+        address: "",
+        isPartner: false,
+        rewardPoint: 0,
+        balance: 0,
+    };
+
+    const methods = useForm<NewCustomerSchemaType>({
+        resolver: zodResolver(NewCustomerSchema),
+        defaultValues: currentCustomer
+            ? {
+                ...defaultValues,
+                name: currentCustomer.name,
+                phone: currentCustomer.phone,
+                email: currentCustomer.email,
+                taxCode: currentCustomer.taxCode ?? "",
+                companyName: currentCustomer.companyName ?? "",
+                bankAccount: currentCustomer.bankAccount ?? "",
+                bankName: currentCustomer.bankName ?? "",
+                address: currentCustomer.address ?? "",
+                isPartner: currentCustomer.isPartner ?? false,
+                rewardPoint: currentCustomer.rewardPoint ?? 0,
+                balance: currentCustomer.balance ?? 0,
+            }
+            : defaultValues,
+    });
+
+    useEffect(() => {
+        if (currentCustomer) {
+            methods.reset({
+                ...defaultValues,
+            });
+        } else {
+            methods.reset(defaultValues);
+        }
+    }, [currentCustomer, methods.reset]);
+
+    const {
+        reset,
+        watch,
+        control,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = methods;
+
+
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            const payloadData: ICustomerDto = {
+                phone: data.phone,
+                name: data.name,
+                taxCode: data.taxCode ?? '',
+                companyName: data.companyName ?? '',
+                email: data.email,
+                bankAccount: data.bankAccount ?? '',
+                bankName: data.bankName ?? '',
+                address: data.address ?? '',
+                isPartner: data.isPartner,
+                rewardPoint: data.rewardPoint,
+                balance: data.balance
+            };
+
+            await createOrUpdateCustomer(selectedId ?? 0, payloadData);
+            mutate(endpoints.customer.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            toast.success(currentCustomer ? 'Dữ liệu khách hàng đã được thay đổi!' : 'Tạo mới dữ liệu khách hàng thành công!');
+            onClose();
+            reset();
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
     const renderDetails = () => (
         <Stack spacing={3} pt={1}>
             {/* Họ tên + Số điện thoại */}
@@ -118,11 +221,10 @@ export function CustomerNewEditForm({ open, onClose, selectedId, page, rowsPerPa
                     type="submit"
                     variant="contained"
                     sx={{ ml: 1 }}
-                    // loading={isSubmitting}
+                    loading={isSubmitting}
                     fullWidth
                 >
-                    {/* {!currentProduct ? 'Tạo mới' : 'Lưu thay đổi'} */}
-                    Tạo mới
+                    {!currentCustomer ? 'Tạo mới' : 'Lưu thay đổi'}
                 </Button>
             </Stack>
         </Box>
@@ -131,11 +233,10 @@ export function CustomerNewEditForm({ open, onClose, selectedId, page, rowsPerPa
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth={"md"} scroll={'paper'}>
             <DialogTitle>
-                Tạo khách hàng
-                {/* {currentCustomer ? 'Chỉnh sửa khách hàng' : 'Tạo khách hàng'} */}
+                {currentCustomer ? 'Chỉnh sửa dữ liệu khách hàng' : 'Tạo dữ liệu khách hàng'}
             </DialogTitle>
             <DialogContent dividers={true}>
-                <Form methods={methods} onSubmit={() => { }}>
+                <Form methods={methods} onSubmit={onSubmit}>
                     <CardContent sx={{ pt: 0, px: 0 }}>
                         <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
                             {renderDetails()}

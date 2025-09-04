@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
-import { ResCustomerList } from "src/types/customer";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
+import { ICustomerDto, ResCustomerList } from "src/types/customer";
 import useSWR, { SWRConfiguration } from "swr";
 
 type customerProps = {
@@ -45,4 +45,14 @@ export function useGetCustomers({ pageNumber, pageSize, key, enabled = true }: c
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateCustomer(id: number, bodyPayload: ICustomerDto) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.customer.update(`/${id}`), bodyPayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.customer.create, bodyPayload);
+        return data;
+    }
 }

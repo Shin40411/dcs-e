@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { ResUnitList } from "src/types/unit";
 import useSWR, { SWRConfiguration } from "swr";
 
@@ -45,4 +45,14 @@ export function useGetUnits({ pageNumber, pageSize, key, enabled = true }: units
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateUnit(id: number, bodyPayload: { name: string }) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.unit.update(`/${id}`), bodyPayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.unit.create, bodyPayload);
+        return data;
+    }
 }

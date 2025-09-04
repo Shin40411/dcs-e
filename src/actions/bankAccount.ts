@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
-import { ResBankAccountList } from "src/types/bankAccount";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
+import { IBankAccountDto, ResBankAccountList } from "src/types/bankAccount";
 import useSWR, { SWRConfiguration } from "swr";
 
 type bankAccountProps = {
@@ -45,4 +45,14 @@ export function useGetBankAccounts({ pageNumber, pageSize, key, enabled = true }
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateBankAccount(id: number, bodyPayload: IBankAccountDto) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.bankAccount.update(`/${id}`), bodyPayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.bankAccount.create, bodyPayload);
+        return data;
+    }
 }

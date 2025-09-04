@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
-import { ResEmployeesList } from "src/types/employee";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
+import { IEmployeeDto, ResEmployeesList } from "src/types/employee";
 import useSWR, { SWRConfiguration } from "swr";
 
 type employeeProps = {
@@ -45,4 +45,14 @@ export function useGetEmployees({ pageNumber, pageSize, key, enabled = true }: e
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateEmployee(id: number, bodyPayload: IEmployeeDto) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.employees.update(`/${id}`), bodyPayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.employees.create, bodyPayload);
+        return data;
+    }
 }

@@ -34,3 +34,20 @@ export type IEmployeeItem = {
     employeeTypeId: number;
     employeeType: string;
 }
+
+export type IEmployeeDto = {
+    name: string;
+    typeId: number;
+    gender: string;
+    email: string;
+    rightId: number;
+    departmentId: number;
+    image: string;
+    birthday: IDateValue;
+    address: string;
+    phone: string;
+    bankAccount: string;
+    bankName: string;
+    balance: number;
+    employeeTypeId: number;
+}

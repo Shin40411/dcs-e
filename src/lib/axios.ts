@@ -66,24 +66,38 @@ export const endpoints = {
   },
   unit: {
     list: (params: string) => `/api/v1/units/units${params}`,
+    create: `/api/v1/units/create`,
+    update: (id: string) => `/api/v1/units/update/${id}`,
   },
   department: {
     list: (params: string) => `/api/v1/departments/departments${params}`,
+    create: `/api/v1/departments/create`,
+    update: (id: string) => `/api/v1/departments/update/${id}`,
   },
   employeeType: {
     list: (params: string) => `/api/v1/employee-type/employee-types${params}`,
+    create: `/api/v1/employee-type/create`,
+    update: (id: string) => `/api/v1/employee-type/update/${id}`,
   },
   customer: {
     list: (params: string) => `/api/v1/customers/customers${params}`,
+    create: `/api/v1/customers/create`,
+    update: (id: string) => `/api/v1/customers/update/${id}`,
   },
   bankAccount: {
     list: (params: string) => `/api/v1/bank-accounts/bank-accounts${params}`,
+    create: `/api/v1/bank-accounts/create`,
+    update: (id: string) => `/api/v1/bank-accounts/update/${id}`,
   },
   suppliers: {
     list: (params: string) => `/api/v1/suppliers/suppliers${params}`,
+    create: `/api/v1/suppliers/create`,
+    update: (id: string) => `/api/v1/suppliers/update/${id}`,
   },
   employees: {
     list: (params: string) => `/api/v1/employees/employees${params}`,
+    create: `/api/v1/employees/employees/create`,
+    update: (id: string) => `/api/v1/employees/employees/update/${id}`,
   },
   upload: {
     uploadImage: '/api/v1/uploads/upload',

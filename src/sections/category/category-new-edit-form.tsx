@@ -91,7 +91,7 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                 ...extraFields
             });
             mutate(endpoints.category.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
-            toast.success(currentCategory ? 'Nhóm sản phẩm đã được thay đổi!' : 'Tạo mới nhóm sản phẩm thành công!');
+            toast.success(currentCategory ? 'Dữ liệu nhóm sản phẩm đã được thay đổi!' : 'Tạo mới dữ liệu nhóm sản phẩm thành công!');
             onClose();
             reset();
         } catch (error) {
@@ -108,8 +108,8 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
             <DialogTitle>
                 {
                     currentCategory
-                        ? 'Chỉnh sửa nhóm sản phẩm'
-                        : 'Tạo nhóm sản phẩm'
+                        ? 'Chỉnh sửa dữ liệu nhóm sản phẩm'
+                        : 'Tạo dữ liệu nhóm sản phẩm'
                 }
             </DialogTitle>
             <DialogContent dividers={true}>

@@ -31,3 +31,17 @@ export type ICustomerItem = {
     status: true;
     balance: number
 }
+
+export type ICustomerDto = {
+    phone: string;
+    name: string;
+    taxCode: string;
+    companyName: string;
+    email: string;
+    bankAccount: string;
+    bankName: string;
+    address: string;
+    isPartner: boolean;
+    rewardPoint: number;
+    balance: number;
+}

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
-import { ResSuppliersList } from "src/types/suppliers";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
+import { ISupplierDto, ResSuppliersList } from "src/types/suppliers";
 import useSWR, { SWRConfiguration } from "swr";
 
 type suppliersProps = {
@@ -46,4 +46,14 @@ export function useGetSuppliers({ pageNumber, pageSize, key, enabled = true }: s
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateSupplier(id: number, bodyPayload: ISupplierDto) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.suppliers.update(`/${id}`), bodyPayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.suppliers.create, bodyPayload);
+        return data;
+    }
 }

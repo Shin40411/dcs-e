@@ -18,3 +18,10 @@ export type IBankAccountItem = {
     balance: number;
     status: boolean;
 }
+
+export type IBankAccountDto = {
+    name: string;
+    bankNo: string;
+    bank: string;
+    balance: number;
+}

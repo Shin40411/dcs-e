@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { ResEmployeeTypeList } from "src/types/employeeType";
 import useSWR, { SWRConfiguration } from "swr";
 
@@ -46,4 +46,14 @@ export function useGetEmployeeTypes({ pageNumber, pageSize, key, enabled = true 
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateEmployeeType(id: number, bodyPayload: { name: string }) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.employeeType.update(`/${id}`), bodyPayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.employeeType.create, bodyPayload);
+        return data;
+    }
 }

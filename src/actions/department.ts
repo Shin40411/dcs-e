@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { ResDepartmentList } from "src/types/department";
 import useSWR, { SWRConfiguration } from "swr";
 
@@ -45,4 +45,14 @@ export function useGetDepartments({ pageNumber, pageSize, key, enabled = true }:
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateDepartment(id: number, bodyPayload: { name: string }) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.department.update(`/${id}`), bodyPayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.department.create, bodyPayload);
+        return data;
+    }
 }

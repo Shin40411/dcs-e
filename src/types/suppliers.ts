@@ -29,3 +29,15 @@ export type ISuppliersItem = {
     status: boolean;
     balance: number;
 }
+
+export type ISupplierDto = {
+    name: string;
+    phone: string;
+    taxCode: string;
+    companyName: string;
+    email: string;
+    bankAccount: string;
+    bankName: string;
+    address: string;
+    balance: number;
+}

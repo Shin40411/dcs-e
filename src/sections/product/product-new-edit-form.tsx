@@ -223,8 +223,8 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
 
       toast.success(
         currentProduct
-          ? "Sản phẩm đã được thay đổi!"
-          : "Tạo sản phẩm thành công!"
+          ? "Dữ liệu sản phẩm đã được thay đổi!"
+          : "Tạo dữ liệu sản phẩm thành công!"
       );
 
       onClose();
@@ -403,7 +403,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth={"xl"} scroll={'paper'}>
       <DialogTitle>
-        {currentProduct ? 'Chỉnh sửa sản phẩm' : 'Tạo sản phẩm'}
+        {currentProduct ? 'Chỉnh sửa dữ liệu sản phẩm' : 'Tạo dữ liệu sản phẩm'}
       </DialogTitle>
       <DialogContent dividers={true}>
         <Form methods={methods} onSubmit={onSubmit}>
