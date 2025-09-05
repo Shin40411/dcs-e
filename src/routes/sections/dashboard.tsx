@@ -37,7 +37,8 @@ const CustomerPage = lazy(() => import('src/pages/dashboard/customer/list'));
 const SuppliersPage = lazy(() => import('src/pages/dashboard/suppliers/list'));
 // Employees
 const EmployeesPage = lazy(() => import('src/pages/dashboard/employee/list'));
-
+// Customer services
+const QuotationPage = lazy(() => import('src/pages/dashboard/quotation/list'));
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
@@ -159,6 +160,13 @@ export const dashboardRoutes: RouteObject[] = [
           { path: 'new', element: <ProductCreatePage /> },
           { path: ':id/edit', element: <ProductEditPage /> },
         ],
+      },
+      {
+        path: 'customer-services',
+        children: [
+          { index: true, element: <QuotationPage /> },
+          { path: 'contract', element: <></> }
+        ]
       },
       {
         path: 'category',

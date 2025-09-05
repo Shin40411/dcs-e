@@ -79,6 +79,21 @@ export const navData: NavSectionProps['data'] = [
    * Management
    */
   {
+    subheader: 'Nghiệp vụ khách hàng',
+    items: [
+      {
+        title: 'Báo giá',
+        path: paths.dashboard.customerServices.quotation,
+        icon: <Iconify icon={'pepicons-pop:megaphone-circle'} />
+      },
+      {
+        title: 'Hợp đồng',
+        path: paths.dashboard.customerServices.contract,
+        icon: <Iconify icon={'lsicon:contract-filled'} />
+      }
+    ]
+  },
+  {
     subheader: 'Quản lý',
     items: [
       {
@@ -186,7 +201,7 @@ export const navData: NavSectionProps['data'] = [
         ],
       },
     ]
-  }
+  },
   /**
    * Item state
    */

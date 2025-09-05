@@ -32,7 +32,7 @@ export function OverviewAppView() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 8 }}>
+        {/* <Grid size={{ xs: 12, md: 8 }}>
           <AppWelcome
             title={`Chào mừng trở lại 👋 \n ${user?.displayName}`}
             img={<SeoIllustration hideBackground />}
@@ -42,11 +42,11 @@ export function OverviewAppView() {
               </Button>
             }
           />
-        </Grid>
+        </Grid> */}
 
-        <Grid size={{ xs: 12, md: 4 }}>
+        {/* <Grid size={{ xs: 12, md: 4 }}>
           <AppFeatured list={_appFeatured} />
-        </Grid>
+        </Grid> */}
 
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
