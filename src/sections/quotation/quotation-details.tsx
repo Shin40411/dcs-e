@@ -84,6 +84,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                     </Box>
                 )}
             </DialogContent>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }} />
             <DialogActions>
                 <Button onClick={onClose}>Đóng</Button>
                 <Button variant="contained" onClick={handleExportPDF}>

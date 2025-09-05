@@ -1,6 +1,7 @@
-import { Box } from "@mui/material";
+import { Box, Menu, MenuItem } from "@mui/material";
 import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid"
 import { UseBooleanReturn } from "minimal-shared/hooks";
+import { useState } from "react";
 import { Iconify } from "src/components/iconify";
 import { RenderCellCreatedAt, RenderCellDescription, RenderCellPrice, RenderCellProduct, RenderCellPurchasePrice, RenderCellStatus, RenderCellStock, RenderCellVAT } from "src/sections/product/product-table-row";
 
@@ -27,9 +28,61 @@ export const PRODUCT_COLUMNS: ({
         headerName: 'Tên sản phẩm',
         flex: 1,
         minWidth: 260,
-        renderCell: (params) => (
-          <RenderCellProduct params={params} />
-        ),
+        renderCell: (params) => {
+          const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+          const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+            setRowIdSelected(params.row.id);
+            setAnchorEl(event.currentTarget);
+          };
+
+          const handleClose = () => setAnchorEl(null);
+
+          return (
+            <Box sx={{ display: 'flex', alignItems: 'center', width: 1 }}>
+              <Box sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={handleOpen}>
+                <RenderCellProduct params={params} />
+              </Box>
+
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                <MenuItem
+                  onClick={() => {
+                    openDetailsForm?.onTrue();
+                    handleClose();
+                  }}
+                >
+                  <Iconify icon="solar:eye-bold" />
+                  <Box component="span" sx={{ ml: 1 }}>
+                    Chi tiết
+                  </Box>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    openCrudForm.onTrue();
+                    handleClose();
+                  }}
+                >
+                  <Iconify icon="solar:pen-bold" />
+                  <Box component="span" sx={{ ml: 1 }}>
+                    Chỉnh sửa
+                  </Box>
+                </MenuItem>
+                <MenuItem
+                  sx={{ color: 'error.main' }}
+                  onClick={() => {
+                    confirmDelRowDialog.onTrue();
+                    handleClose();
+                  }}
+                >
+                  <Iconify icon="solar:trash-bin-trash-bold" />
+                  <Box component="span" sx={{ ml: 1 }}>
+                    Xóa
+                  </Box>
+                </MenuItem>
+              </Menu>
+            </Box>
+          );
+        },
       },
       {
         field: 'code',

@@ -53,6 +53,10 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
         if (currentBankingAccount) {
             methods.reset({
                 ...defaultValues,
+                name: currentBankingAccount.name,
+                bankNo: currentBankingAccount.bankNo,
+                bank: currentBankingAccount.bankName,
+                balance: currentBankingAccount.balance,
             });
         } else {
             methods.reset(defaultValues);

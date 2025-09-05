@@ -209,7 +209,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                     <Field.NumberInput
                         name="balance"
                         helperText="Nhập số dư"
-                        sx={{ width: 120 }}
+                        sx={{ width: 200 }}
                     />
                 </Stack>
             </Stack>

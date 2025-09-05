@@ -401,7 +401,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
   );
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth={"xl"} scroll={'paper'}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth={"lg"} scroll={'paper'}>
       <DialogTitle>
         {currentProduct ? 'Chỉnh sửa dữ liệu sản phẩm' : 'Tạo dữ liệu sản phẩm'}
       </DialogTitle>

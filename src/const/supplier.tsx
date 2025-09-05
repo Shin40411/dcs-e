@@ -1,5 +1,7 @@
+import { Box, Menu, MenuItem } from "@mui/material";
 import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { UseBooleanReturn } from "minimal-shared/hooks";
+import { useState } from "react";
 import { Iconify } from "src/components/iconify";
 import {
     RenderCellAddress,
@@ -17,27 +19,85 @@ import {
 } from "src/sections/supplier/supplier-table-row";
 
 type ColumnProps = {
+    openDetailsForm?: UseBooleanReturn;
     openCrudForm: UseBooleanReturn;
     confirmDelRowDialog: UseBooleanReturn;
     setRowIdSelected: (id: any) => void;
+    setTableRowSelected: (obj: any) => void;
 }
 
 export const SUPPLIERS_COLUMNS: ({
     openCrudForm,
+    openDetailsForm,
     confirmDelRowDialog,
     setRowIdSelected,
+    setTableRowSelected
 }: ColumnProps) => GridColDef[] = ({
     openCrudForm,
+    openDetailsForm,
     confirmDelRowDialog,
     setRowIdSelected,
+    setTableRowSelected
 }) => [
             {
                 field: 'name',
                 headerName: 'Tên nhà cung cấp',
                 width: 200,
-                renderCell: (params) => (
-                    <RenderCellSupplierName params={params} />
-                ),
+                renderCell: (params) => {
+                    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+                    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+                        setRowIdSelected(params.row.id);
+                        setAnchorEl(event.currentTarget);
+                    };
+
+                    const handleClose = () => setAnchorEl(null);
+                    return (
+                        <Box sx={{ display: 'flex', alignItems: 'center', width: 1 }}>
+                            <Box sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={handleOpen}>
+                                <RenderCellSupplierName params={params} />
+                            </Box>
+
+                            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                                {/* <MenuItem
+                                    onClick={() => {
+                                        openDetailsForm?.onTrue();
+                                        handleClose();
+                                    }}
+                                >
+                                    <Iconify icon="solar:eye-bold" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Chi tiết
+                                    </Box>
+                                </MenuItem> */}
+                                <MenuItem
+                                    onClick={() => {
+                                        openCrudForm.onTrue();
+                                        setTableRowSelected(params.row)
+                                        handleClose();
+                                    }}
+                                >
+                                    <Iconify icon="solar:pen-bold" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Chỉnh sửa
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem
+                                    sx={{ color: 'error.main' }}
+                                    onClick={() => {
+                                        confirmDelRowDialog.onTrue();
+                                        handleClose();
+                                    }}
+                                >
+                                    <Iconify icon="solar:trash-bin-trash-bold" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Xóa
+                                    </Box>
+                                </MenuItem>
+                            </Menu>
+                        </Box>
+                    )
+                },
             },
             {
                 field: 'phone',
@@ -140,16 +200,18 @@ export const SUPPLIERS_COLUMNS: ({
                 editable: false,
                 getActions: (params) => [
                     <GridActionsCellItem
-                        icon={<Iconify icon="eva:edit-fill" />}
+                        icon={<Iconify icon="solar:pen-bold" />}
                         label="Chỉnh sửa"
                         onClick={() => {
                             setRowIdSelected(params.id);
+                            setTableRowSelected(params.row)
                             openCrudForm.onTrue();
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
-                        icon={<Iconify icon="eva:trash-2-outline" />}
+                        sx={{ color: 'error.main' }}
+                        icon={<Iconify icon="solar:trash-bin-trash-bold" />}
                         label="Xóa"
                         onClick={() => {
                             setRowIdSelected(params.id);

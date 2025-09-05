@@ -35,6 +35,7 @@ export function SuppliersListView() {
     };
     const [tableData, setTableData] = useState<ISuppliersItem[]>(suppliers);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
+    const [tableRowSelected, setTableRowSelected] = useState<ISuppliersItem | null>(null);
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
@@ -52,6 +53,7 @@ export function SuppliersListView() {
             selectedId={rowIdSelected || undefined}
             page={page}
             rowsPerPage={rowsPerPage}
+            currentSupplier={tableRowSelected || undefined}
         />
     );
 
@@ -70,6 +72,7 @@ export function SuppliersListView() {
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
+                                setTableRowSelected(null);
                                 openCrudForm.onTrue();
                             }}
                         >
@@ -81,7 +84,7 @@ export function SuppliersListView() {
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={suppliersLoading}
-                    columns={SUPPLIERS_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected })}
+                    columns={SUPPLIERS_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected, setTableRowSelected })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}

@@ -35,6 +35,7 @@ export function EmployeeListView() {
     };
     const [tableData, setTableData] = useState<IEmployeeItem[]>(employees);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
+    const [tableRowSelected, setTableRowSelected] = useState<IEmployeeItem | null>(null);
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
@@ -52,6 +53,7 @@ export function EmployeeListView() {
             selectedId={rowIdSelected || undefined}
             page={page}
             rowsPerPage={rowsPerPage}
+            currentEmployee={tableRowSelected || undefined}
         />
     );
     return (
@@ -69,7 +71,8 @@ export function EmployeeListView() {
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
-                                openCrudForm.onTrue()
+                                openCrudForm.onTrue();
+                                setTableRowSelected(null);
                             }}
                         >
                             Tạo nhân viên
@@ -80,7 +83,7 @@ export function EmployeeListView() {
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={employeesLoading}
-                    columns={EMPLOYEE_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected })}
+                    columns={EMPLOYEE_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected, setTableRowSelected })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}

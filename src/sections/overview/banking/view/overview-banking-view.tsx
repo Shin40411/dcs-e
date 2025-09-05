@@ -72,6 +72,7 @@ export function OverviewBankingView() {
       selectedId={rowIdSelected || undefined}
       page={page}
       rowsPerPage={rowsPerPage}
+      currentBankingAccount={tableRowSelected || undefined}
     />
   );
 
@@ -89,7 +90,8 @@ export function OverviewBankingView() {
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             onClick={() => {
-              openCrudForm.onTrue();
+              setTableRowSelected(null),
+                openCrudForm.onTrue();
             }}
           >
             Tạo tài khoản ngân hàng

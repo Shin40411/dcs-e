@@ -75,6 +75,21 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
         if (currentEmployee) {
             methods.reset({
                 ...defaultValues,
+                name: currentEmployee.name,
+                phone: currentEmployee.phone,
+                email: currentEmployee.email,
+                gender:
+                    currentEmployee.gender === "Male"
+                        ? "Male"
+                        : currentEmployee.gender === "Female"
+                            ? "Female"
+                            : "Other",
+                bankAccount: currentEmployee.bankAccount,
+                bankName: currentEmployee.bankName,
+                birthday: currentEmployee.birthday,
+                balance: currentEmployee.balance,
+                address: currentEmployee.address,
+                image: currentEmployee.image,
             });
         } else {
             methods.reset(defaultValues);
@@ -219,7 +234,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
     );
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth={"xl"} scroll={'paper'}>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth={"lg"} scroll={'paper'}>
             <DialogTitle>
                 {currentEmployee ? 'Chỉnh sửa dữ liệu nhân viên' : 'Tạo dữ liệu nhân viên'}
             </DialogTitle>

@@ -68,6 +68,15 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
         if (currentSupplier) {
             methods.reset({
                 ...defaultValues,
+                name: currentSupplier.name,
+                phone: currentSupplier.phone,
+                taxCode: currentSupplier.taxCode,
+                companyName: currentSupplier.companyName,
+                email: currentSupplier.email,
+                bankAccount: currentSupplier.bankAccount,
+                bankName: currentSupplier.bankName,
+                balance: currentSupplier.balance,
+                address: currentSupplier.address,
             });
         } else {
             methods.reset(defaultValues);
