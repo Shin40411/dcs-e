@@ -53,10 +53,10 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
         if (currentBankingAccount) {
             methods.reset({
                 ...defaultValues,
-                name: currentBankingAccount.name,
-                bankNo: currentBankingAccount.bankNo,
-                bank: currentBankingAccount.bankName,
-                balance: currentBankingAccount.balance,
+                name: currentBankingAccount.name ?? '',
+                bankNo: currentBankingAccount.bankNo ?? '',
+                bank: currentBankingAccount.bankName ?? '',
+                balance: currentBankingAccount.balance ?? 0,
             });
         } else {
             methods.reset(defaultValues);
@@ -75,7 +75,7 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
         try {
             const payloadData: IBankAccountDto = {
                 name: data.name,
-                bank: data.bank ?? "",
+                Bank: data.bank ?? "",
                 bankNo: data.bankNo,
                 balance: data.balance ?? 0,
             };
@@ -111,12 +111,10 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
                     name="bank"
                     label="Tên ngân hàng"
                     helperText="Nhập tên ngân hàng"
-                    sx={{ flex: 1 }}
                 />
-                <Field.NumberInput
-                    name="balence"
-                    helperText="Số dư tài khoản"
-                    sx={{ width: 120 }}
+                <Field.VNCurrencyInput
+                    name="balance"
+                    label="Số dư tài khoản"
                 />
             </Stack>
         </Stack>

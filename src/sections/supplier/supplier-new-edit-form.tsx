@@ -164,11 +164,10 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
                     name="bankName"
                     label="Tên ngân hàng"
                     helperText="Nhập tên ngân hàng"
-                    sx={{ flex: 1 }}
                 />
-                <Field.NumberInput
+                <Field.VNCurrencyInput
                     name="balance"
-                    helperText="Nhập số dư tài khoản"
+                    label="Số dư tài khoản"
                     sx={{ width: 120 }}
                 />
             </Stack>

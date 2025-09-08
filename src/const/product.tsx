@@ -32,7 +32,6 @@ export const PRODUCT_COLUMNS: ({
           const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
           const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-            setRowIdSelected(params.row.id);
             setAnchorEl(event.currentTarget);
           };
 
@@ -48,6 +47,7 @@ export const PRODUCT_COLUMNS: ({
                 <MenuItem
                   onClick={() => {
                     openDetailsForm?.onTrue();
+                    setRowIdSelected(params.row.id);
                     handleClose();
                   }}
                 >
@@ -59,6 +59,7 @@ export const PRODUCT_COLUMNS: ({
                 <MenuItem
                   onClick={() => {
                     openCrudForm.onTrue();
+                    setRowIdSelected(params.row.id);
                     handleClose();
                   }}
                 >
@@ -71,6 +72,7 @@ export const PRODUCT_COLUMNS: ({
                   sx={{ color: 'error.main' }}
                   onClick={() => {
                     confirmDelRowDialog.onTrue();
+                    setRowIdSelected(params.row.id);
                     handleClose();
                   }}
                 >

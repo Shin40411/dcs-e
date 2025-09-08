@@ -44,7 +44,6 @@ export const EMPLOYEE_COLUMNS: ({
                     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
                     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-                        setRowIdSelected(params.row.id);
                         setAnchorEl(event.currentTarget);
                     };
 
@@ -56,8 +55,10 @@ export const EMPLOYEE_COLUMNS: ({
                             </Box>
 
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-                                {/* <MenuItem
+                                <MenuItem
                                     onClick={() => {
+                                        setRowIdSelected(params.row.id);
+                                        setTableRowSelected(params.row);
                                         openDetailsForm?.onTrue();
                                         handleClose();
                                     }}
@@ -66,10 +67,11 @@ export const EMPLOYEE_COLUMNS: ({
                                     <Box component="span" sx={{ ml: 1 }}>
                                         Chi tiết
                                     </Box>
-                                </MenuItem> */}
+                                </MenuItem>
                                 <MenuItem
                                     onClick={() => {
                                         openCrudForm.onTrue();
+                                        setRowIdSelected(params.row.id);
                                         setTableRowSelected(params.row);
                                         handleClose();
                                     }}
@@ -83,6 +85,7 @@ export const EMPLOYEE_COLUMNS: ({
                                     sx={{ color: 'error.main' }}
                                     onClick={() => {
                                         confirmDelRowDialog.onTrue();
+                                        setRowIdSelected(params.row.id);
                                         handleClose();
                                     }}
                                 >
@@ -196,6 +199,12 @@ export const EMPLOYEE_COLUMNS: ({
                 filterable: false,
                 editable: false,
                 getActions: (params) => [
+                    <GridActionsCellItem
+                        showInMenu
+                        icon={<Iconify icon="solar:eye-bold" />}
+                        label="Chi tiết"
+                        onClick={() => { openDetailsForm?.onTrue(), setTableRowSelected(params.row); }}
+                    />,
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:pen-bold" />}

@@ -95,7 +95,7 @@ export const BANKACCOUNT_COLUMNS: ({
                         showInMenu
                         icon={<Iconify icon="solar:pen-bold" />}
                         label="Chỉnh sửa"
-                        onClick={() => { openCrudForm.onTrue(); setTableRowSelected(params.row); }}
+                        onClick={() => { openCrudForm.onTrue(); setTableRowSelected(params.row); setRowIdSelected(params.row.id) }}
                     />,
                     <GridActionsCellItem
                         showInMenu

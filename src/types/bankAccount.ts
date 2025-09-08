@@ -22,6 +22,6 @@ export type IBankAccountItem = {
 export type IBankAccountDto = {
     name: string;
     bankNo: string;
-    bank: string;
+    Bank: string;
     balance: number;
 }

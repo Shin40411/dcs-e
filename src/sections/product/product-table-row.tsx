@@ -9,7 +9,7 @@ import { fCurrency } from 'src/utils/format-number';
 import { fTime } from "src/utils/format-time";
 import { fDate } from "src/utils/format-time-vi";
 import { Label } from 'src/components/label';
-
+import parse from 'html-react-parser';
 // ----------------------------------------------------------------------
 
 type ParamsProps = {
@@ -21,7 +21,19 @@ export function RenderCellPrice({ params }: ParamsProps) {
 }
 
 export function RenderCellPurchasePrice({ params }: ParamsProps) {
-  return fCurrency(params.row.purchasePrice);
+  const isHighlight = params.row.purchasePrice > params.row.price;
+
+  return (
+    <Box
+      component="span"
+      sx={{
+        fontWeight: isHighlight ? 'bold' : 'normal',
+        color: isHighlight ? 'error.main' : 'text.primary',
+      }}
+    >
+      {fCurrency(params.row.purchasePrice)}
+    </Box>
+  );
 }
 
 export function RenderCellPublish({ params }: ParamsProps) {
@@ -106,7 +118,7 @@ export function RenderCellDescription({ params }: ParamsProps) {
       }}>
       <ListItemText
         primary={
-          params.row.description
+          parse(params.row.description || '')
         }
         slotProps={{
           primary: { noWrap: true },

@@ -42,7 +42,7 @@ export type IEmployeeDto = {
     email: string;
     rightId: number;
     departmentId: number;
-    image: string;
+    image: string | null;
     birthday: IDateValue;
     address: string;
     phone: string;

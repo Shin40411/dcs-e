@@ -82,15 +82,22 @@ export const navData: NavSectionProps['data'] = [
     subheader: 'Nghiệp vụ khách hàng',
     items: [
       {
-        title: 'Báo giá',
-        path: paths.dashboard.customerServices.quotation,
-        icon: <Iconify icon={'pepicons-pop:megaphone-circle'} />
-      },
-      {
         title: 'Hợp đồng',
         path: paths.dashboard.customerServices.contract,
-        icon: <Iconify icon={'lsicon:contract-filled'} />
-      }
+        icon: <Iconify icon={'lsicon:contract-filled'} />,
+        children: [
+          {
+            title: 'Báo giá',
+            path: paths.dashboard.customerServices.quotation,
+            icon: <Iconify icon={'pepicons-pop:megaphone-circle'} />,
+          },
+          {
+            title: 'Hợp đồng',
+            path: paths.dashboard.customerServices.contract,
+            icon: <Iconify icon={'lsicon:contract-filled'} />
+          }
+        ]
+      },
     ]
   },
   {
@@ -176,10 +183,10 @@ export const navData: NavSectionProps['data'] = [
     ],
   },
   {
-    subheader: 'Cấu hình',
+    subheader: 'Cài đặt',
     items: [
       {
-        title: 'Cấu hình danh mục',
+        title: 'Cấu hình',
         path: paths.dashboard.settings.unit,
         icon: <Iconify icon={'carbon:category'} />,
         children: [

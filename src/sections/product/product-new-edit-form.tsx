@@ -27,6 +27,7 @@ import { mutate } from 'swr';
 import { endpoints } from 'src/lib/axios';
 import { uploadImage } from 'src/actions/upload';
 import { ICategoryItem } from 'src/types/category';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
@@ -45,7 +46,7 @@ export const NewProductSchema = zod.object({
     .number({ coerce: true })
     .min(1, { message: 'Giá bán là trường bắt buộc và phải lớn hơn 0' }),
   unitId: zod.number().min(1, { message: 'Đơn vị tính là trường bắt buộc' }),
-  categoryID: zod.number().min(1, { message: 'Nhóm sản phẩm là trường bắt buộc' }),
+  categoryId: zod.number().min(1, { message: 'Nhóm sản phẩm là trường bắt buộc' }),
   stock: zod
     .number({ coerce: true })
     .min(0, { message: 'Số lượng tồn kho không được nhỏ hơn 0' }),
@@ -108,7 +109,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
     purchasePrice: 0,
     price: 0,
     unitId: 0,
-    categoryID: 0,
+    categoryId: 0,
     stock: 0,
     warranty: 0,
     manufacturer: '',
@@ -129,7 +130,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
         purchasePrice: currentProduct.purchasePrice,
         price: currentProduct.price,
         unitId: currentProduct.unitId,
-        categoryID: currentProduct.categoryID,
+        categoryId: currentProduct.categoryId,
         stock: currentProduct.stock,
         warranty: currentProduct.warranty,
         manufacturer: currentProduct.manufacturer,
@@ -149,7 +150,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
         purchasePrice: currentProduct.purchasePrice,
         price: currentProduct.price,
         unitId: currentProduct.unitId,
-        categoryID: currentProduct.categoryID,
+        categoryId: currentProduct.categoryId,
         stock: currentProduct.stock,
         warranty: currentProduct.warranty,
         manufacturer: currentProduct.manufacturer,
@@ -163,12 +164,12 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
 
   useEffect(() => {
     if (categories && categories.length > 0) {
-      const cat = categories.find((c) => c.id === methods.getValues('categoryID')) || null;
+      const cat = categories.find((c) => c.id === methods.getValues('categoryId')) || null;
       setSelectedCategory(cat);
     } else {
       setSelectedCategory(null);
     }
-  }, [categories, methods.watch('categoryID')]);
+  }, [categories, methods.watch('categoryId')]);
 
   const {
     reset,
@@ -189,7 +190,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       } else if (data.image instanceof File) {
         try {
           const res = await uploadImage(data.image, data.Folder);
-          imagePayload = res.data.data;
+          imagePayload = `${CONFIG.serverUrl}/${res.data.filePath}`;
         } catch (error) {
           console.error("Error uploading image:", error);
           toast.error("Lỗi khi tải ảnh lên. Vui lòng thử lại.");
@@ -204,7 +205,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
         purchasePrice: data.purchasePrice,
         price: data.price,
         unitId: data.unitId,
-        categoryID: data.categoryID,
+        categoryId: data.categoryId,
         stock: data.stock,
         warranty: data.warranty,
         manufacturer: data.manufacturer,
@@ -220,6 +221,11 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       mutate(
         endpoints.product.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`)
       );
+
+      if (selectedId)
+        mutate(
+          endpoints.product.details(selectedId)
+        );
 
       toast.success(
         currentProduct
@@ -249,7 +255,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
           </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
             <Field.Autocomplete
-              name="categoryID"
+              name="categoryId"
               label="Chọn nhóm sản phẩm"
               options={categories}
               loading={categoriesLoading}
@@ -260,7 +266,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
               fullWidth
               onChange={(_, newValue) => {
                 setSelectedCategory(newValue ?? null);
-                setValue('categoryID', newValue?.id ?? 0, { shouldValidate: true });
+                setValue('categoryId', newValue?.id ?? 0, { shouldValidate: true });
               }}
               noOptionsText="Không có dữ liệu"
             />
@@ -281,39 +287,11 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
             />
           </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-            <Field.Text
+            <Field.VNCurrencyInput
               name="purchasePrice"
-              label="Giá nhập"
-              type="number"
-              slotProps={{
-                inputLabel: { shrink: true },
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                      <Box component="span" sx={{ color: 'text.disabled' }}>
-                        đ
-                      </Box>
-                    </InputAdornment>
-                  ),
-                },
-              }}
             />
-            <Field.Text
+            <Field.VNCurrencyInput
               name="price"
-              label="Giá bán"
-              type="number"
-              slotProps={{
-                inputLabel: { shrink: true },
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                      <Box component="span" sx={{ color: 'text.disabled' }}>
-                        đ
-                      </Box>
-                    </InputAdornment>
-                  ),
-                },
-              }}
             />
           </Stack>
           <Stack spacing={1.5}>
@@ -326,6 +304,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
             <Field.Select label="VAT áp dụng" name="vat">
               <MenuItem key={'0'} value={'0'} sx={{ textTransform: 'capitalize' }}>0%</MenuItem>
               <MenuItem key={'5'} value={'5'} sx={{ textTransform: 'capitalize' }}>5%</MenuItem>
+              <MenuItem key={'8'} value={'8'} sx={{ textTransform: 'capitalize' }}>8%</MenuItem>
               <MenuItem key={'10'} value={'10'} sx={{ textTransform: 'capitalize' }}>10%</MenuItem>
             </Field.Select>
             <Field.Text name='manufacturer' label='Nhà sản xuất' placeholder='Nhà sản xuất' fullWidth />

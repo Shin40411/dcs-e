@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useGetProduct } from "src/actions/product";
 import { Scrollbar } from "src/components/scrollbar";
 import { ProductItem } from "src/types/product";
+import parse from 'html-react-parser';
 
 type Props = DrawerProps & {
     selectedId: string;
@@ -53,11 +54,12 @@ export function ProductDetails({ selectedId, open, onClose, ...other }: Props) {
             {...other}
         >
             <Scrollbar>
-                <Box sx={{ p: 3 }}>
+                <Stack spacing={3} sx={{ p: 3, bgcolor: 'background.neutral' }}>
                     <Typography variant="h6" gutterBottom>
                         Chi tiết sản phẩm
                     </Typography>
-
+                </Stack>
+                <Box sx={{ p: 3 }}>
                     <Stack spacing={3}>
                         {/* Tên + Mã */}
                         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
@@ -94,9 +96,14 @@ export function ProductDetails({ selectedId, open, onClose, ...other }: Props) {
                             <Typography variant="subtitle2" gutterBottom>
                                 Mô tả sản phẩm
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {selectedProduct.description || "—"}
-                            </Typography>
+                            {
+                                selectedProduct.description ?
+                                    parse(selectedProduct.description)
+                                    :
+                                    <Typography variant="body2" color="text.secondary">
+                                        -
+                                    </Typography>
+                            }
                         </Box>
 
                         {/* VAT + Nhà sản xuất */}
@@ -128,8 +135,8 @@ export function ProductDetails({ selectedId, open, onClose, ...other }: Props) {
                                     src={selectedProduct.image}
                                     alt={selectedProduct.name}
                                     sx={{
-                                        width: 200,
-                                        height: 200,
+                                        width: '100%',
+                                        height: '100%',
                                         objectFit: "cover",
                                         borderRadius: 2,
                                         border: "1px solid",

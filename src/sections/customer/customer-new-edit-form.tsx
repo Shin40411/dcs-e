@@ -121,8 +121,9 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
             toast.success(currentCustomer ? 'Dữ liệu khách hàng đã được thay đổi!' : 'Tạo mới dữ liệu khách hàng thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error(error.title);
         }
     });
 

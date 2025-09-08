@@ -35,7 +35,6 @@ export const CUSTOMER_COLUMNS: ({
                     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
                     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-                        setRowIdSelected(params.row.id);
                         setAnchorEl(event.currentTarget);
                     };
 
@@ -51,6 +50,7 @@ export const CUSTOMER_COLUMNS: ({
                                 <MenuItem
                                     onClick={() => {
                                         openDetailsForm?.onTrue();
+                                        setTableRowSelected(params.row);
                                         handleClose();
                                     }}
                                 >
@@ -62,6 +62,7 @@ export const CUSTOMER_COLUMNS: ({
                                 <MenuItem
                                     onClick={() => {
                                         openCrudForm.onTrue();
+                                        setRowIdSelected(params.row.id);
                                         setTableRowSelected(params.row);
                                         handleClose();
                                     }}
@@ -75,6 +76,7 @@ export const CUSTOMER_COLUMNS: ({
                                     sx={{ color: 'error.main' }}
                                     onClick={() => {
                                         confirmDelRowDialog.onTrue();
+                                        setRowIdSelected(params.row.id);
                                         handleClose();
                                     }}
                                 >
@@ -137,7 +139,10 @@ export const CUSTOMER_COLUMNS: ({
                         showInMenu
                         icon={<Iconify icon="solar:eye-bold" />}
                         label="Chi tiết"
-                        onClick={() => { }}
+                        onClick={() => {
+                            openDetailsForm?.onTrue();
+                            setTableRowSelected(params.row);
+                        }}
                     />,
                     <GridActionsCellItem
                         showInMenu

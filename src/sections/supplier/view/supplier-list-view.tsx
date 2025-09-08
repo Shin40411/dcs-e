@@ -11,10 +11,12 @@ import { DashboardContent } from "src/layouts/dashboard"
 import { paths } from "src/routes/paths"
 import { ISuppliersItem } from "src/types/suppliers"
 import { SupplierNewEditForm } from "../supplier-new-edit-form"
+import { SupplierDetails } from "../supplier-details"
 
 export function SuppliersListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
+    const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -57,6 +59,15 @@ export function SuppliersListView() {
         />
     );
 
+
+    const renderDetails = () => (
+        <SupplierDetails
+            open={openDetailsForm.value}
+            selectedSupplier={tableRowSelected || undefined}
+            onClose={openDetailsForm.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -84,7 +95,7 @@ export function SuppliersListView() {
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={suppliersLoading}
-                    columns={SUPPLIERS_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected, setTableRowSelected })}
+                    columns={SUPPLIERS_COLUMNS({ openDetailsForm, openCrudForm, confirmDelRowDialog, setRowIdSelected, setTableRowSelected })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}
@@ -95,6 +106,7 @@ export function SuppliersListView() {
                     onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
+                {renderDetails()}
             </DashboardContent>
         </>
     );

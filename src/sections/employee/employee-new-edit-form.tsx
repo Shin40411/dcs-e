@@ -1,10 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, MenuItem, Stack, Typography } from "@mui/material";
-import { useEffect } from "react";
+import { useDebounce } from "minimal-shared/hooks";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useGetDepartments } from "src/actions/department";
 import { createOrUpdateEmployee } from "src/actions/employee";
+import { useGetEmployeeTypes } from "src/actions/employeeType";
+import { uploadImage } from "src/actions/upload";
 import { Field, Form } from "src/components/hook-form";
+import { CONFIG } from "src/global-config";
 import { endpoints } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
 import { IEmployeeDto, IEmployeeItem } from "src/types/employee";
@@ -22,8 +27,8 @@ type Props = {
 
 export const NewEmployeeSchema = zod.object({
     name: zod.string().min(1, "Họ và tên là bắt buộc"),
-    phone: zod.string().min(10, "Số điện thoại không hợp lệ"),
-    email: zod.string().email("Email không hợp lệ"),
+    phone: zod.string().min(1, "Số điện thoại không được để trống").min(10, "Số điện thoại không hợp lệ"),
+    email: zod.string().min(1, "Email không được để trống").email("Email không hợp lệ"),
     gender: zod.enum(["Male", "Female", "Other"]),
     bankAccount: zod.string().optional(),
     bankName: zod.string().optional(),
@@ -31,11 +36,33 @@ export const NewEmployeeSchema = zod.object({
     balance: zod.number().nonnegative().default(0),
     address: zod.string().optional(),
     image: zod.any().optional(),
+    departmentId: zod.number().min(1, { message: 'Phòng ban là trường bắt buộc' }),
+    employeeTypeId: zod.number().min(1, { message: 'Chức vụ là trường bắt buộc' }),
+    Folder: zod.string().min(1, { message: 'Thư mục tải lên là trường bắt buộc' }),
 });
 
 export type NewEmployeeSchemaType = Zod.infer<typeof NewEmployeeSchema>;
 
 export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId, page, rowsPerPage }: Props) {
+    const [departmentkeyword, setDepartmentKeyword] = useState('');
+    const [employeeTypekeyword, setEmployeeTypeKeyword] = useState('');
+    const debouncedDepartmentKw = useDebounce(departmentkeyword, 300);
+    const debouncedEmployeeTypeKw = useDebounce(employeeTypekeyword, 300);
+
+    const { departments, departmentsLoading } = useGetDepartments({
+        pageNumber: 1,
+        pageSize: 999,
+        key: debouncedDepartmentKw,
+        enabled: true
+    });
+
+    const { employeeTypes, employeeTypesLoading } = useGetEmployeeTypes({
+        pageNumber: 1,
+        pageSize: 999,
+        key: debouncedEmployeeTypeKw,
+        enabled: true
+    });
+
     const defaultValues: NewEmployeeSchemaType = {
         name: "",
         phone: "",
@@ -47,6 +74,9 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
         balance: 0,
         address: "",
         image: undefined,
+        departmentId: 0,
+        employeeTypeId: 0,
+        Folder: 'HoaDon',
     };
 
     const methods = useForm<NewEmployeeSchemaType>({
@@ -68,6 +98,8 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
             balance: currentEmployee.balance,
             address: currentEmployee.address,
             image: currentEmployee.image,
+            departmentId: currentEmployee.departmentId,
+            employeeTypeId: currentEmployee.employeeTypeId
         } : defaultValues,
     });
 
@@ -75,21 +107,23 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
         if (currentEmployee) {
             methods.reset({
                 ...defaultValues,
-                name: currentEmployee.name,
-                phone: currentEmployee.phone,
-                email: currentEmployee.email,
+                name: currentEmployee.name ?? '',
+                phone: currentEmployee.phone ?? '',
+                email: currentEmployee.email ?? '',
                 gender:
                     currentEmployee.gender === "Male"
                         ? "Male"
                         : currentEmployee.gender === "Female"
                             ? "Female"
                             : "Other",
-                bankAccount: currentEmployee.bankAccount,
-                bankName: currentEmployee.bankName,
+                bankAccount: currentEmployee.bankAccount ?? '',
+                bankName: currentEmployee.bankName ?? '',
                 birthday: currentEmployee.birthday,
-                balance: currentEmployee.balance,
-                address: currentEmployee.address,
+                balance: currentEmployee.balance ?? 0,
+                address: currentEmployee.address ?? '',
                 image: currentEmployee.image,
+                departmentId: currentEmployee.departmentId,
+                employeeTypeId: currentEmployee.employeeTypeId
             });
         } else {
             methods.reset(defaultValues);
@@ -99,28 +133,48 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
     const {
         reset,
         watch,
+        setValue,
         control,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
 
+    const handleRemoveFile = useCallback(() => {
+        setValue('image', null, { shouldValidate: true });
+    }, [setValue]);
+
     const onSubmit = handleSubmit(async (data) => {
         try {
+            let imagePayload: string | null = null;
+
+            if (typeof data.image === "string") {
+                imagePayload = data.image;
+            } else if (data.image instanceof File) {
+                try {
+                    const res = await uploadImage(data.image, data.Folder);
+                    imagePayload = `${CONFIG.serverUrl}/${res.data.filePath}`;
+                } catch (error) {
+                    console.error("Error uploading image:", error);
+                    toast.error("Lỗi khi tải ảnh lên. Vui lòng thử lại.");
+                    return;
+                }
+            }
+
             const payloadData: IEmployeeDto = {
                 name: data.name,
                 typeId: 1,
                 gender: data.gender,
                 email: data.email,
                 rightId: 2,
-                departmentId: 0,
-                image: data.image ?? "",
+                departmentId: data.departmentId ?? 0,
+                image: imagePayload,
                 birthday: data.birthday,
                 address: data.address ?? "",
                 phone: data.phone,
                 bankAccount: data.bankAccount ?? "",
                 bankName: data.bankName ?? "",
                 balance: data.balance ?? 0,
-                employeeTypeId: 0,
+                employeeTypeId: data.employeeTypeId ?? 0,
             };
 
             await createOrUpdateEmployee(selectedId ?? 0, payloadData);
@@ -158,11 +212,45 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                             label="Email"
                             helperText="Nhập địa chỉ email"
                         />
-                        <Field.Select label='Giới tính' name="gender">
+                        <Field.Select label='Giới tính' name="gender" helperText="Chọn giới tính nhân viên">
                             <MenuItem key={'Male'} value={'Male'} sx={{ textTransform: 'capitalize' }}>Nam</MenuItem>
                             <MenuItem key={'Female'} value={'Female'} sx={{ textTransform: 'capitalize' }}>Nữ</MenuItem>
                             <MenuItem key={'Other'} value={'Other'} sx={{ textTransform: 'capitalize' }}>Khác</MenuItem>
                         </Field.Select>
+                    </Stack>
+                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                        <Field.Autocomplete
+                            name="departmentId"
+                            label="Chọn phòng ban"
+                            options={departments}
+                            helperText="Chọn phòng ban nhân viên"
+                            loading={departmentsLoading}
+                            getOptionLabel={(opt) => opt?.name ?? ''}
+                            isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                            onInputChange={(_, value) => setDepartmentKeyword(value)}
+                            value={departments.find((c) => c.id === watch('departmentId')) ?? null}
+                            fullWidth
+                            onChange={(_, newValue) => {
+                                setValue('departmentId', newValue?.id ?? 0, { shouldValidate: true });
+                            }}
+                            noOptionsText="Không có dữ liệu"
+                        />
+                        <Field.Autocomplete
+                            name="employeeTypeId"
+                            label="Chọn chức vụ"
+                            options={employeeTypes}
+                            helperText="Chọn chức vụ nhân viên"
+                            loading={employeeTypesLoading}
+                            getOptionLabel={(opt) => opt?.name ?? ''}
+                            isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                            onInputChange={(_, value) => setEmployeeTypeKeyword(value)}
+                            value={employeeTypes.find((c) => c.id === watch('employeeTypeId')) ?? null}
+                            fullWidth
+                            onChange={(_, newValue) => {
+                                setValue('employeeTypeId', newValue?.id ?? 0, { shouldValidate: true });
+                            }}
+                            noOptionsText="Không có dữ liệu"
+                        />
                     </Stack>
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                         <Field.Text
@@ -177,12 +265,11 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                             name="bankName"
                             label="Tên ngân hàng"
                             helperText="Nhập tên ngân hàng"
-                            sx={{ flex: 1 }}
                         />
-                        <Field.NumberInput
+                        <Field.VNCurrencyInput
                             name="balance"
-                            helperText="Nhập số dư"
-                            sx={{ width: 120 }}
+                            label="Nhập số dư"
+                            sx={{ width: 200 }}
                         />
                     </Stack>
                     <Field.Text
@@ -195,11 +282,19 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                 <Stack spacing={3} sx={{ flex: 1 }}>
                     <Stack spacing={1.5}>
                         <Typography variant="subtitle2">Ảnh nhân viên</Typography>
+                        {!currentEmployee && (
+                            <Field.Select label='Thư mục tải lên' name="Folder">
+                                <MenuItem key={'Hopdong'} value={'Hopdong'} sx={{ textTransform: 'capitalize' }}>Hợp đồng</MenuItem>
+                                <MenuItem key={'HoaDon'} value={'HoaDon'} sx={{ textTransform: 'capitalize' }}>Hóa đơn</MenuItem>
+                                <MenuItem key={'XuatKho'} value={'XuatKho'} sx={{ textTransform: 'capitalize' }}>Xuất kho</MenuItem>
+                            </Field.Select>
+                        )}
                         <Field.Upload
                             // multiple
                             thumbnail
                             name="image"
                             maxSize={3145728}
+                            onDelete={handleRemoveFile}
                             onUpload={() => console.log('ON UPLOAD')}
                         />
                     </Stack>

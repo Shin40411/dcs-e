@@ -11,9 +11,11 @@ import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
 import { IEmployeeItem } from "src/types/employee";
 import { EmployeeNewEditForm } from "../employee-new-edit-form";
+import { EmployeeDetails } from "../employee-details";
 
 export function EmployeeListView() {
     const openCrudForm = useBoolean();
+    const openDetailsForm = useBoolean();
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
@@ -56,6 +58,15 @@ export function EmployeeListView() {
             currentEmployee={tableRowSelected || undefined}
         />
     );
+
+    const renderDetails = () => (
+        <EmployeeDetails
+            open={openDetailsForm.value}
+            selectedEmployee={tableRowSelected || undefined}
+            onClose={openDetailsForm.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -83,7 +94,7 @@ export function EmployeeListView() {
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={employeesLoading}
-                    columns={EMPLOYEE_COLUMNS({ openCrudForm, confirmDelRowDialog, setRowIdSelected, setTableRowSelected })}
+                    columns={EMPLOYEE_COLUMNS({ openDetailsForm, openCrudForm, confirmDelRowDialog, setRowIdSelected, setTableRowSelected })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}
@@ -94,6 +105,7 @@ export function EmployeeListView() {
                     onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
+                {renderDetails()}
             </DashboardContent>
         </>
     );

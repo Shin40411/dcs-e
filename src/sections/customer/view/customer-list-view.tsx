@@ -11,9 +11,11 @@ import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
 import { ICustomerItem } from "src/types/customer";
 import { CustomerNewEditForm } from "../customer-new-edit-form";
+import { CustomerDetails } from "../customer-details";
 
 export function CustomerListView() {
     const openCrudForm = useBoolean();
+    const openDetailsForm = useBoolean();
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
@@ -59,6 +61,14 @@ export function CustomerListView() {
         />
     );
 
+    const renderDetails = () => (
+        <CustomerDetails
+            open={openDetailsForm.value}
+            selectedCustomer={tableRowSelected || undefined}
+            onClose={openDetailsForm.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -86,7 +96,7 @@ export function CustomerListView() {
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={customersLoading}
-                    columns={CUSTOMER_COLUMNS({ openCrudForm, confirmDelRowDialog, setTableRowSelected, setRowIdSelected })}
+                    columns={CUSTOMER_COLUMNS({ openDetailsForm, openCrudForm, confirmDelRowDialog, setTableRowSelected, setRowIdSelected })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}
@@ -97,6 +107,7 @@ export function CustomerListView() {
                     onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
+                {renderDetails()}
             </DashboardContent>
         </>
     );

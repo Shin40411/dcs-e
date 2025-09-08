@@ -94,7 +94,7 @@ export type ProductItem = {
   image: string;
   category: string;
   categoryName: string;
-  categoryID: number;
+  categoryId: number;
 };
 
 export type ProductListData = {
@@ -125,7 +125,7 @@ export type ProductDto = {
   warranty: number;
   manufacturer: string;
   vat: number;
-  categoryID: number;
+  categoryId: number;
 }
 
 export type ResProductItem = {
