@@ -89,12 +89,12 @@ export const navData: NavSectionProps['data'] = [
           {
             title: 'Báo giá',
             path: paths.dashboard.customerServices.quotation,
-            icon: <Iconify icon={'pepicons-pop:megaphone-circle'} />,
+            icon: <Iconify icon={'streamline-cyber-color:megaphone-1'} />,
           },
           {
             title: 'Hợp đồng',
             path: paths.dashboard.customerServices.contract,
-            icon: <Iconify icon={'lsicon:contract-filled'} />
+            icon: <Iconify icon={'streamline-cyber-color:new-document-layer'} />
           }
         ]
       },

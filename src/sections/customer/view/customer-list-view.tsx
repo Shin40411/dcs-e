@@ -12,6 +12,10 @@ import { paths } from "src/routes/paths";
 import { ICustomerItem } from "src/types/customer";
 import { CustomerNewEditForm } from "../customer-new-edit-form";
 import { CustomerDetails } from "../customer-details";
+import { ConfirmDialog } from "src/components/custom-dialog";
+import { deleteOne } from "src/actions/delete";
+import { endpoints } from "src/lib/axios";
+import { toast } from "sonner";
 
 export function CustomerListView() {
     const openCrudForm = useBoolean();
@@ -50,6 +54,18 @@ export function CustomerListView() {
 
     const dataFiltered = tableData;
 
+    const handleDeleteRow = async (id: number) => {
+        const success = await deleteOne({
+            apiEndpoint: endpoints.customer.delete(id),
+            listEndpoint: endpoints.customer.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+        });
+        if (success) {
+            toast.success('Xóa thành công 1 khách hàng!');
+        } else {
+            toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+        }
+    }
+
     const renderCRUDForm = () => (
         <CustomerNewEditForm
             open={openCrudForm.value}
@@ -66,6 +82,31 @@ export function CustomerListView() {
             open={openDetailsForm.value}
             selectedCustomer={tableRowSelected || undefined}
             onClose={openDetailsForm.onFalse}
+        />
+    );
+
+    const renderConfirmDeleteRow = () => (
+        <ConfirmDialog
+            open={confirmDelRowDialog.value}
+            onClose={confirmDelRowDialog.onFalse}
+            title="Xác nhận xóa khách hàng"
+            content={
+                <>
+                    Bạn có chắc chắn muốn xóa khách hàng này?
+                </>
+            }
+            action={
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => {
+                        handleDeleteRow(rowIdSelected);
+                        confirmDelRowDialog.onFalse();
+                    }}
+                >
+                    Xác nhận
+                </Button>
+            }
         />
     );
 
@@ -107,6 +148,7 @@ export function CustomerListView() {
                     onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
+                {renderConfirmDeleteRow()}
                 {renderDetails()}
             </DashboardContent>
         </>

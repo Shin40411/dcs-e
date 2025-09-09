@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, Card, CardActions, CardContent, Dialog, DialogContent, DialogTitle, Grid, Stack } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, Dialog, DialogContent, DialogTitle, Grid, MenuItem, Stack } from "@mui/material";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -90,18 +90,20 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                 ...payloadData,
                 ...extraFields
             });
-            mutate(endpoints.category.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.category.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentCategory ? 'Dữ liệu nhóm sản phẩm đã được thay đổi!' : 'Tạo mới dữ liệu nhóm sản phẩm thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error('Đã có lỗi xảy ra!');
         }
     });
 
     return (
         <Dialog
-            maxWidth={false}
+            fullWidth
+            maxWidth={"sm"}
             open={open}
             onClose={onClose}
         >
@@ -124,16 +126,12 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                                         fullWidth
                                     />
 
-                                    <Field.NumberInput
-                                        name="vat"
-                                        helperText={
-                                            <Stack direction="row" spacing={0.5} alignItems="center">
-                                                <Iconify width={16} icon="solar:info-circle-bold" />
-                                                <span>VAT áp dụng</span>
-                                            </Stack>
-                                        }
-                                        sx={{ maxWidth: { md: 200, xs: '100%' } }}
-                                    />
+                                    <Field.Select label="VAT áp dụng" name="vat">
+                                        <MenuItem key={0} value={0} sx={{ textTransform: 'capitalize' }}>0%</MenuItem>
+                                        <MenuItem key={5} value={5} sx={{ textTransform: 'capitalize' }}>5%</MenuItem>
+                                        <MenuItem key={8} value={8} sx={{ textTransform: 'capitalize' }}>8%</MenuItem>
+                                        <MenuItem key={10} value={10} sx={{ textTransform: 'capitalize' }}>10%</MenuItem>
+                                    </Field.Select>
                                 </Stack>
 
                                 <Field.Text

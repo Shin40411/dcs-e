@@ -12,6 +12,10 @@ import { paths } from "src/routes/paths";
 import { IEmployeeItem } from "src/types/employee";
 import { EmployeeNewEditForm } from "../employee-new-edit-form";
 import { EmployeeDetails } from "../employee-details";
+import { ConfirmDialog } from "src/components/custom-dialog";
+import { deleteOne } from "src/actions/delete";
+import { toast } from "sonner";
+import { endpoints } from "src/lib/axios";
 
 export function EmployeeListView() {
     const openCrudForm = useBoolean();
@@ -47,6 +51,43 @@ export function EmployeeListView() {
     }, [employees]);
 
     const dataFiltered = tableData;
+
+    const handleDeleteRow = async (id: number) => {
+        const success = await deleteOne({
+            apiEndpoint: endpoints.employees.delete(id),
+            listEndpoint: endpoints.employees.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+        });
+        if (success) {
+            toast.success('Xóa thành công 1 nhân viên!');
+        } else {
+            toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+        }
+    }
+
+    const renderConfirmDeleteRow = () => (
+        <ConfirmDialog
+            open={confirmDelRowDialog.value}
+            onClose={confirmDelRowDialog.onFalse}
+            title="Xác nhận xóa sản phẩm"
+            content={
+                <>
+                    Bạn có chắc chắn muốn xóa nhân viên này?
+                </>
+            }
+            action={
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => {
+                        handleDeleteRow(Number(rowIdSelected));
+                        confirmDelRowDialog.onFalse();
+                    }}
+                >
+                    Xác nhận
+                </Button>
+            }
+        />
+    );
 
     const renderCRUDForm = () => (
         <EmployeeNewEditForm
@@ -106,6 +147,7 @@ export function EmployeeListView() {
                 />
                 {renderCRUDForm()}
                 {renderDetails()}
+                {renderConfirmDeleteRow()}
             </DashboardContent>
         </>
     );

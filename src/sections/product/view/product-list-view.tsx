@@ -22,6 +22,8 @@ import { ProductNewEditForm } from '../product-new-edit-form';
 import { UseGridTableList } from 'src/components/data-grid-table/data-grid-table';
 import { PRODUCT_COLUMNS } from 'src/const/product';
 import { ProductDetails } from '../product-details';
+import { deleteOne } from 'src/actions/delete';
+import { endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
@@ -68,16 +70,17 @@ export function ProductListView() {
     filters: currentFilters,
   });
 
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
+  const handleDeleteRow = async (id: number) => {
+    const success = await deleteOne({
+      apiEndpoint: endpoints.product.delete(id),
+      listEndpoint: endpoints.product.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+    });
+    if (success) {
       toast.success('Xóa thành công 1 sản phẩm!');
-
-      setTableData(deleteRow);
-    },
-    [tableData]
-  );
+    } else {
+      toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+    }
+  }
 
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));
@@ -127,7 +130,7 @@ export function ProductListView() {
           variant="contained"
           color="error"
           onClick={() => {
-            handleDeleteRow(rowIdSelected);
+            handleDeleteRow(Number(rowIdSelected));
             confirmDelRowDialog.onFalse();
           }}
         >

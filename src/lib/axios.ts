@@ -59,45 +59,54 @@ export const endpoints = {
     search: '/api/product/search',
     create: `/api/v1/products/create`,
     update: (id: string) => `/api/v1/products/update/${id}`,
+    delete: (id: number) => `/api/v1/products/delete/${id}`
   },
   category: {
     list: (params: string) => `/api/v1/product-categories/categories${params}`,
     createOrUpdate: (params: string) => `/api/v1/product-categories/categories${params}`,
+    delete: (id: number) => `/api/v1/product-categories/categories/${id}`
   },
   unit: {
     list: (params: string) => `/api/v1/units/units${params}`,
     create: `/api/v1/units/create`,
     update: (id: string) => `/api/v1/units/update${id}`,
+    delete: (id: number) => `/api/v1/units/delete/${id}`
   },
   department: {
     list: (params: string) => `/api/v1/departments/departments${params}`,
     create: `/api/v1/departments/create`,
     update: (id: string) => `/api/v1/departments/update${id}`,
+    delete: (id: number) => `/api/v1/departments/delete/${id}`
   },
   employeeType: {
     list: (params: string) => `/api/v1/employee-type/employee-types${params}`,
     create: `/api/v1/employee-type/create`,
     update: (id: string) => `/api/v1/employee-type/update${id}`,
+    delete: (id: number) => `/api/v1/employee-type/delete/${id}`
   },
   customer: {
     list: (params: string) => `/api/v1/customers/customers${params}`,
     create: `/api/v1/customers/create`,
     update: (id: string) => `/api/v1/customers/update${id}`,
+    delete: (id: number) => `/api/v1/customers/delete/${id}`
   },
   bankAccount: {
     list: (params: string) => `/api/v1/bank-accounts/bank-accounts${params}`,
     create: `/api/v1/bank-accounts/create`,
     update: (id: string) => `/api/v1/bank-accounts/update${id}`,
+    delete: (id: number) => `/api/v1/bank-accounts/delete/${id}`
   },
   suppliers: {
     list: (params: string) => `/api/v1/suppliers/suppliers${params}`,
     create: `/api/v1/suppliers/create`,
     update: (id: string) => `/api/v1/suppliers/update${id}`,
+    delete: (id: number) => `/api/v1/suppliers/delete/${id}`
   },
   employees: {
     list: (params: string) => `/api/v1/employees/employees${params}`,
     create: `/api/v1/employees/create`,
     update: (id: string) => `/api/v1/employees/update${id}`,
+    delete: (id: number) => `/api/v1/employees/delete/${id}`
   },
   upload: {
     uploadImage: '/api/v1/uploads/upload',

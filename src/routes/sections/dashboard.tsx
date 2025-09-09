@@ -39,6 +39,8 @@ const SuppliersPage = lazy(() => import('src/pages/dashboard/suppliers/list'));
 const EmployeesPage = lazy(() => import('src/pages/dashboard/employee/list'));
 // Customer services
 const QuotationPage = lazy(() => import('src/pages/dashboard/quotation/list'));
+//Contract
+const ContractPage = lazy(() => import('src/pages/dashboard/contract/list'));
 // Order
 const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
@@ -165,7 +167,7 @@ export const dashboardRoutes: RouteObject[] = [
         path: 'customer-services',
         children: [
           { index: true, element: <QuotationPage /> },
-          { path: 'contract', element: <></> }
+          { path: 'contract', element: <ContractPage /> }
         ]
       },
       {

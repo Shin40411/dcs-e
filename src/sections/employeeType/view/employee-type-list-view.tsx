@@ -11,6 +11,10 @@ import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
 import { IEmployeeTypeItem } from "src/types/employeeType";
 import { EmployeeTypeNewEditForm } from "../employee-type-new-edit-form";
+import { deleteOne } from "src/actions/delete";
+import { endpoints } from "src/lib/axios";
+import { toast } from "sonner";
+import { ConfirmDialog } from "src/components/custom-dialog";
 
 export function EmployeeTypeListView() {
     const openCrudForm = useBoolean();
@@ -49,6 +53,45 @@ export function EmployeeTypeListView() {
     }, [employeeTypes]);
 
     const dataFiltered = tableData;
+
+
+    const handleDeleteRow = async (id: number) => {
+        const success = await deleteOne({
+            apiEndpoint: endpoints.employeeType.delete(id),
+            listEndpoint: endpoints.employeeType.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+        });
+        if (success) {
+            toast.success('Xóa thành công 1 chức vụ!');
+        } else {
+            toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+        }
+    }
+
+
+    const renderConfirmDeleteRow = () => (
+        <ConfirmDialog
+            open={confirmDelRowDialog.value}
+            onClose={confirmDelRowDialog.onFalse}
+            title="Xác nhận xóa chức vụ"
+            content={
+                <>
+                    Bạn có chắc chắn muốn xóa chức vụ này?
+                </>
+            }
+            action={
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => {
+                        handleDeleteRow(Number(rowIdSelected));
+                        confirmDelRowDialog.onFalse();
+                    }}
+                >
+                    Xác nhận
+                </Button>
+            }
+        />
+    );
 
     const renderCRUDForm = () => (
         <EmployeeTypeNewEditForm
@@ -99,6 +142,7 @@ export function EmployeeTypeListView() {
                     onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
+                {renderConfirmDeleteRow()}
             </DashboardContent>
         </>
     );

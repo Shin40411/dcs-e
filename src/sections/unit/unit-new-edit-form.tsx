@@ -64,12 +64,13 @@ export function UnitNewEditForm({ currentUnit, open, onClose, selectedId, page, 
                 name: data.name,
             };
             await createOrUpdateUnit(selectedId ?? 0, payloadData);
-            mutate(endpoints.unit.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.unit.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentUnit ? 'Đơn vị tính đã được thay đổi!' : 'Tạo mới đơn vị tính thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error(error.message);
         }
     });
 

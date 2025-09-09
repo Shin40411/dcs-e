@@ -178,12 +178,13 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
             };
 
             await createOrUpdateEmployee(selectedId ?? 0, payloadData);
-            mutate(endpoints.employees.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.employees.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentEmployee ? 'Dữ liệu nhân viên đã được thay đổi!' : 'Tạo mới dữ liệu nhân viên thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error('Đã có lỗi xảy ra!');
         }
     });
 

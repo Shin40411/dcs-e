@@ -19,7 +19,7 @@ const swrOptions: SWRConfiguration = {
 export function useGetDepartments({ pageNumber, pageSize, key, enabled = true }: departmentProps) {
     let params = '';
 
-    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
     if (key) params += `&search=${key}`;
 

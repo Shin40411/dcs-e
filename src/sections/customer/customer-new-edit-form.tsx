@@ -117,13 +117,13 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
             };
 
             await createOrUpdateCustomer(selectedId ?? 0, payloadData);
-            mutate(endpoints.customer.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.customer.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentCustomer ? 'Dữ liệu khách hàng đã được thay đổi!' : 'Tạo mới dữ liệu khách hàng thành công!');
             onClose();
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.title);
+            toast.error('Đã có lỗi xảy ra!');
         }
     });
 

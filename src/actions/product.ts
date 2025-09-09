@@ -25,7 +25,7 @@ export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
   let params = '';
 
   if (pageNumber || pageSize)
-    params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
   if (key) params += `&search=${key}`;
 

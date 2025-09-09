@@ -65,12 +65,13 @@ export function DepartmentNewEditForm({ currentDepartment, open, onClose, select
                 name: data.name,
             };
             await createOrUpdateDepartment(selectedId ?? 0, payloadData);
-            mutate(endpoints.department.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.department.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentDepartment ? 'Dữ liệu phòng ban đã được thay đổi!' : 'Tạo mới dữ liệu phòng ban thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error(error.message);
         }
     });
 

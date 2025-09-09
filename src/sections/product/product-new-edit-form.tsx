@@ -219,7 +219,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       );
 
       mutate(
-        endpoints.product.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`)
+        endpoints.product.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`)
       );
 
       if (selectedId)
@@ -235,8 +235,9 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
 
       onClose();
       reset(defaultValues);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      toast.error('Đã có lỗi xảy ra!');
     }
   });
 

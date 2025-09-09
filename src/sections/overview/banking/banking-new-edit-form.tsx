@@ -81,12 +81,13 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
             };
 
             await createOrUpdateBankAccount(selectedId ?? 0, payloadData);
-            mutate(endpoints.bankAccount.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.bankAccount.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentBankingAccount ? 'Dữ liệu tài khoản ngân hàng đã được thay đổi!' : 'Tạo mới dữ liệu tài khoản ngân hàng thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error('Đã có lỗi xảy ra!');
         }
     });
 

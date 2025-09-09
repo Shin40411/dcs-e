@@ -63,12 +63,13 @@ export function EmployeeTypeNewEditForm({ currentEmployeeType, open, onClose, se
                 name: data.name,
             };
             await createOrUpdateEmployeeType(selectedId ?? 0, payloadData);
-            mutate(endpoints.employeeType.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.employeeType.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentEmployeeType ? 'Chức vụ đã được thay đổi!' : 'Tạo mới chức vụ thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error(error.message);
         }
     });
 

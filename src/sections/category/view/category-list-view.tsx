@@ -14,6 +14,8 @@ import { CategoryNewEditForm } from "../category-new-edit-form";
 import { CategoryDetails } from "../category-details";
 import { UseGridTableList } from "src/components/data-grid-table/data-grid-table";
 import { CATEGORY_COLUMNS } from "src/const/category";
+import { deleteOne } from "src/actions/delete";
+import { endpoints } from "src/lib/axios";
 // ----------------------------------------------------------------------
 
 export function CategoryListView() {
@@ -56,16 +58,19 @@ export function CategoryListView() {
 
     const dataFiltered = tableData;
 
-    const handleDeleteRow = useCallback(
-        (id: number) => {
-            const deleteRow = tableData.filter((row) => row.id !== id);
-
-            toast.success('Xóa thành công nhóm sản phẩm!');
-
-            setTableData(deleteRow);
-        },
-        [tableData]
-    );
+    const handleDeleteRow = async (id: number) => {
+        const success = await deleteOne({
+            apiEndpoint: endpoints.category.delete(id),
+            listEndpoint: endpoints.category.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+        });
+        if (success) {
+            toast.success("Xóa thành công nhóm sản phẩm!");
+            // const deleteRow = tableData.filter((row) => row.id !== id);
+            // setTableData(deleteRow);
+        } else {
+            toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+        }
+    }
 
     const handleDeleteRows = useCallback(() => {
         const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));

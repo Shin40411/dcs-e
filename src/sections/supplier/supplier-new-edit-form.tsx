@@ -106,12 +106,13 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
             };
 
             await createOrUpdateSupplier(selectedId ?? 0, payloadData);
-            mutate(endpoints.suppliers.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}`));
+            mutate(endpoints.suppliers.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentSupplier ? 'Dữ liệu nhà cung cấp đã được thay đổi!' : 'Tạo mới dữ liệu nhà cung cấp thành công!');
             onClose();
             reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            toast.error('Đã có lỗi xảy ra!');
         }
     });
 

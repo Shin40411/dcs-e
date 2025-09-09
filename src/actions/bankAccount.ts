@@ -19,7 +19,7 @@ const swrOptions: SWRConfiguration = {
 export function useGetBankAccounts({ pageNumber, pageSize, key, enabled = true }: bankAccountProps) {
     let params = '';
 
-    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
     if (key) params += `&search=${key}`;
 

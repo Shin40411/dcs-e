@@ -11,6 +11,10 @@ import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
 import { IDepartmentItem } from "src/types/department";
 import { DepartmentNewEditForm } from "../department-new-edit-form";
+import { deleteOne } from "src/actions/delete";
+import { endpoints } from "src/lib/axios";
+import { toast } from "sonner";
+import { ConfirmDialog } from "src/components/custom-dialog";
 
 export function DepartmentListView() {
     const openCrudForm = useBoolean();
@@ -49,6 +53,45 @@ export function DepartmentListView() {
     }, [departments]);
 
     const dataFiltered = tableData;
+
+
+    const handleDeleteRow = async (id: number) => {
+        const success = await deleteOne({
+            apiEndpoint: endpoints.department.delete(id),
+            listEndpoint: endpoints.department.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+        });
+        if (success) {
+            toast.success('Xóa thành công 1 phòng ban!');
+        } else {
+            toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+        }
+    }
+
+
+    const renderConfirmDeleteRow = () => (
+        <ConfirmDialog
+            open={confirmDelRowDialog.value}
+            onClose={confirmDelRowDialog.onFalse}
+            title="Xác nhận xóa phòng ban"
+            content={
+                <>
+                    Bạn có chắc chắn muốn xóa phòng ban này?
+                </>
+            }
+            action={
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => {
+                        handleDeleteRow(Number(rowIdSelected));
+                        confirmDelRowDialog.onFalse();
+                    }}
+                >
+                    Xác nhận
+                </Button>
+            }
+        />
+    );
 
     const renderCRUDForm = () => (
         <DepartmentNewEditForm
@@ -99,6 +142,7 @@ export function DepartmentListView() {
                     onSearchChange={setSearchText}
                 />
                 {renderCRUDForm()}
+                {renderConfirmDeleteRow()}
             </DashboardContent>
         </>
     );

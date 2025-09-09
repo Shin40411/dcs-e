@@ -20,7 +20,7 @@ const swrOptions: SWRConfiguration = {
 export function useGetEmployeeTypes({ pageNumber, pageSize, key, enabled = true }: unitsProps) {
     let params = '';
 
-    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
     if (key) params += `&search=${key}`;
 

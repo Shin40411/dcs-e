@@ -15,6 +15,10 @@ import { useBoolean } from 'minimal-shared/hooks';
 import { BANKACCOUNT_COLUMNS } from 'src/const/bankAccount';
 import { BankingDetails } from '../banking-details';
 import { BankingNewEditForm } from '../banking-new-edit-form';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { endpoints } from 'src/lib/axios';
+import { deleteOne } from 'src/actions/delete';
+import { toast } from 'sonner';
 
 // ----------------------------------------------------------------------
 
@@ -57,6 +61,18 @@ export function OverviewBankingView() {
 
   const dataFiltered = tableData;
 
+  const handleDeleteRow = async (id: number) => {
+    const success = await deleteOne({
+      apiEndpoint: endpoints.bankAccount.delete(id),
+      listEndpoint: endpoints.bankAccount.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+    });
+    if (success) {
+      toast.success('Xóa thành công 1 tài khoản ngân hàng!');
+    } else {
+      toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+    }
+  }
+
   const renderDetails = () => (
     <BankingDetails
       open={openDetailsForm.value}
@@ -73,6 +89,31 @@ export function OverviewBankingView() {
       page={page}
       rowsPerPage={rowsPerPage}
       currentBankingAccount={tableRowSelected || undefined}
+    />
+  );
+
+  const renderConfirmDeleteRow = () => (
+    <ConfirmDialog
+      open={confirmDelRowDialog.value}
+      onClose={confirmDelRowDialog.onFalse}
+      title="Xác nhận xóa tài khoản ngân hàng"
+      content={
+        <>
+          Bạn có chắc chắn muốn xóa tài khoản ngân hàng này?
+        </>
+      }
+      action={
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            handleDeleteRow(rowIdSelected);
+            confirmDelRowDialog.onFalse();
+          }}
+        >
+          Xác nhận
+        </Button>
+      }
     />
   );
 
@@ -114,6 +155,7 @@ export function OverviewBankingView() {
       />
       {renderDetails()}
       {renderCRUDForm()}
+      {renderConfirmDeleteRow()}
     </DashboardContent>
   );
 }
