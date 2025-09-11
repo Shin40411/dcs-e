@@ -43,3 +43,8 @@ export function fToNowUTC0(date: InputValue) {
         )
         : '';
 }
+
+
+export function formatDate(date: Date): string {
+    return date.toISOString().split("T")[0];
+}

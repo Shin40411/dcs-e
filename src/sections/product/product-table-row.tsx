@@ -137,7 +137,7 @@ export function RenderCellDescription({ params }: ParamsProps) {
 export function RenderCellVAT({ params }: ParamsProps) {
   return (
     <Box sx={{ gap: 0.5, display: 'flex', flexDirection: 'column' }}>
-      <span style={{ fontSize: 15, fontWeight: 700 }}>{params.row.vat}</span>
+      <span style={{ fontSize: 15, fontWeight: 700 }}>{params.row.vat}%</span>
     </Box>
   );
 }

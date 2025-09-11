@@ -1,19 +1,39 @@
-import { Box, Card, CardProps, Chip, Divider, IconButton, ListItemText, MenuItem, MenuList, Stack, Typography } from "@mui/material";
+import {
+    Box,
+    Card,
+    CardProps,
+    Chip,
+    Divider,
+    IconButton,
+    MenuItem,
+    MenuList,
+    Stack,
+    Typography
+} from "@mui/material";
 import { usePopover } from "minimal-shared/hooks";
 import { CustomPopover } from "src/components/custom-popover";
 import { Iconify } from "src/components/iconify";
-import { IQuotation } from "src/types/quotation";
+import { IQuotationItem } from "src/types/quotation";
 import { fCurrency } from "src/utils/format-number";
 import { fDate } from "src/utils/format-time-vi";
 
 type Props = CardProps & {
-    quotate: IQuotation;
+    quotate: IQuotationItem;
     onViewDetails: () => void;
 };
 
+const statusMap = {
+    0: { label: "Bỏ qua", color: "warning", icon: "fluent-color:dismiss-circle-16" },
+    1: { label: "Chờ khách chốt", color: "info", icon: "fluent-color:clock-16" },
+    2: { label: "Hết hiệu lực", color: "error", icon: "fluent-color:error-circle-16" },
+    3: { label: "Đang thực hiện", color: "primary", icon: "fluent-color:arrow-sync-16" },
+    4: { label: "Đã hoàn thành", color: "success", icon: "fluent-color:checkmark-circle-16" },
+} as const;
 
 export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
     const menuActions = usePopover();
+
+    const statusInfo = statusMap[quotate.status as keyof typeof statusMap];
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -23,24 +43,20 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
             slotProps={{ arrow: { placement: "right-top" } }}
         >
             <MenuList>
-                <li>
-                    <MenuItem
-                        onClick={() => {
-                            onViewDetails();
-                            menuActions.onClose();
-                        }}
-                    >
-                        <Iconify icon="solar:eye-bold" />
-                        Xem trước báo giá
-                    </MenuItem>
-                </li>
+                <MenuItem
+                    onClick={() => {
+                        onViewDetails();
+                        menuActions.onClose();
+                    }}
+                >
+                    <Iconify icon="solar:eye-bold" />
+                    Xem trước
+                </MenuItem>
 
-                <li>
-                    <MenuItem onClick={() => menuActions.onClose()}>
-                        <Iconify icon="solar:pen-bold" />
-                        Chỉnh sửa
-                    </MenuItem>
-                </li>
+                <MenuItem onClick={() => menuActions.onClose()}>
+                    <Iconify icon="solar:pen-bold" />
+                    Chỉnh sửa
+                </MenuItem>
 
                 <MenuItem
                     onClick={() => {
@@ -86,20 +102,12 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                         bgcolor: "background.neutral",
                     }}
                 >
-                    <Typography variant="subtitle2">#{quotate.id}</Typography>
+                    <Typography variant="subtitle2">#{quotate.quotationNo}</Typography>
                     <Chip
                         size="small"
-                        color={quotate.status ? "success" : "warning"}
-                        icon={
-                            <Iconify
-                                icon={
-                                    quotate.status
-                                        ? "solar:check-circle-bold"
-                                        : "solar:clock-circle-bold"
-                                }
-                            />
-                        }
-                        label={quotate.status ? "Đã duyệt" : "Chưa duyệt"}
+                        color={statusInfo.color}
+                        icon={<Iconify icon={statusInfo.icon} />}
+                        label={statusInfo.label}
                     />
                 </Box>
 
@@ -113,7 +121,7 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                                 sx={{ color: "text.secondary" }}
                             />
                             <Typography variant="subtitle1" noWrap>
-                                {quotate.customer}
+                                {quotate.customerName}
                             </Typography>
                         </Stack>
 
@@ -124,7 +132,7 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                                 sx={{ color: "text.secondary" }}
                             />
                             <Typography variant="body2">
-                                Ngày lập: {fDate(quotate.date)}
+                                Ngày lập: {fDate(quotate.createdDate)}
                             </Typography>
                         </Stack>
 
@@ -134,7 +142,7 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                                 icon="solar:user-rounded-bold"
                                 sx={{ color: "text.secondary" }}
                             />
-                            <Typography variant="body2">NV phụ trách: {quotate.staff}</Typography>
+                            <Typography variant="body2">NV phụ trách: {quotate.seller || 'Chưa có'}</Typography>
                         </Stack>
                     </Stack>
                 </Box>
@@ -155,7 +163,7 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                         Tổng cộng
                     </Typography>
                     <Typography variant="subtitle1" color="primary">
-                        {fCurrency(quotate.total)}
+                        {fCurrency(quotate.totalAmount)}
                     </Typography>
                 </Box>
             </Card>

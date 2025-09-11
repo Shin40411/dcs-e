@@ -1,22 +1,48 @@
 import { IDateValue } from "./common";
 import { z } from "zod";
 
-export type IQuotation = {
-    id: string;
-    customer: string;
-    date: IDateValue;
-    status: boolean;
-    total: number;
-    staff: string;
-    item: IQuotationItem[];
-}
-
 export type IQuotationItem = {
-    name: string,
-    qty: number,
-    price: number
-}
+    id: number;
+    quotationNo: string;
+    customerId: number;
+    customerName: string;
+    customerPhone: string;
+    companyName: string;
+    email: string;
+    address: string;
+    createdDate: IDateValue;
+    createdBy: string;
+    modifyDate: IDateValue;
+    modifyBy: string;
+    expiryDate: IDateValue;
+    totalAmount: number;
+    note: string;
+    seller: string;
+    status: number;
+    discount: number;
+    paid: number;
+    remaining: number;
+    isDeleted: boolean;
+};
 
+export type IQuotationListData = {
+    pageNumber: number;
+    pageSize: number;
+    totalRecord: number;
+    totalPages: number;
+    items: IQuotationItem[];
+};
+
+export type ResQuotationList = {
+    statusCode: number;
+    message: string;
+    data: IQuotationListData;
+};
+
+export type FilterValues = {
+    fromDate: IDateValue;
+    toDate: IDateValue;
+};
 
 export const quotationItemSchema = z.object({
     name: z.string().min(1, "Nhập tên sản phẩm/dịch vụ"),

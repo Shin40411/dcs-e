@@ -1,12 +1,12 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import { IContract } from "src/types/contract";
-import { IQuotation } from "src/types/quotation";
+import { IQuotationItem } from "src/types/quotation";
 
 type ContractFormProps = {
     open: boolean;
     onClose: () => void;
-    quotations: IQuotation[];
+    quotations: IQuotationItem[];
     onSave: (c: IContract) => void;
 };
 
@@ -20,7 +20,7 @@ export function ContractForm({ open, onClose, onSave, quotations }: ContractForm
                         <MenuItem value="">-- Không chọn (tạo mới) --</MenuItem>
                         {quotations.map((q) => (
                             <MenuItem key={q.id} value={q.id}>
-                                {q.id} - {q.customer}
+                                {q.id} - {q.customerName}
                             </MenuItem>
                         ))}
                     </TextField>

@@ -1,9 +1,9 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import { IQuotation } from "src/types/quotation";
+import { IQuotationItem } from "src/types/quotation";
 import html2pdf from "html2pdf.js";
 
 type Props = {
-    selectedQuotation: IQuotation | null;
+    selectedQuotation: IQuotationItem | null;
     openDetail: boolean;
     onClose: () => void;
 }
@@ -30,12 +30,12 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                             BÁO GIÁ
                         </Typography>
                         <Typography variant="body2">Mã báo giá: {selectedQuotation.id}</Typography>
-                        <Typography variant="body2">Ngày: {selectedQuotation.date}</Typography>
-                        <Typography variant="body2">Khách hàng: {selectedQuotation.customer}</Typography>
-                        <Typography variant="body2">Nhân viên: {selectedQuotation.staff}</Typography>
+                        <Typography variant="body2">Ngày: {selectedQuotation.createdDate}</Typography>
+                        <Typography variant="body2">Khách hàng: {selectedQuotation.customerName}</Typography>
+                        <Typography variant="body2">Nhân viên: {selectedQuotation.seller}</Typography>
 
                         {/* Bảng sản phẩm */}
-                        <Table size="small" sx={{ mt: 2 }}>
+                        {/* <Table size="small" sx={{ mt: 2 }}>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Tên SP/DV</TableCell>
@@ -45,7 +45,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {selectedQuotation.item?.map((item: any, index: number) => (
+                                {selectedQuotation.map((item: any, index: number) => (
                                     <TableRow key={index}>
                                         <TableCell>{item.name}</TableCell>
                                         <TableCell align="right">{item.qty}</TableCell>
@@ -64,7 +64,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
-                        </Table>
+                        </Table> */}
 
                         {/* Footer / chữ ký */}
                         <Box sx={{ mt: 5, display: "flex", justifyContent: "space-between" }}>

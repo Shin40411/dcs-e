@@ -8,151 +8,79 @@ import {
     Box,
     Pagination,
     paginationClasses,
+    TablePagination,
+    Skeleton,
 } from '@mui/material';
 import { QuotationItem } from './quotation-item';
-import { useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { QuotationFilterBar } from './quotation-filter';
-
-const quotations = [
-    {
-        id: 'Q-001',
-        customer: 'Công ty ABC',
-        date: '2025-09-05',
-        status: true,
-        total: 25000000,
-        staff: 'Nguyễn Văn A',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-    {
-        id: 'Q-002',
-        customer: 'Công ty XYZ',
-        date: '2025-09-02',
-        status: true,
-        total: 15500000,
-        staff: 'Trần Thị B',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-    {
-        id: 'Q-003',
-        customer: 'Công ty TNHH Minh Phát',
-        date: '2025-09-01',
-        status: false,
-        total: 7800000,
-        staff: 'Phạm Văn C',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-    {
-        id: 'Q-004',
-        customer: 'Doanh nghiệp Hòa Bình',
-        date: '2025-08-29',
-        status: true,
-        total: 32000000,
-        staff: 'Lê Thị D',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-    {
-        id: 'Q-005',
-        customer: 'Công ty Cổ phần Nam Việt',
-        date: '2025-08-25',
-        status: false,
-        total: 12750000,
-        staff: 'Ngô Văn E',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-    {
-        id: 'Q-006',
-        customer: 'Tập đoàn FPT',
-        date: '2025-08-20',
-        status: true,
-        total: 45900000,
-        staff: 'Đinh Thị F',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-    {
-        id: 'Q-007',
-        customer: 'Công ty TNHH Thiên Long',
-        date: '2025-08-15',
-        status: true,
-        total: 21200000,
-        staff: 'Hoàng Văn G',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-    {
-        id: 'Q-008',
-        customer: 'Doanh nghiệp Tân Á',
-        date: '2025-08-10',
-        status: false,
-        total: 9500000,
-        staff: 'Vũ Thị H',
-        item: [
-            { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-            { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-            { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-        ],
-    },
-];
+import { useGetQuotations } from 'src/actions/quotation';
+import { FilterValues, IQuotationItem } from 'src/types/quotation';
+import { formatDate } from 'src/utils/format-time-vi';
 
 type Props = {
-    onViewDetails: (quotation: any) => void;
+    onViewDetails: (quotation: IQuotationItem) => void;
 };
 
 export function QuotationCardList({ onViewDetails }: Props) {
-    const [filters, setFilters] = useState<{ fromDate: string; toDate: string }>({
-        fromDate: "",
-        toDate: "",
+    const today = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(today.getMonth() - 1);
+
+    const [filters, setFilters] = useState<FilterValues>({
+        fromDate: null,
+        toDate: null,
     });
 
-    const handleFilterChange = (values: { fromDate: string; toDate: string }) => {
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [searchText, setSearchText] = useState("");
+
+    const { quotations, quotationsLoading, pagination } = useGetQuotations({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        key: searchText,
+        fromDate: filters.fromDate,
+        toDate: filters.toDate,
+    });
+
+    const [tableData, setTableData] = useState<IQuotationItem[]>([]);
+
+    useEffect(() => {
+        setTableData(quotations);
+    }, [quotations]);
+
+    const handleFilterChange = (values: FilterValues) => {
         setFilters(values);
+        setPage(0);
     };
 
     const handleReset = () => {
-        setFilters({ fromDate: "", toDate: "" });
+        setFilters({
+            fromDate: formatDate(lastMonth),
+            toDate: formatDate(today),
+        });
+        setPage(0);
     };
 
-    const filteredQuotations = quotations.filter((q) => {
-        const qDate = new Date(q.date).getTime();
-        const from = filters.fromDate ? new Date(filters.fromDate).getTime() : null;
-        const to = filters.toDate ? new Date(filters.toDate).getTime() : null;
+    const handleChangePage = (_: unknown, newPage: number) => {
+        setPage(newPage);
+    };
 
-        if (from && qDate < from) return false;
-        if (to && qDate > to) return false;
-        return true;
-    });
+    const handleChangeRowsPerPage = (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
     return (
         <>
             <QuotationFilterBar
                 onFilterChange={handleFilterChange}
                 onReset={handleReset}
             />
+
             <Box
                 sx={{
                     gap: 3,
@@ -160,17 +88,36 @@ export function QuotationCardList({ onViewDetails }: Props) {
                     gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
                 }}
             >
-                {filteredQuotations.map((q) => (
-                    <QuotationItem key={q.id} quotate={q} onViewDetails={() => onViewDetails(q)} />
-                ))}
+                {quotationsLoading
+                    ? Array.from({ length: rowsPerPage }).map((_, i) => (
+                        <Box key={i} sx={{ p: 2, border: "1px solid #eee", borderRadius: 2 }}>
+                            <Skeleton variant="rectangular" height={120} sx={{ mb: 1 }} />
+                            <Skeleton variant="text" width="60%" />
+                            <Skeleton variant="text" width="40%" />
+                        </Box>
+                    ))
+                    : tableData.map((q) => (
+                        <QuotationItem
+                            key={q.id}
+                            quotate={q}
+                            onViewDetails={() => onViewDetails(q)}
+                        />
+                    ))}
             </Box>
 
-            {quotations.length > 8 && (
-                <Pagination
-                    sx={{
-                        mt: { xs: 8, md: 8 },
-                        [`& .${paginationClasses.ul}`]: { justifyContent: 'center' },
-                    }}
+            {pagination?.totalRecord > rowsPerPage && (
+                <TablePagination
+                    component="div"
+                    count={pagination.totalRecord}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    rowsPerPageOptions={[5, 10, 20]}
+                    labelRowsPerPage="Số dòng mỗi trang:"
+                    labelDisplayedRows={({ from, to, count }) =>
+                        `${from}–${to} trên ${count !== -1 ? count : `nhiều hơn ${to}`}`
+                    }
                 />
             )}
         </>

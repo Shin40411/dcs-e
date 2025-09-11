@@ -1,7 +1,7 @@
 import { DataGrid, gridClasses, GridColDef, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton } from "@mui/x-data-grid";
 import { EmptyContent } from "../empty-content";
 import { Box, Card, TablePagination, TextField } from "@mui/material";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import type { GridToolbarProps } from "@mui/x-data-grid";
 import { Iconify } from "../iconify";
 
@@ -136,7 +136,7 @@ export function UseGridTableList({
 
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
-        setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+        setFilterButtonEl: Dispatch<SetStateAction<HTMLButtonElement | null>>;
         searchText?: string;
         onSearchChange?: (value: string) => void;
     }

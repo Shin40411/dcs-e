@@ -7,7 +7,7 @@ import { IContract, IContractItem } from "src/types/contract";
 import { ContractTable } from "../contract-table";
 import { ContractForm } from "../contract-form";
 import { ContractDetail } from "../contract-detail";
-import { IQuotation } from "src/types/quotation";
+import { IQuotationItem } from "src/types/quotation";
 
 export function ContractMainView() {
     const [contracts, setContracts] = useState<IContract[]>([
@@ -29,34 +29,34 @@ export function ContractMainView() {
         },
     ]);
 
-    const quotations: IQuotation[] = [
-        {
-            id: 'Q-001',
-            customer: 'Công ty ABC',
-            date: '2025-09-05',
-            status: true,
-            total: 25000000,
-            staff: 'Nguyễn Văn A',
-            item: [
-                { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-                { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-                { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-            ],
-        },
-        {
-            id: 'Q-002',
-            customer: 'Công ty XYZ',
-            date: '2025-09-02',
-            status: true,
-            total: 15500000,
-            staff: 'Trần Thị B',
-            item: [
-                { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
-                { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
-                { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
-            ],
-        },
-    ];
+    // const quotations: IQuotationItem[] = [
+    //     {
+    //         id: 'Q-001',
+    //         customer: 'Công ty ABC',
+    //         date: '2025-09-05',
+    //         status: true,
+    //         total: 25000000,
+    //         staff: 'Nguyễn Văn A',
+    //         item: [
+    //             { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
+    //             { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
+    //             { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
+    //         ],
+    //     },
+    //     {
+    //         id: 'Q-002',
+    //         customer: 'Công ty XYZ',
+    //         date: '2025-09-02',
+    //         status: true,
+    //         total: 15500000,
+    //         staff: 'Trần Thị B',
+    //         item: [
+    //             { name: 'Laptop Dell XPS 13', qty: 2, price: 18000000 },
+    //             { name: 'Chuột không dây Logitech', qty: 5, price: 350000 },
+    //             { name: 'Bàn phím cơ Keychron K2', qty: 3, price: 2200000 },
+    //         ],
+    //     },
+    // ];
 
 
     const [openForm, setOpenForm] = useState(false);
@@ -96,7 +96,7 @@ export function ContractMainView() {
             </DashboardContent>
 
             {/* Form tạo hợp đồng */}
-            <ContractForm
+            {/* <ContractForm
                 open={openForm}
                 onClose={() => setOpenForm(false)}
                 quotations={quotations}
@@ -104,7 +104,7 @@ export function ContractMainView() {
                     setContracts((prev) => [...prev, newContract]);
                     setOpenForm(false);
                 }}
-            />
+            /> */}
 
             {/* Chi tiết hợp đồng */}
             <ContractDetail

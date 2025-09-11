@@ -1,12 +1,10 @@
 // QuotationFilterBar.tsx
-import { useState } from "react";
-import { Stack, Button, TextField } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Stack, Button, TextField, Box } from "@mui/material";
 import { Iconify } from "src/components/iconify";
-
-type FilterValues = {
-    fromDate: string;
-    toDate: string;
-};
+import { IDateValue } from "src/types/common";
+import { FilterValues } from "src/types/quotation";
+import { formatDate } from "src/utils/format-time-vi";
 
 type Props = {
     onFilterChange: (values: FilterValues) => void;
@@ -14,59 +12,96 @@ type Props = {
 };
 
 export function QuotationFilterBar({ onFilterChange, onReset }: Props) {
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
+    const today = new Date();
+    const defaultToDate = today.toISOString().split("T")[0];
+    const defaultFromDate = new Date(today.setMonth(today.getMonth() - 1))
+        .toISOString()
+        .split("T")[0];
+
+    const [fromDate, setFromDate] = useState(defaultFromDate);
+    const [toDate, setToDate] = useState(defaultToDate);
 
     const handleApply = () => {
         onFilterChange({ fromDate, toDate });
     };
 
     const handleReset = () => {
-        setFromDate("");
-        setToDate("");
+        setFromDate(defaultFromDate);
+        setToDate(defaultToDate);
         onReset();
     };
+
+    const isChanged = fromDate !== defaultFromDate || toDate !== defaultToDate;
+
+    useEffect(() => {
+        handleApply();
+    }, []);
 
     return (
         <Stack
             direction={{ xs: "column", sm: "row" }}
-            spacing={2}
             sx={{ mb: 3 }}
             alignItems="center"
+            justifyContent="space-between"
         >
-            <TextField
-                label="Từ ngày"
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-                size="small"
-            />
-            <TextField
-                label="Đến ngày"
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-                size="small"
-            />
-            <Button
-                variant="contained"
-                onClick={handleApply}
-                startIcon={<Iconify icon="solar:filter-bold" />}
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems="center"
             >
-                Lọc
-            </Button>
-            {(fromDate || toDate) && (
+                <TextField
+                    label="Từ ngày"
+                    type="date"
+                    value={fromDate ?? ""}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
+                />
+                <TextField
+                    label="Đến ngày"
+                    type="date"
+                    value={toDate ?? ""}
+                    onChange={(e) => setToDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
+                />
                 <Button
-                    variant="outlined"
-                    color="inherit"
-                    onClick={handleReset}
-                    startIcon={<Iconify icon="eva:close-fill" />}
+                    variant="contained"
+                    onClick={handleApply}
+                    startIcon={<Iconify icon="solar:filter-bold" />}
                 >
-                    Xóa
+                    Lọc
                 </Button>
-            )}
+                {isChanged && (
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        onClick={handleReset}
+                        startIcon={<Iconify icon="cil:reload" />}
+                    >
+                        Đặt lại
+                    </Button>
+                )}
+            </Stack>
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems="center"
+            >
+                <TextField
+                    size="small"
+                    variant="outlined"
+                    placeholder="Tìm kiếm..."
+                    InputProps={{
+                        startAdornment: (
+                            <Iconify
+                                icon="eva:search-fill"
+                                sx={{ color: 'text.disabled', width: 20, height: 20, mr: 1 }}
+                            />
+                        ),
+                    }}
+                />
+            </Stack>
         </Stack>
     );
 }

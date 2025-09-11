@@ -108,6 +108,9 @@ export const endpoints = {
     update: (id: string) => `/api/v1/employees/update${id}`,
     delete: (id: number) => `/api/v1/employees/delete/${id}`
   },
+  quotation: {
+    list: (params: string) => `/api/v1/quotation/quotations${params}`
+  },
   upload: {
     uploadImage: '/api/v1/uploads/upload',
     uploadMultipleImages: '/api/v1/uploads/upload-xml',
