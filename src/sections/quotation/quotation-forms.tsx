@@ -16,30 +16,27 @@ import {
     TableCell,
     TableBody,
     IconButton,
+    Box,
+    MenuItem,
+    Divider,
+    Tooltip,
 } from "@mui/material";
 import { Iconify } from "src/components/iconify";
+import { Field, Form } from "src/components/hook-form";
+import { useGetCustomers } from "src/actions/customer";
+import { useDebounce } from "minimal-shared/hooks";
+import { useEffect, useState } from "react";
+import { ICustomerItem } from "src/types/customer";
+import { useGetProducts } from "src/actions/product";
+import { ProductItem } from "src/types/product";
+import parse from 'html-react-parser';
+import { fCurrency } from "src/utils/format-number";
+import { QuotationFormValues, quotationSchema } from "src/types/quotation";
+import { QuotationItemsTable } from "./quotation-product-table";
 
 // ======================
 // Schema & Types
 // ======================
-const quotationItemSchema = z.object({
-    name: z.string().min(1, "Nhập tên sản phẩm/dịch vụ"),
-    qty: z.number().min(1, "Số lượng > 0"),
-    price: z.number().min(0, "Đơn giá >= 0"),
-});
-
-const quotationSchema = z.object({
-    customer: z.string().min(1, "Vui lòng nhập khách hàng"),
-    contact: z.string().optional(),
-    date: z.string().min(1, "Chọn ngày báo giá"),
-    validUntil: z.string().min(1, "Chọn ngày hiệu lực"),
-    items: z.array(quotationItemSchema).min(1, "Thêm ít nhất 1 sản phẩm"),
-    paymentTerms: z.string().optional(),
-    deliveryTime: z.string().optional(),
-    notes: z.string().optional(),
-});
-
-type QuotationFormValues = z.infer<typeof quotationSchema>;
 
 export type QuotationFormProps = {
     openForm: boolean;
@@ -51,17 +48,31 @@ export type QuotationFormProps = {
 // Component
 // ======================
 export function QuotationForm({ openForm, onClose, onSubmit }: QuotationFormProps) {
+    const [customerkeyword, setCustomerKeyword] = useState('');
+    const debouncedCustomerKw = useDebounce(customerkeyword, 300);
+
+    const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
+
+    const { customers, customersLoading } = useGetCustomers({
+        pageNumber: 1,
+        pageSize: 999,
+        key: debouncedCustomerKw,
+        enabled: true
+    });
+
+    const [selectedCustomer, setSelectedCustomer] = useState<ICustomerItem | null>(null);
+
     const methods = useForm<QuotationFormValues>({
         resolver: zodResolver(quotationSchema),
         defaultValues: {
             customer: "",
-            contact: "",
             date: "",
             validUntil: "",
-            items: [{ name: "", qty: 1, price: 0 }],
+            status: 1,
+            items: [{ name: "", description: "", qty: 1, price: 0, vat: 0 }],
+            notes: "",
             paymentTerms: "",
             deliveryTime: "",
-            notes: "",
         },
     });
 
@@ -72,220 +83,247 @@ export function QuotationForm({ openForm, onClose, onSubmit }: QuotationFormProp
         name: "items",
     });
 
-    const items = watch("items");
-    const total = items.reduce((acc, i) => acc + (i.qty || 0) * (i.price || 0), 0);
-
     const handleFormSubmit = (data: QuotationFormValues) => {
         onSubmit(data);
         onClose();
     };
 
+    const renderLeftColumn = () => (
+        <Stack flex={1} spacing={3}>
+            {/* Section Thông tin chung */}
+            <Box>
+                <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="subtitle2">Thông tin khách hàng</Typography>
+                    <Stack direction="row" justifyContent="space-between" gap={1}>
+                        <Field.Autocomplete
+                            name="customer"
+                            label="Chọn khách hàng có sẵn"
+                            options={customers}
+                            loading={customersLoading}
+                            getOptionLabel={(opt) => opt?.name ?? ''}
+                            isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                            onInputChange={(_, value) => setCustomerKeyword(value)}
+                            value={selectedCustomer}
+                            fullWidth
+                            onChange={(_, newValue) => {
+                                setSelectedCustomer(newValue ?? null);
+                            }}
+                            noOptionsText="Không có dữ liệu"
+                            sx={{ flex: 1, minWidth: 200 }}
+                        />
+                        <Button
+                            variant={isCreatingCustomer ? "contained" : "outlined"}
+                            startIcon={<Iconify icon={isCreatingCustomer ? "mdi:account-cancel" : "line-md:person-add"} />}
+                            onClick={() => {
+                                setIsCreatingCustomer((prev) => !prev);
+                                if (!isCreatingCustomer) {
+                                    setSelectedCustomer(null);
+                                }
+                            }}
+                        >
+                            {isCreatingCustomer ? "Hoàn tác" : "Tạo mới"}
+                        </Button>
+                    </Stack>
+                </Stack>
+                <Stack spacing={2} sx={{ mt: 2 }}>
+                    <Stack direction="row" gap={2}>
+                        {isCreatingCustomer ? (
+                            <>
+                                <Field.Text name="customerName" label="Tên khách hàng" />
+                                <Field.Text name="companyName" label="Tên công ty" />
+                            </>
+                        ) : (
+                            <>
+                                <DetailItem label="Tên khách hàng" value={selectedCustomer?.name ?? ""} />
+                                <DetailItem label="Tên công ty" value={selectedCustomer?.companyName ?? ""} />
+                            </>
+                        )}
+                    </Stack>
+                    <Stack direction="row" gap={2}>
+                        {isCreatingCustomer ? (
+                            <>
+                                <Field.Text name="email" label="Email khách hàng" />
+                                <Field.Text name="phone" label="Số điện thoại" />
+                            </>
+                        ) : (
+                            <>
+                                <DetailItem label="Email khách hàng" value={selectedCustomer?.email ?? ""} />
+                                <DetailItem label="Số điện thoại" value={selectedCustomer?.phone ?? ""} />
+                            </>
+                        )}
+                    </Stack>
+                </Stack>
+            </Box>
+
+            {/* Section Phiếu */}
+            <Box>
+                <Typography variant="subtitle2" sx={{ mt: 2 }}>
+                    Phiếu
+                </Typography>
+                <Stack direction={{ xs: "column", md: "row" }} sx={{ mt: 2 }} spacing={2}>
+                    <Field.Select label="Trạng thái" name="status">
+                        <MenuItem key={'0'} value={0}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 1 }}>
+                                <span>Bỏ qua</span>
+                                <Iconify icon="fluent-color:dismiss-circle-16" />
+                            </Box>
+                        </MenuItem>
+                        <MenuItem key={'1'} value={1}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 1 }}>
+                                <span>Chờ khách chốt</span>
+                                <Iconify icon="fluent-color:clock-16" />
+                            </Box>
+                        </MenuItem>
+                        <MenuItem key={'2'} value={2}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 1 }}>
+                                <span>Hết hiệu lực</span>
+                                <Iconify icon="fluent-color:error-circle-16" />
+                            </Box>
+                        </MenuItem>
+                        <MenuItem key={'3'} value={3}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 1 }}>
+                                <span>Đang thực hiện</span>
+                                <Iconify icon="fluent-color:arrow-sync-16" />
+                            </Box>
+                        </MenuItem>
+                        <MenuItem key={'4'} value={4}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 1 }}>
+                                <span>Đã hoàn thành</span>
+                                <Iconify icon="fluent-color:checkmark-circle-16" />
+                            </Box>
+                        </MenuItem>
+                    </Field.Select>
+                    <Field.DatePicker name="date" label="Ngày báo giá" />
+                    <Field.DatePicker name="validUntil" label="Hiệu lực đến" />
+                </Stack>
+                <Field.Text
+                    name="notes"
+                    label="Ghi chú"
+                    multiline
+                    rows={8}
+                    fullWidth
+                    sx={{ mt: 2 }}
+                />
+            </Box>
+        </Stack>
+    );
+
+    const renderDetails = () => (
+        <Stack direction={{ xs: "column", md: "row" }} spacing={3} sx={{ mt: 1 }}>
+            {/* Cột trái */}
+            {renderLeftColumn()}
+            <Divider
+                flexItem
+                orientation="vertical"
+                sx={{
+                    display: { xs: "none", md: "block" },
+                }}
+            />
+            <Divider
+                flexItem
+                orientation="horizontal"
+                sx={{
+                    display: { xs: "block", md: "none" },
+                }}
+            />
+            {/* Cột phải */}
+            <QuotationItemsTable
+                methods={methods}
+                fields={fields}
+                append={append}
+                remove={remove}
+            />
+        </Stack>
+    );
+
+    const renderActions = () => (
+        <DialogActions
+            sx={{
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                bgcolor: "background.paper",
+                borderTop: "1px solid",
+                borderColor: "divider",
+                p: 2,
+                gap: 2,
+                zIndex: 9
+            }}
+        >
+            <Button
+                variant="outlined"
+                color="inherit"
+                size="large"
+                sx={{ flex: 1, py: 1.5 }}
+                onClick={onClose}
+            >
+                Hủy
+            </Button>
+            <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                sx={{ flex: 1, py: 1.5 }}
+            >
+                Lưu báo giá
+            </Button>
+        </DialogActions>
+    );
+
     return (
-        <Dialog open={openForm} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>Tạo báo giá</DialogTitle>
-            <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <Dialog open={openForm} onClose={onClose} fullScreen>
+            <DialogTitle
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    py: 2,
+                    px: 3,
+                }}
+            >
+                Tạo báo giá
+                <IconButton
+                    edge="end"
+                    color="inherit"
+                    onClick={onClose}
+                    sx={{
+                        ml: 2,
+                    }}
+                >
+                    <Iconify icon="eva:close-fill" />
+                </IconButton>
+            </DialogTitle>
+            <Form methods={methods} onSubmit={handleSubmit(handleFormSubmit)}>
                 <DialogContent
                     sx={{
-                        maxHeight: "75vh",
+                        pb: 10,
+                        pt: 3,
+                        maxHeight: "calc(100vh - 120px)",
                         overflowY: "auto",
                     }}
                 >
-                    <Stack spacing={3} sx={{ mt: 1 }}>
-                        {/* Section Thông tin chung */}
-                        <Typography variant="subtitle2">Thông tin chung</Typography>
-                        <Stack spacing={2}>
-                            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                                <Controller
-                                    name="customer"
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <TextField
-                                            {...field}
-                                            fullWidth
-                                            label="Khách hàng"
-                                            error={!!fieldState.error}
-                                            helperText={fieldState.error?.message}
-                                        />
-                                    )}
-                                />
-                                <Controller
-                                    name="contact"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <TextField {...field} fullWidth label="Người liên hệ" />
-                                    )}
-                                />
-                            </Stack>
-
-                            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                                <Controller
-                                    name="date"
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <TextField
-                                            {...field}
-                                            fullWidth
-                                            type="date"
-                                            label="Ngày báo giá"
-                                            InputLabelProps={{ shrink: true }}
-                                            error={!!fieldState.error}
-                                            helperText={fieldState.error?.message}
-                                        />
-                                    )}
-                                />
-                                <Controller
-                                    name="validUntil"
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <TextField
-                                            {...field}
-                                            fullWidth
-                                            type="date"
-                                            label="Hiệu lực đến"
-                                            InputLabelProps={{ shrink: true }}
-                                            error={!!fieldState.error}
-                                            helperText={fieldState.error?.message}
-                                        />
-                                    )}
-                                />
-                            </Stack>
-                        </Stack>
-
-                        {/* Section Sản phẩm */}
-                        <Typography variant="subtitle2">Sản phẩm / Dịch vụ</Typography>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Tên SP/DV</TableCell>
-                                    <TableCell width="120">Số lượng</TableCell>
-                                    <TableCell width="150">Đơn giá</TableCell>
-                                    <TableCell width="150">Thành tiền</TableCell>
-                                    <TableCell width="50"></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {fields.map((field, index) => (
-                                    <TableRow key={field.id}>
-                                        <TableCell>
-                                            <Controller
-                                                name={`items.${index}.name`}
-                                                control={control}
-                                                render={({ field, fieldState }) => (
-                                                    <TextField
-                                                        {...field}
-                                                        size="small"
-                                                        placeholder="Tên sản phẩm"
-                                                        fullWidth
-                                                        error={!!fieldState.error}
-                                                        helperText={fieldState.error?.message}
-                                                    />
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Controller
-                                                name={`items.${index}.qty`}
-                                                control={control}
-                                                render={({ field, fieldState }) => (
-                                                    <TextField
-                                                        {...field}
-                                                        size="small"
-                                                        type="number"
-                                                        error={!!fieldState.error}
-                                                        helperText={fieldState.error?.message}
-                                                    />
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Controller
-                                                name={`items.${index}.price`}
-                                                control={control}
-                                                render={({ field, fieldState }) => (
-                                                    <TextField
-                                                        {...field}
-                                                        size="small"
-                                                        type="number"
-                                                        error={!!fieldState.error}
-                                                        helperText={fieldState.error?.message}
-                                                    />
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography>
-                                                {(items[index]?.qty || 0) * (items[index]?.price || 0)} ₫
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <IconButton onClick={() => remove(index)}>
-                                                <Iconify icon="material-symbols:scan-delete-outline-sharp" />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                <TableRow>
-                                    <TableCell colSpan={5}>
-                                        <Button
-                                            startIcon={<Iconify icon="gridicons:add" />}
-                                            onClick={() => append({ name: "", qty: 1, price: 0 })}
-                                        >
-                                            Thêm sản phẩm
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell colSpan={3}>
-                                        <b>Tổng cộng</b>
-                                    </TableCell>
-                                    <TableCell colSpan={2}>
-                                        <Typography>{total.toLocaleString("vi-VN")} ₫</Typography>
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-
-                        {/* Section điều khoản */}
-                        <Typography variant="subtitle2">Điều khoản</Typography>
-                        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                            <Controller
-                                name="paymentTerms"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} fullWidth label="Điều kiện thanh toán" />
-                                )}
-                            />
-                            <Controller
-                                name="deliveryTime"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        {...field}
-                                        fullWidth
-                                        type="time"
-                                        label="Thời gian giao hàng"
-                                        InputLabelProps={{ shrink: true }}
-                                    />
-                                )}
-                            />
-                        </Stack>
-                        <Controller
-                            name="notes"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} fullWidth label="Ghi chú" multiline rows={3} />
-                            )}
-                        />
-                    </Stack>
+                    {renderDetails()}
                 </DialogContent>
-
-                <DialogActions>
-                    <Button onClick={onClose}>Hủy</Button>
-                    <Button type="submit" variant="contained">
-                        Lưu báo giá
-                    </Button>
-                </DialogActions>
-            </form>
+                {renderActions()}
+            </Form>
         </Dialog>
+    );
+}
+
+function DetailItem({ label, value }: { label: string; value?: string | number }) {
+    return (
+        <Box sx={{ flex: 1 }}>
+            {
+                label
+                &&
+                <Typography variant="subtitle2" color="text.secondary">
+                    {label}
+                </Typography>
+            }
+            <Typography variant="body2">{value || "—"}</Typography>
+        </Box>
     );
 }

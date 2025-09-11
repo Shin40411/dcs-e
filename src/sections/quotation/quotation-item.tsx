@@ -31,7 +31,7 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                         }}
                     >
                         <Iconify icon="solar:eye-bold" />
-                        Xem chi tiết
+                        Xem trước báo giá
                     </MenuItem>
                 </li>
 

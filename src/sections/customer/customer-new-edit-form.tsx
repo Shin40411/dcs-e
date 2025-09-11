@@ -202,15 +202,14 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
 
                 {/* Hai ô số liệu nằm ngang, đều nhau */}
                 <Stack direction="row" spacing={2}>
+                    <Field.VNCurrencyInput
+                        name="balance"
+                        label="Số dư"
+                    />
                     <Field.NumberInput
                         name="rewardPoint"
                         helperText="Nhập điểm thưởng"
                         sx={{ width: 120 }}
-                    />
-                    <Field.NumberInput
-                        name="balance"
-                        helperText="Nhập số dư"
-                        sx={{ width: 200 }}
                     />
                 </Stack>
             </Stack>

@@ -27,7 +27,7 @@ export const PRODUCT_COLUMNS: ({
         field: 'name',
         headerName: 'Tên sản phẩm',
         flex: 1,
-        minWidth: 260,
+        minWidth: 300,
         renderCell: (params) => {
           const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 

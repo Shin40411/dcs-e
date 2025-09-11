@@ -40,7 +40,7 @@ export function RHFNumericInput({ name, label, helperText, ...other }: RHFNumber
       name={name}
       control={control}
       render={({ field }) => (
-        <VnCurrencyInput label={label || 'Giá nhập'} value={field.value} onChange={field.onChange} />
+        <VnCurrencyInput label={label || ''} value={field.value} onChange={field.onChange} />
       )}
     />
   );

@@ -289,9 +289,11 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
           </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
             <Field.VNCurrencyInput
+              label='Giá nhập'
               name="purchasePrice"
             />
             <Field.VNCurrencyInput
+              label='Giá bán'
               name="price"
             />
           </Stack>

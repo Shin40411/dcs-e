@@ -31,6 +31,7 @@ export function RHFTextField({
           {...field}
           fullWidth
           value={isNumberType ? transformValue(field.value) : field.value}
+          disabled={other.disabled}
           onChange={(event) => {
             const transformedValue = isNumberType
               ? transformValueOnChange(event.target.value)
@@ -55,6 +56,21 @@ export function RHFTextField({
               ...slotProps?.htmlInput,
               ...(isNumberType && { inputMode: 'decimal', pattern: '[0-9]*\\.?[0-9]*' }),
             },
+          }}
+          sx={{
+            ...(other.disabled && {
+              '& .MuiInputBase-input': {
+                color: 'text.disabled',
+                cursor: 'not-allowed'
+              },
+              '& .MuiInputLabel-root': {
+                color: 'text.disabled',
+              },
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: (theme) => theme.palette.action.disabledBackground,
+              },
+            }),
+            ...other.sx,
           }}
           {...other}
         />

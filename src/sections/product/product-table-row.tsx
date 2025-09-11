@@ -10,6 +10,7 @@ import { fTime } from "src/utils/format-time";
 import { fDate } from "src/utils/format-time-vi";
 import { Label } from 'src/components/label';
 import parse from 'html-react-parser';
+import { Typography } from '@mui/material';
 // ----------------------------------------------------------------------
 
 type ParamsProps = {
@@ -116,15 +117,19 @@ export function RenderCellDescription({ params }: ParamsProps) {
         display: 'flex',
         alignItems: 'center',
       }}>
-      <ListItemText
-        primary={
-          parse(params.row.description || '')
-        }
-        slotProps={{
-          primary: { noWrap: true },
-          secondary: { sx: { color: 'text.disabled' } },
+      <Typography
+        variant="body2"
+        sx={{
+          display: '-webkit-box',
+          WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: 3,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'normal',
         }}
-      />
+      >
+        {parse(params.row.description || '')}
+      </Typography>
     </Box>
   );
 }
