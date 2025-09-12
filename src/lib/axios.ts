@@ -109,7 +109,8 @@ export const endpoints = {
     delete: (id: number) => `/api/v1/employees/delete/${id}`
   },
   quotation: {
-    list: (params: string) => `/api/v1/quotation/quotations${params}`
+    list: (params: string) => `/api/v1/quotation/quotations${params}`,
+    detail: (id: number, params: string) => `/api/v1/quotation/get-detail/${id}${params}`
   },
   upload: {
     uploadImage: '/api/v1/uploads/upload',

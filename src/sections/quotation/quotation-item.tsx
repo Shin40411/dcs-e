@@ -82,7 +82,6 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                 }}
                 {...other}
             >
-                {/* nút menu */}
                 <IconButton
                     onClick={menuActions.onOpen}
                     sx={{ position: "absolute", top: 8, right: 0 }}
@@ -90,7 +89,6 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                     <Iconify icon="eva:more-vertical-fill" />
                 </IconButton>
 
-                {/* Header: ID + Trạng thái */}
                 <Box
                     sx={{
                         px: 3,
@@ -111,7 +109,6 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
                     />
                 </Box>
 
-                {/* Nội dung chính */}
                 <Box sx={{ p: 3 }}>
                     <Stack spacing={1.5}>
                         <Stack direction="row" spacing={1} alignItems="center">
@@ -149,7 +146,6 @@ export function QuotationItem({ quotate, onViewDetails, sx, ...other }: Props) {
 
                 <Divider />
 
-                {/* Footer: Tổng tiền */}
                 <Box
                     sx={{
                         px: 3,

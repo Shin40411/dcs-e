@@ -25,6 +25,22 @@ export type IQuotationItem = {
     isDeleted: boolean;
 };
 
+export type IQuotationProduct = {
+    id: string;
+    productID: string;
+    productName: string;
+    price: number;
+    quantity: number;
+    vat: number;
+    total: number
+};
+
+export type IQuotationDetails = {
+    quotationID: number;
+    quotationNo: string;
+    products: IQuotationProduct[];
+};
+
 export type IQuotationListData = {
     pageNumber: number;
     pageSize: number;
@@ -33,15 +49,29 @@ export type IQuotationListData = {
     items: IQuotationItem[];
 };
 
+export type IQuotationData = {
+    pageNumber: number;
+    pageSize: number;
+    totalRecord: number;
+    totalPages: number;
+    items: IQuotationDetails[];
+};
+
+export type FilterValues = {
+    fromDate: IDateValue;
+    toDate: IDateValue;
+};
+
 export type ResQuotationList = {
     statusCode: number;
     message: string;
     data: IQuotationListData;
 };
 
-export type FilterValues = {
-    fromDate: IDateValue;
-    toDate: IDateValue;
+export type ResQuotationItem = {
+    statusCode: number;
+    message: string;
+    data: IQuotationData;
 };
 
 export const quotationItemSchema = z.object({

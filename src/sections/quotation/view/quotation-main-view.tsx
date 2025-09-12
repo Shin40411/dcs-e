@@ -7,17 +7,18 @@ import { useState } from "react";
 import { QuotationCardList } from "../quotation-card-list";
 import { QuotationForm } from "../quotation-forms";
 import { QuotationDetails } from "../quotation-details";
+import { IQuotationItem } from "src/types/quotation";
 
 export function QuotationMainView() {
     const [openForm, setOpenForm] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
-    const [selectedQuotation, setSelectedQuotation] = useState<any>(null);
+    const [selectedQuotation, setSelectedQuotation] = useState<IQuotationItem | null>(null);
 
     const handleCreateQuotation = (data: any) => {
         console.log("Quotation data:", data);
     };
 
-    const handleViewDetails = (quotation: any) => {
+    const handleViewDetails = (quotation: IQuotationItem) => {
         setSelectedQuotation(quotation);
         setOpenDetail(true);
     };

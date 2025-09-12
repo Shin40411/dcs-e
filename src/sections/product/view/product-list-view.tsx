@@ -3,7 +3,7 @@ import type {
   GridRowSelectionModel,
 } from '@mui/x-data-grid';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Button from '@mui/material/Button';
@@ -46,7 +46,7 @@ export function ProductListView() {
   };
 
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);

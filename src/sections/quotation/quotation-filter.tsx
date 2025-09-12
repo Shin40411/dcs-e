@@ -9,9 +9,10 @@ import { formatDate } from "src/utils/format-time-vi";
 type Props = {
     onFilterChange: (values: FilterValues) => void;
     onReset: () => void;
+    onSearching: (key: string) => void;
 };
 
-export function QuotationFilterBar({ onFilterChange, onReset }: Props) {
+export function QuotationFilterBar({ onFilterChange, onReset, onSearching }: Props) {
     const today = new Date();
     const defaultToDate = today.toISOString().split("T")[0];
     const defaultFromDate = new Date(today.setMonth(today.getMonth() - 1))
@@ -92,6 +93,7 @@ export function QuotationFilterBar({ onFilterChange, onReset }: Props) {
                     size="small"
                     variant="outlined"
                     placeholder="Tìm kiếm..."
+                    onChange={(e) => onSearching(e.target.value)}
                     InputProps={{
                         startAdornment: (
                             <Iconify

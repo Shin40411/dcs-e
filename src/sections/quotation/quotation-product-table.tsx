@@ -35,10 +35,14 @@ export function QuotationItemsTable({
         name: "items",
     }) as QuotationFormValues["items"];
 
-    const total = (items || []).reduce(
-        (acc, i) => acc + (i?.qty || 0) * (i?.price || 0),
-        0
-    );
+    const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
+        const qty = Number(item?.qty) || 0;
+        const price = Number(item?.price) || 0;
+        const vat = Number(item?.vat) || 0;
+        return qty * price * (1 + vat / 100);
+    };
+
+    const total = (items || []).reduce((acc, i) => acc + calcAmount(i), 0);
 
     return (
         <Stack flex={1.5} spacing={2} sx={{ height: "100%" }}>
@@ -128,10 +132,7 @@ export function QuotationItemsTable({
 
                                     <TableCell>
                                         <Typography fontWeight="bold">
-                                            {fCurrency(
-                                                (Number(items?.[index]?.qty) || 0) *
-                                                (Number(items?.[index]?.price) || 0)
-                                            )}
+                                            {fCurrency(calcAmount(items[index]))}
                                         </Typography>
                                     </TableCell>
 
@@ -206,7 +207,9 @@ export function QuotationItemsTable({
                 >
                     <Stack direction="row" justifyContent="space-between">
                         <Typography fontWeight="bold">Tổng cộng</Typography>
-                        <Typography fontWeight="bold">{fCurrency(total)}</Typography>
+                        <Typography fontWeight="bold">
+                            {fCurrency(total)}
+                        </Typography>
                     </Stack>
                 </Box>
             </Box>

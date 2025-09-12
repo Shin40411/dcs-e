@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { ResQuotationList } from "src/types/quotation";
+import { ResQuotationItem, ResQuotationList } from "src/types/quotation";
 import useSWR, { SWRConfiguration } from "swr";
 
 type quotationProps = {
@@ -45,6 +45,37 @@ export function useGetQuotations({ pageNumber, pageSize, key, enabled = true, fr
             quotationsError: error,
             quotationsValidating: isValidating,
             quotationsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+        }),
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+type quotationProp = {
+    quotationId: number,
+    pageNumber: number,
+    pageSize: number,
+    options?: { enabled?: boolean }
+}
+
+export function useGetQuotation({ quotationId, pageNumber, pageSize, options }: quotationProp) {
+    let params = '';
+
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+
+    const enabled = options?.enabled ?? true;
+
+    const url = enabled && quotationId ? endpoints.quotation.detail(quotationId, params) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResQuotationItem>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => ({
+            quotation: data?.data,
+            quotationLoading: isLoading,
+            quotationError: error,
+            quotationValidating: isValidating,
         }),
         [data, error, isLoading, isValidating]
     );

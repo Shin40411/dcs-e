@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { useBoolean } from "minimal-shared/hooks";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useGetDepartments } from "src/actions/department";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { UseGridTableList } from "src/components/data-grid-table/data-grid-table";
@@ -35,7 +35,7 @@ export function DepartmentListView() {
     };
 
     const handleChangeRowsPerPage = (
-        event: React.ChangeEvent<HTMLInputElement>
+        event: ChangeEvent<HTMLInputElement>
     ) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);

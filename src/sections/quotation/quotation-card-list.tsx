@@ -1,13 +1,5 @@
 import {
-    Card,
-    CardContent,
-    CardActions,
-    Typography,
-    Button,
-    Stack,
     Box,
-    Pagination,
-    paginationClasses,
     TablePagination,
     Skeleton,
 } from '@mui/material';
@@ -17,6 +9,7 @@ import { QuotationFilterBar } from './quotation-filter';
 import { useGetQuotations } from 'src/actions/quotation';
 import { FilterValues, IQuotationItem } from 'src/types/quotation';
 import { formatDate } from 'src/utils/format-time-vi';
+import { EmptyContent } from 'src/components/empty-content';
 
 type Props = {
     onViewDetails: (quotation: IQuotationItem) => void;
@@ -33,10 +26,10 @@ export function QuotationCardList({ onViewDetails }: Props) {
     });
 
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchText, setSearchText] = useState("");
 
-    const { quotations, quotationsLoading, pagination } = useGetQuotations({
+    const { quotations, quotationsLoading, pagination, quotationsEmpty } = useGetQuotations({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -78,32 +71,43 @@ export function QuotationCardList({ onViewDetails }: Props) {
         <>
             <QuotationFilterBar
                 onFilterChange={handleFilterChange}
+                onSearching={setSearchText}
                 onReset={handleReset}
             />
-
-            <Box
-                sx={{
-                    gap: 3,
-                    display: 'grid',
-                    gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-                }}
-            >
-                {quotationsLoading
-                    ? Array.from({ length: rowsPerPage }).map((_, i) => (
-                        <Box key={i} sx={{ p: 2, border: "1px solid #eee", borderRadius: 2 }}>
-                            <Skeleton variant="rectangular" height={120} sx={{ mb: 1 }} />
-                            <Skeleton variant="text" width="60%" />
-                            <Skeleton variant="text" width="40%" />
-                        </Box>
-                    ))
-                    : tableData.map((q) => (
-                        <QuotationItem
-                            key={q.id}
-                            quotate={q}
-                            onViewDetails={() => onViewDetails(q)}
-                        />
-                    ))}
-            </Box>
+            {quotationsEmpty ?
+                (
+                    <EmptyContent content='Không có dữ liệu' />
+                )
+                :
+                <Box
+                    sx={{
+                        gap: 3,
+                        display: 'grid',
+                        gridTemplateColumns: {
+                            xs: 'repeat(1, 1fr)',
+                            sm: 'repeat(2, 1fr)',
+                            md: 'repeat(3, 1fr)',
+                            lg: 'repeat(4, 1fr)'
+                        },
+                    }}
+                >
+                    {quotationsLoading
+                        ? Array.from({ length: rowsPerPage }).map((_, i) => (
+                            <Box key={i} sx={{ p: 2, border: "1px solid #eee", borderRadius: 2 }}>
+                                <Skeleton variant="rectangular" height={120} sx={{ mb: 1 }} />
+                                <Skeleton variant="text" width="60%" />
+                                <Skeleton variant="text" width="40%" />
+                            </Box>
+                        ))
+                        : tableData.map((q) => (
+                            <QuotationItem
+                                key={q.id}
+                                quotate={q}
+                                onViewDetails={() => onViewDetails(q)}
+                            />
+                        ))}
+                </Box>
+            }
 
             {pagination?.totalRecord > rowsPerPage && (
                 <TablePagination

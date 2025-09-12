@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { useBoolean } from "minimal-shared/hooks";
-import { useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { ConfirmDialog } from "src/components/custom-dialog";
@@ -39,7 +39,7 @@ export function CategoryListView() {
     };
 
     const handleChangeRowsPerPage = (
-        event: React.ChangeEvent<HTMLInputElement>
+        event: ChangeEvent<HTMLInputElement>
     ) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
