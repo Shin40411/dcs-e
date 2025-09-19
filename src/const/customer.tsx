@@ -11,6 +11,8 @@ type ColumnProps = {
     openCrudForm: UseBooleanReturn;
     confirmDelRowDialog: UseBooleanReturn;
     setRowIdSelected: (id: any) => void;
+    page: number;
+    rowsPerPage: number;
 }
 
 export const CUSTOMER_COLUMNS: ({
@@ -19,13 +21,30 @@ export const CUSTOMER_COLUMNS: ({
     openCrudForm,
     confirmDelRowDialog,
     setRowIdSelected,
+    page,
+    rowsPerPage
 }: ColumnProps) => GridColDef[] = ({
     setTableRowSelected,
     openDetailsForm,
     openCrudForm,
     confirmDelRowDialog,
     setRowIdSelected,
+    page,
+    rowsPerPage
 }) => [
+            {
+                field: 'stt',
+                headerName: 'STT',
+                width: 80,
+                sortable: false,
+                filterable: false,
+                align: 'center',
+                headerAlign: 'center',
+                renderCell: (params) => {
+                    const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+                    return page * rowsPerPage + (rowIndex + 1);
+                },
+            },
             {
                 field: 'name',
                 headerName: 'Tên khách hàng',

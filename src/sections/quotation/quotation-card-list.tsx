@@ -2,6 +2,7 @@ import {
     Box,
     TablePagination,
     Skeleton,
+    Button,
 } from '@mui/material';
 import { QuotationItem } from './quotation-item';
 import { ChangeEvent, useEffect, useState } from 'react';
@@ -10,23 +11,43 @@ import { useGetQuotations } from 'src/actions/quotation';
 import { FilterValues, IQuotationItem } from 'src/types/quotation';
 import { formatDate } from 'src/utils/format-time-vi';
 import { EmptyContent } from 'src/components/empty-content';
+import { deleteOne } from 'src/actions/delete';
+import { endpoints } from 'src/lib/axios';
+import { toast } from 'sonner';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { useBoolean } from 'minimal-shared/hooks';
 
 type Props = {
     onViewDetails: (quotation: IQuotationItem) => void;
+    onEditing: (quotation: IQuotationItem) => void;
+    page: number;
+    setPage: (value: any) => void;
+    rowsPerPage: number;
+    setRowsPerPage: (value: any) => void;
+    setFromDate: (value: any) => void;
+    setToDate: (value: any) => void;
 };
 
-export function QuotationCardList({ onViewDetails }: Props) {
+export function QuotationCardList({
+    onViewDetails,
+    onEditing,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    setFromDate,
+    setToDate
+}: Props) {
     const today = new Date();
     const lastMonth = new Date();
     lastMonth.setMonth(today.getMonth() - 1);
+    const confirmDelRowDialog = useBoolean();
 
     const [filters, setFilters] = useState<FilterValues>({
         fromDate: null,
         toDate: null,
     });
 
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchText, setSearchText] = useState("");
 
     const { quotations, quotationsLoading, pagination, quotationsEmpty } = useGetQuotations({
@@ -39,12 +60,16 @@ export function QuotationCardList({ onViewDetails }: Props) {
 
     const [tableData, setTableData] = useState<IQuotationItem[]>([]);
 
+    const [idSelected, setIdSelected] = useState(0);
+
     useEffect(() => {
         setTableData(quotations);
     }, [quotations]);
 
     const handleFilterChange = (values: FilterValues) => {
         setFilters(values);
+        setFromDate(values.fromDate);
+        setToDate(values.toDate);
         setPage(0);
     };
 
@@ -53,6 +78,8 @@ export function QuotationCardList({ onViewDetails }: Props) {
             fromDate: formatDate(lastMonth),
             toDate: formatDate(today),
         });
+        setFromDate(formatDate(lastMonth));
+        setToDate(formatDate(today));
         setPage(0);
     };
 
@@ -66,6 +93,44 @@ export function QuotationCardList({ onViewDetails }: Props) {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
+
+    const handleDeleteRow = async (id: number) => {
+        if (id === 0 || !id) return;
+        const success = await deleteOne({
+            apiEndpoint: endpoints.quotation.delete(id),
+            listEndpoint: endpoints.quotation.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${filters.fromDate}&toDate=${filters.toDate}&Status=1`),
+        });
+        if (success) {
+            toast.success("Xóa thành công phiếu báo giá!");
+        } else {
+            toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+        }
+    }
+
+    const renderConfirmDeleteRow = () => (
+        <ConfirmDialog
+            open={confirmDelRowDialog.value}
+            onClose={confirmDelRowDialog.onFalse}
+            title="Xác nhận xóa phiếu báo giá"
+            content={
+                <>
+                    Bạn có chắc chắn muốn xóa phiếu báo giá này?
+                </>
+            }
+            action={
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => {
+                        handleDeleteRow(idSelected);
+                        confirmDelRowDialog.onFalse();
+                    }}
+                >
+                    Xác nhận
+                </Button>
+            }
+        />
+    );
 
     return (
         <>
@@ -83,12 +148,7 @@ export function QuotationCardList({ onViewDetails }: Props) {
                     sx={{
                         gap: 3,
                         display: 'grid',
-                        gridTemplateColumns: {
-                            xs: 'repeat(1, 1fr)',
-                            sm: 'repeat(2, 1fr)',
-                            md: 'repeat(3, 1fr)',
-                            lg: 'repeat(4, 1fr)'
-                        },
+                        gridTemplateColumns: getGridColumns(rowsPerPage),
                     }}
                 >
                     {quotationsLoading
@@ -101,13 +161,18 @@ export function QuotationCardList({ onViewDetails }: Props) {
                         ))
                         : tableData.map((q) => (
                             <QuotationItem
+                                openDeleteDialog={confirmDelRowDialog}
+                                setId={setIdSelected}
                                 key={q.id}
                                 quotate={q}
                                 onViewDetails={() => onViewDetails(q)}
+                                onEditing={() => onEditing(q)}
                             />
                         ))}
                 </Box>
             }
+
+            {renderConfirmDeleteRow()}
 
             {pagination?.totalRecord > rowsPerPage && (
                 <TablePagination
@@ -126,4 +191,11 @@ export function QuotationCardList({ onViewDetails }: Props) {
             )}
         </>
     );
+}
+
+function getGridColumns(rowsPerPage: number) {
+    if (rowsPerPage % 4 === 0) return 'repeat(4, 1fr)';
+    if (rowsPerPage % 5 === 0) return 'repeat(5, 1fr)';
+    if (rowsPerPage % 3 === 0) return 'repeat(3, 1fr)';
+    return 'repeat(2, 1fr)';
 }

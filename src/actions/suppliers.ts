@@ -20,7 +20,7 @@ const swrOptions: SWRConfiguration = {
 export function useGetSuppliers({ pageNumber, pageSize, key, enabled = true }: suppliersProps) {
     let params = '';
 
-    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
     if (key) params += `&search=${key}`;
 
@@ -30,17 +30,17 @@ export function useGetSuppliers({ pageNumber, pageSize, key, enabled = true }: s
 
     const memoizedValue = useMemo(
         () => ({
-            suppliers: data?.data.items || [],
+            suppliers: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             suppliersLoading: isLoading,
             suppliersError: error,
             suppliersValidating: isValidating,
-            suppliersEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            suppliersEmpty: !isLoading && !isValidating && !data?.data?.items.length,
         }),
         [data, error, isLoading, isValidating]
     );

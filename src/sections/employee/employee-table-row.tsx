@@ -53,7 +53,7 @@ export function RenderCellLastLogin({ params }: ParamsProps) {
 }
 
 export function RenderCellGender({ params }: ParamsProps) {
-    return params.row.gender === 'male' ? 'Nam' : params.row.gender === 'female' ? 'Nữ' : 'Khác';
+    return params.row.gender === 'Male' ? 'Nam' : params.row.gender === 'Female' ? 'Nữ' : 'Khác';
 }
 
 export function RenderCellRightID({ params }: ParamsProps) {

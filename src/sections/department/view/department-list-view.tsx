@@ -15,13 +15,14 @@ import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
+import { CONFIG } from "src/global-config";
 
 export function DepartmentListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
 
     const { departments, pagination, departmentsLoading } = useGetDepartments({
@@ -47,9 +48,7 @@ export function DepartmentListView() {
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
-        if (departments.length) {
-            setTableData(departments);
-        }
+        setTableData(departments);
     }, [departments]);
 
     const dataFiltered = tableData;

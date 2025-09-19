@@ -15,13 +15,14 @@ import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
+import { CONFIG } from "src/global-config";
 
 export function EmployeeTypeListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
 
     const { employeeTypes, pagination, employeeTypesLoading } = useGetEmployeeTypes({
@@ -47,9 +48,7 @@ export function EmployeeTypeListView() {
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
-        if (employeeTypes.length) {
-            setTableData(employeeTypes);
-        }
+        setTableData(employeeTypes);
     }, [employeeTypes]);
 
     const dataFiltered = tableData;

@@ -1,6 +1,7 @@
 import { InputValue } from 'minimal-shared/utils';
 import { formatNumberLocale } from 'src/locales';
 import numeral from 'numeral';
+import doReadNumber, { InvalidNumberError, ReadingConfig } from 'read-vietnamese-number';
 
 // ----------------------------------------------------------------------
 
@@ -101,4 +102,21 @@ function result(format: string, key = '.00') {
   const isInteger = format.includes(key);
 
   return isInteger ? format.replace(key, '') : format;
+}
+
+
+export function fRenderTextNumber(total: number) {
+  const config = new ReadingConfig()
+  config.unit = ['đồng']
+  try {
+    const number = String(total);
+    const result = doReadNumber(number, config);
+    return result;
+  } catch (err) {
+    if (err instanceof InvalidNumberError) {
+      console.error('Số không hợp lệ')
+    } else {
+      console.error(err)
+    }
+  }
 }

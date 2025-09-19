@@ -15,13 +15,14 @@ import { ConfirmDialog } from "src/components/custom-dialog";
 import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
+import { CONFIG } from "src/global-config";
 
 export function UnitListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const { units, pagination, unitsLoading } = useGetUnits({
         pageNumber: page + 1,
@@ -46,9 +47,7 @@ export function UnitListView() {
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
-        if (units.length) {
-            setTableData(units);
-        }
+        setTableData(units);
     }, [units]);
 
     const dataFiltered = tableData;

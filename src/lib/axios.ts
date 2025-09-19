@@ -110,7 +110,15 @@ export const endpoints = {
   },
   quotation: {
     list: (params: string) => `/api/v1/quotation/quotations${params}`,
-    detail: (id: number, params: string) => `/api/v1/quotation/get-detail/${id}${params}`
+    detail: (id: number, params: string) => `/api/v1/quotation/get-detail/${id}${params}`,
+    create: `/api/v1/quotation/create`,
+    update: {
+      root: (id: number) => `/api/v1/quotation/update/${id}`,
+      addProducts: (id: number) => `/api/v1/quotation/add-product/${id}`,
+      deleteProduct: `/api/v1/quotation/delete-quotation-product`
+    },
+    deleteProduct: `/api/v1/quotation/delete-quotation-product`,
+    delete: (id: number) => `/api/v1/quotation/delete/${id}`
   },
   upload: {
     uploadImage: '/api/v1/uploads/upload',

@@ -30,14 +30,19 @@ export const BANKACCOUNT_COLUMNS: ({
     page,
     rowsPerPage
 }) => [
-            // {
-            //     field: 'id',
-            //     headerName: 'Mã tài khoản',
-            //     width: 150,
-            //     renderCell: (params) => (
-            //         <RenderBankAccountCodeCell params={params} />
-            //     ),
-            // },
+            {
+                field: 'stt',
+                headerName: 'STT',
+                width: 80,
+                sortable: false,
+                filterable: false,
+                align: 'center',
+                headerAlign: 'center',
+                renderCell: (params) => {
+                    const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+                    return page * rowsPerPage + (rowIndex + 1);
+                },
+            },
             {
                 field: 'name',
                 headerName: 'Tên tài khoản',

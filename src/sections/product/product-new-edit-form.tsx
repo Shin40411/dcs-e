@@ -38,7 +38,7 @@ export const NewProductSchema = zod.object({
   code: zod.string().min(1, { message: 'Mã sản phẩm là trường bắt buộc' }),
   description: zod
     .string()
-    .min(20, { message: 'Mô tả sản phẩm phải có ít nhất 20 ký tự' }),
+    .min(1, { message: 'Mô tả sản phẩm là trường bắt buộc' }),
   purchasePrice: zod
     .number({ coerce: true })
     .min(1, { message: 'Giá nhập là trường bắt buộc và phải lớn hơn 0' }),
@@ -106,8 +106,8 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
     name: '',
     code: '',
     description: '',
-    purchasePrice: 0,
-    price: 0,
+    purchasePrice: null as unknown as number,
+    price: null as unknown as number,
     unitId: 0,
     categoryId: 0,
     stock: 0,
@@ -237,7 +237,11 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       reset(defaultValues);
     } catch (error: any) {
       console.error(error);
-      toast.error('Đã có lỗi xảy ra!');
+      if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Đã có lỗi xảy ra!");
+      }
     }
   });
 
@@ -251,8 +255,8 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
         <Stack spacing={2} sx={{ flex: 1 }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-            <Field.Text name="name" label="Tên sản phẩm" />
-            <Field.Text name="code" label="Mã sản phẩm" />
+            <Field.Text name="name" label="Tên sản phẩm" required />
+            <Field.Text name="code" label="Mã sản phẩm" required />
           </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
             <Field.Autocomplete
@@ -298,7 +302,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
             />
           </Stack>
           <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Mô tả sản phẩm</Typography>
+            <Typography variant="subtitle2">Mô tả sản phẩm <span style={{ color: 'red' }}>*</span></Typography>
             <Field.Editor name="description" sx={{ minHeight: 311, maxHeight: 480 }} />
           </Stack>
         </Stack>
@@ -310,7 +314,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
               <MenuItem key={'8'} value={'8'} sx={{ textTransform: 'capitalize' }}>8%</MenuItem>
               <MenuItem key={'10'} value={'10'} sx={{ textTransform: 'capitalize' }}>10%</MenuItem>
             </Field.Select>
-            <Field.Text name='manufacturer' label='Nhà sản xuất' placeholder='Nhà sản xuất' fullWidth />
+            <Field.Text name='manufacturer' label='Nhà sản xuất' required placeholder='Nhà sản xuất' fullWidth />
           </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
             <Field.NumberInput

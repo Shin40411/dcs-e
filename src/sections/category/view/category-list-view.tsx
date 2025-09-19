@@ -16,6 +16,7 @@ import { UseGridTableList } from "src/components/data-grid-table/data-grid-table
 import { CATEGORY_COLUMNS } from "src/const/category";
 import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
+import { CONFIG } from "src/global-config";
 // ----------------------------------------------------------------------
 
 export function CategoryListView() {
@@ -25,7 +26,7 @@ export function CategoryListView() {
     const openDetailsForm = useBoolean();
 
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
 
     const { categories, categoriesLoading, pagination } = useGetCategories({
@@ -51,9 +52,7 @@ export function CategoryListView() {
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
-        if (categories.length) {
-            setTableData(categories);
-        }
+        setTableData(categories);
     }, [categories]);
 
     const dataFiltered = tableData;

@@ -1,5 +1,12 @@
 import { IDateValue } from "./common";
-import { z } from "zod";
+
+export type NewCustomer = {
+    id: number;
+    name: string;
+    companyName?: string;
+    email?: string;
+    phone?: string;
+};
 
 export type IQuotationItem = {
     id: number;
@@ -31,6 +38,8 @@ export type IQuotationProduct = {
     productName: string;
     price: number;
     quantity: number;
+    unit: string;
+    unitProductID: number;
     vat: number;
     total: number
 };
@@ -74,23 +83,35 @@ export type ResQuotationItem = {
     data: IQuotationData;
 };
 
-export const quotationItemSchema = z.object({
-    name: z.string().min(1, "Nhập tên sản phẩm/dịch vụ"),
-    description: z.string().optional(),
-    qty: z.number().min(1, "Số lượng > 0"),
-    price: z.number().min(0, "Đơn giá >= 0"),
-    vat: z.number().optional(),
-});
+export type IQuotationDetailDto = {
+    productID: string;
+    quantity: number;
+    row: number;
+}
 
-export const quotationSchema = z.object({
-    customer: z.string().min(1, "Vui lòng chọn khách hàng"),
-    date: z.string().min(1, "Chọn ngày báo giá"),
-    validUntil: z.string().min(1, "Chọn ngày hiệu lực"),
-    status: z.number().min(0).max(4),
-    items: z.array(quotationItemSchema).min(1, "Thêm ít nhất 1 sản phẩm"),
-    notes: z.string().optional(),
-    paymentTerms: z.string().optional(),
-    deliveryTime: z.string().optional(),
-});
+export type IQuotationDto = {
+    quotationNo: string;
+    customerID: number;
+    expiryDate: IDateValue;
+    note: string;
+    discount: number;
+    paid: number;
+    quotationDetails: IQuotationDetailDto[];
+    Status: number;
+}
 
-export type QuotationFormValues = z.infer<typeof quotationSchema>;
+export type IQuotationDao = {
+    quotationNo: string;
+    customerID: number;
+    expiryDate: IDateValue;
+    note: string;
+    discount: number;
+    seller: string;
+    paid: number;
+    Status: number;
+}
+
+export type IQuotationProductToDelete = {
+    quotationID: string;
+    productID: number[];
+}

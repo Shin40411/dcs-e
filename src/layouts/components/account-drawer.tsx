@@ -29,7 +29,7 @@ import { useMockedUser } from 'src/auth/hooks';
 import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Menu } from '@mui/material';
 
 // ----------------------------------------------------------------------
@@ -59,6 +59,10 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    console.log(user);
+  });
 
   return (
     <>

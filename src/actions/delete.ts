@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import axiosInstance from "src/lib/axios";
 import { mutate } from "swr";
 
@@ -17,7 +18,10 @@ export async function deleteOne({
         await mutate(listEndpoint);
 
         return true;
-    } catch (err) {
+    } catch (err: any) {
+        if (err.message) {
+            toast.error(err.message);
+        }
         console.error("Delete error:", err);
         return false;
     }

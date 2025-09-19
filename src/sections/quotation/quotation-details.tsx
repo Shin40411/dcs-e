@@ -3,10 +3,10 @@ import { IQuotationData, IQuotationItem } from "src/types/quotation";
 import html2pdf from "html2pdf.js";
 import { useGetQuotation } from "src/actions/quotation";
 import { useEffect, useState } from "react";
-import { fCurrency } from "src/utils/format-number";
+import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
 import { fDate } from "src/utils/format-time-vi";
 import { Logo } from "src/components/logo";
-import { InvalidNumberError, ReadingConfig, doReadNumber } from 'read-vietnamese-number';
+import { capitalizeFirstLetter } from "src/utils/format-string";
 
 type Props = {
     selectedQuotation: IQuotationItem;
@@ -65,44 +65,39 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
 
     return (
         <Dialog open={openDetail} onClose={onClose} maxWidth="xl" fullWidth>
-            <DialogTitle>
-                {/*  */}
+            <DialogTitle fontSize={13} fontWeight={700}>
+                Số: {selectedQuotation.quotationNo}
             </DialogTitle>
             <DialogContent>
                 {selectedQuotation && (
                     <Box id="quotation-preview" sx={{ p: 3, bgcolor: "white" }}>
-                        <Stack direction="row" alignContent="center" justifyContent="space-between" mb={2}>
-                            <Typography fontSize={13} fontWeight={700}>
-                                Số: {selectedQuotation.quotationNo}
-                            </Typography>
-                            <Stack direction="row" justifyContent="flex-start" height="100%">
-                                <Logo disabled sx={{ width: '20%', height: '0%' }} />
-                                <Box>
-                                    <List disablePadding>
-                                        <ListItem disableGutters sx={{ py: 0 }}>
-                                            <Typography variant="subtitle1" fontWeight="bold">
-                                                CÔNG TY TNHH GIẢI PHÁP DCS
-                                            </Typography>
-                                        </ListItem>
-                                        <ListItem disableGutters sx={{ py: 0 }}>
-                                            <Typography variant="body2">MST: 0318436084</Typography>
-                                        </ListItem>
-                                        <ListItem disableGutters sx={{ py: 0 }}>
-                                            <Typography variant="body2">
-                                                ĐC: Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh
-                                            </Typography>
-                                        </ListItem>
-                                        <ListItem disableGutters sx={{ py: 0 }}>
-                                            <Typography variant="body2">ĐT: 0932090207</Typography>
-                                        </ListItem>
-                                        <ListItem disableGutters sx={{ py: 0 }}>
-                                            <Typography variant="body2">
-                                                Email: ncnnghia@gmail.com &nbsp;|&nbsp; dcsketoan@gmail.com
-                                            </Typography>
-                                        </ListItem>
-                                    </List>
-                                </Box>
-                            </Stack>
+                        <Stack direction="row" justifyContent="space-between" height="100%">
+                            <Box>
+                                <List disablePadding>
+                                    <ListItem disableGutters sx={{ py: 0 }}>
+                                        <Typography variant="subtitle1" fontWeight="bold">
+                                            CÔNG TY TNHH GIẢI PHÁP DCS
+                                        </Typography>
+                                    </ListItem>
+                                    <ListItem disableGutters sx={{ py: 0 }}>
+                                        <Typography variant="body2">MST: 0318436084</Typography>
+                                    </ListItem>
+                                    <ListItem disableGutters sx={{ py: 0 }}>
+                                        <Typography variant="body2">
+                                            ĐC: Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh
+                                        </Typography>
+                                    </ListItem>
+                                    <ListItem disableGutters sx={{ py: 0 }}>
+                                        <Typography variant="body2">ĐT: 0932090207</Typography>
+                                    </ListItem>
+                                    <ListItem disableGutters sx={{ py: 0 }}>
+                                        <Typography variant="body2">
+                                            Email: ncnnghia@gmail.com &nbsp;|&nbsp; dcsketoan@gmail.com
+                                        </Typography>
+                                    </ListItem>
+                                </List>
+                            </Box>
+                            <Logo disabled sx={{ width: '10%', height: '0%' }} />
                         </Stack>
                         <Typography variant="h5" textTransform="uppercase" fontWeight={800} align="center" gutterBottom>
                             Bảng báo giá
@@ -119,8 +114,10 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                         <Table size="small" sx={{ mt: 2 }}>
                             <TableHead>
                                 <TableRow>
+                                    <TableCell>STT</TableCell>
                                     <TableCell>Tên SP/DV</TableCell>
                                     <TableCell align="right">Số lượng</TableCell>
+                                    <TableCell align="right">Đơn vị tính</TableCell>
                                     <TableCell align="right">Đơn giá</TableCell>
                                     <TableCell align="right">Thành tiền</TableCell>
                                 </TableRow>
@@ -129,8 +126,10 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                 {currentQuotation?.items?.flatMap((quotation) =>
                                     quotation.products.map((p, index) => (
                                         <TableRow key={`${quotation.quotationID}-${p.id}-${index}`}>
+                                            <TableCell>{index + 1}</TableCell>
                                             <TableCell>{p.productName}</TableCell>
                                             <TableCell align="right">{p.quantity}</TableCell>
+                                            <TableCell align="right">{p.unit}</TableCell>
                                             <TableCell align="right">
                                                 {fCurrency(p.price)}
                                             </TableCell>
@@ -141,9 +140,9 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                     ))
                                 )}
                                 <TableRow>
-                                    <TableCell colSpan={3}>
-                                        <Typography variant="caption" display="block">
-                                            Bằng chữ: <b>{renderTotalAmountLabel(grandTotal)}</b>
+                                    <TableCell colSpan={5}>
+                                        <Typography variant="body2" display="block">
+                                            Bằng chữ: <b>{capitalizeFirstLetter(fRenderTextNumber(grandTotal))}</b>
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="right">
@@ -187,7 +186,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                 <i>(Ký, ghi rõ họ tên)</i>
                             </Typography>
                             <Typography variant="body2" align="center">
-                                Người lập báo giá
+                                Người lập
                                 <br />
                                 <br />
                                 <br />
@@ -215,20 +214,4 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
             </DialogActions>
         </Dialog>
     );
-}
-
-function renderTotalAmountLabel(total: number) {
-    const config = new ReadingConfig()
-    config.unit = ['đồng']
-    try {
-        const number = String(total);
-        const result = doReadNumber(number, config).toUpperCase();
-        return result;
-    } catch (err) {
-        if (err instanceof InvalidNumberError) {
-            console.error('Số không hợp lệ')
-        } else {
-            console.error(err)
-        }
-    }
 }

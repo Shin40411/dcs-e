@@ -24,6 +24,7 @@ import { PRODUCT_COLUMNS } from 'src/const/product';
 import { ProductDetails } from '../product-details';
 import { deleteOne } from 'src/actions/delete';
 import { endpoints } from 'src/lib/axios';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
@@ -33,9 +34,9 @@ export function ProductListView() {
   const confirmDialog = useBoolean();
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
   const [searchText, setSearchText] = useState('');
-  const { products, pagination, productsLoading } = useGetProducts({
+  const { products, pagination, productsLoading, productsEmpty } = useGetProducts({
     pageNumber: page + 1,
     pageSize: rowsPerPage,
     key: searchText,
@@ -60,9 +61,7 @@ export function ProductListView() {
   const { state: currentFilters } = filters;
 
   useEffect(() => {
-    if (products.length) {
-      setTableData(products);
-    }
+    setTableData(products);
   }, [products]);
 
   const dataFiltered = applyFilter({
@@ -186,7 +185,15 @@ export function ProductListView() {
         <UseGridTableList
           dataFiltered={dataFiltered}
           loading={productsLoading}
-          columns={PRODUCT_COLUMNS({ openDetailsForm, openCrudForm, confirmDelRowDialog, setRowIdSelected })}
+          columns={
+            PRODUCT_COLUMNS({
+              openDetailsForm,
+              openCrudForm,
+              confirmDelRowDialog,
+              setRowIdSelected,
+              page,
+              rowsPerPage
+            })}
           rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
           paginationCount={pagination?.totalRecord ?? 0}
           page={page}
@@ -215,7 +222,9 @@ function applyFilter({ inputData, filters }: ApplyFilterProps) {
   const { Search, Filter } = filters;
 
   if (Search) {
-    inputData = inputData.filter((product) => Search.includes(product.name));
+    inputData = inputData.filter((product) =>
+      product.name.toLowerCase().includes(Search.toLowerCase())
+    );
   }
 
   if (Filter) {

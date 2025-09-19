@@ -4,7 +4,7 @@ import { RHFEditor } from './rhf-editor';
 import { RHFSlider } from './rhf-slider';
 import { RHFTextField } from './rhf-text-field';
 import { RHFRadioGroup } from './rhf-radio-group';
-import { RHFPhoneInput } from './rhf-phone-input';
+import { RHFPhoneField, RHFPhoneInput } from './rhf-phone-input';
 import { RHFNumberInput, RHFNumericInput } from './rhf-number-input';
 import { RHFAutocomplete } from './rhf-autocomplete';
 import { RHFCountrySelect } from './rhf-country-select';
@@ -26,6 +26,7 @@ export const Field = {
   Rating: RHFRating,
   Text: RHFTextField,
   Phone: RHFPhoneInput,
+  PhoneField: RHFPhoneField,
   Checkbox: RHFCheckbox,
   UploadBox: RHFUploadBox,
   RadioGroup: RHFRadioGroup,

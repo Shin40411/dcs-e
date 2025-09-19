@@ -96,7 +96,11 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error('Đã có lỗi xảy ra!');
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -124,9 +128,10 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                                         name="name"
                                         label="Tên nhóm sản phẩm"
                                         fullWidth
+                                        required
                                     />
 
-                                    <Field.Select label="VAT áp dụng" name="vat">
+                                    <Field.Select label="VAT áp dụng" name="vat" required>
                                         <MenuItem key={0} value={0} sx={{ textTransform: 'capitalize' }}>0%</MenuItem>
                                         <MenuItem key={5} value={5} sx={{ textTransform: 'capitalize' }}>5%</MenuItem>
                                         <MenuItem key={8} value={8} sx={{ textTransform: 'capitalize' }}>8%</MenuItem>
@@ -140,6 +145,7 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                                     multiline
                                     rows={3}
                                     fullWidth
+                                    required
                                 />
                             </Stack>
                         </CardContent>

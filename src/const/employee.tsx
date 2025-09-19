@@ -11,6 +11,8 @@ type ColumnProps = {
     confirmDelRowDialog: UseBooleanReturn;
     setRowIdSelected: (id: any) => void;
     setTableRowSelected: (obj: any) => void;
+    page: number;
+    rowsPerPage: number;
 }
 
 export const EMPLOYEE_COLUMNS: ({
@@ -18,24 +20,31 @@ export const EMPLOYEE_COLUMNS: ({
     openCrudForm,
     confirmDelRowDialog,
     setRowIdSelected,
-    setTableRowSelected
+    setTableRowSelected,
+    page,
+    rowsPerPage
 }: ColumnProps) => GridColDef[] = ({
     openDetailsForm,
     openCrudForm,
     confirmDelRowDialog,
     setRowIdSelected,
-    setTableRowSelected
+    setTableRowSelected,
+    page,
+    rowsPerPage
 }) => [
-            // {
-            //     field: 'id',
-            //     headerName: 'Mã nhân viên',
-            //     width: 80,
-            //     headerAlign: 'center',
-            //     align: 'center',
-            //     renderCell: (params) => (
-            //         <RenderCellID params={params} />
-            //     ),
-            // },
+            {
+                field: 'stt',
+                headerName: 'STT',
+                width: 80,
+                sortable: false,
+                filterable: false,
+                align: 'center',
+                headerAlign: 'center',
+                renderCell: (params) => {
+                    const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+                    return page * rowsPerPage + (rowIndex + 1);
+                },
+            },
             {
                 field: 'name',
                 headerName: 'Tên nhân viên',

@@ -70,7 +70,11 @@ export function UnitNewEditForm({ currentUnit, open, onClose, selectedId, page, 
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message);
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -80,6 +84,7 @@ export function UnitNewEditForm({ currentUnit, open, onClose, selectedId, page, 
                 name="name"
                 label="Tên đơn vị tính"
                 helperText="Nhập tên đơn vị tính"
+                required
                 sx={{ flex: 1 }}
             />
         </Stack>

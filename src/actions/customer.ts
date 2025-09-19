@@ -29,17 +29,17 @@ export function useGetCustomers({ pageNumber, pageSize, key, enabled = true }: c
 
     const memoizedValue = useMemo(
         () => ({
-            customers: data?.data.items || [],
+            customers: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             customersLoading: isLoading,
             customersError: error,
             customersValidating: isValidating,
-            customersEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            customersEmpty: !isLoading && !isValidating && !data?.data?.items.length,
         }),
         [data, error, isLoading, isValidating]
     );
@@ -47,7 +47,7 @@ export function useGetCustomers({ pageNumber, pageSize, key, enabled = true }: c
     return memoizedValue;
 }
 
-export async function createOrUpdateCustomer(id: number, bodyPayload: ICustomerDto) {
+export async function createOrUpdateCustomer(id: number | undefined, bodyPayload: ICustomerDto) {
     if (id) {
         const { data } = await axiosInstance.patch(endpoints.customer.update(`/${id}`), bodyPayload);
         return data;

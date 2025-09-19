@@ -19,6 +19,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { endpoints } from 'src/lib/axios';
 import { deleteOne } from 'src/actions/delete';
 import { toast } from 'sonner';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ export function OverviewBankingView() {
   const confirmDialog = useBoolean();
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
   const [searchText, setSearchText] = useState('');
 
   const { bankAccounts, pagination, bankAccountsLoading } = useGetBankAccounts({
@@ -54,9 +55,7 @@ export function OverviewBankingView() {
   const [rowIdSelected, setRowIdSelected] = useState(0);
 
   useEffect(() => {
-    if (bankAccounts.length) {
-      setTableData(bankAccounts);
-    }
+    setTableData(bankAccounts);
   }, [bankAccounts]);
 
   const dataFiltered = tableData;
@@ -143,7 +142,16 @@ export function OverviewBankingView() {
       <UseGridTableList
         dataFiltered={dataFiltered}
         loading={bankAccountsLoading}
-        columns={BANKACCOUNT_COLUMNS({ openDetailsForm, openCrudForm, confirmDelRowDialog, setTableRowSelected, setRowIdSelected, page, rowsPerPage })}
+        columns={
+          BANKACCOUNT_COLUMNS({
+            openDetailsForm,
+            openCrudForm,
+            confirmDelRowDialog,
+            setTableRowSelected,
+            setRowIdSelected,
+            page,
+            rowsPerPage
+          })}
         rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
         paginationCount={pagination?.totalRecord ?? 0}
         page={page}

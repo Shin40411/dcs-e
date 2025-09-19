@@ -10,19 +10,38 @@ type ColumnProps = {
   openCrudForm: UseBooleanReturn;
   confirmDelRowDialog: UseBooleanReturn;
   setRowIdSelected: (id: any) => void;
+  page: number;
+  rowsPerPage: number;
 }
 
 export const PRODUCT_COLUMNS: ({
   openDetailsForm,
   openCrudForm,
   confirmDelRowDialog,
-  setRowIdSelected
+  setRowIdSelected,
+  page,
+  rowsPerPage
 }: ColumnProps) => GridColDef[] = ({
   openDetailsForm,
   openCrudForm,
   confirmDelRowDialog,
-  setRowIdSelected
+  setRowIdSelected,
+  page,
+  rowsPerPage
 }) => [
+      {
+        field: 'stt',
+        headerName: 'STT',
+        width: 80,
+        sortable: false,
+        filterable: false,
+        align: 'center',
+        headerAlign: 'center',
+        renderCell: (params) => {
+          const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+          return page * rowsPerPage + (rowIndex + 1);
+        },
+      },
       {
         field: 'name',
         headerName: 'Tên sản phẩm',

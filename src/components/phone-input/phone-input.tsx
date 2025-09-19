@@ -105,7 +105,7 @@ export function PhoneInput({
         hiddenLabel={!label}
         country={selectedCountry}
         inputComponent={CustomInput}
-        placeholder={placeholder ?? 'Enter phone number'}
+        placeholder={placeholder ?? 'Nhập số điện thoại'}
         slotProps={{
           inputLabel: { shrink: true },
           input: {

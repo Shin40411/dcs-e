@@ -33,7 +33,7 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
         name: "",
         bankNo: "",
         bank: "",
-        balance: 0,
+        balance: null as unknown as number,
     };
 
     const methods = useForm<NewBankingSchemaType>({
@@ -87,7 +87,11 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error('Đã có lỗi xảy ra!');
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -99,12 +103,14 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
                     label="Tên tài khoản ngân hàng"
                     helperText="Nhập tên tài khoản"
                     sx={{ flex: 1 }}
+                    required
                 />
                 <Field.Text
                     name="bankNo"
                     label="Số tài khoản ngân hàng"
                     helperText="Nhập số tài khoản"
                     sx={{ flex: 1 }}
+                    required
                 />
             </Stack>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -112,6 +118,7 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
                     name="bank"
                     label="Tên ngân hàng"
                     helperText="Nhập tên ngân hàng"
+                    required
                 />
                 <Field.VNCurrencyInput
                     name="balance"

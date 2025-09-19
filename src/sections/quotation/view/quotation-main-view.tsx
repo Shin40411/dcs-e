@@ -5,23 +5,30 @@ import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
 import { useState } from "react";
 import { QuotationCardList } from "../quotation-card-list";
-import { QuotationForm } from "../quotation-forms";
+import { QuotationForm } from "../quotation-form";
 import { QuotationDetails } from "../quotation-details";
 import { IQuotationItem } from "src/types/quotation";
+import { CONFIG } from "src/global-config";
+import { IDateValue } from "src/types/common";
 
 export function QuotationMainView() {
     const [openForm, setOpenForm] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<IQuotationItem | null>(null);
-
-    const handleCreateQuotation = (data: any) => {
-        console.log("Quotation data:", data);
-    };
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
+    const [fromDate, setFromDate] = useState<IDateValue>();
+    const [toDate, setToDate] = useState<IDateValue>();
 
     const handleViewDetails = (quotation: IQuotationItem) => {
         setSelectedQuotation(quotation);
         setOpenDetail(true);
     };
+
+    const handleEditing = (quotation: IQuotationItem) => {
+        setSelectedQuotation(quotation);
+        setOpenForm(true);
+    }
 
     return (
         <>
@@ -37,18 +44,34 @@ export function QuotationMainView() {
                         <Button
                             variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
-                            onClick={() => setOpenForm(true)}
+                            onClick={() => {
+                                setSelectedQuotation(null);
+                                setOpenForm(true)
+                            }}
                         >
                             Tạo báo giá
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
-                <QuotationCardList onViewDetails={handleViewDetails} />
+                <QuotationCardList
+                    onViewDetails={handleViewDetails}
+                    onEditing={handleEditing}
+                    page={page}
+                    setPage={setPage}
+                    rowsPerPage={rowsPerPage}
+                    setRowsPerPage={setRowsPerPage}
+                    setFromDate={setFromDate}
+                    setToDate={setToDate}
+                />
                 <QuotationForm
+                    selectedQuotation={selectedQuotation}
                     openForm={openForm}
                     onClose={() => setOpenForm(false)}
-                    onSubmit={handleCreateQuotation}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    fromDate={fromDate || null}
+                    toDate={toDate || null}
                 />
                 {selectedQuotation && (
                     <QuotationDetails

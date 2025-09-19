@@ -47,7 +47,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
         address: "",
         isPartner: false,
         rewardPoint: 0,
-        balance: 0,
+        balance: null as unknown as number,
     };
 
     const methods = useForm<NewCustomerSchemaType>({
@@ -103,7 +103,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
     const onSubmit = handleSubmit(async (data) => {
         try {
             const payloadData: ICustomerDto = {
-                phone: data.phone,
+                phone: data.phone.replace(/\s+/g, ""),
                 name: data.name,
                 taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
@@ -123,7 +123,11 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error('Đã có lỗi xảy ra!');
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -136,12 +140,14 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                     label="Họ và tên"
                     helperText="Nhập họ và tên khách hàng"
                     sx={{ flex: 1 }}
+                    required
                 />
-                <Field.Text
+                <Field.PhoneField
                     name="phone"
                     label="Số điện thoại"
                     helperText="Nhập số điện thoại"
                     sx={{ flex: 1 }}
+                    required
                 />
             </Stack>
 
@@ -181,6 +187,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 label="Email"
                 helperText="Nhập địa chỉ email"
                 sx={{ flex: 1 }}
+                required
             />
             {/* Địa chỉ */}
             <Field.Text

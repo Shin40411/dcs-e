@@ -69,7 +69,11 @@ export function EmployeeTypeNewEditForm({ currentEmployeeType, open, onClose, se
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message);
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -79,6 +83,7 @@ export function EmployeeTypeNewEditForm({ currentEmployeeType, open, onClose, se
                 name="name"
                 label="Tên chức vụ"
                 helperText="Nhập tên chức vụ"
+                required
             />
         </Stack>
     );

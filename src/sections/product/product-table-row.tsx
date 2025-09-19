@@ -118,6 +118,7 @@ export function RenderCellDescription({ params }: ParamsProps) {
         alignItems: 'center',
       }}>
       <Typography
+        component="div"
         variant="body2"
         sx={{
           display: '-webkit-box',

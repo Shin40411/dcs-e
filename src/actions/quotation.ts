@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { endpoints, fetcher } from "src/lib/axios";
+import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { ResQuotationItem, ResQuotationList } from "src/types/quotation";
+import { IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationProductToDelete, ResQuotationItem, ResQuotationList } from "src/types/quotation";
 import useSWR, { SWRConfiguration } from "swr";
 
 type quotationProps = {
@@ -22,11 +22,13 @@ const swrOptions: SWRConfiguration = {
 export function useGetQuotations({ pageNumber, pageSize, key, enabled = true, fromDate, toDate }: quotationProps) {
     let params = '';
 
-    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
     if (fromDate || toDate) params += `&fromDate=${fromDate}&toDate=${toDate}`;
 
     if (key) params += `&search=${key}`;
+
+    params += `&Status=1`;
 
     const url = enabled ? endpoints.quotation.list(params) : null;
 
@@ -81,4 +83,39 @@ export function useGetQuotation({ quotationId, pageNumber, pageSize, options }: 
     );
 
     return memoizedValue;
+}
+
+export async function createOrUpdateQuotation(id: number | null, bodyPayload: IQuotationDto, updatePayload: IQuotationDao) {
+    if (id) {
+        const { data } = await axiosInstance.patch(endpoints.quotation.update.root(id), updatePayload);
+        return data;
+    } else {
+        const { data } = await axiosInstance.post(endpoints.quotation.create, bodyPayload);
+        return data;
+    }
+}
+
+export async function addMoreProducts(id: number, bodyPayload: IQuotationDetailDto[]) {
+    try {
+        const { data } = await axiosInstance.post(
+            endpoints.quotation.update.addProducts(id),
+            bodyPayload
+        );
+        return data;
+    } catch (error) {
+        console.error("Lỗi api thêm sản phẩm:", error);
+        throw error;
+    }
+}
+
+export async function deleteProductSelected(bodyPayload: IQuotationProductToDelete) {
+    try {
+        const { data } = await axiosInstance.delete(endpoints.quotation.deleteProduct, {
+            data: bodyPayload,
+        });
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 }

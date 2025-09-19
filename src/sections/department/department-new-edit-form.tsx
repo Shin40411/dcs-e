@@ -71,7 +71,11 @@ export function DepartmentNewEditForm({ currentDepartment, open, onClose, select
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message);
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -81,6 +85,7 @@ export function DepartmentNewEditForm({ currentDepartment, open, onClose, select
                 name="name"
                 label="Tên phòng ban"
                 helperText="Nhập tên phòng ban"
+                required
             />
         </Stack>
     );

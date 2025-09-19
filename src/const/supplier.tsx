@@ -24,6 +24,8 @@ type ColumnProps = {
     confirmDelRowDialog: UseBooleanReturn;
     setRowIdSelected: (id: any) => void;
     setTableRowSelected: (obj: any) => void;
+    page: number;
+    rowsPerPage: number;
 }
 
 export const SUPPLIERS_COLUMNS: ({
@@ -31,14 +33,31 @@ export const SUPPLIERS_COLUMNS: ({
     openDetailsForm,
     confirmDelRowDialog,
     setRowIdSelected,
-    setTableRowSelected
+    setTableRowSelected,
+    page,
+    rowsPerPage
 }: ColumnProps) => GridColDef[] = ({
     openCrudForm,
     openDetailsForm,
     confirmDelRowDialog,
     setRowIdSelected,
-    setTableRowSelected
+    setTableRowSelected,
+    page,
+    rowsPerPage
 }) => [
+            {
+                field: 'stt',
+                headerName: 'STT',
+                width: 80,
+                sortable: false,
+                filterable: false,
+                align: 'center',
+                headerAlign: 'center',
+                renderCell: (params) => {
+                    const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+                    return page * rowsPerPage + (rowIndex + 1);
+                },
+            },
             {
                 field: 'name',
                 headerName: 'Tên nhà cung cấp',

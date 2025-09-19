@@ -16,6 +16,7 @@ import { ConfirmDialog } from "src/components/custom-dialog"
 import { deleteOne } from "src/actions/delete"
 import { endpoints } from "src/lib/axios"
 import { toast } from "sonner"
+import { CONFIG } from "src/global-config"
 
 export function SuppliersListView() {
     const openCrudForm = useBoolean();
@@ -23,7 +24,7 @@ export function SuppliersListView() {
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const { suppliers, pagination, suppliersLoading } = useGetSuppliers({
         pageNumber: page + 1,
@@ -45,9 +46,7 @@ export function SuppliersListView() {
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
-        if (suppliers.length) {
-            setTableData(suppliers);
-        }
+        setTableData(suppliers);
     }, [suppliers]);
 
     const dataFiltered = tableData;
@@ -134,7 +133,16 @@ export function SuppliersListView() {
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={suppliersLoading}
-                    columns={SUPPLIERS_COLUMNS({ openDetailsForm, openCrudForm, confirmDelRowDialog, setRowIdSelected, setTableRowSelected })}
+                    columns={
+                        SUPPLIERS_COLUMNS({
+                            openDetailsForm,
+                            openCrudForm,
+                            confirmDelRowDialog,
+                            setRowIdSelected,
+                            setTableRowSelected,
+                            page,
+                            rowsPerPage
+                        })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
                     page={page}

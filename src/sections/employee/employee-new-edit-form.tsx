@@ -71,7 +71,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
         bankAccount: "",
         bankName: "",
         birthday: null,
-        balance: 0,
+        balance: null as unknown as number,
         address: "",
         image: undefined,
         departmentId: 0,
@@ -162,7 +162,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
 
             const payloadData: IEmployeeDto = {
                 name: data.name,
-                typeId: 1,
+                typeId: data.employeeTypeId ?? 0,
                 gender: data.gender,
                 email: data.email,
                 rightId: 2,
@@ -170,7 +170,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                 image: imagePayload,
                 birthday: data.birthday,
                 address: data.address ?? "",
-                phone: data.phone,
+                phone: data.phone.replace(/\s+/g, ""),
                 bankAccount: data.bankAccount ?? "",
                 bankName: data.bankName ?? "",
                 balance: data.balance ?? 0,
@@ -184,7 +184,11 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error('Đã có lỗi xảy ra!');
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -198,13 +202,13 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                             name="name"
                             label="Họ và tên"
                             helperText="Nhập họ và tên khách hàng"
-                            sx={{ flex: 1 }}
+                            required
                         />
-                        <Field.Text
+                        <Field.PhoneField
                             name="phone"
                             label="Số điện thoại"
                             helperText="Nhập số điện thoại"
-                            sx={{ flex: 1 }}
+                            required
                         />
                     </Stack>
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -212,6 +216,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                             name="email"
                             label="Email"
                             helperText="Nhập địa chỉ email"
+                            required
                         />
                         <Field.Select label='Giới tính' name="gender" helperText="Chọn giới tính nhân viên">
                             <MenuItem key={'Male'} value={'Male'} sx={{ textTransform: 'capitalize' }}>Nam</MenuItem>

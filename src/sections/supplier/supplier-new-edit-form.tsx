@@ -42,7 +42,7 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
         email: "",
         bankAccount: "",
         bankName: "",
-        balance: 0,
+        balance: null as unknown as number,
         address: "",
     };
 
@@ -95,7 +95,7 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
         try {
             const payloadData: ISupplierDto = {
                 name: data.name,
-                phone: data.phone,
+                phone: data.phone.replace(/\s+/g, ""),
                 taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
                 email: data.email ?? '',
@@ -112,7 +112,11 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
             reset();
         } catch (error: any) {
             console.error(error);
-            toast.error('Đã có lỗi xảy ra!');
+            if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Đã có lỗi xảy ra!");
+            }
         }
     });
 
@@ -124,12 +128,14 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
                     label="Họ và tên"
                     helperText="Nhập họ và tên nhà cung cấp"
                     sx={{ flex: 1 }}
+                    required
                 />
-                <Field.Text
+                <Field.PhoneField
                     name="phone"
                     label="Số điện thoại"
                     helperText="Nhập số điện thoại"
                     sx={{ flex: 1 }}
+                    required
                 />
             </Stack>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -152,6 +158,7 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
                     label="Email"
                     helperText="Nhập địa chỉ email"
                     sx={{ flex: 1 }}
+                    required
                 />
                 <Field.Text
                     name="bankAccount"
