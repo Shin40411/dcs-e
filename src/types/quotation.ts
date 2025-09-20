@@ -87,6 +87,7 @@ export type IQuotationDetailDto = {
     productID: string;
     quantity: number;
     row: number;
+    Unit: string;
 }
 
 export type IQuotationDto = {

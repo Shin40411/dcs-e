@@ -5,18 +5,30 @@ import {
     Chip,
     Divider,
     IconButton,
+    List,
+    ListItem,
     MenuItem,
     MenuList,
     Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
     Tooltip,
     Typography
 } from "@mui/material";
 import { UseBooleanReturn, usePopover } from "minimal-shared/hooks";
+import { useEffect, useState } from "react";
+import { useGetQuotation } from "src/actions/quotation";
 import { CustomPopover } from "src/components/custom-popover";
 import { Iconify } from "src/components/iconify";
-import { IQuotationItem } from "src/types/quotation";
-import { fCurrency } from "src/utils/format-number";
+import { Logo } from "src/components/logo";
+import { IQuotationData, IQuotationItem } from "src/types/quotation";
+import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
+import { capitalizeFirstLetter } from "src/utils/format-string";
 import { fDate } from "src/utils/format-time-vi";
+import { QuotationPreview } from "./quotation-preview";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
@@ -88,97 +100,55 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                     position: "relative",
                     borderRadius: 2,
                     overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "100%",
+                    aspectRatio: { md: "210/297", sm: "210/200", xs: "210/200" },
+                    bgcolor: "#fdfdfd",
+                    boxShadow: 3,
+                    transition: "0.2s",
+                    maxHeight: { lg: 250, md: 170 },
+                    "&:hover": { boxShadow: 6, transform: "scale(1.02)" },
                     ...sx,
                 }}
                 {...other}
             >
-                <IconButton
-                    onClick={menuActions.onOpen}
-                    sx={{ position: "absolute", top: 8, right: 0 }}
-                >
-                    <Iconify icon="eva:more-vertical-fill" />
-                </IconButton>
 
-                <Box
-                    sx={{
-                        px: 3,
-                        py: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 3,
-                        justifyContent: "flex-start",
-                        bgcolor: "background.neutral",
-                    }}
-                >
-                    <Typography variant="subtitle2">#{quotate.quotationNo}</Typography>
-                    <Tooltip title={statusInfo.label} sx={{ width: '100px', cursor: 'pointer' }}>
-                        <Chip
-                            size="small"
-                            color={statusInfo.color}
-                            icon={<Iconify icon={statusInfo.icon} />}
-                            label={statusInfo.label}
-                        />
-                    </Tooltip>
-                </Box>
-
-                <Box sx={{ p: 3 }}>
-                    <Stack spacing={1.5}>
-
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Iconify
-                                width={18}
-                                icon="solar:buildings-2-bold"
-                                sx={{ color: "text.secondary" }}
-                            />
-                            <Typography variant="subtitle1" noWrap>
-                                {quotate.customerName}
+                <QuotationPreview quotation={quotate} />
+                <Stack direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
+                    <Box sx={{
+                        pl: 2.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        justifyContent: 'flex-end',
+                        cursor: 'pointer'
+                    }}>
+                        <Iconify icon="ri:contract-fill" color="#000cff" />
+                        <Tooltip title={`Báo giá số ${quotate.quotationNo}`}>
+                            <Typography
+                                variant="body2"
+                                fontSize={{ lg: 12, md: 10 }}
+                                sx={{
+                                    maxWidth: { lg: 160, md: 100 },
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    display: "block",
+                                }}
+                            >
+                                Báo giá số <b>{quotate.quotationNo}</b>
                             </Typography>
-                        </Stack>
+                        </Tooltip>
 
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Iconify
-                                width={18}
-                                icon="solar:calendar-bold"
-                                sx={{ color: "text.secondary" }}
-                            />
-                            <Typography variant="body2">
-                                Ngày lập: {fDate(quotate.createdDate)}
-                            </Typography>
-                        </Stack>
-
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Iconify
-                                width={18}
-                                icon="solar:user-rounded-bold"
-                                sx={{ color: "text.secondary" }}
-                            />
-                            <Typography variant="body2">NV phụ trách: {quotate.seller || 'Chưa có'}</Typography>
-                        </Stack>
-                    </Stack>
-                </Box>
-
-                <Divider />
-
-                <Box
-                    sx={{
-                        px: 3,
-                        py: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Stack direction="row" gap={1}>
-                        <Iconify icon="fluent-mdl2:total" />
-                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                            Tổng cộng
-                        </Typography>
-                    </Stack>
-                    <Typography variant="subtitle1" color="primary">
-                        {fCurrency(quotate.totalAmount)}
-                    </Typography>
-                </Box>
-            </Card>
+                    </Box>
+                    <IconButton
+                        onClick={menuActions.onOpen}
+                    >
+                        <Iconify icon="eva:more-vertical-fill" />
+                    </IconButton>
+                </Stack>
+            </Card >
 
             {renderMenuActions()}
         </>

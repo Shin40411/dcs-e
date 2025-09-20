@@ -8,10 +8,12 @@ import { useGetProducts } from "src/actions/product";
 import { QuotationFormValues } from "./schema/quotation-schema";
 import { useGetUnits } from "src/actions/unit";
 import { capitalizeFirstLetter } from "src/utils/format-string";
-import { IQuotationProductToDelete } from "src/types/quotation";
 import { toast } from "sonner";
 import { deleteProductSelected } from "src/actions/quotation";
 import { useBoolean } from "minimal-shared/hooks";
+import { mutate } from "swr";
+import { endpoints } from "src/lib/axios";
+import { IDateValue } from "src/types/common";
 
 type QuotationItemsTableProps = {
     idQuotation: number | undefined;
@@ -20,6 +22,10 @@ type QuotationItemsTableProps = {
     remove: UseFieldArrayRemove;
     append: (value: any) => void;
     setPaid: (value: any) => void;
+    page: number;
+    rowsPerPage: number;
+    fromDate: IDateValue;
+    toDate: IDateValue;
 };
 
 export function QuotationItemsTable({
@@ -28,7 +34,11 @@ export function QuotationItemsTable({
     fields,
     remove,
     append,
-    setPaid
+    setPaid,
+    page,
+    rowsPerPage,
+    fromDate,
+    toDate
 }: QuotationItemsTableProps) {
     const items = useWatch({
         control: methods.control,
@@ -63,8 +73,14 @@ export function QuotationItemsTable({
 
     const deleteEachProduct = async () => {
         try {
-            console.log(productIDSelected);
+            console.log(indexField);
             if (!idQuotation) return;
+            if (indexField === 0) {
+                toast.warning("Phiếu báo giá đã tạo phải có ít nhất 1 sản phẩm");
+                toast.warning("Không thể xóa sản phẩm này");
+                openDel.onFalse();
+                return;
+            }
 
             await deleteProductSelected({
                 productID: productIDSelected,
@@ -73,6 +89,10 @@ export function QuotationItemsTable({
             remove(indexField);
             toast.success("Đã xóa sản phẩm ra khỏi danh sách");
             openDel.onFalse();
+            mutate(
+                endpoints.quotation.list(
+                    `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
+                ));
         } catch (error: any) {
             console.error(error);
             if (error.message) {
@@ -308,6 +328,10 @@ function ProductAutocomplete({
                     methods.setValue(
                         `items.${index}.unit`,
                         newValue.unitID != null ? String(newValue.unitID) : ""
+                    );
+                    methods.setValue(
+                        `items.${index}.unitName`,
+                        newValue.unit != null ? newValue.unit : ""
                     );
                     methods.setValue(`items.${index}.price`, newValue.price ?? 0);
                     methods.setValue(`items.${index}.vat`, newValue.vat ?? 0);

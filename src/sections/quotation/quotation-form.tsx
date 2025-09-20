@@ -92,6 +92,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                 name: ""
             },
             unit: "",
+            unitName: "",
             qty: 1,
             price: 0,
             vat: 0
@@ -113,6 +114,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                     productID: item.product.id ?? "",
                     quantity: item.qty,
                     row: i + 1,
+                    Unit: item.unitName || ""
                 }))
             );
             return;
@@ -143,6 +145,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                 productID: item.product.id ?? "",
                 quantity: item.qty,
                 row: i + 1,
+                Unit: item.unitName || ""
             }))
         );
 
@@ -189,6 +192,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                     productID: item.product.id ?? "",
                     quantity: item.qty,
                     row: i + 1,
+                    Unit: item.unitName || ""
                 })),
             };
 
@@ -196,6 +200,8 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                 ...basePayload,
                 seller: user?.accessToken || "",
             };
+
+            // console.log(bodyPayload);
 
             await createOrUpdateQuotation(
                 selectedQuotation?.id ?? null,
@@ -223,7 +229,8 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                 endpoints.quotation.list(
                     `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
                 ));
-
+            onClose();
+            reset(defaultValues);
         } catch (error: any) {
             console.error(error);
             if (error.message) {
@@ -231,9 +238,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
             } else {
                 toast.error("Đã có lỗi xảy ra!");
             }
-        } finally {
-            reset(defaultValues);
-            onClose();
         }
     });
 
@@ -412,6 +416,10 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                 append={append}
                 remove={remove}
                 setPaid={setTotalPaid}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                fromDate={fromDate}
+                toDate={toDate}
             />
         </Stack>
     );

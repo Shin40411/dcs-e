@@ -13,6 +13,7 @@ export const quotationItemSchema = z.object({
             path: [],
         }),
     unit: z.string().optional().or(z.literal("")),
+    unitName: z.string().optional().or(z.literal("")),
     qty: z.number().min(1, "Số lượng > 0"),
     price: z.number().min(0, "Đơn giá >= 0"),
     vat: z.number().optional(),
@@ -35,7 +36,7 @@ export const quotationSchema = z.object({
             }
             return Number(val);
         },
-        z.number().min(0).max(30, "Khuyến mãi nhập tối đa là 30%").optional()
+        z.number().min(1, "Khuyến mãi nhập tối đa là 1%").max(30, "Khuyến mãi nhập tối đa là 30%").optional()
     ),
     notes: z.string().optional(),
     customerDetails: customerSchema.optional(),

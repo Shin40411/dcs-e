@@ -40,7 +40,8 @@ export function QuotationFilterBar({ onFilterChange, onReset, onSearching }: Pro
 
     return (
         <Stack
-            direction={{ xs: "column", sm: "row" }}
+            direction={{ xs: "column", sm: "column", md: "row" }}
+            gap={{ xs: 2, sm: 2, md: 0 }}
             sx={{ mb: 3 }}
             alignItems="center"
             justifyContent="space-between"

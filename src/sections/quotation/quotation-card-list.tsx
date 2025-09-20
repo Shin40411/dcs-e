@@ -148,7 +148,13 @@ export function QuotationCardList({
                     sx={{
                         gap: 3,
                         display: 'grid',
-                        gridTemplateColumns: getGridColumns(rowsPerPage),
+                        gridTemplateColumns: {
+                            xl: 'repeat(5, 1fr)',
+                            lg: 'repeat(4, 1fr)',
+                            md: 'repeat(3, 1fr)',
+                            sm: 'repeat(3, 1fr)',
+                            xs: 'repeat(1, 1fr)'
+                        },
                     }}
                 >
                     {quotationsLoading
@@ -174,28 +180,21 @@ export function QuotationCardList({
 
             {renderConfirmDeleteRow()}
 
-            {pagination?.totalRecord > rowsPerPage && (
-                <TablePagination
-                    component="div"
-                    count={pagination.totalRecord}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    rowsPerPageOptions={[5, 10, 20]}
-                    labelRowsPerPage="Số dòng mỗi trang:"
-                    labelDisplayedRows={({ from, to, count }) =>
-                        `${from}–${to} trên ${count !== -1 ? count : `nhiều hơn ${to}`}`
-                    }
-                />
-            )}
+            {/* {pagination?.totalRecord < rowsPerPage && ( */}
+            <TablePagination
+                component="div"
+                count={pagination.totalRecord}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 20]}
+                labelRowsPerPage="Số dòng mỗi trang:"
+                labelDisplayedRows={({ from, to, count }) =>
+                    `${from}–${to} trên ${count !== -1 ? count : `nhiều hơn ${to}`}`
+                }
+            />
+            {/* )} */}
         </>
     );
-}
-
-function getGridColumns(rowsPerPage: number) {
-    if (rowsPerPage % 4 === 0) return 'repeat(4, 1fr)';
-    if (rowsPerPage % 5 === 0) return 'repeat(5, 1fr)';
-    if (rowsPerPage % 3 === 0) return 'repeat(3, 1fr)';
-    return 'repeat(2, 1fr)';
 }

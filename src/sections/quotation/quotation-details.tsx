@@ -40,16 +40,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
         }
     };
 
-    const grandTotal = currentQuotation?.items?.reduce(
-        (acc, q) =>
-            acc +
-            q.products.reduce(
-                (sum, p) => sum + p.quantity * p.price * (1 + p.vat / 100),
-                0
-            ),
-        0
-    ) ?? 0;
-
+    const roundedTotal = Math.round(selectedQuotation.totalAmount);
 
     if (quotationLoading || !currentQuotation) {
         return (
@@ -72,6 +63,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                 {selectedQuotation && (
                     <Box id="quotation-preview" sx={{ p: 3, bgcolor: "white" }}>
                         <Stack direction="row" justifyContent="space-between" height="100%">
+                            <Logo disabled sx={{ width: '10%', height: '0%' }} />
                             <Box>
                                 <List disablePadding>
                                     <ListItem disableGutters sx={{ py: 0 }}>
@@ -97,7 +89,6 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                     </ListItem>
                                 </List>
                             </Box>
-                            <Logo disabled sx={{ width: '10%', height: '0%' }} />
                         </Stack>
                         <Typography variant="h5" textTransform="uppercase" fontWeight={800} align="center" gutterBottom>
                             Bảng báo giá
@@ -142,12 +133,12 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                 <TableRow>
                                     <TableCell colSpan={5}>
                                         <Typography variant="body2" display="block">
-                                            Bằng chữ: <b>{capitalizeFirstLetter(fRenderTextNumber(grandTotal))}</b>
+                                            Bằng chữ: <b>{capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}</b>
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="right">
                                         <b>Tổng cộng: </b>
-                                        {fCurrency(grandTotal)}
+                                        {fCurrency(roundedTotal)}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
