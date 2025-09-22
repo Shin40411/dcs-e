@@ -60,9 +60,9 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    console.log(user);
-  });
+  // useEffect(() => {
+  //   console.log(user);
+  // });
 
   return (
     <>

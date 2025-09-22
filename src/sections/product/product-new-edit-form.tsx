@@ -1,15 +1,13 @@
-import type { ProductDto, ProductItem } from 'src/types/product';
+import type { ProductDto } from 'src/types/product';
 
-import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
 
 import {
   _tags,
@@ -18,7 +16,7 @@ import {
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
-import { CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
+import { CardActions, CardContent, Dialog, DialogContent, DialogTitle, MenuItem } from '@mui/material';
 import { useGetCategories } from 'src/actions/category';
 import { useDebounce } from 'minimal-shared/hooks';
 import { useGetUnits } from 'src/actions/unit';
@@ -28,47 +26,7 @@ import { endpoints } from 'src/lib/axios';
 import { uploadImage } from 'src/actions/upload';
 import { ICategoryItem } from 'src/types/category';
 import { CONFIG } from 'src/global-config';
-
-// ----------------------------------------------------------------------
-
-export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
-
-export const NewProductSchema = zod.object({
-  name: zod.string().min(1, { message: 'Tên sản phẩm là trường bắt buộc' }),
-  code: zod.string().min(1, { message: 'Mã sản phẩm là trường bắt buộc' }),
-  description: zod
-    .string()
-    .min(1, { message: 'Mô tả sản phẩm là trường bắt buộc' }),
-  purchasePrice: zod
-    .number({ coerce: true })
-    .min(1, { message: 'Giá nhập là trường bắt buộc và phải lớn hơn 0' }),
-  price: zod
-    .number({ coerce: true })
-    .min(1, { message: 'Giá bán là trường bắt buộc và phải lớn hơn 0' }),
-  unitId: zod.number().min(1, { message: 'Đơn vị tính là trường bắt buộc' }),
-  categoryId: zod.number().min(1, { message: 'Nhóm sản phẩm là trường bắt buộc' }),
-  stock: zod
-    .number({ coerce: true })
-    .min(0, { message: 'Số lượng tồn kho không được nhỏ hơn 0' }),
-  warranty: zod
-    .number({ coerce: true })
-    .min(0, { message: 'Thời gian bảo hành không được nhỏ hơn 0' }),
-  manufacturer: zod
-    .string()
-    .min(1, { message: 'Nhà sản xuất là trường bắt buộc' }),
-  vat: zod
-    .number({ coerce: true })
-    .min(0, { message: 'VAT không được nhỏ hơn 0%' })
-    .max(100, { message: 'VAT không được lớn hơn 100%' }),
-  image: zod
-    .any()
-    .refine((file) => file instanceof File || typeof file === 'string', {
-      message: 'Ảnh sản phẩm không hợp lệ',
-    }).nullable().optional(),
-  Folder: zod.string().min(1, { message: 'Thư mục tải lên là trường bắt buộc' }),
-});
-
-// ----------------------------------------------------------------------
+import { NewProductSchema, NewProductSchemaType } from './schema/product-schema';
 
 type Props = {
   open: boolean;
@@ -201,7 +159,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       const bodyPayload: ProductDto = {
         name: data.name,
         code: data.code,
-        description: data.description,
+        description: data.description || "",
         purchasePrice: data.purchasePrice,
         price: data.price,
         unitId: data.unitId,
@@ -245,7 +203,6 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
     }
   });
 
-
   const handleRemoveFile = useCallback(() => {
     setValue('image', null, { shouldValidate: true });
   }, [setValue]);
@@ -274,6 +231,7 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
                 setValue('categoryId', newValue?.id ?? 0, { shouldValidate: true });
               }}
               noOptionsText="Không có dữ liệu"
+              required
             />
             <Field.Autocomplete
               name="unitId"
@@ -289,20 +247,23 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
                 setValue('unitId', newValue?.id ?? 0, { shouldValidate: true });
               }}
               noOptionsText="Không có dữ liệu"
+              required
             />
           </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
             <Field.VNCurrencyInput
               label='Giá nhập'
               name="purchasePrice"
+              required
             />
             <Field.VNCurrencyInput
               label='Giá bán'
               name="price"
+              required
             />
           </Stack>
           <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Mô tả sản phẩm <span style={{ color: 'red' }}>*</span></Typography>
+            <Typography variant="subtitle2">Mô tả sản phẩm</Typography>
             <Field.Editor name="description" sx={{ minHeight: 311, maxHeight: 480 }} />
           </Stack>
         </Stack>

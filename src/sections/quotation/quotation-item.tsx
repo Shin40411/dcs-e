@@ -56,7 +56,17 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
             open={menuActions.open}
             anchorEl={menuActions.anchorEl}
             onClose={menuActions.onClose}
-            slotProps={{ arrow: { placement: "right-top" } }}
+            anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+            }}
+            transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+            }}
+            slotProps={{
+                arrow: { placement: "left-top" },
+            }}
         >
             <MenuList>
                 <MenuItem
@@ -96,9 +106,11 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
     return (
         <>
             <Card
+                onClick={menuActions.onOpen}
                 sx={{
                     position: "relative",
-                    borderRadius: 2,
+                    cursor: 'pointer',
+                    borderRadius: 1,
                     overflow: "hidden",
                     display: "flex",
                     flexDirection: "column",
@@ -107,46 +119,78 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                     bgcolor: "#fdfdfd",
                     boxShadow: 3,
                     transition: "0.2s",
-                    maxHeight: { lg: 250, md: 170 },
+                    maxHeight: { lg: 250, md: 250, sm: 170 },
                     "&:hover": { boxShadow: 6, transform: "scale(1.02)" },
                     ...sx,
                 }}
                 {...other}
             >
-
                 <QuotationPreview quotation={quotate} />
-                <Stack direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
-                    <Box sx={{
-                        pl: 2.5,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        justifyContent: 'flex-end',
-                        cursor: 'pointer'
-                    }}>
-                        <Iconify icon="ri:contract-fill" color="#000cff" />
-                        <Tooltip title={`Báo giá số ${quotate.quotationNo}`}>
-                            <Typography
-                                variant="body2"
-                                fontSize={{ lg: 12, md: 10 }}
-                                sx={{
-                                    maxWidth: { lg: 160, md: 100 },
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    display: "block",
-                                }}
-                            >
-                                Báo giá số <b>{quotate.quotationNo}</b>
-                            </Typography>
-                        </Tooltip>
+                <Stack direction={"column"} alignContent={"center"} py={1} spacing={1}>
+                    <Stack direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
+                        <Box
+                            sx={{
+                                pl: 2.5,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                justifyContent: 'flex-end',
+                            }}
+                        >
+                            <Iconify icon="ri:contract-fill" color="#000cff" />
+                            <Tooltip title={`Báo giá số ${quotate.quotationNo}`}>
+                                <Typography
+                                    variant="body2"
+                                    fontSize={{ lg: 12, md: 10 }}
+                                    fontWeight={700}
+                                    sx={{
+                                        maxWidth: { lg: 160, md: 100, sm: 90 },
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "block",
+                                    }}
+                                >
+                                    {quotate.quotationNo}
+                                </Typography>
+                            </Tooltip>
 
-                    </Box>
-                    <IconButton
-                        onClick={menuActions.onOpen}
-                    >
-                        <Iconify icon="eva:more-vertical-fill" />
-                    </IconButton>
+                        </Box>
+                        {/* <IconButton
+                            onClick={menuActions.onOpen}
+                        >
+                            <Iconify icon="eva:more-vertical-fill" />
+                        </IconButton> */}
+                    </Stack>
+                    <Stack direction={"row"} alignContent={"center"}>
+                        <Box
+                            sx={{
+                                pl: 2.5,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                justifyContent: 'flex-end',
+                            }}
+                        >
+                            <Iconify icon="carbon:cost-total" />
+                            <Tooltip title={`Tổng cộng ${fCurrency(quotate.totalAmount)}`}>
+                                <Typography
+                                    variant="body2"
+                                    fontSize={{ lg: 12, md: 10 }}
+                                    fontWeight={700}
+                                    sx={{
+                                        maxWidth: { lg: 160, md: 100, sm: 90 },
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "block",
+                                    }}
+                                >
+                                    {fCurrency(quotate.totalAmount)}
+                                </Typography>
+                            </Tooltip>
+                        </Box>
+                    </Stack>
                 </Stack>
             </Card >
 

@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import { Stack, Button, TextField, Box } from "@mui/material";
 import { Iconify } from "src/components/iconify";
-import { IDateValue } from "src/types/common";
 import { FilterValues } from "src/types/quotation";
-import { formatDate } from "src/utils/format-time-vi";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 
 type Props = {
     onFilterChange: (values: FilterValues) => void;
@@ -13,17 +13,18 @@ type Props = {
 };
 
 export function QuotationFilterBar({ onFilterChange, onReset, onSearching }: Props) {
-    const today = new Date();
-    const defaultToDate = today.toISOString().split("T")[0];
-    const defaultFromDate = new Date(today.setMonth(today.getMonth() - 1))
-        .toISOString()
-        .split("T")[0];
+    const today = dayjs();
+    const defaultToDate = today;
+    const defaultFromDate = today.subtract(1, "month");
 
-    const [fromDate, setFromDate] = useState(defaultFromDate);
-    const [toDate, setToDate] = useState(defaultToDate);
+    const [fromDate, setFromDate] = useState<Dayjs | null>(defaultFromDate);
+    const [toDate, setToDate] = useState<Dayjs | null>(defaultToDate);
 
     const handleApply = () => {
-        onFilterChange({ fromDate, toDate });
+        onFilterChange({
+            fromDate: fromDate ? fromDate.format("YYYY-MM-DD") : null,
+            toDate: toDate ? toDate.format("YYYY-MM-DD") : null,
+        });
     };
 
     const handleReset = () => {
@@ -32,7 +33,9 @@ export function QuotationFilterBar({ onFilterChange, onReset, onSearching }: Pro
         onReset();
     };
 
-    const isChanged = fromDate !== defaultFromDate || toDate !== defaultToDate;
+    const isChanged =
+        !fromDate?.isSame(defaultFromDate, "day") ||
+        !toDate?.isSame(defaultToDate, "day");
 
     useEffect(() => {
         handleApply();
@@ -42,7 +45,7 @@ export function QuotationFilterBar({ onFilterChange, onReset, onSearching }: Pro
         <Stack
             direction={{ xs: "column", sm: "column", md: "row" }}
             gap={{ xs: 2, sm: 2, md: 0 }}
-            sx={{ mb: 3 }}
+            sx={{ m: 3 }}
             alignItems="center"
             justifyContent="space-between"
         >
@@ -51,21 +54,19 @@ export function QuotationFilterBar({ onFilterChange, onReset, onSearching }: Pro
                 spacing={2}
                 alignItems="center"
             >
-                <TextField
+                <DatePicker
                     label="Từ ngày"
-                    type="date"
-                    value={fromDate ?? ""}
-                    onChange={(e) => setFromDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                    size="small"
+                    value={fromDate}
+                    onChange={(newValue) => setFromDate(newValue)}
+                    format="DD/MM/YYYY"
+                    slotProps={{ textField: { size: "small" } }}
                 />
-                <TextField
+                <DatePicker
                     label="Đến ngày"
-                    type="date"
-                    value={toDate ?? ""}
-                    onChange={(e) => setToDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                    size="small"
+                    value={toDate}
+                    onChange={(newValue) => setToDate(newValue)}
+                    format="DD/MM/YYYY"
+                    slotProps={{ textField: { size: "small" } }}
                 />
                 <Button
                     variant="contained"

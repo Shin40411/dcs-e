@@ -87,10 +87,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
         status: 1,
         discount: 0,
         items: [{
-            product: {
-                id: "",
-                name: ""
-            },
+            product: "",
             unit: "",
             unitName: "",
             qty: 1,
@@ -111,7 +108,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
             methods.reset(defaultValues);
             setOriginalItems(
                 defaultValues.items.map((item, i) => ({
-                    productID: item.product.id ?? "",
+                    productID: item.product ?? "",
                     quantity: item.qty,
                     row: i + 1,
                     Unit: item.unitName || ""
@@ -126,8 +123,8 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
             (q) => q.quotationID === selectedQuotation.id
         );
 
-        console.log(currentDetails?.products);
         const mappedItems = mapProductsToItems(currentDetails?.products || []);
+        console.log(mappedItems);
         methods.reset({
             ...defaultValues,
             customer: selectedQuotation.customerId ?? 0,
@@ -142,7 +139,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
 
         setOriginalItems(
             mappedItems.map((item, i) => ({
-                productID: item.product.id ?? "",
+                productID: item.product ?? "",
                 quantity: item.qty,
                 row: i + 1,
                 Unit: item.unitName || ""
@@ -189,7 +186,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
             const bodyPayload: IQuotationDto = {
                 ...basePayload,
                 quotationDetails: data.items.map((item, i): IQuotationDetailDto => ({
-                    productID: item.product.id ?? "",
+                    productID: item.product ?? "",
                     quantity: item.qty,
                     row: i + 1,
                     Unit: item.unitName || ""
@@ -229,6 +226,11 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                 endpoints.quotation.list(
                     `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
                 ));
+
+            if (selectedQuotation?.id) {
+                mutate(endpoints.quotation.detail(selectedQuotation.id, `?pageNumber=1&pageSize=999`));
+            }
+
             onClose();
             reset(defaultValues);
         } catch (error: any) {

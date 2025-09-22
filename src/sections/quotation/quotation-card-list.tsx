@@ -3,6 +3,8 @@ import {
     TablePagination,
     Skeleton,
     Button,
+    Card,
+    Divider,
 } from '@mui/material';
 import { QuotationItem } from './quotation-item';
 import { ChangeEvent, useEffect, useState } from 'react';
@@ -133,54 +135,68 @@ export function QuotationCardList({
     );
 
     return (
-        <>
+        <Card
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                height: "70vh",
+            }}
+        >
             <QuotationFilterBar
                 onFilterChange={handleFilterChange}
                 onSearching={setSearchText}
                 onReset={handleReset}
             />
-            {quotationsEmpty ?
-                (
-                    <EmptyContent content='Không có dữ liệu' />
-                )
-                :
-                <Box
-                    sx={{
-                        gap: 3,
-                        display: 'grid',
-                        gridTemplateColumns: {
-                            xl: 'repeat(5, 1fr)',
-                            lg: 'repeat(4, 1fr)',
-                            md: 'repeat(3, 1fr)',
-                            sm: 'repeat(3, 1fr)',
-                            xs: 'repeat(1, 1fr)'
-                        },
-                    }}
-                >
-                    {quotationsLoading
-                        ? Array.from({ length: rowsPerPage }).map((_, i) => (
-                            <Box key={i} sx={{ p: 2, border: "1px solid #eee", borderRadius: 2 }}>
-                                <Skeleton variant="rectangular" height={120} sx={{ mb: 1 }} />
-                                <Skeleton variant="text" width="60%" />
-                                <Skeleton variant="text" width="40%" />
-                            </Box>
-                        ))
-                        : tableData.map((q) => (
-                            <QuotationItem
-                                openDeleteDialog={confirmDelRowDialog}
-                                setId={setIdSelected}
-                                key={q.id}
-                                quotate={q}
-                                onViewDetails={() => onViewDetails(q)}
-                                onEditing={() => onEditing(q)}
-                            />
-                        ))}
-                </Box>
-            }
+            <Divider />
+            <Box
+                sx={{
+                    flex: 1,
+                    overflowY: "auto",
+                    p: 2,
+                }}
+            >
+                {quotationsEmpty ?
+                    (
+                        <EmptyContent content='Không có dữ liệu' />
+                    )
+                    :
+                    <Box
+                        sx={{
+                            gap: 3,
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                xl: 'repeat(5, 1fr)',
+                                lg: 'repeat(4, 1fr)',
+                                md: 'repeat(3, 1fr)',
+                                sm: 'repeat(3, 1fr)',
+                                xs: 'repeat(1, 1fr)'
+                            },
+                        }}
+                    >
+                        {quotationsLoading
+                            ? Array.from({ length: rowsPerPage }).map((_, i) => (
+                                <Box key={i} sx={{ p: 2, border: "1px solid #eee", borderRadius: 1 }}>
+                                    <Skeleton variant="rectangular" height={120} sx={{ mb: 1 }} />
+                                    <Skeleton variant="text" width="60%" />
+                                    <Skeleton variant="text" width="40%" />
+                                </Box>
+                            ))
+                            : tableData.map((q) => (
+                                <QuotationItem
+                                    openDeleteDialog={confirmDelRowDialog}
+                                    setId={setIdSelected}
+                                    key={q.id}
+                                    quotate={q}
+                                    onViewDetails={() => onViewDetails(q)}
+                                    onEditing={() => onEditing(q)}
+                                />
+                            ))}
+                    </Box>
+                }
 
-            {renderConfirmDeleteRow()}
-
-            {/* {pagination?.totalRecord < rowsPerPage && ( */}
+                {renderConfirmDeleteRow()}
+            </Box>
+            <Divider />
             <TablePagination
                 component="div"
                 count={pagination.totalRecord}
@@ -194,7 +210,6 @@ export function QuotationCardList({
                     `${from}–${to} trên ${count !== -1 ? count : `nhiều hơn ${to}`}`
                 }
             />
-            {/* )} */}
-        </>
+        </Card>
     );
 }

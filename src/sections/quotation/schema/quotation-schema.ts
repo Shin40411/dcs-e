@@ -3,15 +3,7 @@ import { z } from "zod";
 import { customerSchema } from "./new-customer-schema";
 
 export const quotationItemSchema = z.object({
-    product: z
-        .object({
-            id: z.string().optional(),
-            name: z.string().optional(),
-        })
-        .refine((val) => val?.id && val.id.length > 0, {
-            message: "Vui lòng chọn sản phẩm",
-            path: [],
-        }),
+    product: z.string().min(1, "Vui lòng chọn sản phẩm"),
     unit: z.string().optional().or(z.literal("")),
     unitName: z.string().optional().or(z.literal("")),
     qty: z.number().min(1, "Số lượng > 0"),

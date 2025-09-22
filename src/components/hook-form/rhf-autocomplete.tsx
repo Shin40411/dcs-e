@@ -5,6 +5,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import { Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +22,7 @@ export type RHFAutocompleteProps = AutocompleteBaseProps & {
   slotProps?: AutocompleteBaseProps['slotProps'] & {
     textfield?: TextFieldProps;
   };
+  required?: boolean;
 };
 
 export function RHFAutocomplete({
@@ -29,6 +31,7 @@ export function RHFAutocomplete({
   slotProps,
   helperText,
   placeholder,
+  required,
   ...other
 }: RHFAutocompleteProps) {
   const { control, setValue } = useFormContext();
@@ -48,7 +51,15 @@ export function RHFAutocomplete({
             <TextField
               {...params}
               {...textfield}
-              label={label}
+              label={
+                required ? (
+                  <>
+                    {label} <Box component="span">*</Box>
+                  </>
+                ) : (
+                  label
+                )
+              }
               placeholder={placeholder}
               error={!!error}
               helperText={error?.message ?? helperText}

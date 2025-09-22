@@ -10,6 +10,7 @@ import { VnCurrencyInput } from '../numeric-format';
 export type RHFNumberInputProps = NumberInputProps & {
   name: string;
   label?: string;
+  required?: boolean;
 };
 
 export function RHFNumberInput({ name, helperText, ...other }: RHFNumberInputProps) {
@@ -32,15 +33,23 @@ export function RHFNumberInput({ name, helperText, ...other }: RHFNumberInputPro
   );
 }
 
-export function RHFNumericInput({ name, label, helperText, ...other }: RHFNumberInputProps) {
+export function RHFNumericInput({ name, label, helperText, required, ...other }: RHFNumberInputProps) {
   const { control } = useFormContext();
 
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field }) => (
-        <VnCurrencyInput label={label || ''} value={field.value} onChange={field.onChange} />
+      render={({ field, fieldState }) => (
+        <VnCurrencyInput
+          label={label || ''}
+          value={field.value}
+          onChange={field.onChange}
+          error={!!fieldState.error}
+          helperText={fieldState.error?.message}
+          required={required}
+          {...other}
+        />
       )}
     />
   );

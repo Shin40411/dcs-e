@@ -50,6 +50,10 @@ export function QuotationItemsTable({
         name: "discount",
     }) as number | undefined;
 
+    // useEffect(() => {
+    //     console.log("items changed", items);
+    // }, [methods]);
+
     const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
         const qty = Number(item?.qty) || 0;
         const price = Number(item?.price) || 0;
@@ -93,6 +97,8 @@ export function QuotationItemsTable({
                 endpoints.quotation.list(
                     `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
                 ));
+
+            mutate(endpoints.quotation.detail(idQuotation, `?pageNumber=1&pageSize=999`));
         } catch (error: any) {
             console.error(error);
             if (error.message) {
@@ -207,7 +213,7 @@ export function QuotationItemsTable({
                                                         if (idQuotation) {
                                                             openDel.onTrue();
                                                             setProductIDSelected([
-                                                                Number(methods.getValues(`items.${index}.product.id`))
+                                                                Number(methods.getValues(`items.${index}.product`))
                                                             ]);
                                                             setIndexField(index);
                                                         } else {
@@ -318,13 +324,16 @@ function ProductAutocomplete({
                     {option.name}
                 </li>
             )}
+            value={
+                products.find(
+                    (p) => String(p.id) === String(methods.getValues(`items.${index}.product`))
+                ) || null
+            }
             onChange={(_, newValue) => {
                 if (newValue) {
-                    methods.setValue(`items.${index}.product`, {
-                        id: String(newValue.id),
-                        name: newValue.name,
-                    }, { shouldValidate: true });
-
+                    methods.setValue(`items.${index}.product`, String(newValue.id), {
+                        shouldValidate: true,
+                    });
                     methods.setValue(
                         `items.${index}.unit`,
                         newValue.unitID != null ? String(newValue.unitID) : ""
@@ -336,7 +345,7 @@ function ProductAutocomplete({
                     methods.setValue(`items.${index}.price`, newValue.price ?? 0);
                     methods.setValue(`items.${index}.vat`, newValue.vat ?? 0);
                 } else {
-                    methods.setValue(`items.${index}.product`, { id: "", name: "" });
+                    methods.setValue(`items.${index}.product`, "");
                 }
             }}
             noOptionsText="Không có dữ liệu"

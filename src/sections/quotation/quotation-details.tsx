@@ -107,8 +107,8 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                 <TableRow>
                                     <TableCell>STT</TableCell>
                                     <TableCell>Tên SP/DV</TableCell>
-                                    <TableCell align="right">Số lượng</TableCell>
                                     <TableCell align="right">Đơn vị tính</TableCell>
+                                    <TableCell align="right">Số lượng</TableCell>
                                     <TableCell align="right">Đơn giá</TableCell>
                                     <TableCell align="right">Thành tiền</TableCell>
                                 </TableRow>
@@ -119,8 +119,8 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                                         <TableRow key={`${quotation.quotationID}-${p.id}-${index}`}>
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell>{p.productName}</TableCell>
-                                            <TableCell align="right">{p.quantity}</TableCell>
                                             <TableCell align="right">{p.unit}</TableCell>
+                                            <TableCell align="right">{p.quantity}</TableCell>
                                             <TableCell align="right">
                                                 {fCurrency(p.price)}
                                             </TableCell>

@@ -18,6 +18,7 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
     });
 
     const [currentQuotation, setSelectQuotation] = useState<IQuotationData>();
+
     useEffect(() => {
         if (SelectedQuotation) setSelectQuotation(SelectedQuotation);
     }, [SelectedQuotation]);
@@ -42,7 +43,6 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
 
     return (
         <Box ref={containerRef} sx={{
-            cursor: 'default',
             userSelect: 'none',
             width: "100%",
             height: "100%",
@@ -90,11 +90,6 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
                         </Box>
                     </Stack>
 
-                    {/* <Box sx={{ mt: 2 }}>
-                        <Typography variant="body2">Khách hàng: {quotation.customerName}</Typography>
-                        <Typography variant="body2">Ngày tạo: {fDateTime(quotation.createdDate)}</Typography>
-                    </Box> */}
-
                     <Typography variant="h5" textTransform="uppercase" fontWeight={800} align="center" gutterBottom>
                         Bảng báo giá
                     </Typography>
@@ -107,14 +102,13 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
                         Công ty chúng tôi xin gửi đến quý khách hàng báo giá chi tiết như sau:
                     </Typography>
 
-
                     <Table size="small" sx={{ mt: 2, tableLayout: "fixed", width: "100%" }}>
                         <TableHead>
                             <TableRow>
-                                <TableCell>STT</TableCell>
-                                <TableCell>Tên SP/DV</TableCell>
-                                <TableCell>Số lượng</TableCell>
+                                <TableCell width={50}>STT</TableCell>
+                                <TableCell width={200}>Tên SP/DV</TableCell>
                                 <TableCell>Đơn vị tính</TableCell>
+                                <TableCell>Số lượng</TableCell>
                                 <TableCell>Đơn giá</TableCell>
                                 <TableCell>Thành tiền</TableCell>
                             </TableRow>
@@ -134,6 +128,7 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
                                         >
                                             {item.productName}
                                         </TableCell>
+                                        <TableCell>{item.unit}</TableCell>
                                         <TableCell>{item.quantity}</TableCell>
                                         <TableCell
                                             sx={{
@@ -145,7 +140,6 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
                                         >
                                             {fCurrency(item.price)}
                                         </TableCell>
-                                        <TableCell>{item.unit}</TableCell>
                                         <TableCell
                                             sx={{
                                                 maxWidth: 120,
