@@ -33,7 +33,10 @@ export const NewEmployeeSchema = zod.object({
     bankAccount: zod.string().optional(),
     bankName: zod.string().optional(),
     birthday: zod.custom<IDateValue>(),
-    balance: zod.number().nonnegative().default(0),
+    balance: zod.number({ coerce: true })
+        .nonnegative({ message: "Số dư không được âm" })
+        .default(0)
+        .optional(),
     address: zod.string().optional(),
     image: zod.any().optional(),
     departmentId: zod.number().min(1, { message: 'Phòng ban là trường bắt buộc' }),
@@ -71,7 +74,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
         bankAccount: "",
         bankName: "",
         birthday: null,
-        balance: null as unknown as number,
+        balance: 0,
         address: "",
         image: undefined,
         departmentId: 0,
@@ -240,6 +243,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                                 setValue('departmentId', newValue?.id ?? 0, { shouldValidate: true });
                             }}
                             noOptionsText="Không có dữ liệu"
+                            required
                         />
                         <Field.Autocomplete
                             name="employeeTypeId"
@@ -256,6 +260,7 @@ export function EmployeeNewEditForm({ currentEmployee, open, onClose, selectedId
                                 setValue('employeeTypeId', newValue?.id ?? 0, { shouldValidate: true });
                             }}
                             noOptionsText="Không có dữ liệu"
+                            required
                         />
                     </Stack>
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>

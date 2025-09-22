@@ -22,7 +22,7 @@ export type NewCategorySchemaType = Zod.infer<typeof NewCategorySchema>;
 
 export const NewCategorySchema = zod.object({
     name: zod.string().min(1, { message: 'Tên nhóm sản phẩm là trường bắt buộc!' }),
-    description: zod.string().min(1, { message: 'Mô tả là trường bắt buộc!' }),
+    description: zod.string().optional(),
     vat: zod.number().optional(),
 });
 
@@ -73,7 +73,7 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
         try {
             const payloadData = {
                 name: data.name,
-                description: data.description,
+                description: data.description || "",
                 vat: data.vat ?? 0
             }
 
@@ -145,7 +145,6 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                                     multiline
                                     rows={3}
                                     fullWidth
-                                    required
                                 />
                             </Stack>
                         </CardContent>

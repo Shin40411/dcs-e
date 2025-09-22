@@ -23,7 +23,10 @@ export const NewBankingSchema = zod.object({
     name: zod.string().min(1, "Tên tài khoản là bắt buộc"),
     bankNo: zod.string().min(5, "Số tài khoản không hợp lệ"),
     bank: zod.string().min(1, "Tên ngân hàng là bắt buộc"),
-    balance: zod.number().nonnegative().default(0),
+    balance: zod.number({ coerce: true })
+        .nonnegative({ message: "Số dư không được âm" })
+        .default(0)
+        .optional(),
 });
 
 export type NewBankingSchemaType = zod.infer<typeof NewBankingSchema>;
@@ -33,7 +36,7 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
         name: "",
         bankNo: "",
         bank: "",
-        balance: null as unknown as number,
+        balance: 0,
     };
 
     const methods = useForm<NewBankingSchemaType>({

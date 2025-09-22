@@ -23,14 +23,19 @@ export const NewCustomerSchema = zod.object({
     name: zod.string().min(1, "Họ và tên khách hàng là bắt buộc"),
     phone: zod.string().min(10, "Số điện thoại không hợp lệ"),
     email: zod.string().email("Email không hợp lệ"),
-    taxCode: zod.string().optional(),
+    taxCode: zod.string()
+        .regex(/^\d{10}(-\d{3})?$/, "Mã số thuế phải gồm 10 chữ số hoặc 10 chữ số + '-' + 3 chữ số")
+        .min(1, { message: "Mã số thuế là trường bắt buộc" }),
     companyName: zod.string().optional(),
     bankAccount: zod.string().optional(),
     bankName: zod.string().optional(),
     address: zod.string().optional(),
     isPartner: zod.boolean().default(false),
     rewardPoint: zod.number().nonnegative().default(0),
-    balance: zod.number().nonnegative().default(0),
+    balance: zod.number({ coerce: true })
+        .nonnegative({ message: "Số dư không được âm" })
+        .default(0)
+        .optional(),
 });
 
 export type NewCustomerSchemaType = Zod.infer<typeof NewCustomerSchema>;
@@ -113,7 +118,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 address: data.address ?? '',
                 isPartner: data.isPartner,
                 rewardPoint: data.rewardPoint,
-                balance: data.balance
+                balance: data.balance ?? 0,
             };
 
             await createOrUpdateCustomer(selectedId ?? 0, payloadData);
@@ -133,7 +138,6 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
 
     const renderDetails = () => (
         <Stack spacing={3} pt={1}>
-            {/* Họ tên + Số điện thoại */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                 <Field.Text
                     name="name"
@@ -151,23 +155,20 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 />
             </Stack>
 
-            {/* Công ty */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                <Field.Text
+                <Field.TaxCode
                     name="taxCode"
                     label="Mã số thuế"
-                    helperText="Nhập mã số thuế (nếu có)"
-                    sx={{ flex: 1 }}
+                    helperText="Nhập mã số thuế"
+                    required
                 />
                 <Field.Text
                     name="companyName"
                     label="Tên công ty"
                     helperText="Nhập tên công ty"
-                    sx={{ flex: 1 }}
                 />
             </Stack>
 
-            {/* Email + Ngân hàng */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                 <Field.Text
                     name="bankAccount"
@@ -189,7 +190,6 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 sx={{ flex: 1 }}
                 required
             />
-            {/* Địa chỉ */}
             <Field.Text
                 name="address"
                 label="Địa chỉ"
@@ -207,7 +207,6 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                     <Field.Switch name="isPartner" label="Là đối tác" />
                 </Box>
 
-                {/* Hai ô số liệu nằm ngang, đều nhau */}
                 <Stack direction="row" spacing={2}>
                     <Field.VNCurrencyInput
                         name="balance"

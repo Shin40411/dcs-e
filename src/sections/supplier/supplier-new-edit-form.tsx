@@ -20,14 +20,19 @@ type Props = {
 };
 
 export const NewSupplierSchema = zod.object({
-    name: zod.string().min(1, "Tên nhà cung cấp là bắt buộc"),
+    name: zod.string().min(1, "Tên nhà cung cấp là trường bắt buộc"),
     phone: zod.string().min(8, "Số điện thoại không hợp lệ"),
-    taxCode: zod.string().optional(),
-    companyName: zod.string().optional(),
+    taxCode: zod.string()
+        .regex(/^\d{10}(-\d{3})?$/, "Mã số thuế phải gồm 10 chữ số hoặc 10 chữ số + '-' + 3 chữ số")
+        .min(1, { message: "Mã số thuế là trường bắt buộc" }),
+    companyName: zod.string().min(1, "Tên công ty là trường bắt buộc"),
     email: zod.string().email("Email không hợp lệ").optional(),
     bankAccount: zod.string().optional(),
     bankName: zod.string().optional(),
-    balance: zod.number().nonnegative().default(0),
+    balance: zod.number({ coerce: true })
+        .nonnegative({ message: "Số dư không được âm" })
+        .default(0)
+        .optional(),
     address: zod.string().optional(),
 });
 
@@ -42,7 +47,7 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
         email: "",
         bankAccount: "",
         bankName: "",
-        balance: null as unknown as number,
+        balance: 0,
         address: "",
     };
 
@@ -101,7 +106,7 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
                 email: data.email ?? '',
                 bankAccount: data.bankAccount ?? '',
                 bankName: data.bankName ?? '',
-                balance: data.balance,
+                balance: data.balance ?? 0,
                 address: data.address ?? '',
             };
 
@@ -139,17 +144,17 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
                 />
             </Stack>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                <Field.Text
+                <Field.TaxCode
                     name="taxCode"
                     label="Mã số thuế"
                     helperText="Nhập mã số thuế"
-                    sx={{ flex: 1 }}
+                    required
                 />
                 <Field.Text
                     name="companyName"
                     label="Tên công ty"
                     helperText="Nhập tên công ty"
-                    sx={{ flex: 1 }}
+                    required
                 />
             </Stack>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>

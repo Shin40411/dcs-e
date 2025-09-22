@@ -4,11 +4,13 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { transformValue, transformValueOnBlur, transformValueOnChange } from 'minimal-shared/utils';
 
 import TextField from '@mui/material/TextField';
+import { TaxCodeInput } from '../tax-code';
 
 // ----------------------------------------------------------------------
 
 export type RHFTextFieldProps = TextFieldProps & {
   name: string;
+  required?: boolean;
 };
 
 export function RHFTextField({
@@ -73,6 +75,31 @@ export function RHFTextField({
             ...other.sx,
           }}
           {...other}
+        />
+      )}
+    />
+  );
+}
+
+export function RHFTaxCodeField({
+  name,
+  helperText,
+  slotProps,
+  required,
+  ...other
+}: RHFTextFieldProps) {
+  const { control } = useFormContext();
+  return (
+    <Controller
+      name="taxCode"
+      control={control}
+      render={({ field, fieldState }) => (
+        <TaxCodeInput
+          {...field}
+          label="Mã số thuế"
+          error={!!fieldState.error}
+          helperText={fieldState.error?.message || "Nhập mã số thuế"}
+          required={required}
         />
       )}
     />
