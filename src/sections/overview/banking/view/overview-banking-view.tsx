@@ -63,7 +63,7 @@ export function OverviewBankingView() {
   const handleDeleteRow = async (id: number) => {
     const success = await deleteOne({
       apiEndpoint: endpoints.bankAccount.delete(id),
-      listEndpoint: endpoints.bankAccount.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+      listEndpoint: '/api/v1/bank-accounts/bank-accounts',
     });
     if (success) {
       toast.success('Xóa thành công 1 tài khoản ngân hàng!');
@@ -85,8 +85,6 @@ export function OverviewBankingView() {
       open={openCrudForm.value}
       onClose={openCrudForm.onFalse}
       selectedId={rowIdSelected || undefined}
-      page={page}
-      rowsPerPage={rowsPerPage}
       currentBankingAccount={tableRowSelected || undefined}
     />
   );

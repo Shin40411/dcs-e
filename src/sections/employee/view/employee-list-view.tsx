@@ -54,7 +54,7 @@ export function EmployeeListView() {
     const handleDeleteRow = async (id: number) => {
         const success = await deleteOne({
             apiEndpoint: endpoints.employees.delete(id),
-            listEndpoint: endpoints.employees.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+            listEndpoint: '/api/v1/employees/employees',
         });
         if (success) {
             toast.success('Xóa thành công 1 nhân viên!');
@@ -93,8 +93,6 @@ export function EmployeeListView() {
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedId={rowIdSelected || undefined}
-            page={page}
-            rowsPerPage={rowsPerPage}
             currentEmployee={tableRowSelected || undefined}
         />
     );

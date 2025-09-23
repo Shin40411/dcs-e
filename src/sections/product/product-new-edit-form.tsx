@@ -32,11 +32,9 @@ type Props = {
   open: boolean;
   onClose: () => void;
   selectedId?: string;
-  page: number;
-  rowsPerPage: number;
 };
 
-export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPage }: Props) {
+export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
   const [categorykeyword, setCategoryKeyword] = useState('');
   const [unitkeyword, setUnitKeyword] = useState('');
   const debouncedCategoryKw = useDebounce(categorykeyword, 300);
@@ -177,7 +175,9 @@ export function ProductNewEditForm({ open, onClose, selectedId, page, rowsPerPag
       );
 
       mutate(
-        endpoints.product.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`)
+        (k) => typeof k === "string" && k.startsWith("/api/v1/products"),
+        undefined,
+        { revalidate: true }
       );
 
       if (selectedId)

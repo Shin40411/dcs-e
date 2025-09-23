@@ -68,10 +68,6 @@ export function QuotationMainView() {
                     selectedQuotation={selectedQuotation}
                     openForm={openForm}
                     onClose={() => setOpenForm(false)}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    fromDate={fromDate || null}
-                    toDate={toDate || null}
                 />
                 {selectedQuotation && (
                     <QuotationDetails

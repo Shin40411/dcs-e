@@ -72,7 +72,7 @@ export function ProductListView() {
   const handleDeleteRow = async (id: number) => {
     const success = await deleteOne({
       apiEndpoint: endpoints.product.delete(id),
-      listEndpoint: endpoints.product.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+      listEndpoint: '/api/v1/products',
     });
     if (success) {
       toast.success('Xóa thành công 1 sản phẩm!');
@@ -144,8 +144,6 @@ export function ProductListView() {
       open={openCrudForm.value}
       onClose={openCrudForm.onFalse}
       selectedId={rowIdSelected || undefined}
-      page={page}
-      rowsPerPage={rowsPerPage}
     />
   );
 

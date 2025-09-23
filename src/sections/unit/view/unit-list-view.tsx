@@ -55,7 +55,7 @@ export function UnitListView() {
     const handleDeleteRow = async (id: number) => {
         const success = await deleteOne({
             apiEndpoint: endpoints.unit.delete(id),
-            listEndpoint: endpoints.unit.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+            listEndpoint: '/api/v1/units/units',
         });
         if (success) {
             toast.success('Xóa thành công 1 đơn vị tính!');
@@ -94,8 +94,6 @@ export function UnitListView() {
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedId={rowIdSelected || undefined}
-            page={page}
-            rowsPerPage={rowsPerPage}
             currentUnit={tableRowSelected || undefined}
         />
     );

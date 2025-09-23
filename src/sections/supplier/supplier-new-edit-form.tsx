@@ -8,37 +8,16 @@ import { Field, Form } from "src/components/hook-form";
 import { endpoints } from "src/lib/axios";
 import { ISupplierDto, ISuppliersItem } from "src/types/suppliers";
 import { mutate } from "swr";
-import { z as zod } from 'zod';
+import { NewSupplierSchema, NewSupplierSchemaType } from "./schema/supplier-schema";
 
 type Props = {
     currentSupplier?: ISuppliersItem;
     open: boolean;
     onClose: () => void;
     selectedId?: number;
-    page: number;
-    rowsPerPage: number;
 };
 
-export const NewSupplierSchema = zod.object({
-    name: zod.string().min(1, "Tên nhà cung cấp là trường bắt buộc"),
-    phone: zod.string().min(8, "Số điện thoại không hợp lệ"),
-    taxCode: zod.string()
-        .regex(/^\d{10}(-\d{3})?$/, "Mã số thuế phải gồm 10 chữ số hoặc 10 chữ số + '-' + 3 chữ số")
-        .min(1, { message: "Mã số thuế là trường bắt buộc" }),
-    companyName: zod.string().min(1, "Tên công ty là trường bắt buộc"),
-    email: zod.string().email("Email không hợp lệ").optional(),
-    bankAccount: zod.string().optional(),
-    bankName: zod.string().optional(),
-    balance: zod.number({ coerce: true })
-        .nonnegative({ message: "Số dư không được âm" })
-        .default(0)
-        .optional(),
-    address: zod.string().optional(),
-});
-
-export type NewSupplierSchemaType = Zod.infer<typeof NewSupplierSchema>;
-
-export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId, page, rowsPerPage }: Props) {
+export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId }: Props) {
     const defaultValues: NewSupplierSchemaType = {
         name: "",
         phone: "",
@@ -111,7 +90,12 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
             };
 
             await createOrUpdateSupplier(selectedId ?? 0, payloadData);
-            mutate(endpoints.suppliers.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            // mutate(endpoints.suppliers.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/suppliers/suppliers"),
+                undefined,
+                { revalidate: true }
+            );
             toast.success(currentSupplier ? 'Dữ liệu nhà cung cấp đã được thay đổi!' : 'Tạo mới dữ liệu nhà cung cấp thành công!');
             onClose();
             reset();
@@ -192,6 +176,7 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
             />
         </Stack>
     );
+
     const renderActions = () => (
         <Box sx={{ width: '100%' }}>
             <Stack direction="row" spacing={2} width="100%">
@@ -215,6 +200,7 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
             </Stack>
         </Box>
     );
+
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth={'md'} scroll={'paper'}>
             <DialogTitle>

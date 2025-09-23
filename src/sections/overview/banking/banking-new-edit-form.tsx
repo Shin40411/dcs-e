@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createOrUpdateBankAccount } from "src/actions/bankAccount";
 import { Field, Form } from "src/components/hook-form";
-import { endpoints } from "src/lib/axios";
 import { IBankAccountDto, IBankAccountItem } from "src/types/bankAccount";
 import { mutate } from "swr";
 import { z as zod } from 'zod';
@@ -15,8 +14,6 @@ type Props = {
     open: boolean;
     onClose: () => void;
     selectedId?: number;
-    page: number;
-    rowsPerPage: number;
 };
 
 export const NewBankingSchema = zod.object({
@@ -31,7 +28,7 @@ export const NewBankingSchema = zod.object({
 
 export type NewBankingSchemaType = zod.infer<typeof NewBankingSchema>;
 
-export function BankingNewEditForm({ currentBankingAccount, open, onClose, selectedId, page, rowsPerPage }: Props) {
+export function BankingNewEditForm({ currentBankingAccount, open, onClose, selectedId }: Props) {
     const defaultValues: NewBankingSchemaType = {
         name: "",
         bankNo: "",
@@ -84,7 +81,12 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
             };
 
             await createOrUpdateBankAccount(selectedId ?? 0, payloadData);
-            mutate(endpoints.bankAccount.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            // mutate(endpoints.bankAccount.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/bank-accounts/bank-accounts"),
+                undefined,
+                { revalidate: true }
+            );
             toast.success(currentBankingAccount ? 'Dữ liệu tài khoản ngân hàng đã được thay đổi!' : 'Tạo mới dữ liệu tài khoản ngân hàng thành công!');
             onClose();
             reset();

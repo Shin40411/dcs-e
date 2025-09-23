@@ -15,8 +15,6 @@ type Props = {
     open: boolean;
     onClose: () => void;
     selectedId?: number;
-    page: number;
-    rowsPerPage: number;
 };
 
 export const NewDepartmentSchema = zod.object({
@@ -26,7 +24,7 @@ export const NewDepartmentSchema = zod.object({
 export type NewDepartmentSchemaType = Zod.infer<typeof NewDepartmentSchema>;
 
 
-export function DepartmentNewEditForm({ currentDepartment, open, onClose, selectedId, page, rowsPerPage }: Props) {
+export function DepartmentNewEditForm({ currentDepartment, open, onClose, selectedId }: Props) {
     const defaultValues: NewDepartmentSchemaType = {
         name: "",
     };
@@ -65,7 +63,12 @@ export function DepartmentNewEditForm({ currentDepartment, open, onClose, select
                 name: data.name,
             };
             await createOrUpdateDepartment(selectedId ?? 0, payloadData);
-            mutate(endpoints.department.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            // mutate(endpoints.department.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/departments/departments"),
+                undefined,
+                { revalidate: true }
+            );
             toast.success(currentDepartment ? 'Dữ liệu phòng ban đã được thay đổi!' : 'Tạo mới dữ liệu phòng ban thành công!');
             onClose();
             reset();

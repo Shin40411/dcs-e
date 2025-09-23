@@ -5,42 +5,18 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createOrUpdateCustomer } from "src/actions/customer";
 import { Field, Form } from "src/components/hook-form";
-import { endpoints } from "src/lib/axios";
 import { ICustomerDto, ICustomerItem } from "src/types/customer";
 import { mutate } from "swr";
-import { z as zod } from 'zod';
+import { NewCustomerSchema, NewCustomerSchemaType } from "./schema/customer-schema";
 
 type Props = {
     currentCustomer?: ICustomerItem;
     open: boolean;
     onClose: () => void;
     selectedId?: number;
-    page: number;
-    rowsPerPage: number;
 };
 
-export const NewCustomerSchema = zod.object({
-    name: zod.string().min(1, "Họ và tên khách hàng là bắt buộc"),
-    phone: zod.string().min(10, "Số điện thoại không hợp lệ"),
-    email: zod.string().email("Email không hợp lệ"),
-    taxCode: zod.string()
-        .regex(/^\d{10}(-\d{3})?$/, "Mã số thuế phải gồm 10 chữ số hoặc 10 chữ số + '-' + 3 chữ số")
-        .min(1, { message: "Mã số thuế là trường bắt buộc" }),
-    companyName: zod.string().optional(),
-    bankAccount: zod.string().optional(),
-    bankName: zod.string().optional(),
-    address: zod.string().optional(),
-    isPartner: zod.boolean().default(false),
-    rewardPoint: zod.number().nonnegative().default(0),
-    balance: zod.number({ coerce: true })
-        .nonnegative({ message: "Số dư không được âm" })
-        .default(0)
-        .optional(),
-});
-
-export type NewCustomerSchemaType = Zod.infer<typeof NewCustomerSchema>;
-
-export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId, page, rowsPerPage }: Props) {
+export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId }: Props) {
     const defaultValues: NewCustomerSchemaType = {
         name: "",
         phone: "",
@@ -122,7 +98,14 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
             };
 
             await createOrUpdateCustomer(selectedId ?? 0, payloadData);
-            mutate(endpoints.customer.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            // mutate(endpoints.customer.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/customers/customers"),
+                undefined,
+                { revalidate: true }
+            );
+
             toast.success(currentCustomer ? 'Dữ liệu khách hàng đã được thay đổi!' : 'Tạo mới dữ liệu khách hàng thành công!');
             onClose();
             reset();
@@ -160,7 +143,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                     name="taxCode"
                     label="Mã số thuế"
                     helperText="Nhập mã số thuế"
-                    required
+                // required
                 />
                 <Field.Text
                     name="companyName"

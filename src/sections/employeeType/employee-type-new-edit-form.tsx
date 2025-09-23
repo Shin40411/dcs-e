@@ -15,8 +15,6 @@ type Props = {
     open: boolean;
     onClose: () => void;
     selectedId?: number;
-    page: number;
-    rowsPerPage: number;
 };
 
 export const NewEmployeeTypeSchema = zod.object({
@@ -25,7 +23,7 @@ export const NewEmployeeTypeSchema = zod.object({
 
 export type NewEmployeeTypeSchemaType = Zod.infer<typeof NewEmployeeTypeSchema>;
 
-export function EmployeeTypeNewEditForm({ currentEmployeeType, open, onClose, selectedId, page, rowsPerPage }: Props) {
+export function EmployeeTypeNewEditForm({ currentEmployeeType, open, onClose, selectedId }: Props) {
     const defaultValues: NewEmployeeTypeSchemaType = {
         name: "",
     };
@@ -63,7 +61,12 @@ export function EmployeeTypeNewEditForm({ currentEmployeeType, open, onClose, se
                 name: data.name,
             };
             await createOrUpdateEmployeeType(selectedId ?? 0, payloadData);
-            mutate(endpoints.employeeType.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            // mutate(endpoints.employeeType.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/employee-type/employee-types"),
+                undefined,
+                { revalidate: true }
+            );
             toast.success(currentEmployeeType ? 'Chức vụ đã được thay đổi!' : 'Tạo mới chức vụ thành công!');
             onClose();
             reset();

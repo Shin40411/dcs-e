@@ -60,7 +60,7 @@ export function CategoryListView() {
     const handleDeleteRow = async (id: number) => {
         const success = await deleteOne({
             apiEndpoint: endpoints.category.delete(id),
-            listEndpoint: endpoints.category.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+            listEndpoint: '/api/v1/product-categories/categories',
         });
         if (success) {
             toast.success("Xóa thành công nhóm sản phẩm!");
@@ -84,8 +84,6 @@ export function CategoryListView() {
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             currentCategory={tableRowSelected || undefined}
-            page={page}
-            rowsPerPage={rowsPerPage}
         />
     );
 

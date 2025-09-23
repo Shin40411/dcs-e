@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createOrUpdateUnit } from "src/actions/unit";
 import { Field, Form } from "src/components/hook-form";
-import { endpoints } from "src/lib/axios";
 import { IUnitItem } from "src/types/unit";
 import { mutate } from "swr";
 import { z as zod } from 'zod';
@@ -15,8 +14,6 @@ type Props = {
     open: boolean;
     onClose: () => void;
     selectedId?: number;
-    page: number;
-    rowsPerPage: number;
 };
 
 export const NewUnitSchema = zod.object({
@@ -25,7 +22,7 @@ export const NewUnitSchema = zod.object({
 
 export type NewUnitSchemaType = Zod.infer<typeof NewUnitSchema>;
 
-export function UnitNewEditForm({ currentUnit, open, onClose, selectedId, page, rowsPerPage }: Props) {
+export function UnitNewEditForm({ currentUnit, open, onClose, selectedId }: Props) {
     const defaultValues: NewUnitSchemaType = {
         name: "",
     };
@@ -64,7 +61,12 @@ export function UnitNewEditForm({ currentUnit, open, onClose, selectedId, page, 
                 name: data.name,
             };
             await createOrUpdateUnit(selectedId ?? 0, payloadData);
-            mutate(endpoints.unit.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            // mutate(endpoints.unit.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/units/units"),
+                undefined,
+                { revalidate: true }
+            );
             toast.success(currentUnit ? 'Đơn vị tính đã được thay đổi!' : 'Tạo mới đơn vị tính thành công!');
             onClose();
             reset();

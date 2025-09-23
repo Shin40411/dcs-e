@@ -67,7 +67,7 @@ export function RHFAutocomplete({
                 ...textfield?.slotProps,
                 htmlInput: {
                   ...params.inputProps,
-                  autoComplete: 'new-password',
+                  // autoComplete: 'new-password',
                   ...textfield?.slotProps?.htmlInput,
                 },
               }}

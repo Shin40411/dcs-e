@@ -56,8 +56,6 @@ export function SuppliersListView() {
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedId={rowIdSelected || undefined}
-            page={page}
-            rowsPerPage={rowsPerPage}
             currentSupplier={tableRowSelected || undefined}
         />
     );
@@ -65,7 +63,7 @@ export function SuppliersListView() {
     const handleDeleteRow = async (id: number) => {
         const success = await deleteOne({
             apiEndpoint: endpoints.suppliers.delete(id),
-            listEndpoint: endpoints.suppliers.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+            listEndpoint: '/api/v1/suppliers/suppliers',
         });
         if (success) {
             toast.success('Xóa thành công 1 nhà cung cấp!');

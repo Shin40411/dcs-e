@@ -100,7 +100,7 @@ export function QuotationCardList({
         if (id === 0 || !id) return;
         const success = await deleteOne({
             apiEndpoint: endpoints.quotation.delete(id),
-            listEndpoint: endpoints.quotation.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${filters.fromDate}&toDate=${filters.toDate}&Status=1`),
+            listEndpoint: '/api/v1/quotation/quotations',
         });
         if (success) {
             toast.success("Xóa thành công phiếu báo giá!");

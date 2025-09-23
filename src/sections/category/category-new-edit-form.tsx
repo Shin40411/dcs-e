@@ -15,8 +15,6 @@ type Props = {
     currentCategory?: ICategoryItem;
     open: boolean;
     onClose: () => void;
-    page: number;
-    rowsPerPage: number;
 }
 export type NewCategorySchemaType = Zod.infer<typeof NewCategorySchema>;
 
@@ -26,7 +24,7 @@ export const NewCategorySchema = zod.object({
     vat: zod.number().optional(),
 });
 
-export function CategoryNewEditForm({ currentCategory, open, onClose, page, rowsPerPage }: Props) {
+export function CategoryNewEditForm({ currentCategory, open, onClose }: Props) {
     const defaultValues: NewCategorySchemaType = {
         name: '',
         description: '',
@@ -90,7 +88,13 @@ export function CategoryNewEditForm({ currentCategory, open, onClose, page, rows
                 ...payloadData,
                 ...extraFields
             });
-            mutate(endpoints.category.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
+
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/product-categories/categories"),
+                undefined,
+                { revalidate: true }
+            );
+            // mutate(endpoints.category.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`));
             toast.success(currentCategory ? 'Dữ liệu nhóm sản phẩm đã được thay đổi!' : 'Tạo mới dữ liệu nhóm sản phẩm thành công!');
             onClose();
             reset();

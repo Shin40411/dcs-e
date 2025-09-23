@@ -22,10 +22,6 @@ type QuotationItemsTableProps = {
     remove: UseFieldArrayRemove;
     append: (value: any) => void;
     setPaid: (value: any) => void;
-    page: number;
-    rowsPerPage: number;
-    fromDate: IDateValue;
-    toDate: IDateValue;
 };
 
 export function QuotationItemsTable({
@@ -34,11 +30,7 @@ export function QuotationItemsTable({
     fields,
     remove,
     append,
-    setPaid,
-    page,
-    rowsPerPage,
-    fromDate,
-    toDate
+    setPaid
 }: QuotationItemsTableProps) {
     const items = useWatch({
         control: methods.control,
@@ -93,10 +85,16 @@ export function QuotationItemsTable({
             remove(indexField);
             toast.success("Đã xóa sản phẩm ra khỏi danh sách");
             openDel.onFalse();
+            // mutate(
+            //     endpoints.quotation.list(
+            //         `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
+            //     ));
+
             mutate(
-                endpoints.quotation.list(
-                    `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
-                ));
+                (k) => typeof k === "string" && k.startsWith("/api/v1/quotation/quotations"),
+                undefined,
+                { revalidate: true }
+            );
 
             mutate(endpoints.quotation.detail(idQuotation, `?pageNumber=1&pageSize=999`));
         } catch (error: any) {

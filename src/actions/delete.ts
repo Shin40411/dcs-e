@@ -15,7 +15,13 @@ export async function deleteOne({
             throw new Error(data.message || "Đã có lỗi xảy ra");
         }
 
-        await mutate(listEndpoint);
+        // await mutate(listEndpoint);
+
+        await mutate(
+            (k) => typeof k === "string" && k.startsWith(listEndpoint),
+            undefined,
+            { revalidate: true }
+        );
 
         return true;
     } catch (err: any) {

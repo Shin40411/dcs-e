@@ -22,7 +22,7 @@ import { useGetCustomers } from "src/actions/customer";
 import { useDebounce } from "minimal-shared/hooks";
 import { useEffect, useState } from "react";
 import { ICustomerItem } from "src/types/customer";
-import { IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationItem, IQuotationProduct, NewCustomer } from "src/types/quotation";
+import { IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationItem } from "src/types/quotation";
 import { QuotationItemsTable } from "./quotation-product-table";
 import { QuotationFormValues, quotationSchema } from "./schema/quotation-schema";
 import { addMoreProducts, createOrUpdateQuotation, useGetQuotation } from "src/actions/quotation";
@@ -32,7 +32,6 @@ import { mutate } from "swr";
 import { endpoints } from "src/lib/axios";
 import { QuotationCustomerForm } from "./quotation-customer-form";
 import { useAuthContext } from "src/auth/hooks";
-import { IDateValue } from "src/types/common";
 import { mapProductsToItems } from "./helper/mapProductsToItems";
 import { DetailItem } from "./helper/DetailItem";
 
@@ -40,13 +39,9 @@ export type QuotationFormProps = {
     selectedQuotation: IQuotationItem | null;
     openForm: boolean;
     onClose: () => void;
-    page: number;
-    rowsPerPage: number;
-    fromDate: IDateValue;
-    toDate: IDateValue;
 };
 
-export function QuotationForm({ openForm, selectedQuotation, onClose, page, rowsPerPage, fromDate, toDate }: QuotationFormProps) {
+export function QuotationForm({ openForm, selectedQuotation, onClose }: QuotationFormProps) {
     const { user } = useAuthContext();
     const today = new Date();
     const nextMonth = new Date();
@@ -124,7 +119,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
         );
 
         const mappedItems = mapProductsToItems(currentDetails?.products || []);
-        console.log(mappedItems);
+        // console.log(mappedItems);
         methods.reset({
             ...defaultValues,
             customer: selectedQuotation.customerId ?? 0,
@@ -222,10 +217,16 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                     : "Tạo báo giá thành công!"
             );
 
+            // mutate(
+            //     endpoints.quotation.list(
+            //         `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
+            //     ));
+
             mutate(
-                endpoints.quotation.list(
-                    `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
-                ));
+                (k) => typeof k === "string" && k.startsWith("/api/v1/quotation/quotations"),
+                undefined,
+                { revalidate: true }
+            );
 
             if (selectedQuotation?.id) {
                 mutate(endpoints.quotation.detail(selectedQuotation.id, `?pageNumber=1&pageSize=999`));
@@ -418,10 +419,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, page, rows
                 append={append}
                 remove={remove}
                 setPaid={setTotalPaid}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                fromDate={fromDate}
-                toDate={toDate}
             />
         </Stack>
     );

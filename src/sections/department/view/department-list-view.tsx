@@ -57,7 +57,7 @@ export function DepartmentListView() {
     const handleDeleteRow = async (id: number) => {
         const success = await deleteOne({
             apiEndpoint: endpoints.department.delete(id),
-            listEndpoint: endpoints.department.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+            listEndpoint: '/api/v1/departments/departments',
         });
         if (success) {
             toast.success('Xóa thành công 1 phòng ban!');
@@ -97,8 +97,6 @@ export function DepartmentListView() {
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedId={rowIdSelected || undefined}
-            page={page}
-            rowsPerPage={rowsPerPage}
             currentDepartment={tableRowSelected || undefined}
         />
     );

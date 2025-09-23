@@ -56,7 +56,7 @@ export function CustomerListView() {
     const handleDeleteRow = async (id: number) => {
         const success = await deleteOne({
             apiEndpoint: endpoints.customer.delete(id),
-            listEndpoint: endpoints.customer.list(`?pageNumber=${page + 1}&pageSize=${rowsPerPage}&Status=1`),
+            listEndpoint: '/api/v1/customers/customers',
         });
         if (success) {
             toast.success('Xóa thành công 1 khách hàng!');
@@ -70,8 +70,6 @@ export function CustomerListView() {
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedId={rowIdSelected || undefined}
-            page={page}
-            rowsPerPage={rowsPerPage}
             currentCustomer={tableRowSelected || undefined}
         />
     );
