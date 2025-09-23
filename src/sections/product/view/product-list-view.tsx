@@ -25,12 +25,14 @@ import { ProductDetails } from '../product-details';
 import { deleteOne } from 'src/actions/delete';
 import { endpoints } from 'src/lib/axios';
 import { CONFIG } from 'src/global-config';
+import { ProductBin } from '../product-bin';
 
 // ----------------------------------------------------------------------
 
 export function ProductListView() {
   const openCrudForm = useBoolean();
   const openDetailsForm = useBoolean();
+  const openBin = useBoolean();
   const confirmDialog = useBoolean();
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
@@ -155,6 +157,13 @@ export function ProductListView() {
     />
   );
 
+  const renderBin = () => (
+    <ProductBin
+      open={openBin.value}
+      onClose={openBin.onFalse}
+    />
+  );
+
   return (
     <>
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -200,6 +209,7 @@ export function ProductListView() {
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           searchText={searchText}
           onSearchChange={setSearchText}
+          openBin={openBin}
         />
       </DashboardContent>
 
@@ -207,6 +217,7 @@ export function ProductListView() {
       {renderConfirmDeleteRow()}
       {renderCRUDForm()}
       {renderDetails()}
+      {renderBin()}
     </>
   );
 }

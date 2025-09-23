@@ -1,9 +1,10 @@
 import { DataGrid, gridClasses, GridColDef, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton } from "@mui/x-data-grid";
 import { EmptyContent } from "../empty-content";
-import { Box, Card, TablePagination, TextField } from "@mui/material";
+import { Box, Button, Card, IconButton, TablePagination, TextField } from "@mui/material";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import type { GridToolbarProps } from "@mui/x-data-grid";
 import { Iconify } from "../iconify";
+import { UseBooleanReturn } from "minimal-shared/hooks";
 
 type GridProps = {
     dataFiltered: any[];
@@ -17,6 +18,7 @@ type GridProps = {
     handleChangeRowsPerPage: (event: ChangeEvent<HTMLInputElement>) => void;
     searchText?: string;
     onSearchChange?: (value: string) => void;
+    openBin?: UseBooleanReturn;
 }
 
 export function UseGridTableList({
@@ -31,6 +33,7 @@ export function UseGridTableList({
     handleChangeRowsPerPage,
     searchText = '',
     onSearchChange = () => { },
+    openBin,
 }: GridProps) {
     return (
         <Card
@@ -100,15 +103,15 @@ export function UseGridTableList({
                     noResultsOverlayLabel: 'Không tìm thấy kết quả',
                 }}
                 slots={{
-                    toolbar: CustomToolbar,
+                    toolbar: () => (
+                        <CustomToolbar
+                            searchText={searchText}
+                            onSearchChange={onSearchChange}
+                            openBin={openBin}
+                        />
+                    ),
                     noRowsOverlay: () => <EmptyContent />,
                     noResultsOverlay: () => <EmptyContent title="Không có kết quả" />,
-                }}
-                slotProps={{
-                    toolbar: {
-                        searchText,
-                        onSearchChange,
-                    },
                 }}
                 sx={{
                     [`& .${gridClasses.cell}`]: {
@@ -146,15 +149,31 @@ declare module '@mui/x-data-grid' {
 type CustomToolbarProps = GridToolbarProps & {
     searchText?: string;
     onSearchChange?: (value: string) => void;
+    openBin?: UseBooleanReturn;
 };
 
 function CustomToolbar(props: CustomToolbarProps) {
-    const { searchText = "", onSearchChange = () => { }, ...rest } = props;
+    const { searchText = "", onSearchChange = () => { }, openBin, ...rest } = props;
     return (
         <GridToolbarContainer {...rest}>
             <GridToolbarColumnsButton />
             <GridToolbarFilterButton />
             <GridToolbarDensitySelector />
+            {openBin &&
+                <Button
+                    variant="text"
+                    color="error"
+                    startIcon={
+                        <Iconify
+                            icon="mdi:delete"
+                            sx={{ width: 24, height: 24 }}
+                        />
+                    }
+                    onClick={() => openBin?.onTrue()}
+                >
+                    Thùng rác
+                </Button>
+            }
 
             <Box sx={{ flexGrow: 1 }} />
             <TextField

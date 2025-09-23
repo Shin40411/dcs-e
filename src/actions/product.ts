@@ -19,6 +19,7 @@ type productsProps = {
   pageNumber: number,
   pageSize: number,
   key?: string,
+  enabled?: boolean
 }
 
 export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
@@ -30,6 +31,41 @@ export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
   if (key) params += `&search=${key}`;
 
   const url = endpoints.product.list(params);
+
+  const { data, isLoading, error, isValidating } = useSWR<ResProductList>(
+    url,
+    fetcher,
+    swrOptions
+  );
+
+  const memoizedValue = useMemo(
+    () => ({
+      products: data?.data.items || [],
+      pagination: {
+        pageNumber: data?.data.pageNumber ?? 1,
+        pageSize: data?.data.pageSize ?? pageSize,
+        totalPages: data?.data.totalPages ?? 0,
+        totalRecord: data?.data.totalRecord ?? 0,
+      },
+      productsLoading: isLoading,
+      productsError: error,
+      productsValidating: isValidating,
+      productsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+    }),
+    [data, error, isLoading, isValidating, pageNumber, pageSize]
+  );
+
+  return memoizedValue;
+}
+
+
+export function useGetDeletedProducts({ pageNumber, key, pageSize, enabled = true }: productsProps) {
+  let params = '';
+
+  if (pageNumber || pageSize)
+    params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=0`;
+
+  const url = enabled ? endpoints.product.list(params) : null;
 
   const { data, isLoading, error, isValidating } = useSWR<ResProductList>(
     url,

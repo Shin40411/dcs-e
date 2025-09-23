@@ -49,7 +49,7 @@ export function ProductDetails({ selectedId, open, onClose, ...other }: Props) {
             anchor="right"
             slotProps={{
                 backdrop: { invisible: true },
-                paper: { sx: { width: 600 } },
+                paper: { sx: { width: 700 } },
             }}
             {...other}
         >
@@ -60,95 +60,100 @@ export function ProductDetails({ selectedId, open, onClose, ...other }: Props) {
                     </Typography>
                 </Stack>
                 <Box sx={{ p: 3 }}>
-                    <Stack spacing={3}>
-                        {/* Tên + Mã */}
-                        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                            <DetailItem label="Tên sản phẩm" value={selectedProduct.name} />
-                            <DetailItem label="Mã sản phẩm" value={selectedProduct.code} />
-                        </Stack>
+                    <Stack direction="row">
+                        <Stack spacing={3}>
+                            {/* Tên + Mã */}
+                            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                                <DetailItem label="Tên sản phẩm" value={selectedProduct.name} />
+                                <DetailItem label="Mã sản phẩm" value={selectedProduct.code} />
+                            </Stack>
 
-                        {/* Nhóm + Đơn vị tính */}
-                        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                            <DetailItem
-                                label="Nhóm sản phẩm"
-                                value={selectedProduct.categoryName}
-                            />
-                            <DetailItem
-                                label="Đơn vị tính"
-                                value={selectedProduct.unit}
-                            />
-                        </Stack>
-
-                        {/* Giá nhập + Giá bán */}
-                        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                            <DetailItem
-                                label="Giá nhập"
-                                value={`${selectedProduct.purchasePrice?.toLocaleString()} đ`}
-                            />
-                            <DetailItem
-                                label="Giá bán"
-                                value={`${selectedProduct.price?.toLocaleString()} đ`}
-                            />
-                        </Stack>
-
-                        {/* Mô tả */}
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom>
-                                Mô tả sản phẩm
-                            </Typography>
-                            {
-                                selectedProduct.description ?
-                                    parse(selectedProduct.description)
-                                    :
-                                    <Typography variant="body2" color="text.secondary">
-                                        -
-                                    </Typography>
-                            }
-                        </Box>
-
-                        {/* VAT + Nhà sản xuất */}
-                        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                            <DetailItem label="VAT áp dụng" value={`${selectedProduct.vat}%`} />
-                            <DetailItem
-                                label="Nhà sản xuất"
-                                value={selectedProduct.manufacturer}
-                            />
-                        </Stack>
-
-                        {/* Số lượng + Bảo hành */}
-                        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                            <DetailItem label="Tồn kho" value={`${selectedProduct.stock} cái`} />
-                            <DetailItem
-                                label="Bảo hành"
-                                value={`${selectedProduct.warranty} tháng`}
-                            />
-                        </Stack>
-
-                        {/* Ảnh sản phẩm */}
-                        <Box>
-                            <Typography variant="subtitle2" gutterBottom>
-                                Ảnh sản phẩm
-                            </Typography>
-                            {selectedProduct.image ? (
-                                <Box
-                                    component="img"
-                                    src={selectedProduct.image}
-                                    alt={selectedProduct.name}
-                                    sx={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: "cover",
-                                        borderRadius: 2,
-                                        border: "1px solid",
-                                        borderColor: "divider",
-                                    }}
+                            {/* Nhóm + Đơn vị tính */}
+                            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                                <DetailItem
+                                    label="Nhóm sản phẩm"
+                                    value={selectedProduct.categoryName}
                                 />
-                            ) : (
-                                <Typography variant="body2" color="text.secondary">
-                                    Không có ảnh
+                                <DetailItem
+                                    label="Đơn vị tính"
+                                    value={selectedProduct.unit}
+                                />
+                            </Stack>
+
+                            {/* Giá nhập + Giá bán */}
+                            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                                <DetailItem
+                                    label="Giá nhập"
+                                    value={`${selectedProduct.purchasePrice?.toLocaleString()} đ`}
+                                />
+                                <DetailItem
+                                    label="Giá bán"
+                                    value={`${selectedProduct.price?.toLocaleString()} đ`}
+                                />
+                            </Stack>
+
+                            {/* VAT + Nhà sản xuất */}
+                            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                                <DetailItem label="VAT áp dụng" value={`${selectedProduct.vat}%`} />
+                                <DetailItem
+                                    label="Nhà sản xuất"
+                                    value={selectedProduct.manufacturer}
+                                />
+                            </Stack>
+
+                            {/* Số lượng + Bảo hành */}
+                            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                                <DetailItem label="Tồn kho" value={`${selectedProduct.stock} cái`} />
+                                <DetailItem
+                                    label="Bảo hành"
+                                    value={`${selectedProduct.warranty} tháng`}
+                                />
+                            </Stack>
+
+                            {/* Mô tả */}
+                            <Box>
+                                <Typography variant="subtitle2" gutterBottom>
+                                    Mô tả sản phẩm
                                 </Typography>
-                            )}
-                        </Box>
+                                {
+                                    selectedProduct.description ?
+                                        parse(selectedProduct.description)
+                                        :
+                                        <Typography variant="body2" color="text.secondary">
+                                            -
+                                        </Typography>
+                                }
+                            </Box>
+
+                        </Stack>
+                        <Stack>
+                            {/* Ảnh sản phẩm */}
+                            <Box>
+                                <Typography variant="subtitle2" gutterBottom>
+                                    Ảnh sản phẩm
+                                </Typography>
+                                {selectedProduct.image ? (
+                                    <Box
+                                        component="img"
+                                        src={selectedProduct.image}
+                                        alt={selectedProduct.name}
+                                        sx={{
+                                            width: '100%',
+                                            maxWidth: 400,
+                                            height: '100%',
+                                            objectFit: "cover",
+                                            borderRadius: 2,
+                                            border: "1px solid",
+                                            borderColor: "divider",
+                                        }}
+                                    />
+                                ) : (
+                                    <Typography variant="body2" color="text.secondary">
+                                        Không có ảnh
+                                    </Typography>
+                                )}
+                            </Box>
+                        </Stack>
                     </Stack>
                 </Box>
             </Scrollbar>

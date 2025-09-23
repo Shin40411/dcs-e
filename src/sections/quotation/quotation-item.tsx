@@ -76,7 +76,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                     }}
                 >
                     <Iconify icon="solar:eye-bold" />
-                    Xem trước
+                    Xem báo giá
                 </MenuItem>
 
                 <MenuItem onClick={() => {

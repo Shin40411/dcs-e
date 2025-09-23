@@ -17,6 +17,7 @@ import { CATEGORY_COLUMNS } from "src/const/category";
 import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { CONFIG } from "src/global-config";
+import { CategoryBin } from "../category-bin";
 // ----------------------------------------------------------------------
 
 export function CategoryListView() {
@@ -24,6 +25,7 @@ export function CategoryListView() {
     const confirmDelRowDialog = useBoolean();
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
+    const openBin = useBoolean();
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
@@ -145,6 +147,13 @@ export function CategoryListView() {
         />
     );
 
+    const renderBin = () => (
+        <CategoryBin
+            open={openBin.value}
+            onClose={openBin.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -181,6 +190,7 @@ export function CategoryListView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    openBin={openBin}
 
                 />
             </DashboardContent>
@@ -189,6 +199,7 @@ export function CategoryListView() {
             {renderCRUDForm()}
             {renderConfirmDeleteRow()}
             {renderDetails()}
+            {renderBin()}
         </>
     );
 }
