@@ -47,6 +47,13 @@ export function fCurrency(number: InputValue) {
   return `${result(format, '.00')} đ`;
 }
 
+export function fCurrencyNoUnit(number: InputValue) {
+  if (!number || Number(number) === 0) return '0';
+  const format = number ? numeral(number).format('0,0.00') : '';
+
+  return `${result(format, '.00')}`;
+}
+
 // ----------------------------------------------------------------------
 
 export function fPercent(inputValue: InputNumberValue, options?: Options) {

@@ -17,10 +17,12 @@ import { deleteOne } from "src/actions/delete"
 import { endpoints } from "src/lib/axios"
 import { toast } from "sonner"
 import { CONFIG } from "src/global-config"
+import { SupplierBin } from "../supplier-bin"
 
 export function SuppliersListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
+    const openBin = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
@@ -104,6 +106,13 @@ export function SuppliersListView() {
         />
     );
 
+    const renderBin = () => (
+        <SupplierBin
+            open={openBin.value}
+            onClose={openBin.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -149,10 +158,12 @@ export function SuppliersListView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    openBin={openBin}
                 />
                 {renderCRUDForm()}
                 {renderDetails()}
                 {renderConfirmDeleteRow()}
+                {renderBin()}
             </DashboardContent>
         </>
     );

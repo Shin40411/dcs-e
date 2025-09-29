@@ -16,10 +16,12 @@ import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
 import { CONFIG } from "src/global-config";
+import { DepartmentBin } from "../department-bin";
 
 export function DepartmentListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
+    const openBin = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
@@ -101,6 +103,13 @@ export function DepartmentListView() {
         />
     );
 
+    const renderBin = () => (
+        <DepartmentBin
+            open={openBin.value}
+            onClose={openBin.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -137,9 +146,11 @@ export function DepartmentListView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    openBin={openBin}
                 />
                 {renderCRUDForm()}
                 {renderConfirmDeleteRow()}
+                {renderBin()}
             </DashboardContent>
         </>
     );

@@ -1,13 +1,12 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Stack, TextField } from "@mui/material";
-import { useState } from "react";
-import { IContract } from "src/types/contract";
+import { IContractItem } from "src/types/contract";
 import { IQuotationItem } from "src/types/quotation";
 
 type ContractFormProps = {
     open: boolean;
     onClose: () => void;
     quotations: IQuotationItem[];
-    onSave: (c: IContract) => void;
+    onSave: (c: IContractItem) => void;
 };
 
 export function ContractForm({ open, onClose, onSave, quotations }: ContractFormProps) {
@@ -40,7 +39,7 @@ export function ContractForm({ open, onClose, onSave, quotations }: ContractForm
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Hủy</Button>
-                <Button variant="contained" onClick={() => onSave(/* dữ liệu contract */ {} as IContract)}>
+                <Button variant="contained" onClick={() => onSave(/* dữ liệu contract */ {} as IContractItem)}>
                     Lưu hợp đồng
                 </Button>
             </DialogActions>

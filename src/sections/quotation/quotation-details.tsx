@@ -1,9 +1,9 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, Skeleton, Tooltip } from "@mui/material";
 import { IQuotationData, IQuotationItem } from "src/types/quotation";
-import html2pdf from "html2pdf.js";
 import { useGetQuotation } from "src/actions/quotation";
 import { useEffect, useState } from "react";
 import { QuotationPDFViewer } from "./quotation-pdf";
+import { Iconify } from "src/components/iconify";
 
 type Props = {
     selectedQuotation: IQuotationItem;
@@ -34,16 +34,6 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
         }
     }, [quotation]);
 
-    const handleExportPDF = () => {
-        const element = document.getElementById("quotation-preview");
-        if (element) {
-            html2pdf()
-                .from(element)
-                .set({ margin: 10, filename: `${selectedQuotation?.quotationNo}.pdf`, html2canvas: { scale: 2 } })
-                .save();
-        }
-    };
-
     const roundedTotal = Math.round(selectedQuotation.totalAmount);
 
     if (quotationLoading || !currentQuotation) {
@@ -59,7 +49,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
 
     return (
         <Dialog open={openDetail} onClose={onClose} fullScreen>
-            <DialogActions>
+            <DialogActions sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Button onClick={onClose}>Đóng</Button>
                 {/* <Button variant="contained" onClick={handleExportPDF}>
                     Xuất PDF
@@ -67,6 +57,7 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
                 <Tooltip title="Chức năng đang phát triển">
                     <span style={{ marginLeft: 10 }}>
                         <Button variant="outlined" disabled>
+                            <Iconify icon="clarity:contract-line" sx={{ marginRight: 1 }} />
                             Tạo hợp đồng
                         </Button>
                     </span>

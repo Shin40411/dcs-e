@@ -1,65 +1,28 @@
-import {
-    Box,
-    Card,
-    CardProps,
-    MenuItem,
-    MenuList,
-    Stack,
-    Tooltip,
-    Typography
-} from "@mui/material";
+import { Box, Card, CardProps, MenuItem, MenuList, Stack, Tooltip, Typography } from "@mui/material";
 import { UseBooleanReturn, usePopover } from "minimal-shared/hooks";
 import { CustomPopover } from "src/components/custom-popover";
 import { Iconify } from "src/components/iconify";
-import { IQuotationData, IQuotationItem } from "src/types/quotation";
+import { IContractItem } from "src/types/contract";
+import { ContractPreview } from "./contract-preview";
 import { fCurrency } from "src/utils/format-number";
-import { QuotationPreview } from "./quotation-preview";
-import { QuotationPdfDocument } from "./quotation-pdf";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { useGetQuotation } from "src/actions/quotation";
-import { useEffect, useState } from "react";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
     setId: (value: any) => void;
-    quotate: IQuotationItem;
+    contract: IContractItem;
     onViewDetails: () => void;
     onEditing: () => void;
 };
 
-// const statusMap = {
-//     0: { label: "Bỏ qua", color: "default", icon: "fluent-color:dismiss-circle-16" },
-//     1: { label: "Nháp", color: "info", icon: "material-symbols:draft" },
-//     2: { label: "Đang thực hiện", color: "warning", icon: "line-md:uploading-loop" },
-//     3: { label: "Đã hoàn thành", color: "success", icon: "fluent-color:checkmark-circle-16" },
-// } as const;
+// const statusMap: { [key: number]: string } = {
+//     0: "Bỏ qua",
+//     1: "Nháp",
+//     2: "Đang thực hiện",
+//     3: "Đã thanh toán",
+// }
 
-const statusMap: { [key: number]: string } = {
-    0: "Bỏ qua",
-    1: "Nháp",
-    2: "Đang thực hiện",
-    3: "Đã thanh toán",
-}
-
-export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails, onEditing, sx, ...other }: Props) {
+export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails, onEditing, sx, ...other }: Props) {
     const menuActions = usePopover();
-
-    const statusValue = quotate.status;
-    // const statusInfo = statusMap[statusValue as keyof typeof statusMap] ?? statusMap[0];
-
-    const { quotation } = useGetQuotation({
-        quotationId: quotate?.id,
-        pageNumber: 1,
-        pageSize: 999,
-        options: { enabled: !!quotate?.id }
-    });
-
-    const [currentQuotation, setSelectQuotation] = useState<IQuotationData>();
-    useEffect(() => {
-        if (quotation) {
-            setSelectQuotation(quotation);
-        }
-    }, [quotation]);
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -79,7 +42,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
             }}
         >
             <MenuList>
-                <MenuItem
+                {/* <MenuItem
                     onClick={() => {
                         onViewDetails();
                         menuActions.onClose();
@@ -87,9 +50,9 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                 >
                     <Iconify icon="solar:eye-bold" />
                     Xem báo giá
-                </MenuItem>
+                </MenuItem> */}
 
-                <MenuItem
+                {/* <MenuItem
                     component={PDFDownloadLink}
                     document={
                         <QuotationPdfDocument
@@ -103,7 +66,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                 >
                     <Iconify icon="eva:cloud-download-fill" />
                     Tải xuống
-                </MenuItem>
+                </MenuItem> */}
 
 
                 <MenuItem onClick={() => {
@@ -119,7 +82,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                     onClick={() => {
                         menuActions.onClose();
                         openDeleteDialog.onTrue();
-                        setId(quotate.id);
+                        setId(contract.id);
                     }}
                     sx={{ color: "error.main" }}
                 >
@@ -152,7 +115,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                 }}
                 {...other}
             >
-                <QuotationPreview quotation={quotate} />
+                <ContractPreview contract={contract} />
                 <Stack direction={"column"} alignContent={"center"} py={1} spacing={1}>
                     <Stack direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
                         <Box
@@ -165,7 +128,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                             }}
                         >
                             <Iconify icon="ri:contract-fill" color="#000cff" />
-                            <Tooltip title={`Báo giá số ${quotate.quotationNo}`}>
+                            <Tooltip title={`Hợp đồng số ${contract.contractNo}`}>
                                 <Typography
                                     variant="body2"
                                     fontSize={{ lg: 12, md: 10 }}
@@ -178,16 +141,12 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                                         display: "block",
                                     }}
                                 >
-                                    {quotate.quotationNo}
+                                    {contract.contractNo}
                                 </Typography>
                             </Tooltip>
 
                         </Box>
-                        {/* <IconButton
-                            onClick={menuActions.onOpen}
-                        >
-                            <Iconify icon="eva:more-vertical-fill" />
-                        </IconButton> */}
+
                     </Stack>
                     <Stack direction={"row"} alignContent={"center"}>
                         <Box
@@ -200,7 +159,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                             }}
                         >
                             <Iconify icon="carbon:cost-total" />
-                            <Tooltip title={`Tổng cộng ${fCurrency(quotate.totalAmount)}`}>
+                            <Tooltip title={`Tổng cộng ${fCurrency(contract.total)}`}>
                                 <Typography
                                     variant="body2"
                                     fontSize={{ lg: 12, md: 10 }}
@@ -213,7 +172,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                                         display: "block",
                                     }}
                                 >
-                                    {fCurrency(quotate.totalAmount)}
+                                    {fCurrency(contract.total)}
                                 </Typography>
                             </Tooltip>
                         </Box>
@@ -225,4 +184,3 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
         </>
     );
 }
-

@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
 import { fDate, fDateTime } from "src/utils/format-time-vi";
 import { Box, List, ListItem, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import { PAPER_H, PAPER_W, useScaleToFit } from "./helper/Quasidropin";
 import { Logo } from "src/components/logo";
 import { capitalizeFirstLetter } from "src/utils/format-string";
+import { PAPER_W, useScaleToFit } from "src/utils/scale-pdf";
 
 export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) => {
     const { quotation: SelectedQuotation } = useGetQuotation({
@@ -24,19 +24,7 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
     }, [SelectedQuotation]);
 
     const containerRef = useRef<HTMLDivElement>(null);
-    // const [scale, setScale] = useState(1);
 
-    // useEffect(() => {
-    //     if (!containerRef.current) return;
-    //     const el = containerRef.current;
-    //     const ro = new ResizeObserver(([entry]) => {
-    //         const { width, height } = entry.contentRect;
-    //         const s = Math.min(width / PAPER_W, height / PAPER_H);
-    //         setScale(s);
-    //     });
-    //     ro.observe(el);
-    //     return () => ro.disconnect();
-    // }, []);
     const scale = useScaleToFit(containerRef);
 
     const roundedTotal = Math.round(quotation.totalAmount);

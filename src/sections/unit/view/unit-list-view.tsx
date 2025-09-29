@@ -16,10 +16,12 @@ import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { CONFIG } from "src/global-config";
+import { UnitBin } from "../unit-bin";
 
 export function UnitListView() {
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
+    const openBin = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
@@ -98,6 +100,13 @@ export function UnitListView() {
         />
     );
 
+    const renderBin = () => (
+        <UnitBin
+            open={openBin.value}
+            onClose={openBin.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -134,9 +143,11 @@ export function UnitListView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    openBin={openBin}
                 />
                 {renderCRUDForm()}
                 {renderConfirmDeleteRow()}
+                {renderBin()}
             </DashboardContent>
         </>
     );

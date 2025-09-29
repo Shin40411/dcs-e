@@ -20,6 +20,7 @@ import { endpoints } from 'src/lib/axios';
 import { deleteOne } from 'src/actions/delete';
 import { toast } from 'sonner';
 import { CONFIG } from 'src/global-config';
+import { BankingBin } from '../banking-bin';
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,7 @@ export function OverviewBankingView() {
   const openDetailsForm = useBoolean();
   const openCrudForm = useBoolean();
   const confirmDialog = useBoolean();
+  const openBin = useBoolean();
   const confirmDelRowDialog = useBoolean();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
@@ -114,6 +116,14 @@ export function OverviewBankingView() {
     />
   );
 
+  const renderBin = () => (
+    <BankingBin
+      open={openBin.value}
+      onClose={openBin.onFalse}
+    />
+  );
+
+
   return (
     <DashboardContent maxWidth="xl">
       <CustomBreadcrumbs
@@ -158,10 +168,12 @@ export function OverviewBankingView() {
         handleChangeRowsPerPage={handleChangeRowsPerPage}
         searchText={searchText}
         onSearchChange={setSearchText}
+        openBin={openBin}
       />
       {renderDetails()}
       {renderCRUDForm()}
       {renderConfirmDeleteRow()}
+      {renderBin()}
     </DashboardContent>
   );
 }

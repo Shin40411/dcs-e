@@ -1,6 +1,7 @@
 import { Box, Button, Checkbox, Divider, Stack, Table, TableBody, TableCell, TableHead, TablePagination, TableRow } from "@mui/material";
 import { Iconify } from "../iconify";
 import { ChangeEvent, useState } from "react";
+import { EmptyContent } from "../empty-content";
 
 type Props = {
     handleRestore: (ids: string[]) => void;
@@ -81,7 +82,7 @@ export function TableRecycleBin({
                 >
                     Khôi phục
                 </Button>
-                <Button color="error" variant="contained"
+                {/* <Button color="error" variant="contained"
                     startIcon={
                         <Iconify icon="material-symbols-light:delete-sweep-sharp" sx={{ width: 24, height: 24 }} />
                     }
@@ -89,7 +90,7 @@ export function TableRecycleBin({
                     onClick={() => handleDelete(selected)}
                 >
                     Xóa vĩnh viễn
-                </Button>
+                </Button> */}
             </Stack>
             <Box
                 sx={{
@@ -108,15 +109,15 @@ export function TableRecycleBin({
                                     onChange={(e) => handleSelectAll(e.target.checked)}
                                 />
                             </TableCell>
-                            <TableCell>STT</TableCell>
+                            <TableCell width={10}>#</TableCell>
                             <TableCell>{columnName}</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {isEmpty ? (
                             <TableRow>
-                                <TableCell colSpan={2} align="center">
-                                    Không có dữ liệu
+                                <TableCell colSpan={3} align="center">
+                                    <EmptyContent />
                                 </TableCell>
                             </TableRow>
                         ) : (

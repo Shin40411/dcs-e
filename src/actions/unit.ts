@@ -47,6 +47,35 @@ export function useGetUnits({ pageNumber, pageSize, key, enabled = true }: units
     return memoizedValue;
 }
 
+export function useGetDeletedUnits({ pageNumber, pageSize, key, enabled = true }: unitsProps) {
+    let params = '';
+
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=0`;
+
+    const url = enabled ? endpoints.unit.list(params) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResUnitList>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => ({
+            units: data?.data.items || [],
+            pagination: {
+                pageNumber: data?.data.pageNumber ?? 1,
+                pageSize: data?.data.pageSize ?? pageSize,
+                totalPages: data?.data.totalPages ?? 0,
+                totalRecord: data?.data.totalRecord ?? 0,
+            },
+            unitsLoading: isLoading,
+            unitsError: error,
+            unitsValidating: isValidating,
+            unitsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+        }),
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
 export async function createOrUpdateUnit(id: number, bodyPayload: { name: string }) {
     if (id) {
         const { data } = await axiosInstance.patch(endpoints.unit.update(`/${id}`), bodyPayload);

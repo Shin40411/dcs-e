@@ -120,6 +120,9 @@ export const endpoints = {
     deleteProduct: `/api/v1/quotation/delete-quotation-product`,
     delete: (id: number) => `/api/v1/quotation/delete/${id}`
   },
+  contract: {
+    list: (params: string) => `/api/v1/contracts/contracts${params}`,
+  },
   upload: {
     uploadImage: '/api/v1/uploads/upload',
     uploadMultipleImages: '/api/v1/uploads/upload-xml',

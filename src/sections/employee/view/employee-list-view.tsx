@@ -17,11 +17,13 @@ import { deleteOne } from "src/actions/delete";
 import { toast } from "sonner";
 import { endpoints } from "src/lib/axios";
 import { CONFIG } from "src/global-config";
+import { EmployeeBin } from "../employee-bin";
 
 export function EmployeeListView() {
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDialog = useBoolean();
+    const openBin = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
@@ -105,6 +107,13 @@ export function EmployeeListView() {
         />
     );
 
+    const renderBin = () => (
+        <EmployeeBin
+            open={openBin.value}
+            onClose={openBin.onFalse}
+        />
+    );
+
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -150,10 +159,12 @@ export function EmployeeListView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    openBin={openBin}
                 />
                 {renderCRUDForm()}
                 {renderDetails()}
                 {renderConfirmDeleteRow()}
+                {renderBin()}
             </DashboardContent>
         </>
     );
