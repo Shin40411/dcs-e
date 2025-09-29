@@ -36,16 +36,16 @@ export function QuotationDetails({ selectedQuotation, openDetail = false, onClos
 
     const roundedTotal = Math.round(selectedQuotation.totalAmount);
 
-    if (quotationLoading || !currentQuotation) {
-        return (
-            <Dialog open={openDetail} onClose={onClose} fullScreen>
-                <DialogContent sx={{ pb: '5%' }}>
-                    <Skeleton variant="text" width={200} />
-                    <Skeleton variant="rectangular" height={200} sx={{ mt: 2 }} />
-                </DialogContent>
-            </Dialog>
-        );
-    }
+    // if (quotationLoading || !currentQuotation) {
+    //     return (
+    //         <Dialog open={openDetail} onClose={onClose} fullScreen>
+    //             <DialogContent sx={{ pb: '5%' }}>
+    //                 <Skeleton variant="text" width={200} />
+    //                 <Skeleton variant="rectangular" height={200} sx={{ mt: 2 }} />
+    //             </DialogContent>
+    //         </Dialog>
+    //     );
+    // }
 
     return (
         <Dialog open={openDetail} onClose={onClose} fullScreen>

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Page,
     Text,
@@ -16,8 +16,8 @@ import { IQuotationData, IQuotationItem } from 'src/types/quotation';
 import { fCurrency, fCurrencyNoUnit, fRenderTextNumber } from 'src/utils/format-number';
 import { fDate } from 'src/utils/format-time-vi';
 import { capitalizeFirstLetter } from 'src/utils/format-string';
-import { Iconify } from 'src/components/iconify';
 import { CONFIG } from 'src/global-config';
+import { Box, CircularProgress, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -29,10 +29,43 @@ type QuotationPDFProps = {
 // ----------------------------------------------------------------------
 
 export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }: QuotationPDFProps) {
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 1500);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-            <QuotationPdfDocument invoice={invoice} currentStatus={currentStatus} currentQuotation={currentQuotation} />
-        </PDFViewer>
+        <>
+            {loading && (
+                <Box
+                    sx={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        zIndex: 10,
+                    }}
+                >
+                    <CircularProgress sx={{ color: "#fff" }} />
+                    <Typography variant="body1" sx={{ mt: 2, color: "#fff", fontWeight: "bold" }}>
+                        Đang tạo bản xem trước...
+                    </Typography>
+                </Box>
+            )}
+            <PDFViewer width="100%" height="100%" style={{ border: "none" }}>
+                <QuotationPdfDocument
+                    invoice={invoice}
+                    currentStatus={currentStatus}
+                    currentQuotation={currentQuotation}
+                />
+            </PDFViewer>
+        </>
     );
 }
 
@@ -214,7 +247,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
     const renderHeader = () => (
         <View style={[styles.header, styles.containerStart, styles.alignItemsStart, styles.ml10, styles.mb8]} fixed>
             <Image
-                src={`${CONFIG.assetsDir}/assets/illustrations/bgpdf.png`}
+                source="/assets/illustrations/bgpdf.png"
                 style={{
                     position: 'absolute',
                     top: 0,
@@ -332,7 +365,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
 
                 {[
                     { name: 'Tổng:', value: fCurrency(totalPrice) },
-                    { name: 'Khuyến mãi:', value: '-' + (discount ?? 0) + '%' },
+                    { name: 'Khuyến mãi:', value: (discount ? `- ${discount}` : 0) + '%' },
                     { name: 'Tổng cộng:', value: fCurrency(totalAmount), styles: styles.h5 },
                 ].map((item, index) => (
                     <View key={item.name}
@@ -418,13 +451,10 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
         >
             <View style={{ alignItems: 'flex-start' }}>
                 <Text style={styles.text1Bold}>Ghi chú</Text>
-                <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginLeft: 20 }}>
+                <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginLeft: 20, marginRight: 20 }}>
                     {note ? (
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={[styles.text4, { fontSize: 16, lineHeight: 2, marginRight: 6 }]}>
-                                {'\u2022'}
-                            </Text>
-                            <Text style={[styles.text4, { lineHeight: 2.3 }]}>
+                            <Text style={[styles.text4]}>
                                 {note}
                             </Text>
                         </View>
@@ -434,7 +464,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                                 <Text style={[styles.text4, { fontSize: 16, lineHeight: 2, marginRight: 6 }]}>
                                     {'\u2022'}
                                 </Text>
-                                <Text style={[styles.text4, { lineHeight: 2.3 }]}>
+                                <Text style={[styles.text4, { lineHeight: 1.5, width: 200 }]}>
                                     Giá trên đã bao gồm chi phí giao hàng tận nơi nội thành
                                 </Text>
                             </View>
@@ -455,11 +485,11 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
 
             <View style={{ alignItems: 'center' }}>
                 <Text style={styles.text1Bold}>Người lập</Text>
-                <Text style={styles.text1Bold}>{`[CHỨC VỤ/ PHÒNG BAN]`}</Text>
+                <Text style={styles.text1Bold}>{`CHỨC VỤ/ PHÒNG BAN`}</Text>
 
                 <View style={{ height: 60 }} />
 
-                <Text style={styles.text1Bold}>{seller ?? `[Họ và tên]`}</Text>
+                <Text style={styles.text1Bold}>{seller ?? `Họ và tên`}</Text>
             </View>
         </View>
     );
@@ -467,7 +497,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
     const renderFooter = () => (
         <View style={[styles.container, styles.footer]} fixed>
             <Image
-                src={`${CONFIG.assetsDir}/assets/illustrations/bgpdf.png`}
+                src="/assets/illustrations/bgpdf.png"
                 style={{
                     position: 'absolute',
                     top: 0,

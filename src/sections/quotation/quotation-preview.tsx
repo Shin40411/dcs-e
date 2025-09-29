@@ -2,12 +2,14 @@
 import { IQuotationData, IQuotationItem } from "src/types/quotation";
 import { useGetQuotation } from "src/actions/quotation";
 import { useEffect, useRef, useState } from "react";
-import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
+import { fCurrency, fCurrencyNoUnit, fRenderTextNumber } from "src/utils/format-number";
 import { fDate, fDateTime } from "src/utils/format-time-vi";
-import { Box, List, ListItem, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, List, ListItem, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
 import { Logo } from "src/components/logo";
 import { capitalizeFirstLetter } from "src/utils/format-string";
 import { PAPER_W, useScaleToFit } from "src/utils/scale-pdf";
+import { CONFIG } from "src/global-config";
+import { IDateValue } from "src/types/common";
 
 export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) => {
     const { quotation: SelectedQuotation } = useGetQuotation({
@@ -45,162 +47,241 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
                     transformOrigin: "top left",
                     bgcolor: "rgba(64,87,109,.07)",
                     overflow: "hidden",
-                    p: 5
+                    py: 5,
+                    px: 5,
+                    boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'
                 }}
             >
                 <Box sx={{ p: 2, bgcolor: 'common.white' }}>
-                    <Stack direction="row" justifyContent="space-between" height="100%" mb={3}>
-                        <Logo disabled sx={{ width: '10%', height: '0%' }} />
-                        <Box>
-                            <List disablePadding>
-                                <ListItem disableGutters sx={{ py: 0 }}>
-                                    <Typography variant="subtitle1" fontWeight="bold">
-                                        CÔNG TY TNHH GIẢI PHÁP DCS
-                                    </Typography>
-                                </ListItem>
-                                <ListItem disableGutters sx={{ py: 0 }}>
-                                    <Typography variant="body2">MST: 0318436084</Typography>
-                                </ListItem>
-                                <ListItem disableGutters sx={{ py: 0 }}>
-                                    <Typography variant="body2">
-                                        ĐC: Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh
-                                    </Typography>
-                                </ListItem>
-                                <ListItem disableGutters sx={{ py: 0 }}>
-                                    <Typography variant="body2">ĐT: 0932090207</Typography>
-                                </ListItem>
-                                <ListItem disableGutters sx={{ py: 0 }}>
-                                    <Typography variant="body2">
-                                        Email: ncnnghia@gmail.com &nbsp;|&nbsp; dcsketoan@gmail.com
-                                    </Typography>
-                                </ListItem>
-                            </List>
-                        </Box>
-                    </Stack>
+                    <Header />
 
-                    <Typography variant="h5" textTransform="uppercase" fontWeight={800} align="center" gutterBottom>
-                        Bảng báo giá
-                    </Typography>
-                    <Typography variant="body2">
-                        Kính gửi: <b>{quotation.customerName || 'Chưa có'}</b>
-                    </Typography>
-                    <Typography variant="body2">
-                        Lời đầu tiên,
-                        Công ty chúng tôi trân trọng cảm ơn quý khách hàng đã quan tâm đến sản phẩm của công ty chúng tôi.
-                        Công ty chúng tôi xin gửi đến quý khách hàng báo giá chi tiết như sau:
-                    </Typography>
+                    <Dates createdDate={quotation.createdDate} quotationNo={quotation.quotationNo} />
 
-                    <Table size="small" sx={{ mt: 2, tableLayout: "fixed", width: "100%" }}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell width={50}>STT</TableCell>
-                                <TableCell width={200}>Tên SP/DV</TableCell>
-                                <TableCell>Đơn vị tính</TableCell>
-                                <TableCell>Số lượng</TableCell>
-                                <TableCell>Đơn giá</TableCell>
-                                <TableCell>Thành tiền</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {currentQuotation?.items?.flatMap((q) =>
-                                q.products.map((item, idx) => (
-                                    <TableRow key={idx}>
-                                        <TableCell>{idx + 1}</TableCell>
-                                        <TableCell
-                                            sx={{
-                                                maxWidth: 120,
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                            }}
-                                        >
-                                            {item.productName}
-                                        </TableCell>
-                                        <TableCell>{item.unit}</TableCell>
-                                        <TableCell>{item.quantity}</TableCell>
-                                        <TableCell
-                                            sx={{
-                                                maxWidth: 120,
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                            }}
-                                        >
-                                            {fCurrency(item.price)}
-                                        </TableCell>
-                                        <TableCell
-                                            sx={{
-                                                maxWidth: 120,
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                            }}
-                                        >
-                                            {fCurrency(item.quantity * item.price * (1 + item.vat / 100))}
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                            <TableRow>
-                                <TableCell colSpan={5}>
-                                    <Typography variant="body2" display="block">
-                                        Bằng chữ: <b>{capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}</b>
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align="right">
-                                    <b>Tổng cộng: </b>
-                                    {fCurrency(roundedTotal)}
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                    <Stack direction="row" justifyContent="space-between">
-                        <Stack direction="row" gap={1}>
-                            <Box>
-                                <Typography variant="body2">Ghi chú:</Typography>
-                            </Box>
-                            <Box>
-                                <List disablePadding>
-                                    <ListItem disableGutters sx={{ py: 0 }}>
-                                        <Typography variant="body2" fontWeight={0}>
-                                            - Giá trên đã bao gồm chi phí giao hàng tận nơi nội thành
-                                        </Typography>
-                                    </ListItem>
-                                    <ListItem disableGutters sx={{ py: 0 }}>
-                                        <Typography variant="body2" fontWeight={0}>
-                                            - Báo cáo có giá trị trong vòng 30 ngày
-                                        </Typography>
-                                    </ListItem>
-                                </List>
-                            </Box>
-                        </Stack>
-                        <Typography variant="body2" alignSelf="flex-end">
-                            TP.HCM, ngày {fDate(quotation.createdDate)}
-                        </Typography>
-                    </Stack>
-                    <Box sx={{ mt: 1, display: "flex", justifyContent: "space-between" }}>
-                        <Typography variant="body2" align="center">
-                            Khách hàng
-                            <br />
-                            <br />
-                            <br />
-                            <br />
-                            <i>(Ký, ghi rõ họ tên)</i>
-                        </Typography>
-                        <Typography variant="body2" align="center">
-                            Người lập
-                            <br />
-                            <br />
-                            <br />
-                            <br />
-                            <i>(Ký, ghi rõ họ tên)</i>
-                        </Typography>
+                    <Introduction customerName={quotation.customerName} />
+
+                    <Box paddingX={10}>
+                        <Tables currentQuotation={currentQuotation} quotation={quotation} roundedTotal={roundedTotal} />
                     </Box>
-                    {/* <Box sx={{ mt: 2 }}>
-                        <Typography variant="body2">Ghi chú: {quotation.note || "Không có"}</Typography>
-                    </Box> */}
+
+                    <Stack direction="row" justifyContent="flex-start" ml={12}>
+                        <AmountByText roundedTotal={roundedTotal} />
+                    </Stack>
+
+                    <Stack direction="row" gap={2} alignItems="center">
+                        <Notes />
+                        <Stack direction="column" gap={5}>
+                            <Stack direction="column" justifyContent="center" alignItems="center">
+                                <Typography fontWeight='bold'>Người lập</Typography>
+                                <Typography fontWeight='bold'>CHỨC VỤ/ PHÒNG BAN</Typography>
+                            </Stack>
+                            <Typography textAlign="center" fontWeight='bold'>{quotation.seller ?? 'Họ và tên'}</Typography>
+                        </Stack>
+                    </Stack>
                 </Box>
             </Box>
         </Box>
     );
 };
+
+function Header() {
+    return (
+        <Stack
+            direction="row"
+            justifyContent="center"
+            gap={1}
+            height="100%"
+            mb={3}
+            sx={{
+                backgroundImage: `url(${CONFIG.assetsDir}/assets/illustrations/bgpdf.png)`,
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'cover'
+            }}
+        >
+            <Logo disabled sx={{ width: '20%', height: '0%' }} />
+            <Box>
+                <List disablePadding>
+                    <ListItem disableGutters sx={{ py: 0 }}>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                            CÔNG TY TNHH GIẢI PHÁP DCS
+                        </Typography>
+                    </ListItem>
+                    <ListItem disableGutters sx={{ py: 0 }}>
+                        <Typography variant="body2">Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Typography>
+                    </ListItem>
+                    <ListItem disableGutters sx={{ py: 0 }}>
+                        <Stack direction="row" gap={1}>
+                            <Typography variant="body2">
+                                0932090207
+                            </Typography>
+                            <Typography variant="body2" sx={{ textDecoration: 'underline' }}>
+                                lienhe@dcse.vn
+                            </Typography>
+                        </Stack>
+                    </ListItem>
+                </List>
+            </Box>
+        </Stack>
+
+    );
+}
+
+function Dates({ createdDate, quotationNo }: { createdDate: IDateValue; quotationNo: string }) {
+    return (
+        <Stack width="100%" direction="row" justifyContent="flex-end">
+            <Stack direction="column" alignItems="flex-end">
+                <Typography variant="body2">
+                    TP. HCM, {fDate(createdDate)}
+                </Typography>
+                <Typography variant="body2" fontWeight={700}>
+                    Mã: {quotationNo}
+                </Typography>
+            </Stack>
+        </Stack>
+    );
+}
+
+function Introduction({ customerName }: { customerName: string }) {
+    return (
+        <>
+            <Typography variant="h5" textTransform="uppercase" fontWeight={800} align="center" gutterBottom>
+                Bảng báo giá
+            </Typography>
+            <Box paddingX={15} display="flex" flexDirection="column" gap={2}>
+                <Typography variant="body2">
+                    Kính gửi: <b>{customerName || 'Chưa có'}</b>
+                </Typography>
+                <Typography variant="body2" sx={{ textIndent: 20 }}>
+                    {`Xin chân thành cảm ơn sự quan tâm của Quý khách. Chúng tôi xin gửi đến Quý khách bảng báo giá sản phẩm theo yêu cầu như sau:`}
+                </Typography>
+            </Box>
+
+        </>
+    );
+}
+
+function Tables({ currentQuotation, roundedTotal, quotation }:
+    { currentQuotation?: IQuotationData; roundedTotal: number; quotation: IQuotationItem }) {
+    return (
+        <Table size="small" sx={{ mt: 2, tableLayout: "fixed", width: "100%" }}>
+            <TableHead>
+                <TableRow sx={{
+                    borderBottom: '2px solid rgba(0, 137, 0, 0.6)'
+                }}>
+                    <TableCell width={50} sx={{ backgroundColor: 'transparent' }}>#</TableCell>
+                    <TableCell width={160} sx={{ backgroundColor: 'transparent' }}>Tên SP/DV</TableCell>
+                    <TableCell width={50} sx={{ backgroundColor: 'transparent', textAlign: 'center' }}>ĐVT</TableCell>
+                    <TableCell width={50} sx={{ backgroundColor: 'transparent', textAlign: 'center' }}>SL</TableCell>
+                    <TableCell width={100} sx={{ backgroundColor: 'transparent' }}>Đơn giá</TableCell>
+                    <TableCell width={100} sx={{ backgroundColor: 'transparent' }}>Thành tiền</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {currentQuotation?.items?.flatMap((q) =>
+                    q.products.map((item, idx) => (
+                        <TableRow key={idx}>
+                            <TableCell>{idx + 1}</TableCell>
+                            <TableCell
+                                sx={{
+                                    maxWidth: 120,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                }}
+                            >
+                                {item.productName}
+                            </TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>{item.unit}</TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>{item.quantity}</TableCell>
+                            <TableCell
+                                sx={{
+                                    maxWidth: 120,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                }}
+                            >
+                                {fCurrency(item.price)}
+                            </TableCell>
+                            <TableCell
+                                sx={{
+                                    maxWidth: 120,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                }}
+                            >
+                                {fCurrency(item.quantity * item.price * (1 + item.vat / 100))}
+                            </TableCell>
+                        </TableRow>
+                    ))
+                )}
+            </TableBody>
+            <TableFooter sx={{ borderTop: '2px solid rgba(0, 137, 0, 0.6)' }}>
+                <TableRow>
+                    <TableCell colSpan={4} />
+                    <TableCell sx={{ fontWeight: 600, textAlign: "right" }}>
+                        Khuyến mãi:
+                    </TableCell>
+                    <TableCell align="right">
+                        {quotation.discount > 0 ? `- ${quotation.discount}%` : "0%"}
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell colSpan={4} />
+                    <TableCell
+                        sx={{
+                            borderTop: "2px solid rgba(0, 137, 0, 0.6)",
+                            fontWeight: "bold",
+                            textAlign: "right",
+                            textTransform: 'uppercase',
+                            whiteSpace: "nowrap"
+                        }}
+                    >
+                        Tổng cộng:
+                    </TableCell>
+                    <TableCell
+                        sx={{
+                            borderTop: "2px solid rgba(0, 137, 0, 0.6)",
+                            fontWeight: "bold",
+                            textAlign: "right",
+                        }}
+                    >
+                        {fCurrencyNoUnit(roundedTotal)}
+                    </TableCell>
+                </TableRow>
+            </TableFooter>
+        </Table>
+    );
+}
+
+function AmountByText({ roundedTotal }: { roundedTotal: number }) {
+    return (
+        <Typography variant="body2" display="block">
+            <b>Bằng chữ:</b> <i>{capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}</i>
+        </Typography>
+    );
+}
+
+function Notes() {
+    return (
+        <Stack direction="column" gap={1} mt={2} ml={10}>
+            <Box>
+                <Typography fontWeight="bold" variant="body2">Ghi chú:</Typography>
+            </Box>
+            <Box width='80%' ml={5}>
+                <List disablePadding>
+                    <ListItem disableGutters sx={{ py: 0 }}>
+                        <Typography variant="body2" fontWeight={0}>
+                            - Giá trên đã bao gồm chi phí giao hàng tận nơi nội thành
+                        </Typography>
+                    </ListItem>
+                    <ListItem disableGutters sx={{ py: 0 }}>
+                        <Typography variant="body2" fontWeight={0}>
+                            - Báo cáo có giá trị trong vòng 30 ngày
+                        </Typography>
+                    </ListItem>
+                </List>
+            </Box>
+        </Stack>
+    );
+}
