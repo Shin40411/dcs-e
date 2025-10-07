@@ -165,7 +165,6 @@ export function SupplierNewEditForm({ currentSupplier, open, onClose, selectedId
                 <Field.VNCurrencyInput
                     name="balance"
                     label="Số dư tài khoản"
-                    sx={{ width: 120 }}
                 />
             </Stack>
             <Field.Text

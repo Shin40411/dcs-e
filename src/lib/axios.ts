@@ -115,13 +115,22 @@ export const endpoints = {
     update: {
       root: (id: number) => `/api/v1/quotation/update/${id}`,
       addProducts: (id: number) => `/api/v1/quotation/add-product/${id}`,
+      editProducts: '/api/v1/quotation/edit-quantity-product',
       deleteProduct: `/api/v1/quotation/delete-quotation-product`
     },
-    deleteProduct: `/api/v1/quotation/delete-quotation-product`,
-    delete: (id: number) => `/api/v1/quotation/delete/${id}`
+    delete: (id: number) => `/api/v1/quotation/delete/${id}`,
+    sendMail: '/api/v1/quotation/send-mail'
   },
   contract: {
     list: (params: string) => `/api/v1/contracts/contracts${params}`,
+    detail: (params: string) => `/api/v1/contracts/get-contract-detail${params}`,
+    create: `/api/v1/contracts/create`,
+    update: {
+      root: (id: number) => `/api/v1/contracts/update-contract-info/${id}`,
+      addProducts: (id: number) => `/api/v1/contracts/add-product-to-contract/${id}`,
+      deleteProduct: `/api/v1/contracts/delete-product-from-contract`
+    },
+    // delete: (id: number) => `/api/v1/quotation/delete/${id}`,
   },
   upload: {
     uploadImage: '/api/v1/uploads/upload',

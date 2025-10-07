@@ -139,7 +139,7 @@ export function QuotationCardList({
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                height: "70vh",
+                height: { md: "75vh", sm: "100%" },
             }}
         >
             <QuotationFilterBar

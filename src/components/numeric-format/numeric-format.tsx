@@ -1,5 +1,5 @@
 import { NumericFormat } from 'react-number-format';
-import { TextField, InputAdornment, Box } from '@mui/material';
+import { TextField, InputAdornment, Box, SxProps, Theme } from '@mui/material';
 
 type Props = {
     label: string;
@@ -8,9 +8,10 @@ type Props = {
     error: boolean;
     helperText?: string;
     required?: boolean;
+    sx: SxProps<Theme> | undefined;
 };
 
-export function VnCurrencyInput({ value, label, onChange, error, helperText, required }: Props) {
+export function VnCurrencyInput({ value, label, onChange, error, helperText, required, sx }: Props) {
     return (
         <>
             <NumericFormat
@@ -31,7 +32,10 @@ export function VnCurrencyInput({ value, label, onChange, error, helperText, req
                         label
                     )
                 }
-                sx={{ width: '100%' }}
+                sx={[
+                    { width: '100%' },
+                    ...(Array.isArray(sx) ? sx : [sx]),
+                ]}
                 error={error}
                 helperText={helperText}
                 InputProps={{

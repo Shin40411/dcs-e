@@ -4,7 +4,7 @@ import { useGetQuotation } from "src/actions/quotation";
 import { useEffect, useRef, useState } from "react";
 import { fCurrency, fCurrencyNoUnit, fRenderTextNumber } from "src/utils/format-number";
 import { fDate, fDateTime } from "src/utils/format-time-vi";
-import { Box, List, ListItem, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, List, ListItem, ListItemText, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
 import { Logo } from "src/components/logo";
 import { capitalizeFirstLetter } from "src/utils/format-string";
 import { PAPER_W, useScaleToFit } from "src/utils/scale-pdf";
@@ -48,33 +48,33 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
                     bgcolor: "rgba(64,87,109,.07)",
                     overflow: "hidden",
                     py: 5,
-                    px: 5,
+                    px: 15,
                     boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'
                 }}
             >
-                <Box sx={{ p: 2, bgcolor: 'common.white' }}>
+                <Box sx={{
+                    p: 2,
+                    bgcolor: 'common.white',
+                    boxShadow: '0px 0px 0px 1px rgba(64,87,109,.04),0px 2px 4px -1px rgba(64,87,109,.3),inset 0 0 0 1px rgba(0,0,0,.1)'
+                }}>
                     <Header />
 
                     <Dates createdDate={quotation.createdDate} quotationNo={quotation.quotationNo} />
 
-                    <Introduction customerName={quotation.customerName} />
+                    <Introduction quotation={quotation} />
 
-                    <Box paddingX={10}>
+                    <Box paddingX={1}>
                         <Tables currentQuotation={currentQuotation} quotation={quotation} roundedTotal={roundedTotal} />
                     </Box>
 
-                    <Stack direction="row" justifyContent="flex-start" ml={12}>
-                        <AmountByText roundedTotal={roundedTotal} />
-                    </Stack>
-
-                    <Stack direction="row" gap={2} alignItems="center">
+                    <Stack direction="row" alignItems="center">
                         <Notes />
-                        <Stack direction="column" gap={5}>
+                        <Stack direction="column" gap={5} width="30%">
                             <Stack direction="column" justifyContent="center" alignItems="center">
-                                <Typography fontWeight='bold'>Người lập</Typography>
-                                <Typography fontWeight='bold'>CHỨC VỤ/ PHÒNG BAN</Typography>
+                                <Typography fontSize={10} fontWeight='bold'>Người lập</Typography>
+                                <Typography fontSize={10} fontWeight='bold'>CHỨC VỤ/ PHÒNG BAN</Typography>
                             </Stack>
-                            <Typography textAlign="center" fontWeight='bold'>{quotation.seller ?? 'Họ và tên'}</Typography>
+                            <Typography textAlign="center" fontSize={10} fontWeight='bold'>{quotation.seller ?? 'Họ và tên'}</Typography>
                         </Stack>
                     </Stack>
                 </Box>
@@ -106,15 +106,15 @@ function Header() {
                         </Typography>
                     </ListItem>
                     <ListItem disableGutters sx={{ py: 0 }}>
-                        <Typography variant="body2">Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Typography>
+                        <Typography variant="body2" fontSize={12}>Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Typography>
                     </ListItem>
                     <ListItem disableGutters sx={{ py: 0 }}>
                         <Stack direction="row" gap={1}>
-                            <Typography variant="body2">
+                            <Typography variant="body2" fontSize={12}>
                                 0932090207
                             </Typography>
-                            <Typography variant="body2" sx={{ textDecoration: 'underline' }}>
-                                lienhe@dcse.vn
+                            <Typography variant="body2" fontSize={12}>
+                                {`W.  http://dcse.vn   |   E.  lienhe@dcse.vn`}
                             </Typography>
                         </Stack>
                     </ListItem>
@@ -133,22 +133,34 @@ function Dates({ createdDate, quotationNo }: { createdDate: IDateValue; quotatio
                     TP. HCM, {fDate(createdDate)}
                 </Typography>
                 <Typography variant="body2" fontWeight={700}>
-                    Mã: {quotationNo}
+                    Số: {quotationNo}
                 </Typography>
             </Stack>
         </Stack>
     );
 }
 
-function Introduction({ customerName }: { customerName: string }) {
+function Introduction({ quotation }: { quotation: IQuotationItem }) {
+    const intro = quotation.companyName ? 'Kính gửi:' : 'Kính gửi ông/bà:';
+
     return (
         <>
-            <Typography variant="h5" textTransform="uppercase" fontWeight={800} align="center" gutterBottom>
-                Bảng báo giá
-            </Typography>
-            <Box paddingX={15} display="flex" flexDirection="column" gap={2}>
+            <Box display="flex" flexDirection="column">
+                <Typography variant="h5" textTransform="uppercase" fontWeight={800} align="center" gutterBottom>
+                    Bảng báo giá
+                </Typography>
+                <Box
+                    sx={{
+                        height: 1.5,
+                        width: 60,
+                        backgroundColor: 'rgba(0, 137, 0, 1)',
+                        alignSelf: 'center',
+                    }}
+                />
+            </Box>
+            <Box paddingX={1} display="flex" flexDirection="column" gap={2}>
                 <Typography variant="body2">
-                    Kính gửi: <b>{customerName || 'Chưa có'}</b>
+                    {intro} <b>{quotation.companyName || quotation.customerName}</b>
                 </Typography>
                 <Typography variant="body2" sx={{ textIndent: 20 }}>
                     {`Xin chân thành cảm ơn sự quan tâm của Quý khách. Chúng tôi xin gửi đến Quý khách bảng báo giá sản phẩm theo yêu cầu như sau:`}
@@ -161,6 +173,25 @@ function Introduction({ customerName }: { customerName: string }) {
 
 function Tables({ currentQuotation, roundedTotal, quotation }:
     { currentQuotation?: IQuotationData; roundedTotal: number; quotation: IQuotationItem }) {
+
+    const totalPrice = currentQuotation?.items?.reduce(
+        (sum, q) => sum + q.products.reduce((acc, p) => acc + p.price * p.quantity, 0),
+        0
+    ) ?? 0;
+
+    const totalVat = currentQuotation?.items?.reduce((sum, q) => {
+        return (
+            sum +
+            q.products.reduce((subSum, p) => {
+                const lineTotal = p.price * p.quantity;
+                return subSum + (lineTotal * p.vat) / 100;
+            }, 0)
+        );
+    }, 0) ?? 0;
+
+    const discountAmount = (totalPrice: number, totalVat: number, discountPercent: number) =>
+        Math.round((totalPrice + totalVat) * (discountPercent / 100));
+
     return (
         <Table size="small" sx={{ mt: 2, tableLayout: "fixed", width: "100%" }}>
             <TableHead>
@@ -172,35 +203,49 @@ function Tables({ currentQuotation, roundedTotal, quotation }:
                     <TableCell width={50} sx={{ backgroundColor: 'transparent', textAlign: 'center' }}>ĐVT</TableCell>
                     <TableCell width={50} sx={{ backgroundColor: 'transparent', textAlign: 'center' }}>SL</TableCell>
                     <TableCell width={100} sx={{ backgroundColor: 'transparent' }}>Đơn giá</TableCell>
-                    <TableCell width={100} sx={{ backgroundColor: 'transparent' }}>Thành tiền</TableCell>
+                    <TableCell width={100} sx={{ backgroundColor: 'transparent', whiteSpace: 'nowrap' }}>Thành tiền</TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
                 {currentQuotation?.items?.flatMap((q) =>
                     q.products.map((item, idx) => (
                         <TableRow key={idx}>
-                            <TableCell>{idx + 1}</TableCell>
+                            <TableCell sx={{ verticalAlign: 'top' }}>{idx + 1}</TableCell>
                             <TableCell
                                 sx={{
                                     maxWidth: 120,
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
                                 }}
                             >
-                                {item.productName}
+                                <ListItemText
+                                    sx={{
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                    }}
+                                    primary={
+                                        item.productName
+                                    }
+                                    slotProps={{
+                                        primary: { color: 'text.secondary', fontWeight: 600 },
+                                        secondary: { color: 'text.secondary', fontWeight: 400 }
+                                    }}
+                                    secondary={
+                                        `${item.vat}%`
+                                    }
+                                />
                             </TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>{item.unit}</TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>{item.quantity}</TableCell>
+                            <TableCell sx={{ textAlign: 'center', verticalAlign: 'top' }}>{item.unit}</TableCell>
+                            <TableCell sx={{ textAlign: 'center', verticalAlign: 'top' }}>{item.quantity}</TableCell>
                             <TableCell
                                 sx={{
                                     maxWidth: 120,
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
+                                    verticalAlign: 'top'
                                 }}
                             >
-                                {fCurrency(item.price)}
+                                {fCurrencyNoUnit(item.price)}
                             </TableCell>
                             <TableCell
                                 sx={{
@@ -208,9 +253,23 @@ function Tables({ currentQuotation, roundedTotal, quotation }:
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
+                                    verticalAlign: 'top'
                                 }}
                             >
-                                {fCurrency(item.quantity * item.price * (1 + item.vat / 100))}
+                                <ListItemText
+                                    sx={{
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                    }}
+                                    primary={fCurrencyNoUnit(item.quantity * item.price * (1 + item.vat / 100))}
+
+                                    slotProps={{
+                                        primary: { textAlign: 'right', color: 'text.secondary', fontWeight: 600 },
+                                        secondary: { textAlign: 'right', color: 'text.secondary', fontWeight: 400 }
+                                    }}
+                                    secondary={fCurrencyNoUnit(((item.price * item.quantity) * item.vat) / 100)}
+                                />
                             </TableCell>
                         </TableRow>
                     ))
@@ -218,16 +277,36 @@ function Tables({ currentQuotation, roundedTotal, quotation }:
             </TableBody>
             <TableFooter sx={{ borderTop: '2px solid rgba(0, 137, 0, 0.6)' }}>
                 <TableRow>
-                    <TableCell colSpan={4} />
-                    <TableCell sx={{ fontWeight: 600, textAlign: "right" }}>
-                        Khuyến mãi:
+                    <TableCell sx={{ borderBottom: 'unset!important' }} colSpan={4} />
+                    <TableCell sx={{ fontWeight: 600, whiteSpace: "nowrap", textAlign: "left" }}>
+                        Tổng:
                     </TableCell>
                     <TableCell align="right">
-                        {quotation.discount > 0 ? `- ${quotation.discount}%` : "0%"}
+                        {fCurrencyNoUnit(totalPrice)}
                     </TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell colSpan={4} />
+                    <TableCell sx={{ borderBottom: 'unset!important' }} colSpan={4} />
+                    <TableCell sx={{ fontWeight: 600, whiteSpace: "nowrap", textAlign: "left" }}>
+                        VAT:
+                    </TableCell>
+                    <TableCell align="right">
+                        {fCurrencyNoUnit(totalVat)}
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell sx={{ borderBottom: 'unset!important' }} colSpan={4} />
+                    <TableCell sx={{ fontWeight: 600, whiteSpace: "nowrap", textAlign: "left", borderBottom: '2px solid rgba(0, 137, 0, 1)' }}>
+                        Khuyến mãi:
+                    </TableCell>
+                    <TableCell align="right" sx={{ borderBottom: '2px solid rgba(0, 137, 0, 1)' }}>
+                        {fCurrencyNoUnit(discountAmount(totalPrice, totalVat, quotation.discount))}
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell sx={{ borderBottom: 'unset!important' }} colSpan={4} >
+                        <AmountByText roundedTotal={roundedTotal} />
+                    </TableCell>
                     <TableCell
                         sx={{
                             borderTop: "2px solid rgba(0, 137, 0, 0.6)",
@@ -250,7 +329,7 @@ function Tables({ currentQuotation, roundedTotal, quotation }:
                     </TableCell>
                 </TableRow>
             </TableFooter>
-        </Table>
+        </Table >
     );
 }
 
@@ -264,11 +343,11 @@ function AmountByText({ roundedTotal }: { roundedTotal: number }) {
 
 function Notes() {
     return (
-        <Stack direction="column" gap={1} mt={2} ml={10}>
-            <Box>
+        <Stack direction="column" gap={1} mt={2} ml={4} width="70%">
+            <Box width="100%">
                 <Typography fontWeight="bold" variant="body2">Ghi chú:</Typography>
             </Box>
-            <Box width='80%' ml={5}>
+            <Box width="100%">
                 <List disablePadding>
                     <ListItem disableGutters sx={{ py: 0 }}>
                         <Typography variant="body2" fontWeight={0}>

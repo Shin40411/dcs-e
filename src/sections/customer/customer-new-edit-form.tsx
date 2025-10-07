@@ -88,7 +88,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 name: data.name,
                 taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
-                email: data.email,
+                email: data.email ?? '',
                 bankAccount: data.bankAccount ?? '',
                 bankName: data.bankName ?? '',
                 address: data.address ?? '',
@@ -171,7 +171,6 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 label="Email"
                 helperText="Nhập địa chỉ email"
                 sx={{ flex: 1 }}
-                required
             />
             <Field.Text
                 name="address"

@@ -30,11 +30,11 @@ export const NewProductSchema = zod.object({
     categoryId: zod.number().min(1, { message: 'Nhóm sản phẩm là trường bắt buộc' }),
     stock: zod
         .number({ coerce: true })
-        .min(0, { message: 'Số lượng tồn kho không được nhỏ hơn 0' }),
+        .min(1, { message: 'Số lượng tồn kho là trường bắt buộc' }),
     warranty: zod
         .number({ coerce: true })
-        .min(0, { message: 'Thời gian bảo hành không được nhỏ hơn 0' })
-        .max(12, { message: 'Thời gian bảo hành không được lớn hơn 12 tháng' }),
+        .min(1, { message: 'Thời gian bảo hành là trường bắt buộc' })
+        .max(24, { message: 'Thời gian bảo hành không được lớn hơn 24 tháng' }),
     manufacturer: zod
         .string()
         .min(1, { message: 'Nhà sản xuất là trường bắt buộc' }),

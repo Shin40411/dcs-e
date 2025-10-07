@@ -8,7 +8,10 @@ export const NewEmployeeSchema = zod.object({
     gender: zod.enum(["Male", "Female", "Other"]),
     bankAccount: zod.string().optional(),
     bankName: zod.string().optional(),
-    birthday: zod.custom<IDateValue>(),
+    birthday: zod.custom<IDateValue>().refine(
+        (val) => val !== null && val !== undefined && val !== "",
+        { message: "Vui lòng chọn ngày sinh" }
+    ),
     balance: zod.number({ coerce: true })
         .nonnegative({ message: "Số dư không được âm" })
         .default(0)

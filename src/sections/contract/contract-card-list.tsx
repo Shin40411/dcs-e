@@ -15,6 +15,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 import { useGetContracts } from 'src/actions/contract';
 import { IContractItem } from 'src/types/contract';
 import { ContractItem } from './contract-item';
+import { ContractFilterBar } from './contract-filter';
 
 type Props = {
     onViewDetails: (quotation: IContractItem) => void;
@@ -127,14 +128,14 @@ export function ContractCardList({
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                height: "70vh",
+                height: { md: "75vh", sm: "100%" },
             }}
         >
-            {/* <QuotationFilterBar
+            <ContractFilterBar
                 onFilterChange={handleFilterChange}
                 onSearching={setSearchText}
                 onReset={handleReset}
-            /> */}
+            />
             <Divider />
             <Box
                 sx={{

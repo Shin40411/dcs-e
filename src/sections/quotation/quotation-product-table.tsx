@@ -1,5 +1,5 @@
 import { UseFieldArrayRemove, UseFormReturn, useWatch } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Stack, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
 import { Field } from "src/components/hook-form";
 import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
@@ -13,10 +13,11 @@ import { deleteProductSelected } from "src/actions/quotation";
 import { useBoolean } from "minimal-shared/hooks";
 import { mutate } from "swr";
 import { endpoints } from "src/lib/axios";
-import { IDateValue } from "src/types/common";
+import { IQuotationDetails } from "src/types/quotation";
 
 type QuotationItemsTableProps = {
     idQuotation: number | undefined;
+    quotationProductDetail: IQuotationDetails | undefined;
     methods: UseFormReturn<QuotationFormValues>;
     fields: any[];
     remove: UseFieldArrayRemove;
@@ -26,6 +27,7 @@ type QuotationItemsTableProps = {
 
 export function QuotationItemsTable({
     idQuotation,
+    quotationProductDetail,
     methods,
     fields,
     remove,
@@ -41,10 +43,6 @@ export function QuotationItemsTable({
         control: methods.control,
         name: "discount",
     }) as number | undefined;
-
-    // useEffect(() => {
-    //     console.log("items changed", items);
-    // }, [methods]);
 
     const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
         const qty = Number(item?.qty) || 0;
@@ -69,7 +67,6 @@ export function QuotationItemsTable({
 
     const deleteEachProduct = async () => {
         try {
-            console.log(indexField);
             if (!idQuotation) return;
             if (indexField === 0) {
                 toast.warning("Phiếu báo giá đã tạo phải có ít nhất 1 sản phẩm");
@@ -85,10 +82,6 @@ export function QuotationItemsTable({
             remove(indexField);
             toast.success("Đã xóa sản phẩm ra khỏi danh sách");
             openDel.onFalse();
-            // mutate(
-            //     endpoints.quotation.list(
-            //         `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
-            //     ));
 
             mutate(
                 (k) => typeof k === "string" && k.startsWith("/api/v1/quotation/quotations"),
@@ -209,11 +202,17 @@ export function QuotationItemsTable({
                                                 <Tooltip title="Xóa sản phẩm" placement="top" arrow>
                                                     <IconButton onClick={() => {
                                                         if (idQuotation) {
-                                                            openDel.onTrue();
-                                                            setProductIDSelected([
-                                                                Number(methods.getValues(`items.${index}.product`))
-                                                            ]);
-                                                            setIndexField(index);
+                                                            const idPro = Number(methods.getValues(`items.${index}.product`));
+                                                            const exists = quotationProductDetail?.products?.some(p => Number(p.productID) === idPro);
+                                                            if (exists) {
+                                                                openDel.onTrue();
+                                                                setProductIDSelected([
+                                                                    Number(idPro)
+                                                                ]);
+                                                                setIndexField(index);
+                                                            } else {
+                                                                remove(index);
+                                                            }
                                                         } else {
                                                             remove(index);
                                                         }
@@ -336,10 +335,7 @@ function ProductAutocomplete({
                         `items.${index}.unit`,
                         newValue.unitID != null ? String(newValue.unitID) : ""
                     );
-                    methods.setValue(
-                        `items.${index}.unitName`,
-                        newValue.unit != null ? newValue.unit : ""
-                    );
+                    methods.setValue(`items.${index}.unitName`, newValue.unit != null ? newValue.unit : "");
                     methods.setValue(`items.${index}.price`, newValue.price ?? 0);
                     methods.setValue(`items.${index}.vat`, newValue.vat ?? 0);
                 } else {
@@ -364,8 +360,28 @@ function UnitSelection({
         pageSize: 999
     });
 
+    // useEffect(() => {
+    //     console.log("unitValue:", methods.watch(`items.${index}.unit`));
+    //     console.log("units:", units);
+    // }, [methods.watch(`items.${index}.unit`), units]);
+
     return (
-        <Field.Select name={`items.${index}.unit`} label="Đơn vị tính" fullWidth>
+        <Field.Select
+            name={`items.${index}.unit`}
+            label="Đơn vị tính"
+            onChange={(e) => {
+                const selectedId = e.target.value;
+                methods.setValue(`items.${index}.unit`, selectedId);
+
+                const selectedUnit = units.find((u) => String(u.id) === selectedId);
+                const unitName = selectedUnit?.name ?? "";
+                methods.setValue(`items.${index}.unitName`, unitName);
+                // console.log(
+                //     methods.watch(`items.${index}.unitName`)
+                // );
+            }}
+            fullWidth
+        >
             {unitsLoading ? (
                 <MenuItem disabled>Đang tải...</MenuItem>
             ) : (

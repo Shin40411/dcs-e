@@ -115,14 +115,6 @@ export function AuthSplitLayout({
   return (
     <LayoutSection
       /** **************************************
-       * @Header
-       *************************************** */
-      headerSection={renderHeader()}
-      /** **************************************
-       * @Footer
-       *************************************** */
-      footerSection={renderFooter()}
-      /** **************************************
        * @Styles
        *************************************** */
       cssVars={{ '--layout-auth-content-width': '420px', ...cssVars }}

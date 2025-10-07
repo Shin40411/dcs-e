@@ -33,7 +33,7 @@ export function RHFNumberInput({ name, helperText, ...other }: RHFNumberInputPro
   );
 }
 
-export function RHFNumericInput({ name, label, helperText, required, ...other }: RHFNumberInputProps) {
+export function RHFNumericInput({ name, label, helperText, required, sx, ...other }: RHFNumberInputProps) {
   const { control } = useFormContext();
 
   return (
@@ -48,6 +48,7 @@ export function RHFNumericInput({ name, label, helperText, required, ...other }:
           error={!!fieldState.error}
           helperText={fieldState.error?.message}
           required={required}
+          sx={sx}
           {...other}
         />
       )}

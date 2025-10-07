@@ -22,7 +22,7 @@ import { useGetCustomers } from "src/actions/customer";
 import { useDebounce } from "minimal-shared/hooks";
 import { useEffect, useState } from "react";
 import { ICustomerItem } from "src/types/customer";
-import { IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationItem } from "src/types/quotation";
+import { IQuotationDao, IQuotationDetailDto, IQuotationDetails, IQuotationDto, IQuotationItem } from "src/types/quotation";
 import { QuotationItemsTable } from "./quotation-product-table";
 import { QuotationFormValues, quotationSchema } from "./schema/quotation-schema";
 import { addMoreProducts, createOrUpdateQuotation, useGetQuotation } from "src/actions/quotation";
@@ -34,21 +34,24 @@ import { QuotationCustomerForm } from "./quotation-customer-form";
 import { useAuthContext } from "src/auth/hooks";
 import { mapProductsToItems } from "./helper/mapProductsToItems";
 import { DetailItem } from "./helper/DetailItem";
+import { editAllQuotationDetails } from "./helper/mapQuotationProduct";
 
 export type QuotationFormProps = {
     selectedQuotation: IQuotationItem | null;
     openForm: boolean;
     onClose: () => void;
+    CopiedQuotation: IQuotationItem | null;
 };
 
-export function QuotationForm({ openForm, selectedQuotation, onClose }: QuotationFormProps) {
+export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuotation }: QuotationFormProps) {
+    const quotationId = selectedQuotation?.id ?? CopiedQuotation?.id ?? 0;
     const { user } = useAuthContext();
     const today = new Date();
     const nextMonth = new Date();
     nextMonth.setMonth(today.getMonth() + 1);
     const sampleNote = `- Giá trên đã bao gồm chi phí giao hàng tận nơi nội thành
 - Báo cáo có giá trị trong vòng 30 ngày`;
-    const sampleDiscount = [10, 20, 30];
+    const sampleDiscount = [0, 10, 20, 30];
     const [originalItems, setOriginalItems] = useState<IQuotationDetailDto[]>([]);
 
     const [totalPaid, setTotalPaid] = useState(0);
@@ -58,8 +61,10 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
 
     const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
 
+    const [quotationProductDetail, setQuotationProductDetail] = useState<IQuotationDetails>();
+
     const { quotation: CurrentQuotation } = useGetQuotation({
-        quotationId: selectedQuotation?.id ?? 0,
+        quotationId: quotationId,
         pageNumber: 1,
         pageSize: 999,
         options: { enabled: !!selectedQuotation?.id }
@@ -83,7 +88,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
         discount: 0,
         items: [{
             product: "",
-            unit: "",
+            unit: "0",
             unitName: "",
             qty: 1,
             price: 0,
@@ -99,6 +104,43 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
     });
 
     useEffect(() => {
+        //copy case
+        if (CopiedQuotation) {
+            if (!CurrentQuotation) return;
+            const currentDetails = CurrentQuotation.items.find(
+                (q) => q.quotationID === CopiedQuotation.id
+            );
+
+            setQuotationProductDetail(currentDetails);
+
+            const mappedItems = mapProductsToItems(currentDetails?.products || []);
+
+            methods.reset({
+                customer: CopiedQuotation.customerId ?? 0,
+                quotationNo: generateQuotationNo(),
+                date: today.toISOString(),
+                validUntil: nextMonth.toISOString(),
+                status: 1,
+                discount: CopiedQuotation.discount,
+                items: mappedItems,
+                notes: CopiedQuotation.note ?? sampleNote,
+            });
+
+            // setOriginalItems(
+            //     mappedItems.map((item, i) => ({
+            //         productID: item.product ?? "",
+            //         quantity: item.qty,
+            //         row: i + 1,
+            //         Unit: item.unitName || "",
+            //         Price: item.price || 0,
+            //     }))
+            // );
+
+            return;
+        }
+        //end copy case
+
+        //create case
         if (!selectedQuotation) {
             methods.reset(defaultValues);
             setOriginalItems(
@@ -106,42 +148,50 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
                     productID: item.product ?? "",
                     quantity: item.qty,
                     row: i + 1,
-                    Unit: item.unitName || ""
+                    Unit: item.unitName || "",
+                    Price: item.price || 0
                 }))
             );
             return;
         }
+        //end create case
 
+        //update case
         if (!CurrentQuotation) return;
 
         const currentDetails = CurrentQuotation.items.find(
             (q) => q.quotationID === selectedQuotation.id
         );
 
+        if (currentDetails) {
+            setQuotationProductDetail(currentDetails);
+        }
+
         const mappedItems = mapProductsToItems(currentDetails?.products || []);
-        // console.log(mappedItems);
-        methods.reset({
-            ...defaultValues,
-            customer: selectedQuotation.customerId ?? 0,
-            quotationNo: selectedQuotation.quotationNo,
-            date: selectedQuotation.createdDate ?? null,
-            validUntil: selectedQuotation.expiryDate ?? null,
-            status: selectedQuotation.status ?? 1,
-            items: mappedItems,
-            notes: selectedQuotation.note ?? "",
-            discount: selectedQuotation.discount
-        });
+
+        console.log(mappedItems);
+
+        methods.setValue("customer", selectedQuotation.customerId ?? 0);
+        methods.setValue("quotationNo", selectedQuotation.quotationNo);
+        methods.setValue("date", selectedQuotation.createdDate ?? null);
+        methods.setValue("validUntil", selectedQuotation.expiryDate ?? null);
+        methods.setValue("status", selectedQuotation.status ?? 1);
+        methods.setValue("items", mappedItems);
+        methods.setValue("notes", selectedQuotation.note ?? "");
+        methods.setValue("discount", selectedQuotation.discount);
 
         setOriginalItems(
             mappedItems.map((item, i) => ({
                 productID: item.product ?? "",
                 quantity: item.qty,
                 row: i + 1,
-                Unit: item.unitName || ""
+                Unit: item.unitName || "",
+                Price: item.price || 0
             }))
         );
+        //end update case
 
-    }, [selectedQuotation?.id, CurrentQuotation, methods.reset]);
+    }, [selectedQuotation, CopiedQuotation, CurrentQuotation, methods.reset]);
 
     useEffect(() => {
         if (customers && CustomerRecords.totalRecord > 0) {
@@ -184,7 +234,8 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
                     productID: item.product ?? "",
                     quantity: item.qty,
                     row: i + 1,
-                    Unit: item.unitName || ""
+                    Unit: item.unitName || "",
+                    Price: item.price || 0
                 })),
             };
 
@@ -209,6 +260,9 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
                 if (newItems.length > 0) {
                     await addMoreProducts(selectedQuotation.id, newItems);
                 }
+                else {
+                    await editAllQuotationDetails(bodyPayload, selectedQuotation.id);
+                }
             }
 
             toast.success(
@@ -216,11 +270,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
                     ? "Dữ liệu báo giá đã được thay đổi!"
                     : "Tạo báo giá thành công!"
             );
-
-            // mutate(
-            //     endpoints.quotation.list(
-            //         `?pageNumber=${page + 1}&pageSize=${rowsPerPage}&fromDate=${fromDate}&toDate=${toDate}&Status=1`
-            //     ));
 
             mutate(
                 (k) => typeof k === "string" && k.startsWith("/api/v1/quotation/quotations"),
@@ -267,6 +316,11 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
                             }}
                             noOptionsText="Không có dữ liệu"
                             sx={{ flex: 1, minWidth: 200 }}
+                            renderOption={(props, option) => (
+                                <li {...props} key={option.id}>
+                                    {option.name}
+                                </li>
+                            )}
                         />
                         <Stack direction="row">
                             <Tooltip title="Tạo khách hàng mới">
@@ -413,6 +467,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
                 }}
             />
             <QuotationItemsTable
+                quotationProductDetail={quotationProductDetail}
                 idQuotation={selectedQuotation?.id}
                 methods={methods}
                 fields={fields}
@@ -502,6 +557,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose }: Quotatio
                 openChild={isCreatingCustomer}
                 setOpenChild={setIsCreatingCustomer}
                 quotationMethods={methods}
+                setCustomerKeyword={setCustomerKeyword}
             />
         </Dialog>
     );

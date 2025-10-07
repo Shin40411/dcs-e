@@ -10,13 +10,10 @@ import {
     StyleSheet,
 } from '@react-pdf/renderer';
 
-
-
 import { IQuotationData, IQuotationItem } from 'src/types/quotation';
 import { fCurrency, fCurrencyNoUnit, fRenderTextNumber } from 'src/utils/format-number';
 import { fDate } from 'src/utils/format-time-vi';
 import { capitalizeFirstLetter } from 'src/utils/format-string';
-import { CONFIG } from 'src/global-config';
 import { Box, CircularProgress, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
@@ -36,6 +33,14 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }:
         const timer = setTimeout(() => setLoading(false), 1500);
         return () => clearTimeout(timer);
     }, []);
+
+    const memoizedDoc = useMemo(() => (
+        <QuotationPdfDocument
+            invoice={invoice}
+            currentStatus={currentStatus}
+            currentQuotation={currentQuotation}
+        />
+    ), [invoice, currentStatus, currentQuotation]);
 
     return (
         <>
@@ -59,11 +64,7 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }:
                 </Box>
             )}
             <PDFViewer width="100%" height="100%" style={{ border: "none" }}>
-                <QuotationPdfDocument
-                    invoice={invoice}
-                    currentStatus={currentStatus}
-                    currentQuotation={currentQuotation}
-                />
+                {memoizedDoc}
             </PDFViewer>
         </>
     );
@@ -105,7 +106,6 @@ const useStyles = () =>
                 // layout
                 page: {
                     fontSize: 9,
-                    lineHeight: 1.6,
                     fontFamily: 'Montserrat-Semi',
                     backgroundColor: '#FFFFFF',
                     paddingTop: HEADER_HEIGHT,
@@ -164,11 +164,13 @@ const useStyles = () =>
                 text1: { fontSize: 10 },
                 text2: { fontSize: 9 },
                 text4: { fontSize: 10 },
-                text1Bold: { fontFamily: 'Montserrat-bold', fontSize: 10, fontWeight: '700' },
+                textBoldHeader: { fontFamily: 'Montserrat-bold', fontSize: 12, fontWeight: 700 },
+                text1Bold: { fontFamily: 'Montserrat-bold', fontSize: 10, fontWeight: 700 },
                 text2Bold: { fontFamily: 'Montserrat-bold', fontSize: 9, fontWeight: 700 },
                 text3Bold: { fontFamily: 'Montserrat-bold', fontSize: 10, fontWeight: 700 },
                 text2Semi: { fontFamily: 'Montserrat-Semi', fontSize: 9, fontWeight: 700 },
                 text3Semi: { fontFamily: 'Montserrat-Semi', fontSize: 10, fontWeight: 700 },
+                text4Semi: { fontFamily: 'Montserrat-Semi', fontSize: 9, fontWeight: 500 },
                 textItalic: { fontFamily: 'Montserrat-italic', fontSize: 10, fontWeight: 700 },
                 textUnderline: { textDecoration: 'underline' },
                 textMontserrat: {
@@ -183,7 +185,8 @@ const useStyles = () =>
                     borderBottomWidth: 1,
                     borderStyle: 'solid',
                     borderColor: '#e9ecef',
-                    alignItems: 'flex-start'
+                    alignItems: 'flex-start',
+                    lineHeight: 1
                 },
                 rowHeader: {
                     padding: '10px 0',
@@ -233,6 +236,8 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
         seller,
         status,
         totalAmount,
+        department,
+        employeeType
     } = invoice ?? {};
 
     const styles = useStyles();
@@ -240,9 +245,22 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
     const roundedTotal = Math.round(totalAmount ?? 0);
 
     const totalPrice = currentQuotation?.items?.reduce(
-        (sum, q) => sum + q.products.reduce((acc, p) => acc + p.price, 0),
+        (sum, q) => sum + q.products.reduce((acc, p) => acc + p.price * p.quantity, 0),
         0
     ) ?? 0;
+
+    const totalVat = currentQuotation?.items?.reduce((sum, q) => {
+        return (
+            sum +
+            q.products.reduce((subSum, p) => {
+                const lineTotal = p.price * p.quantity;
+                return subSum + (lineTotal * p.vat) / 100;
+            }, 0)
+        );
+    }, 0) ?? 0;
+
+    const discountAmount = (totalPrice: number, totalVat: number, discountPercent: number) =>
+        Math.round((totalPrice + totalVat) * (discountPercent / 100));
 
     const renderHeader = () => (
         <View style={[styles.header, styles.containerStart, styles.alignItemsStart, styles.ml10, styles.mb8]} fixed>
@@ -260,15 +278,20 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                     opacity: 1,
                 }}
             />
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source="/logo/DCS9.png" style={{ width: 100, height: 60 }} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: '50%' }}>
+                    <Image source="/logo/DCS9.png" style={{ width: 100, height: 60 }} />
+                </View>
 
-                <View style={{ alignItems: 'flex-start', flexDirection: 'column', marginLeft: 15 }}>
-                    <Text style={[styles.text1Bold, styles.mb4]}>CÔNG TY TNHH GIẢI PHÁP DCS</Text>
+                <View style={{ width: '50%', alignItems: 'flex-start', gap: 5, flexDirection: 'column' }}>
+                    <Text style={[styles.textBoldHeader]}>CÔNG TY TNHH GIẢI PHÁP DCS</Text>
                     <Text style={[styles.text2]}>Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Text>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
                         <Text style={[styles.text2]}>0932090207</Text>
-                        <Text style={[styles.text2, styles.textUnderline]}>lienhe@dcse.vn</Text>
+                        {/* <Text style={[styles.text2, styles.textUnderline]}>lienhe@dcse.vn</Text> */}
+                        <Text style={[styles.textMontserrat, styles.mb4]}>
+                            {`W.  http://dcse.vn   |   E.  lienhe@dcse.vn`}
+                        </Text>
                     </View>
                 </View>
             </View>
@@ -279,7 +302,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
         <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
             <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
                 <Text style={[styles.text4]}>TP. HCM, {fDate(createdDate)}</Text>
-                <Text style={[styles.text2, styles.text1Bold]}>Mã: {quotationNo}</Text>
+                <Text style={[styles.text2, styles.text1Bold]}>Số: {quotationNo}</Text>
             </View>
         </View>
     );
@@ -299,15 +322,18 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
         </View>
     );
 
-    const renderBillingInfo = () => (
-        <View style={[styles.containerColumn, styles.mb8, { padding: '0 40px' }]}>
-            <Text style={[styles.text1Bold, styles.mb4]}>Kính gửi:{'   '}{companyName ? companyName : customerName}</Text>
-            <Text style={{ fontSize: 12, fontFamily: 'Montserrat' }}>
-                {'\u00A0\u00A0\u00A0\u00A0'}Xin chân thành cảm ơn sự quan tâm của Quý khách.
-                Chúng tôi xin gửi đến Quý khách bảng báo giá sản phẩm theo yêu cầu như sau:
-            </Text>
-        </View>
-    );
+    const renderBillingInfo = () => {
+        const intro = companyName ? 'Kính gửi:' : 'Kính gửi ông/bà:';
+        return (
+            <View style={[styles.containerColumn, styles.mb8, { padding: '0 40px' }]}>
+                <Text style={[styles.text1Bold, styles.mb4]}>{intro}{'   '}{companyName ? companyName : customerName}</Text>
+                <Text style={{ fontSize: 12, fontFamily: 'Montserrat' }}>
+                    {'\u00A0\u00A0\u00A0\u00A0'}Xin chân thành cảm ơn sự quan tâm của Quý khách.
+                    Chúng tôi xin gửi đến Quý khách bảng báo giá sản phẩm theo yêu cầu như sau:
+                </Text>
+            </View>
+        );
+    };
 
     const renderTable = () => (
         <View style={styles.table}>
@@ -345,7 +371,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                             </View>
                             <View style={styles.cell_2}>
                                 <Text style={[styles.text2Semi]}>{p.productName}</Text>
-                                <Text style={[styles.text2]}>{p.vat}% VAT</Text>
+                                <Text style={[styles.textMontserrat]}>{p.vat}% VAT</Text>
                             </View>
                             <View style={[styles.cell_3, { textAlign: 'center' }]}>
                                 <Text style={[styles.text2]}>{p.unit}</Text>
@@ -356,17 +382,24 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                             <View style={[styles.cell_4, { textAlign: 'center' }]}>
                                 <Text style={[styles.text2]}>{fCurrencyNoUnit(p.price)}</Text>
                             </View>
-                            <View style={[styles.cell_5, { textAlign: 'right' }]}>
+                            <View style={[styles.cell_5, {
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-end',
+                                textAlign: 'right'
+                            }]}>
                                 <Text style={[styles.text2]}>{fCurrencyNoUnit(p.price * p.quantity)}</Text>
+                                <Text style={[styles.textMontserrat]}>{fCurrencyNoUnit(((p.price * p.quantity) * p.vat) / 100)}</Text>
                             </View>
                         </View>
                     ))
                 )}
 
                 {[
-                    { name: 'Tổng:', value: fCurrency(totalPrice) },
-                    { name: 'Khuyến mãi:', value: (discount ? `- ${discount}` : 0) + '%' },
-                    { name: 'Tổng cộng:', value: fCurrency(totalAmount), styles: styles.h5 },
+                    { name: 'Tổng:', value: fCurrencyNoUnit(totalPrice) },
+                    { name: 'VAT:', value: fCurrencyNoUnit(totalVat), styles: styles.textMontserrat },
+                    { name: 'Khuyến mãi:', value: (discount ? fCurrencyNoUnit(discountAmount(totalPrice, totalVat, discount)) : 0) },
+                    { name: 'Tổng cộng:', value: fCurrencyNoUnit(totalAmount), styles: styles.h5, isTotal: true },
                 ].map((item, index) => (
                     <View key={item.name}
                         style={[
@@ -379,21 +412,24 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                         <View style={styles.cell_3} />
 
                         <View style={[styles.cell_4, { flexDirection: 'column' }]}>
-                            {item.styles && (
+                            {item.isTotal && (
                                 <View
                                     style={{
                                         height: 1,
                                         backgroundColor: 'rgba(0, 137, 0, 1)',
                                         width: 100,
                                         alignSelf: 'flex-start',
-                                        marginBottom: 4,
+                                        marginBottom: 2,
                                     }}
                                 />
                             )}
                             <Text
                                 style={[
                                     item.styles ?? styles.text2,
-                                    { textTransform: item.styles ? 'uppercase' : 'none', fontFamily: 'Montserrat-bold' },
+                                    item.isTotal ? {
+                                        textTransform: item.styles ?
+                                            'uppercase' : 'none', fontFamily: 'Montserrat-bold'
+                                    } : {}
                                 ]}
                             >
                                 {item.name}
@@ -401,14 +437,14 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                         </View>
 
                         <View style={[styles.cell_5, { flexDirection: 'column', textAlign: 'right' }]}>
-                            {item.styles && (
+                            {item.isTotal && (
                                 <View
                                     style={{
                                         height: 1,
                                         backgroundColor: 'rgba(0, 137, 0, 1)',
                                         width: 50,
                                         alignSelf: 'flex-end',
-                                        marginBottom: 4,
+                                        marginBottom: 2,
                                     }}
                                 />
                             )}
@@ -449,7 +485,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                 },
             ]}
         >
-            <View style={{ alignItems: 'flex-start' }}>
+            <View style={{ alignItems: 'flex-start', lineHeight: 1 }}>
                 <Text style={styles.text1Bold}>Ghi chú</Text>
                 <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginLeft: 20, marginRight: 20 }}>
                     {note ? (
@@ -483,9 +519,11 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                 </View>
             </View>
 
-            <View style={{ alignItems: 'center' }}>
+            <View style={{ alignItems: 'center', lineHeight: 1 }}>
                 <Text style={styles.text1Bold}>Người lập</Text>
-                <Text style={styles.text1Bold}>{`CHỨC VỤ/ PHÒNG BAN`}</Text>
+                {(employeeType && department) &&
+                    <Text style={[styles.text1Bold, { textTransform: 'uppercase' }]}>{`${employeeType ?? ''}/ ${department ?? ''}`}</Text>
+                }
 
                 <View style={{ height: 60 }} />
 
@@ -495,29 +533,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
     );
 
     const renderFooter = () => (
-        <View style={[styles.container, styles.footer]} fixed>
-            <Image
-                src="/assets/illustrations/bgpdf.png"
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: 1,
-                }}
-            />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ width: '65%' }}>
-                </View>
-                <View style={{ flexDirection: 'column', width: '35%', alignItems: 'flex-end' }}>
-                    <Text style={[styles.textMontserrat, styles.mb4]}>
-                        {`W.  http://dcse.vn   |   E.  lienhe@dcse.vn`}
-                    </Text>
-
+        {/*
                     <View
                         style={{
                             flexDirection: 'row',
@@ -536,13 +552,13 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                         />
                         <Text style={styles.text1}>0932 090 207</Text>
                     </View>
-                </View>
-            </View>
-        </View>
+                    */}
     );
 
     return (
-        <Document>
+        <Document
+            title={`Báo giá số ${quotationNo}`}
+        >
             <Page size="A4" style={styles.page}>
                 {renderHeader()}
                 <View
@@ -555,7 +571,37 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                     {renderByTextTotal()}
                     {renderNotes()}
                 </View>
-                {renderFooter()}
+                <View style={[styles.container, styles.footer]} fixed>
+                    <Image
+                        src="/assets/illustrations/bgpdf.png"
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            opacity: 1,
+                        }}
+                    />
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <View style={{ width: '65%' }}>
+                        </View>
+                        <View style={{ flexDirection: 'column', width: '35%', alignItems: 'flex-end' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{ width: 1, height: '100%', backgroundColor: '#ddd', marginRight: 4 }} />
+                                <Text
+                                    style={styles.textMontserrat}
+                                    render={({ pageNumber, totalPages }) =>
+                                        `Trang ${pageNumber}/${totalPages}`
+                                    }
+                                />
+                            </View>
+                        </View>
+                    </View>
+                </View>
             </Page>
         </Document>
     );

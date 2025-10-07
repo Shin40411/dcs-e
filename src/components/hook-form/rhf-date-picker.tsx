@@ -27,15 +27,19 @@ export function RHFDatePicker({ name, slotProps, ...other }: RHFDatePickerProps)
       render={({ field, fieldState: { error } }) => (
         <DatePicker
           {...field}
-          value={dayjs(field.value)}
-          onChange={(newValue) => field.onChange(dayjs(newValue).format())}
+          value={field.value ? dayjs(field.value) : null}
+          onChange={(newValue) => {
+            field.onChange(newValue ? dayjs(newValue).format("YYYY-MM-DD") : null);
+          }}
           format={formatPatterns.split.date}
           slotProps={{
             ...slotProps,
             textField: {
               fullWidth: true,
               error: !!error,
-              helperText: error?.message ?? (slotProps?.textField as TextFieldProps)?.helperText,
+              helperText:
+                error?.message ??
+                (slotProps?.textField as TextFieldProps)?.helperText,
               ...slotProps?.textField,
             },
           }}
@@ -45,6 +49,7 @@ export function RHFDatePicker({ name, slotProps, ...other }: RHFDatePickerProps)
     />
   );
 }
+
 
 // ----------------------------------------------------------------------
 

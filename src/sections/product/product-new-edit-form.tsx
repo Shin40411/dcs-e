@@ -287,6 +287,7 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
                 </Stack>
               }
               sx={{ width: 110 }}
+              required
             />
             <Field.NumberInput
               name="warranty"
@@ -297,6 +298,7 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
                 </Stack>
               }
               sx={{ width: 110 }}
+              required
             />
           </Stack>
           <Stack spacing={1.5}>
@@ -306,6 +308,8 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
                 <MenuItem key={'Hopdong'} value={'Hopdong'} sx={{ textTransform: 'capitalize' }}>Hợp đồng</MenuItem>
                 <MenuItem key={'HoaDon'} value={'HoaDon'} sx={{ textTransform: 'capitalize' }}>Hóa đơn</MenuItem>
                 <MenuItem key={'XuatKho'} value={'XuatKho'} sx={{ textTransform: 'capitalize' }}>Xuất kho</MenuItem>
+                <MenuItem key={'SanPham'} value={'SanPham'} sx={{ textTransform: 'capitalize' }}>Sản phẩm</MenuItem>
+                <MenuItem key={'Receipt'} value={'Receipt'} sx={{ textTransform: 'capitalize' }}>Thu chi</MenuItem>
               </Field.Select>
             )}
             <Field.Upload

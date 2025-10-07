@@ -30,6 +30,8 @@ export type IQuotationItem = {
     paid: number;
     remaining: number;
     isDeleted: boolean;
+    employeeType: string;
+    department: string;
 };
 
 export type IQuotationProduct = {
@@ -88,6 +90,7 @@ export type IQuotationDetailDto = {
     quantity: number;
     row: number;
     Unit: string;
+    Price: number;
 }
 
 export type IQuotationDto = {
@@ -115,4 +118,12 @@ export type IQuotationDao = {
 export type IQuotationProductToDelete = {
     quotationID: string;
     productID: number[];
+}
+
+export type IProductQuotationEdit = {
+    quotationId: number;
+    productId: number;
+    quantity: number;
+    Price: number;
+    Unit: string;
 }

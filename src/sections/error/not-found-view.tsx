@@ -23,24 +23,19 @@ export function NotFoundView() {
       <Container component={MotionContainer}>
         <m.div variants={varBounce('in')}>
           <Typography variant="h3" sx={{ mb: 2 }}>
-            Sorry, page not found!
+            Xin lỗi, trang không tìm thấy!
           </Typography>
         </m.div>
 
         <m.div variants={varBounce('in')}>
           <Typography sx={{ color: 'text.secondary' }}>
-            Sorry, we couldn’t find the page you’re looking for. Perhaps you’ve mistyped the URL? Be
-            sure to check your spelling.
+            Xin lỗi, trang không tìm thấy, vui lòng liên hệ đội ngũ phát triển.
           </Typography>
         </m.div>
 
         <m.div variants={varBounce('in')}>
           <PageNotFoundIllustration sx={{ my: { xs: 5, sm: 10 } }} />
         </m.div>
-
-        <Button component={RouterLink} href="/" size="large" variant="contained">
-          Go to home
-        </Button>
       </Container>
     </SimpleLayout>
   );

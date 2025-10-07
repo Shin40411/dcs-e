@@ -8,6 +8,8 @@ import { ContractCardList } from "../contract-card-list";
 import { IDateValue } from "src/types/common";
 import { CONFIG } from "src/global-config";
 import { Iconify } from "src/components/iconify";
+import { ContractForm } from "../contract-form";
+import { ContractDetails } from "../contract-details";
 
 export function ContractMainView() {
     const [openForm, setOpenForm] = useState(false);
@@ -28,6 +30,10 @@ export function ContractMainView() {
         setOpenForm(true);
     }
 
+    const handleCopying = (obj: IContractItem) => {
+        setSelectedContract(null);
+        setOpenForm(true);
+    }
 
     return (
         <>
@@ -44,7 +50,7 @@ export function ContractMainView() {
                     action={
                         <Button variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
-                            onClick={() => setOpenForm(true)}
+                            onClick={() => { setOpenForm(true); setSelectedContract(null) }}
                         >
                             Tạo hợp đồng
                         </Button>
@@ -61,6 +67,20 @@ export function ContractMainView() {
                     setFromDate={setFromDate}
                     setToDate={setToDate}
                 />
+
+                <ContractForm
+                    open={openForm}
+                    onClose={() => { setOpenForm(false); setSelectedContract(null) }}
+                    selectedContract={selectedContract}
+                />
+                {selectedContract && (
+                    <ContractDetails
+                        selectedContract={selectedContract}
+                        openForm={handleCopying}
+                        openDetail={openDetail}
+                        onClose={() => setOpenDetail(false)}
+                    />
+                )}
             </DashboardContent>
         </>
     );

@@ -21,6 +21,8 @@ import { AppAreaInstalled } from '../app-area-installed';
 import { AppWidgetSummary } from '../app-widget-summary';
 import { AppCurrentDownload } from '../app-current-download';
 import { AppTopInstalledCountries } from '../app-top-installed-countries';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +33,14 @@ export function OverviewAppView() {
 
   return (
     <DashboardContent maxWidth="xl">
+      <CustomBreadcrumbs
+        heading="Thống kê"
+        links={[
+          { name: 'Tổng quan', href: paths.dashboard.root },
+          { name: 'Thống kê' },
+        ]}
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
       <Grid container spacing={3}>
         {/* <Grid size={{ xs: 12, md: 8 }}>
           <AppWelcome
@@ -47,7 +57,6 @@ export function OverviewAppView() {
         {/* <Grid size={{ xs: 12, md: 4 }}>
           <AppFeatured list={_appFeatured} />
         </Grid> */}
-
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
             title="Total active users"

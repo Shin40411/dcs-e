@@ -16,6 +16,7 @@ import {
 
 import type { MoreLinksProps } from './more-links';
 import type { BreadcrumbsLinkProps } from './breadcrumb-link';
+import { Iconify } from '../iconify';
 
 // ----------------------------------------------------------------------
 
@@ -65,7 +66,7 @@ export function CustomBreadcrumbs({
 
   const renderLinks = () =>
     slots?.breadcrumbs ?? (
-      <Breadcrumbs separator={<BreadcrumbsSeparator />} {...slotProps?.breadcrumbs}>
+      <Breadcrumbs separator={<Iconify icon="tdesign:component-breadcrumb-filled" />} {...slotProps?.breadcrumbs}>
         {links.map((link, index) => (
           <BreadcrumbsLink
             key={link.name ?? index}

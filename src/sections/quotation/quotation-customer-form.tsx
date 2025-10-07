@@ -1,10 +1,10 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Stack } from "@mui/material";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { Field, Form } from "src/components/hook-form";
 import { CustomerFormValues, customerSchema } from "./schema/new-customer-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ICustomerDto } from "src/types/customer";
+import { ICustomerDto, ICustomerItem } from "src/types/customer";
 import { createOrUpdateCustomer } from "src/actions/customer";
 import { mutate } from "swr";
 import { endpoints } from "src/lib/axios";
@@ -14,15 +14,17 @@ type props = {
     openChild: boolean;
     setOpenChild: (value: any) => void;
     quotationMethods: UseFormReturn<QuotationFormValues>;
+    setCustomerKeyword: (c: string) => void;
 }
 
-export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethods }: props) {
+export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethods, setCustomerKeyword }: props) {
     const defaultValues: CustomerFormValues =
     {
+        customerType: "",
         name: "",
+        phone: "",
+        taxCode: "",
         companyName: "",
-        email: "",
-        phone: ""
     };
 
     const methods = useForm<CustomerFormValues>({
@@ -35,16 +37,19 @@ export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethod
         reset,
         handleSubmit,
         formState: { isSubmitting },
+        watch
     } = methods;
+
+    const customerType = watch("customerType");
 
     const onSubmit = handleSubmit(async (data: CustomerFormValues) => {
         try {
             const payloadData: ICustomerDto = {
                 phone: data.phone.replace(/\s+/g, ""),
                 name: data.name,
-                taxCode: '',
+                taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
-                email: data.email,
+                email: '',
                 bankAccount: '',
                 bankName: '',
                 address: '',
@@ -53,11 +58,17 @@ export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethod
                 balance: 0
             };
 
-            const { data: idCreated } = await createOrUpdateCustomer(undefined, payloadData);
+            const { data: dataCreated } = await createOrUpdateCustomer(undefined, payloadData);
             reset();
             setOpenChild(false);
-            mutate(endpoints.customer.list(`?pageNumber=1&pageSize=999&Status=1`));
-            quotationMethods.setValue('customer', Number(idCreated) ?? 0, { shouldValidate: true });
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/customers/customers"),
+                undefined,
+                { revalidate: true }
+            );
+
+            setCustomerKeyword(dataCreated.name);
+            quotationMethods.setValue('customer', Number(dataCreated.id) ?? 0, { shouldValidate: true });
             toast.success('Tạo mới dữ liệu khách hàng thành công!');
 
         } catch (error: any) {
@@ -71,20 +82,28 @@ export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethod
     });
 
     return (
-        <Dialog open={openChild} onClose={() => setOpenChild(false)} fullWidth maxWidth="sm">
+        <Dialog open={openChild} onClose={() => { setOpenChild(false); methods.reset(); }} fullWidth maxWidth="sm">
             <Form methods={methods} onSubmit={onSubmit}>
-                <DialogTitle>Tạo khách hàng mới</DialogTitle>
-                <DialogContent>
-                    <Box mt={1}>
-                        <Stack direction="row" gap={2}>
-                            <Field.Text name="name" label="Tên khách hàng" />
-                            <Field.Text name="companyName" label="Tên công ty" />
+                <DialogTitle sx={{ p: 2 }}>Tạo khách hàng mới</DialogTitle>
+                <DialogContent sx={{ py: '10px !important' }}>
+                    <Field.Select sx={{ mb: 2 }} name="customerType" label="Loại khách hàng" required>
+                        <MenuItem key={1} value="KHCN">
+                            Khách hàng cá nhân
+                        </MenuItem>
+                        <MenuItem key={2} value="KHDN">
+                            Khách hàng doanh nghiệp
+                        </MenuItem>
+                    </Field.Select>
+                    {customerType === "KHDN" && (
+                        <Stack direction="row" gap={2} mb={2}>
+                            <Field.TaxCode name="taxCode" label="Mã số thuế" required />
+                            <Field.Text name="companyName" label="Tên công ty" required />
                         </Stack>
-                        <Stack direction="row" gap={2} mt={2}>
-                            <Field.Text name="email" label="Email khách hàng" />
-                            <Field.PhoneField name="phone" label="Số điện thoại" />
-                        </Stack>
-                    </Box>
+                    )}
+                    <Stack direction="row" gap={2}>
+                        <Field.Text name="name" label="Tên khách hàng" required />
+                        <Field.PhoneField name="phone" label="Số điện thoại" required />
+                    </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Box sx={{ width: '100%' }}>
@@ -92,7 +111,7 @@ export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethod
                             <Button
                                 variant="outlined"
                                 color="inherit"
-                                onClick={() => setOpenChild(false)}
+                                onClick={() => { setOpenChild(false); methods.reset(); }}
                                 fullWidth
                             >
                                 Hủy bỏ

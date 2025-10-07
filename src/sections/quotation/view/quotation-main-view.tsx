@@ -15,6 +15,7 @@ export function QuotationMainView() {
     const [openForm, setOpenForm] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<IQuotationItem | null>(null);
+    const [copiedQuotation, setCopiedQuotation] = useState<IQuotationItem | null>(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [fromDate, setFromDate] = useState<IDateValue>();
@@ -27,6 +28,13 @@ export function QuotationMainView() {
 
     const handleEditing = (quotation: IQuotationItem) => {
         setSelectedQuotation(quotation);
+        setCopiedQuotation(null)
+        setOpenForm(true);
+    }
+
+    const handleCopying = (obj: IQuotationItem) => {
+        setCopiedQuotation(obj);
+        setSelectedQuotation(null);
         setOpenForm(true);
     }
 
@@ -46,6 +54,7 @@ export function QuotationMainView() {
                             startIcon={<Iconify icon="mingcute:add-line" />}
                             onClick={() => {
                                 setSelectedQuotation(null);
+                                setCopiedQuotation(null)
                                 setOpenForm(true)
                             }}
                         >
@@ -67,12 +76,18 @@ export function QuotationMainView() {
                 <QuotationForm
                     selectedQuotation={selectedQuotation}
                     openForm={openForm}
-                    onClose={() => setOpenForm(false)}
+                    onClose={() => {
+                        setOpenForm(false);
+                        setSelectedQuotation(null);
+                        setCopiedQuotation(null);
+                    }}
+                    CopiedQuotation={copiedQuotation}
                 />
                 {selectedQuotation && (
                     <QuotationDetails
                         selectedQuotation={selectedQuotation}
                         openDetail={openDetail}
+                        openForm={handleCopying}
                         onClose={() => setOpenDetail(false)}
                     />
                 )}

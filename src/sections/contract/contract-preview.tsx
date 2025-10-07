@@ -1,8 +1,7 @@
-import { Box, Typography, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { Box, Typography, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, List, ListItem, ListItemText } from "@mui/material";
 import { useRef } from "react";
+import { Logo } from "src/components/logo";
 import { IContractItem } from "src/types/contract";
-import { fCurrency } from "src/utils/format-number";
-import { fDateTime } from "src/utils/format-time-vi";
 import { PAPER_W, useScaleToFit } from "src/utils/scale-pdf";
 
 export const ContractPreview = ({ contract }: { contract: IContractItem }) => {
@@ -12,101 +11,120 @@ export const ContractPreview = ({ contract }: { contract: IContractItem }) => {
 
     const pageOne = () => (
         <>
-            <Box textAlign="center" mb={2}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                    CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
-                </Typography>
-                <Typography variant="subtitle2">Độc lập – Tự do – Hạnh phúc</Typography>
-            </Box>
+            <Stack flexDirection="column" mb={2}>
+                <Box textAlign="center">
+                    <Typography variant="subtitle1" fontWeight="bold">
+                        CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+                    </Typography>
+                    <Typography variant="subtitle2">Độc lập – Tự do – Hạnh phúc</Typography>
+                </Box>
+                <Box
+                    sx={{
+                        height: 1.3,
+                        width: 180,
+                        backgroundColor: 'rgba(0, 0, 0, 1)',
+                        alignSelf: 'center',
+                    }}
+                />
+            </Stack>
 
-            <Box textAlign="center" mb={3}>
+            <Box textAlign="center" mb={2}>
                 <Typography variant="h6" fontWeight="bold" textTransform="uppercase">
                     HỢP ĐỒNG MUA BÁN
                 </Typography>
                 <Typography>Số: {contract.contractNo}</Typography>
             </Box>
 
-            {/* Bên A */}
-            <Box mb={2}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                    BÊN A (BÊN BÁN):
-                </Typography>
-                <Typography>{contract.companyName}</Typography>
-                <Typography>Địa chỉ: {contract.customerAddress}</Typography>
-                <Typography>Điện thoại: {contract.customerPhone}</Typography>
-                <Typography>Email: {contract.customerEmail}</Typography>
-                <Typography>Đại diện: {contract.createdBy} – Chức vụ: Giám Đốc</Typography>
-            </Box>
+            <Stack px={6}>
+                <Stack width="100%" direction="row" justifyContent="center">
+                    <List>
+                        <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
+                            <Typography>
+                                - Căn cứ Bộ Luật Dân sự số 91/2015/QH13 ngày 24 tháng 11 năm 2015 của Nước Cộng hòa xã hội chủ nghĩa Việt Nam;
+                            </Typography>
+                        </ListItem>
+                        <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
+                            <Typography>
+                                - Căn cứ Luật Thương mại số 36/2005/QH11 ngày 14/6/2005 của Quốc Hội Nước Cộng hòa xã hội chủ nghĩa Việt Nam;
+                            </Typography>
+                        </ListItem>
+                        <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
+                            <Typography>
+                                - Căn cứ Luật Doanh Nghiệp Số 68/2014/QH13 ngày 26/11/2014 của Quốc Hội Nước Cộng hòa xã hội chủ nghĩa Việt Nam;
+                            </Typography>
+                        </ListItem>
+                        <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
+                            <Typography>
+                                - Căn cứ vào nhu cầu và khả năng của hai Bên.
+                            </Typography>
+                        </ListItem>
+                    </List>
+                </Stack>
 
-            {/* Bên B */}
-            <Box mb={2}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                    BÊN B (BÊN MUA):
-                </Typography>
-                <Typography>{contract.customerName}</Typography>
-                <Typography>Địa chỉ: {contract.deliveryAddress}</Typography>
-                <Typography>Điện thoại: {contract.customerPhone}</Typography>
-                <Typography>Email: {contract.customerEmail}</Typography>
-            </Box>
+                {/* Bên A */}
+                <Box mb={2}>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                        BÊN A (BÊN BÁN):
+                    </Typography>
+                    <List sx={{ pl: 2 }}>
+                        {contract.companyName && (
+                            <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                                <Typography>{contract.companyName}</Typography>
+                            </ListItem>
+                        )}
 
-            <Divider sx={{ my: 2 }} />
+                        {contract.customerAddress && (
+                            <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                                <Typography>Địa chỉ: {contract.customerAddress}</Typography>
+                            </ListItem>
+                        )}
 
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                ĐIỀU I. PHẠM VI CUNG CẤP
-            </Typography>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>STT</TableCell>
-                            <TableCell>Tên vật tư</TableCell>
-                            <TableCell>Đơn vị</TableCell>
-                            <TableCell>Đơn giá</TableCell>
-                            <TableCell>SL</TableCell>
-                            <TableCell>VAT</TableCell>
-                            <TableCell>Thành tiền</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>1</TableCell>
-                            <TableCell>Camera XYZ</TableCell>
-                            <TableCell>Cái</TableCell>
-                            <TableCell>8,000,000</TableCell>
-                            <TableCell>1</TableCell>
-                            <TableCell>10%</TableCell>
-                            <TableCell>8,800,000</TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        {contract.customerPhone && (
+                            <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                                <Typography>Điện thoại: {contract.customerPhone}</Typography>
+                            </ListItem>
+                        )}
 
-            <Box mt={3}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                    ĐIỀU II. THỜI GIAN GIAO NHẬN HÀNG
-                </Typography>
-                <Typography>
-                    Địa điểm giao hàng: {contract.deliveryAddress}
-                </Typography>
-                <Typography>
-                    Thời gian: {fDateTime(contract.deliveryTime)}
-                </Typography>
-            </Box>
+                        {contract.customerEmail && (
+                            <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                                <Typography>Email: {contract.customerEmail}</Typography>
+                            </ListItem>
+                        )}
 
-            <Box mt={2}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                    ĐIỀU III. GIÁ TRỊ HỢP ĐỒNG
-                </Typography>
-                <Typography>
-                    Tổng giá trị hợp đồng: {fCurrency(contract.total)}
-                </Typography>
-                <Typography>
-                    Đặt cọc lần 1: {fCurrency(contract.downPayment)}
-                </Typography>
-                <Typography>
-                    Thanh toán tiếp theo: {fCurrency(contract.nextPayment)}
-                </Typography>
-            </Box>
+                        {contract.createdBy && (
+                            <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                                <Typography>
+                                    Đại diện: {contract.createdBy} – Chức vụ: Giám Đốc
+                                </Typography>
+                            </ListItem>
+                        )}
+                    </List>
+                </Box>
+
+                {/* Bên B */}
+                <Box mb={2}>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                        BÊN B (BÊN MUA):
+                    </Typography>
+                    <List sx={{ pl: 2 }}>
+                        <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                            <Typography>{contract.customerName}</Typography>
+                        </ListItem>
+                        <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                            <Typography>Địa chỉ: {contract.deliveryAddress}</Typography>
+                        </ListItem>
+                        <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                            <Typography>Điện thoại: {contract.customerPhone}</Typography>
+                        </ListItem>
+                        <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                            <Typography>Email: {contract.customerEmail}</Typography>
+                        </ListItem>
+                        <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
+                            <Typography>Đại diện: {contract.createdBy} – Chức vụ: Giám Đốc</Typography>
+                        </ListItem>
+                    </List>
+                </Box>
+            </Stack>
         </>
     );
 
@@ -126,16 +144,54 @@ export const ContractPreview = ({ contract }: { contract: IContractItem }) => {
                     transformOrigin: "top left",
                     bgcolor: "rgba(64,87,109,.07)",
                     overflow: "hidden",
-                    p: 5
+                    py: 5,
+                    px: 15,
                 }}
             >
-                <Box sx={{ p: 2, bgcolor: 'common.white' }}>
+                <Box sx={{
+                    position: 'relative',
+                    p: 2,
+                    bgcolor: 'common.white',
+                    boxShadow: '0px 0px 0px 1px rgba(64,87,109,.04),0px 2px 4px -1px rgba(64,87,109,.3),inset 0 0 0 1px rgba(0,0,0,.1)',
+                    '&::before, &::after': {
+                        content: '""',
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        bgcolor: 'grey.100',
+                        boxShadow: '0px 2px 4px rgba(64,87,109,.15)',
+                        zIndex: -1,
+                    },
+                    '&::after': {
+                        top: 16,
+                        left: 16,
+                    },
+                }}>
+                    <Box
+                        sx={{
+                            '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 30,
+                                left: 30,
+                                width: '100%',
+                                height: '100%',
+                                bgcolor: 'grey.200',
+                                boxShadow: '0px 2px 4px rgba(64,87,109,.12)',
+                                zIndex: -2,
+                            },
+                        }}
+                    />
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'flex-start'
+                    }}>
+                        <Logo sx={{ height: '35px !important' }} width={70} />
+                    </Box>
                     {pageOne()}
 
-                    <Box mt={4} display="flex" justifyContent="space-between">
-                        <Typography textAlign="center">ĐẠI DIỆN BÊN A</Typography>
-                        <Typography textAlign="center">ĐẠI DIỆN BÊN B</Typography>
-                    </Box>
+                    <Box mt={4} display="flex" justifyContent="space-between" />
                 </Box>
             </Box>
         </Box>

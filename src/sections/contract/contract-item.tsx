@@ -42,32 +42,15 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
             }}
         >
             <MenuList>
-                {/* <MenuItem
+                <MenuItem
                     onClick={() => {
                         onViewDetails();
                         menuActions.onClose();
                     }}
                 >
                     <Iconify icon="solar:eye-bold" />
-                    Xem báo giá
-                </MenuItem> */}
-
-                {/* <MenuItem
-                    component={PDFDownloadLink}
-                    document={
-                        <QuotationPdfDocument
-                            invoice={quotate}
-                            currentStatus={statusMap[quotate.status]}
-                            currentQuotation={currentQuotation}
-                        />}
-                    fileName={quotate?.quotationNo}
-                    onClick={menuActions.onClose}
-                    style={{ textDecoration: 'none' }}
-                >
-                    <Iconify icon="eva:cloud-download-fill" />
-                    Tải xuống
-                </MenuItem> */}
-
+                    Xem hợp đồng
+                </MenuItem>
 
                 <MenuItem onClick={() => {
                     onEditing();
@@ -78,7 +61,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                     Chỉnh sửa
                 </MenuItem>
 
-                <MenuItem
+                {/* <MenuItem
                     onClick={() => {
                         menuActions.onClose();
                         openDeleteDialog.onTrue();
@@ -88,7 +71,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                 >
                     <Iconify icon="solar:trash-bin-trash-bold" />
                     Xóa
-                </MenuItem>
+                </MenuItem> */}
             </MenuList>
         </CustomPopover>
     );
@@ -109,15 +92,15 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                     bgcolor: "#fdfdfd",
                     boxShadow: 3,
                     transition: "0.2s",
-                    maxHeight: { lg: 250, md: 250, sm: 170 },
+                    maxHeight: { lg: 240, md: 250, sm: 170 },
                     "&:hover": { boxShadow: 6, transform: "scale(1.02)" },
                     ...sx,
                 }}
                 {...other}
             >
                 <ContractPreview contract={contract} />
-                <Stack direction={"column"} alignContent={"center"} py={1} spacing={1}>
-                    <Stack direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
+                <Stack direction={{ md: 'row', sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
+                    <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
                         <Box
                             sx={{
                                 pl: 2.5,
@@ -127,14 +110,14 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                                 justifyContent: 'flex-end',
                             }}
                         >
-                            <Iconify icon="ri:contract-fill" color="#000cff" />
-                            <Tooltip title={`Hợp đồng số ${contract.contractNo}`}>
+                            <Iconify icon="ri:contract-fill" sx={{ width: { md: 20, sm: 15, xs: 13 } }} />
+                            <Tooltip title={`Hợp đồng số: ${contract.contractNo}`}>
                                 <Typography
                                     variant="body2"
-                                    fontSize={{ lg: 12, md: 10 }}
+                                    fontSize={{ lg: 12, md: 10, sm: 9.5, xs: 9 }}
                                     fontWeight={700}
                                     sx={{
-                                        maxWidth: { lg: 160, md: 100, sm: 90 },
+                                        maxWidth: { xl: 100, lg: 80, md: 100, sm: 95 },
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
@@ -148,24 +131,24 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                         </Box>
 
                     </Stack>
-                    <Stack direction={"row"} alignContent={"center"}>
+                    <Stack width="50%" direction={"row"} alignContent={"center"}>
                         <Box
                             sx={{
                                 pl: 2.5,
+                                pr: { md: 0, sm: 2.5 },
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 1,
                                 justifyContent: 'flex-end',
                             }}
                         >
-                            <Iconify icon="carbon:cost-total" />
+                            <Iconify icon="stash:badge-dollar-solid" sx={{ width: { md: 20, sm: 15, xs: 14 } }} />
                             <Tooltip title={`Tổng cộng ${fCurrency(contract.total)}`}>
                                 <Typography
                                     variant="body2"
-                                    fontSize={{ lg: 12, md: 10 }}
+                                    fontSize={{ lg: 12, md: 10, sm: 9.5, xs: 9 }}
                                     fontWeight={700}
                                     sx={{
-                                        maxWidth: { lg: 160, md: 100, sm: 90 },
+                                        maxWidth: { xl: 160, lg: 50, md: 100 },
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",

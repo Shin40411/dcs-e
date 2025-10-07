@@ -11,6 +11,8 @@ import { fDate } from "src/utils/format-time-vi";
 import { Label } from 'src/components/label';
 import parse from 'html-react-parser';
 import { Typography } from '@mui/material';
+import { CONFIG } from 'src/global-config';
+import { FallbackAvatar } from 'src/utils/fallback-image';
 // ----------------------------------------------------------------------
 
 type ParamsProps = {
@@ -85,7 +87,7 @@ export function RenderCellProduct({ params }: ParamsProps) {
         alignItems: 'center',
       }}
     >
-      <Avatar
+      <FallbackAvatar
         alt={params.row.name}
         src={params.row.image}
         variant="rounded"

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationProductToDelete, ResQuotationItem, ResQuotationList } from "src/types/quotation";
+import { IProductQuotationEdit, IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationProductToDelete, ResQuotationItem, ResQuotationList } from "src/types/quotation";
 import useSWR, { SWRConfiguration } from "swr";
 
 type quotationProps = {
@@ -28,26 +28,28 @@ export function useGetQuotations({ pageNumber, pageSize, key, enabled = true, fr
 
     if (key) params += `&search=${key}`;
 
-    params += `&Status=1`;
-
     const url = enabled ? endpoints.quotation.list(params) : null;
 
     const { data, isLoading, error, isValidating } = useSWR<ResQuotationList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
-        () => ({
-            quotations: data?.data.items || [],
-            pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
-            },
-            quotationsLoading: isLoading,
-            quotationsError: error,
-            quotationsValidating: isValidating,
-            quotationsEmpty: !isLoading && !isValidating && !data?.data.items.length,
-        }),
+        () => {
+            const filteredItems = data?.data.items?.filter((q) => q.status !== 0) ?? [];
+
+            return {
+                quotations: filteredItems,
+                pagination: {
+                    pageNumber: data?.data.pageNumber ?? 1,
+                    pageSize: data?.data.pageSize ?? pageSize,
+                    totalPages: data?.data.totalPages ?? 0,
+                    totalRecord: data?.data.totalRecord ?? 0,
+                },
+                quotationsLoading: isLoading,
+                quotationsError: error,
+                quotationsValidating: isValidating,
+                quotationsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            };
+        },
         [data, error, isLoading, isValidating]
     );
 
@@ -110,9 +112,30 @@ export async function addMoreProducts(id: number, bodyPayload: IQuotationDetailD
 
 export async function deleteProductSelected(bodyPayload: IQuotationProductToDelete) {
     try {
-        const { data } = await axiosInstance.delete(endpoints.quotation.deleteProduct, {
+        const { data } = await axiosInstance.delete(endpoints.quotation.update.deleteProduct, {
             data: bodyPayload,
         });
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export async function editProductQuotation(bodyPayload: IProductQuotationEdit[]) {
+    try {
+        const { data } = await axiosInstance.patch(endpoints.quotation.update.editProducts, bodyPayload);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export async function sendEmailQuotation({ quotationId, email }: { quotationId: number; email: string }) {
+    try {
+
+        const { data } = await axiosInstance.post(endpoints.quotation.sendMail, { quotationId, email });
         return data;
     } catch (error) {
         console.error(error);
