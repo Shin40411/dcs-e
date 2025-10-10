@@ -3,7 +3,7 @@ import { useForm, UseFormReturn } from "react-hook-form";
 import { Field, Form } from "src/components/hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ICustomerDto } from "src/types/customer";
+import { ICustomerDto, ICustomerItem } from "src/types/customer";
 import { createOrUpdateCustomer } from "src/actions/customer";
 import { mutate } from "swr";
 import { endpoints } from "src/lib/axios";
@@ -13,10 +13,12 @@ import { CustomerFormValues, customerSchema } from "../quotation/schema/new-cust
 type props = {
     openChild: boolean;
     setOpenChild: (value: any) => void;
-    contractMethods: UseFormReturn<ContractFormValues>;
+    setCustomerKeyword: (c: string) => void;
+    methodsContract: UseFormReturn<ContractFormValues>;
+    setSelectedCustomer: (c: ICustomerItem | null) => void;
 }
 
-export function ContractCustomerForm({ openChild, setOpenChild, contractMethods }: props) {
+export function ContractCustomerForm({ openChild, setOpenChild, setCustomerKeyword, methodsContract, setSelectedCustomer }: props) {
     const defaultValues: CustomerFormValues =
     {
         customerType: "",
@@ -46,7 +48,7 @@ export function ContractCustomerForm({ openChild, setOpenChild, contractMethods 
         try {
             const payloadData: ICustomerDto = {
                 phone: data.phone.replace(/\s+/g, ""),
-                name: data.name,
+                name: data.name ?? '',
                 taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
                 email: '',
@@ -58,11 +60,37 @@ export function ContractCustomerForm({ openChild, setOpenChild, contractMethods 
                 balance: 0
             };
 
-            const { data: idCreated } = await createOrUpdateCustomer(undefined, payloadData);
+            const { data: dataCreated } = await createOrUpdateCustomer(undefined, payloadData);
             reset();
             setOpenChild(false);
-            mutate(endpoints.customer.list(`?pageNumber=1&pageSize=999&Status=1`));
-            contractMethods.setValue('customerId', Number(idCreated) ?? 0, { shouldValidate: true });
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/customers/customers"),
+                undefined,
+                { revalidate: true }
+            );
+            const createdCustomer: ICustomerItem = {
+                id: String(dataCreated.id),
+                phone: dataCreated.phone ?? '',
+                name: dataCreated.name ?? '',
+                taxCode: dataCreated.taxCode ?? '',
+                companyName: dataCreated.companyName ?? '',
+                email: dataCreated.email ?? '',
+                bankAccount: dataCreated.bankAccount ?? '',
+                bankName: dataCreated.bankName ?? '',
+                address: dataCreated.address ?? '',
+                isPartner: dataCreated.isPartner ?? false,
+                rewardPoint: dataCreated.rewardPoint ?? 0,
+                createDate: dataCreated.createDate ?? null,
+                createBy: dataCreated.createBy ?? '',
+                modifyDate: dataCreated.modifyDate ?? null,
+                modifyBy: dataCreated.modifyBy ?? '',
+                status: dataCreated.status ?? true,
+                balance: dataCreated.balance ?? 0,
+            };
+
+            methodsContract.setValue('customerId', Number(createdCustomer.id) ?? 0, { shouldValidate: true });
+            setCustomerKeyword(createdCustomer.name || createdCustomer.companyName || '');
+            setSelectedCustomer(createdCustomer);
             toast.success('Tạo mới dữ liệu khách hàng thành công!');
 
         } catch (error: any) {
@@ -95,7 +123,7 @@ export function ContractCustomerForm({ openChild, setOpenChild, contractMethods 
                         </Stack>
                     )}
                     <Stack direction="row" gap={2}>
-                        <Field.Text name="name" label="Tên khách hàng" required />
+                        <Field.Text name="name" label="Tên khách hàng" required={customerType === "KHCN"} />
                         <Field.PhoneField name="phone" label="Số điện thoại" required />
                     </Stack>
                 </DialogContent>

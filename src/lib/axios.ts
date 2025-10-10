@@ -116,6 +116,7 @@ export const endpoints = {
       root: (id: number) => `/api/v1/quotation/update/${id}`,
       addProducts: (id: number) => `/api/v1/quotation/add-product/${id}`,
       editProducts: '/api/v1/quotation/edit-quantity-product',
+      editProductForm: (id: number) => `/api/v1/quotation/edit-product-form-quotation/${id}`,
       deleteProduct: `/api/v1/quotation/delete-quotation-product`
     },
     delete: (id: number) => `/api/v1/quotation/delete/${id}`,

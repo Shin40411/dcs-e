@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const customerSchema = z.object({
     customerType: z.string().min(1, "Vui lòng chọn loại khách hàng"),
-    name: z.string().min(1, "Tên khách hàng là trường bắt buộc"),
+    name: z.string().optional(),
     phone: z.string().min(10, "Số điện thoại tối thiểu 10 số"),
     taxCode: z.string().trim()
         .refine(
@@ -24,6 +24,15 @@ export const customerSchema = z.object({
                 code: "custom",
                 path: ["companyName"],
                 message: "Tên công ty là bắt buộc với khách hàng doanh nghiệp",
+            });
+        }
+    }
+    if (data.customerType === "KHCN") {
+        if (!data.name || data.name.trim() === "") {
+            ctx.addIssue({
+                code: "custom",
+                path: ["name"],
+                message: "Tên khách hàng là trường bắt buộc"
             });
         }
     }

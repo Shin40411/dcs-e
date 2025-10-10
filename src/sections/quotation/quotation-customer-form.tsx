@@ -1,5 +1,5 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Stack } from "@mui/material";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm, UseFormReturn, useWatch } from "react-hook-form";
 import { Field, Form } from "src/components/hook-form";
 import { CustomerFormValues, customerSchema } from "./schema/new-customer-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,17 +7,17 @@ import { toast } from "sonner";
 import { ICustomerDto, ICustomerItem } from "src/types/customer";
 import { createOrUpdateCustomer } from "src/actions/customer";
 import { mutate } from "swr";
-import { endpoints } from "src/lib/axios";
 import { QuotationFormValues } from "./schema/quotation-schema";
 
 type props = {
     openChild: boolean;
     setOpenChild: (value: any) => void;
-    quotationMethods: UseFormReturn<QuotationFormValues>;
     setCustomerKeyword: (c: string) => void;
+    methodsQuotation: UseFormReturn<QuotationFormValues>;
+    setSelectedCustomer: (c: ICustomerItem | null) => void;
 }
 
-export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethods, setCustomerKeyword }: props) {
+export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyword, methodsQuotation, setSelectedCustomer }: props) {
     const defaultValues: CustomerFormValues =
     {
         customerType: "",
@@ -46,7 +46,7 @@ export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethod
         try {
             const payloadData: ICustomerDto = {
                 phone: data.phone.replace(/\s+/g, ""),
-                name: data.name,
+                name: data.name ?? '',
                 taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
                 email: '',
@@ -66,9 +66,29 @@ export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethod
                 undefined,
                 { revalidate: true }
             );
+            const createdCustomer: ICustomerItem = {
+                id: String(dataCreated.id),
+                phone: dataCreated.phone ?? '',
+                name: dataCreated.name ?? '',
+                taxCode: dataCreated.taxCode ?? '',
+                companyName: dataCreated.companyName ?? '',
+                email: dataCreated.email ?? '',
+                bankAccount: dataCreated.bankAccount ?? '',
+                bankName: dataCreated.bankName ?? '',
+                address: dataCreated.address ?? '',
+                isPartner: dataCreated.isPartner ?? false,
+                rewardPoint: dataCreated.rewardPoint ?? 0,
+                createDate: dataCreated.createDate ?? null,
+                createBy: dataCreated.createBy ?? '',
+                modifyDate: dataCreated.modifyDate ?? null,
+                modifyBy: dataCreated.modifyBy ?? '',
+                status: dataCreated.status ?? true,
+                balance: dataCreated.balance ?? 0,
+            };
 
-            setCustomerKeyword(dataCreated.name);
-            quotationMethods.setValue('customer', Number(dataCreated.id) ?? 0, { shouldValidate: true });
+            methodsQuotation.setValue('customer', Number(createdCustomer.id), { shouldValidate: true });
+            setCustomerKeyword(createdCustomer.name || createdCustomer.companyName || '');
+            setSelectedCustomer(createdCustomer);
             toast.success('Tạo mới dữ liệu khách hàng thành công!');
 
         } catch (error: any) {
@@ -101,7 +121,7 @@ export function QuotationCustomerForm({ openChild, setOpenChild, quotationMethod
                         </Stack>
                     )}
                     <Stack direction="row" gap={2}>
-                        <Field.Text name="name" label="Tên khách hàng" required />
+                        <Field.Text name="name" label="Tên khách hàng" required={customerType === "KHCN"} />
                         <Field.PhoneField name="phone" label="Số điện thoại" required />
                     </Stack>
                 </DialogContent>

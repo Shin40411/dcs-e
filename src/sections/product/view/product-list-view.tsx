@@ -144,7 +144,7 @@ export function ProductListView() {
   const renderCRUDForm = () => (
     <ProductNewEditForm
       open={openCrudForm.value}
-      onClose={openCrudForm.onFalse}
+      onClose={() => { openCrudForm.onFalse(); setRowIdSelected('') }}
       selectedId={rowIdSelected || undefined}
     />
   );

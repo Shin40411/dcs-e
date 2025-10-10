@@ -127,3 +127,11 @@ export type IProductQuotationEdit = {
     Price: number;
     Unit: string;
 }
+
+export type IProductFormEdit = {
+    rowId?: number;
+    productId: number;
+    quantity: number;
+    price: number;
+    unit: string;
+}

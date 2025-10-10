@@ -1,31 +1,39 @@
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { FormEvent, Fragment, useState } from 'react';
-import { UseBooleanReturn } from 'minimal-shared/hooks';
 import { Iconify } from 'src/components/iconify';
 import { sendEmailQuotation } from 'src/actions/quotation';
 import { toast } from 'sonner';
 import { Stack } from '@mui/material';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Field, Form } from 'src/components/hook-form';
 
-type props = {
+type Props = {
     email?: string;
     quotationId: number;
-}
+};
 
-export default function QuotationSendMail({ email, quotationId }: props) {
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const formJson = Object.fromEntries((formData as any).entries());
-        const email = formJson.email;
+const schema = z.object({
+    email: z.string().email("Email không hợp lệ"),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+export default function QuotationSendMail({ email, quotationId }: Props) {
+    const methods = useForm<FormValues>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            email: email ?? "",
+        },
+    });
+
+    const { handleSubmit, formState: { isSubmitting }, reset } = methods;
+
+    const onSubmit = async (data: FormValues) => {
         try {
-            await sendEmailQuotation({ quotationId, email });
-            toast.success('Gửi báo giá thành công!');
+            await sendEmailQuotation({ quotationId, email: data.email });
+            toast.success("Gửi báo giá thành công!");
+            reset();
         } catch (error: any) {
             console.error("Gửi báo giá thất bại:", error);
             toast.warning(error.message);
@@ -33,33 +41,29 @@ export default function QuotationSendMail({ email, quotationId }: props) {
     };
 
     return (
-        <Stack direction="row" width="100%" alignItems="center" justifyContent="flex-end" gap={2}>
-            <form style={{ width: '300px' }} onSubmit={handleSubmit} id="subscription-form">
-                <TextField
-                    autoFocus
-                    required
+        <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+            <Stack direction="row" width="100%" alignItems="center" justifyContent="flex-end" gap={2}>
+                <Field.Text
                     margin="dense"
-                    id="name"
                     name="email"
                     label="Địa chỉ Email"
                     type="email"
                     fullWidth
                     variant="standard"
-                    value={email}
+                    required
+                    sx={{ width: "300px" }}
                 />
-            </form>
-            <Button
-                variant='contained'
-                type="submit"
-                form="subscription-form"
-                sx={{
-                    height: 'max-content',
-                    padding: '10px'
-                }}
-                startIcon={<Iconify icon="lsicon:email-send-filled" />}
-            >
-                Gửi
-            </Button>
-        </Stack>
+                <Button
+                    variant="contained"
+                    type="submit"
+                    disabled={isSubmitting}
+                    sx={{ height: "max-content", padding: "10px" }}
+                    startIcon={<Iconify icon="lsicon:email-send-filled" />}
+                >
+                    Gửi
+                </Button>
+            </Stack>
+        </Form>
     );
 }
+

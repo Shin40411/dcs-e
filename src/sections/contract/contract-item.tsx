@@ -47,6 +47,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                         onViewDetails();
                         menuActions.onClose();
                     }}
+                    sx={{ display: { xs: 'none', sm: 'none', md: 'inline-flex' } }}
                 >
                     <Iconify icon="solar:eye-bold" />
                     Xem hợp đồng
@@ -110,14 +111,14 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                                 justifyContent: 'flex-end',
                             }}
                         >
-                            <Iconify icon="ri:contract-fill" sx={{ width: { md: 20, sm: 15, xs: 13 } }} />
+                            <Iconify icon="ri:contract-fill" sx={{ width: { md: 14, sm: 15, xs: 13 } }} />
                             <Tooltip title={`Hợp đồng số: ${contract.contractNo}`}>
                                 <Typography
                                     variant="body2"
-                                    fontSize={{ lg: 12, md: 10, sm: 9.5, xs: 9 }}
+                                    fontSize={{ lg: 10, md: 10, sm: 9.5, xs: 9 }}
                                     fontWeight={700}
                                     sx={{
-                                        maxWidth: { xl: 100, lg: 80, md: 100, sm: 95 },
+                                        maxWidth: { xl: 100, lg: 100, md: 100, sm: 95 },
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
@@ -141,14 +142,14 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                                 justifyContent: 'flex-end',
                             }}
                         >
-                            <Iconify icon="stash:badge-dollar-solid" sx={{ width: { md: 20, sm: 15, xs: 14 } }} />
+                            <Iconify icon="stash:badge-dollar-solid" sx={{ width: { md: 16, sm: 15, xs: 14 } }} />
                             <Tooltip title={`Tổng cộng ${fCurrency(contract.total)}`}>
                                 <Typography
                                     variant="body2"
-                                    fontSize={{ lg: 12, md: 10, sm: 9.5, xs: 9 }}
+                                    fontSize={{ lg: 10, md: 10, sm: 9.5, xs: 9 }}
                                     fontWeight={700}
                                     sx={{
-                                        maxWidth: { xl: 160, lg: 50, md: 100 },
+                                        maxWidth: { xl: 160, lg: 100, md: 100 },
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",

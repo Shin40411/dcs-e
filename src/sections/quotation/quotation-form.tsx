@@ -22,10 +22,10 @@ import { useGetCustomers } from "src/actions/customer";
 import { useDebounce } from "minimal-shared/hooks";
 import { useEffect, useState } from "react";
 import { ICustomerItem } from "src/types/customer";
-import { IQuotationDao, IQuotationDetailDto, IQuotationDetails, IQuotationDto, IQuotationItem } from "src/types/quotation";
+import { IProductFormEdit, IProductQuotationEdit, IQuotationDao, IQuotationDetailDto, IQuotationDetails, IQuotationDto, IQuotationItem } from "src/types/quotation";
 import { QuotationItemsTable } from "./quotation-product-table";
 import { QuotationFormValues, quotationSchema } from "./schema/quotation-schema";
-import { addMoreProducts, createOrUpdateQuotation, useGetQuotation } from "src/actions/quotation";
+import { addMoreProducts, createOrUpdateQuotation, editProductForm, useGetQuotation } from "src/actions/quotation";
 import { toast } from "sonner";
 import { generateQuotationNo } from "src/utils/random-func";
 import { mutate } from "swr";
@@ -87,6 +87,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         status: 1,
         discount: 0,
         items: [{
+            id: undefined,
             product: "",
             unit: "0",
             unitName: "",
@@ -169,8 +170,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
 
         const mappedItems = mapProductsToItems(currentDetails?.products || []);
 
-        console.log(mappedItems);
-
         methods.setValue("customer", selectedQuotation.customerId ?? 0);
         methods.setValue("quotationNo", selectedQuotation.quotationNo);
         methods.setValue("date", selectedQuotation.createdDate ?? null);
@@ -193,14 +192,19 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
 
     }, [selectedQuotation, CopiedQuotation, CurrentQuotation, methods.reset]);
 
+    const customerId = methods.watch('customer');
+
     useEffect(() => {
-        if (customers && CustomerRecords.totalRecord > 0) {
-            const c = customers.find((cus) => Number(cus.id) === methods.getValues('customer')) || null;
-            setSelectedCustomer(c);
-        } else {
+        if (!customerId) {
             setSelectedCustomer(null);
+            return;
         }
-    }, [customers, methods.watch('customer')]);
+
+        const found = customers.find((cus) => Number(cus.id) === Number(customerId));
+        if (found) {
+            setSelectedCustomer(found);
+        }
+    }, [customerId]);
 
     const {
         reset,
@@ -244,7 +248,17 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 seller: user?.accessToken || "",
             };
 
+            const productPayload: IProductFormEdit[] = data.items
+                .map((item, idx) => ({
+                    rowId: item.id,
+                    productId: Number(item.product),
+                    price: item.price || 0,
+                    quantity: item.qty || 0,
+                    unit: item.unitName ?? "",
+                }));
+
             // console.log(bodyPayload);
+            // console.log(productPayload);
 
             await createOrUpdateQuotation(
                 selectedQuotation?.id ?? null,
@@ -253,6 +267,12 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
             );
 
             if (selectedQuotation) {
+                if (!productPayload) return;
+
+                for (const item of productPayload) {
+                    await editProductForm(item.rowId, item);
+                }
+
                 const newItems = bodyPayload.quotationDetails.filter(
                     (item) => !originalItems.some((o) => o.productID === item.productID)
                 );
@@ -294,10 +314,10 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     });
 
     const renderLeftColumn = () => (
-        <Stack flex={1} spacing={3}>
+        <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={3}>
             {/* Section Thông tin khách hàng */}
             <Box>
-                <Stack direction="row" justifyContent="space-between">
+                <Stack direction={{ xs: "column", md: "row" }} gap={2} justifyContent="space-between">
                     <Typography variant="subtitle2">Thông tin khách hàng</Typography>
                     <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
                         <Field.Autocomplete
@@ -305,20 +325,23 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                             label="Chọn khách hàng có sẵn"
                             options={customers}
                             loading={customersLoading}
-                            getOptionLabel={(opt) => opt?.name ?? ''}
+                            getOptionLabel={(opt) => opt?.name ?
+                                opt.name :
+                                opt?.companyName ?
+                                    opt.companyName : ''}
                             isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
                             onInputChange={(_, value) => setCustomerKeyword(value)}
                             value={selectedCustomer}
                             fullWidth
                             onChange={(_, newValue) => {
-                                setSelectedCustomer(newValue ?? null);
-                                setValue('customer', newValue?.id ?? 0, { shouldValidate: true });
+                                methods.setValue('customer', newValue?.id ?? 0, { shouldValidate: true });
+                                setCustomerKeyword(newValue?.name ?? '');
                             }}
                             noOptionsText="Không có dữ liệu"
                             sx={{ flex: 1, minWidth: 200 }}
                             renderOption={(props, option) => (
                                 <li {...props} key={option.id}>
-                                    {option.name}
+                                    {option.name ? option.name : option.companyName}
                                 </li>
                             )}
                         />
@@ -362,6 +385,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                     <Field.Text
                         label="Mã báo giá"
                         name="quotationNo"
+                        disabled={selectedQuotation ? true : false}
                     />
                     <Field.Select label="Trạng thái" name="status">
                         <MenuItem key={0} value={0}>
@@ -394,7 +418,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                     <Field.DatePicker name="date" label="Ngày báo giá" />
                     <Field.DatePicker name="validUntil" label="Hiệu lực đến" />
                 </Stack>
-                <Stack direction={{ xs: "column", md: "row" }} sx={{ mt: 2 }} spacing={2}>
+                <Stack display="none" direction={{ xs: "column", md: "row" }} sx={{ mt: 2 }} spacing={2}>
                     <Field.Text
                         name="discount"
                         label="Khuyến mãi (%)"
@@ -450,7 +474,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     );
 
     const renderDetails = () => (
-        <Stack direction={{ xs: "column", md: "row" }} spacing={3} sx={{ mt: 1 }}>
+        <Stack direction={{ xs: "column", sm: "column", md: "row", lg: "row", xl: "row" }} spacing={3} sx={{ mt: 1 }}>
             {renderLeftColumn()}
             <Divider
                 flexItem
@@ -556,8 +580,9 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
             <QuotationCustomerForm
                 openChild={isCreatingCustomer}
                 setOpenChild={setIsCreatingCustomer}
-                quotationMethods={methods}
+                methodsQuotation={methods}
                 setCustomerKeyword={setCustomerKeyword}
+                setSelectedCustomer={setSelectedCustomer}
             />
         </Dialog>
     );

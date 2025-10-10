@@ -13,6 +13,10 @@ export const contractItemSchema = z.object({
 export const contractSchema = z.object({
     contractNo: z.string().min(1, "Vui lòng nhập số phiếu"),
     customerId: z.number().min(1, { message: "Vui lòng chọn khách hàng" }),
+    createDate: z.custom<IDateValue>().refine(
+        (val) => val !== null && val !== undefined && val !== "",
+        { message: "Vui lòng chọn ngày tạo" }
+    ),
     signatureDate: z.custom<IDateValue>().refine(
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn ngày ký" }

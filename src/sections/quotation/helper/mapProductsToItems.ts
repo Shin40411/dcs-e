@@ -3,6 +3,7 @@ import { QuotationFormValues } from "../schema/quotation-schema";
 
 export function mapProductsToItems(products: IQuotationProduct[]): QuotationFormValues["items"] {
     return products.map((p) => ({
+        id: Number(p.id),
         product: String(p.productID),
         unit: String(p.unitProductID),
         unitName: p.unit,

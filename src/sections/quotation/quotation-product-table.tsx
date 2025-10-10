@@ -1,6 +1,6 @@
 import { UseFieldArrayRemove, UseFormReturn, useWatch } from "react-hook-form";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Stack, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
 import { Field } from "src/components/hook-form";
 import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
 import { Iconify } from "src/components/iconify";
@@ -57,7 +57,7 @@ export function QuotationItemsTable({
 
     const subtotal = total * (1 - discountRate);
 
-    const roundedTotal = Math.round(subtotal);
+    const roundedTotal = Math.round(total);
 
     const openDel = useBoolean();
 
@@ -68,7 +68,7 @@ export function QuotationItemsTable({
     const deleteEachProduct = async () => {
         try {
             if (!idQuotation) return;
-            if (indexField === 0) {
+            if (fields.length <= 1) {
                 toast.warning("Phiếu báo giá đã tạo phải có ít nhất 1 sản phẩm");
                 toast.warning("Không thể xóa sản phẩm này");
                 openDel.onFalse();
@@ -143,116 +143,108 @@ export function QuotationItemsTable({
 
     return (
         <>
-            <Stack flex={1.5} spacing={2} sx={{ height: "100%" }}>
+            <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={2} sx={{ height: "100%" }}>
                 <Typography variant="subtitle2">Sản phẩm</Typography>
 
                 <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
                     <Box sx={{ flex: 1, overflowY: "auto" }}>
-                        <Table size="small" stickyHeader>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell width="50">STT</TableCell>
-                                    <TableCell>Tên SP</TableCell>
-                                    <TableCell width="150">Số lượng</TableCell>
-                                    <TableCell width="150">Đơn giá</TableCell>
-                                    <TableCell width="150">Đơn vị tính</TableCell>
-                                    <TableCell width="100">VAT</TableCell>
-                                    <TableCell width="150">Thành tiền</TableCell>
-                                    <TableCell width="80"></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {fields.map((field, index) => (
-                                    <TableRow key={field.id}>
-                                        <TableCell>
-                                            {index + 1}
-                                        </TableCell>
-                                        <TableCell>
-                                            <ProductAutocomplete index={index} methods={methods} />
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <Field.NumberInput name={`items.${index}.qty`} />
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <Field.VNCurrencyInput name={`items.${index}.price`} label="Đơn giá" />
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <UnitSelection index={index} methods={methods} />
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <Typography variant="body2">
-                                                {items?.[index]?.vat != null
-                                                    ? `${items[index].vat}%`
-                                                    : ""}
-                                            </Typography>
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <Typography fontWeight="bold">
-                                                {fCurrency(calcAmount(items[index]))}
-                                            </Typography>
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <Stack direction="row">
-                                                <Tooltip title="Xóa sản phẩm" placement="top" arrow>
-                                                    <IconButton onClick={() => {
-                                                        if (idQuotation) {
-                                                            const idPro = Number(methods.getValues(`items.${index}.product`));
-                                                            const exists = quotationProductDetail?.products?.some(p => Number(p.productID) === idPro);
-                                                            if (exists) {
-                                                                openDel.onTrue();
-                                                                setProductIDSelected([
-                                                                    Number(idPro)
-                                                                ]);
-                                                                setIndexField(index);
+                        <TableContainer component={Paper} sx={{ maxWidth: "100%", overflowX: "auto" }}>
+                            <Table size="small" stickyHeader sx={{ minWidth: 600 }}>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }} width="50">STT</TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>Tên SP</TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Số lượng</TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Đơn giá</TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Đơn vị tính</TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }} width="100">VAT</TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Thành tiền</TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }} width="80"></TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {fields.map((field, index) => (
+                                        <TableRow key={field.id}>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>{index + 1}</TableCell>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                <ProductAutocomplete index={index} methods={methods} />
+                                            </TableCell>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                <Field.NumberInput name={`items.${index}.qty`} sx={{ width: 100 }} />
+                                            </TableCell>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                <Field.VNCurrencyInput name={`items.${index}.price`} label="Đơn giá" sx={{ width: 100 }} />
+                                            </TableCell>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                <UnitSelection index={index} methods={methods} />
+                                            </TableCell>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                <Typography variant="body2">
+                                                    {items?.[index]?.vat != null ? `${items[index].vat}%` : ""}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                <Typography fontWeight="bold">
+                                                    {fCurrency(calcAmount(items[index]))}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                <Stack direction="row">
+                                                    <Tooltip title="Xóa sản phẩm" placement="top" arrow>
+                                                        <IconButton onClick={() => {
+                                                            if (idQuotation) {
+                                                                const idPro = Number(methods.getValues(`items.${index}.product`));
+                                                                const exists = quotationProductDetail?.products?.some(p => Number(p.productID) === idPro);
+                                                                if (exists) {
+                                                                    openDel.onTrue();
+                                                                    setProductIDSelected([
+                                                                        Number(idPro)
+                                                                    ]);
+                                                                    setIndexField(index);
+                                                                } else {
+                                                                    remove(index);
+                                                                }
                                                             } else {
                                                                 remove(index);
                                                             }
-                                                        } else {
-                                                            remove(index);
-                                                        }
-                                                    }}>
-                                                        <Iconify icon="material-symbols:scan-delete-outline-sharp" />
-                                                    </IconButton>
-                                                </Tooltip>
+                                                        }}>
+                                                            <Iconify icon="material-symbols:scan-delete-outline-sharp" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Stack>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+
+                                    <TableRow>
+                                        <TableCell colSpan={7}>
+                                            <Stack
+                                                direction="row"
+                                                gap={2}
+                                                my={1}
+                                                justifyContent="space-between"
+                                            >
+                                                <Button
+                                                    variant="outlined"
+                                                    startIcon={<Iconify icon="gridicons:add" />}
+                                                    onClick={() =>
+                                                        append({
+                                                            name: "",
+                                                            unit: "",
+                                                            qty: 1,
+                                                            price: 0,
+                                                            vat: 0,
+                                                        })
+                                                    }
+                                                >
+                                                    Thêm sản phẩm
+                                                </Button>
                                             </Stack>
                                         </TableCell>
                                     </TableRow>
-                                ))}
-
-                                <TableRow>
-                                    <TableCell colSpan={7}>
-                                        <Stack
-                                            direction="row"
-                                            gap={2}
-                                            my={1}
-                                            justifyContent="space-between"
-                                        >
-                                            <Button
-                                                variant="outlined"
-                                                startIcon={<Iconify icon="gridicons:add" />}
-                                                onClick={() =>
-                                                    append({
-                                                        name: "",
-                                                        unit: "",
-                                                        qty: 1,
-                                                        price: 0,
-                                                        vat: 0,
-                                                    })
-                                                }
-                                            >
-                                                Thêm sản phẩm
-                                            </Button>
-                                        </Stack>
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                     </Box>
 
                     <Box
@@ -264,16 +256,20 @@ export function QuotationItemsTable({
                             p: 2,
                             bgcolor: "background.paper",
                             zIndex: 1,
+                            display: 'flex',
+                            flexDirection: "row",
+                            gap: '50px',
+                            justifyContent: 'space-between'
                         }}
                     >
-                        <Stack direction="row" justifyContent="space-between">
-                            <Typography fontWeight="bold">Tổng cộng</Typography>
-                            <Typography fontWeight="bold">Bằng chữ</Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                            <Typography fontWeight="bold">
+                        <Stack direction="column" justifyContent="flex-start" textAlign={'start'}>
+                            <Typography fontWeight={600}>Tổng cộng</Typography>
+                            <Typography fontWeight="bold" whiteSpace="nowrap">
                                 {fCurrency(roundedTotal)}
                             </Typography>
+                        </Stack>
+                        <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
+                            <Typography fontWeight={600}>Bằng chữ</Typography>
                             <Typography fontSize={15}>
                                 {capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}
                             </Typography>
@@ -296,10 +292,10 @@ function ProductAutocomplete({
     const [keyword, setKeyword] = useState("");
     const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
-    useEffect(() => {
-        const handler = setTimeout(() => setDebouncedKeyword(keyword), 500);
-        return () => clearTimeout(handler);
-    }, [keyword]);
+    // useEffect(() => {
+    //     const handler = setTimeout(() => setDebouncedKeyword(keyword), 500);
+    //     return () => clearTimeout(handler);
+    // }, [keyword]);
 
     const { products = [], productsLoading } = useGetProducts({
         pageNumber: 1,
@@ -315,7 +311,7 @@ function ProductAutocomplete({
             loading={productsLoading}
             getOptionLabel={(opt) => opt?.name ?? ""}
             isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-            onInputChange={(_, value) => setKeyword(value)}
+            // onInputChange={(_, value) => setKeyword(value)}
             renderOption={(props, option) => (
                 <li {...props} key={option.id}>
                     {option.name}
@@ -328,9 +324,12 @@ function ProductAutocomplete({
             }
             onChange={(_, newValue) => {
                 if (newValue) {
+                    const rowId = methods.getValues(`items.${index}.id`);
+
                     methods.setValue(`items.${index}.product`, String(newValue.id), {
                         shouldValidate: true,
                     });
+                    methods.setValue(`items.${index}.id`, rowId);
                     methods.setValue(
                         `items.${index}.unit`,
                         newValue.unitID != null ? String(newValue.unitID) : ""
@@ -338,12 +337,14 @@ function ProductAutocomplete({
                     methods.setValue(`items.${index}.unitName`, newValue.unit != null ? newValue.unit : "");
                     methods.setValue(`items.${index}.price`, newValue.price ?? 0);
                     methods.setValue(`items.${index}.vat`, newValue.vat ?? 0);
-                } else {
-                    methods.setValue(`items.${index}.product`, "");
                 }
+                // else {
+                //     methods.setValue(`items.${index}.product`, "");
+                // }
             }}
             noOptionsText="Không có dữ liệu"
             fullWidth
+            sx={{ width: 150 }}
         />
     );
 }
@@ -381,6 +382,7 @@ function UnitSelection({
                 // );
             }}
             fullWidth
+            sx={{ width: 100 }}
         >
             {unitsLoading ? (
                 <MenuItem disabled>Đang tải...</MenuItem>

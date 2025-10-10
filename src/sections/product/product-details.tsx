@@ -4,6 +4,7 @@ import { useGetProduct } from "src/actions/product";
 import { Scrollbar } from "src/components/scrollbar";
 import { ProductItem } from "src/types/product";
 import parse from 'html-react-parser';
+import { FallbackImage } from "src/utils/fallback-image";
 
 type Props = DrawerProps & {
     selectedId: string;
@@ -133,19 +134,9 @@ export function ProductDetails({ selectedId, open, onClose, ...other }: Props) {
                                     Ảnh sản phẩm
                                 </Typography>
                                 {selectedProduct.image ? (
-                                    <Box
-                                        component="img"
+                                    <FallbackImage
                                         src={selectedProduct.image}
                                         alt={selectedProduct.name}
-                                        sx={{
-                                            width: '100%',
-                                            maxWidth: 400,
-                                            height: '100%',
-                                            objectFit: "cover",
-                                            borderRadius: 2,
-                                            border: "1px solid",
-                                            borderColor: "divider",
-                                        }}
                                     />
                                 ) : (
                                     <Typography variant="body2" color="text.secondary">

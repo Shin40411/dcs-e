@@ -111,7 +111,7 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
         warranty: currentProduct.warranty,
         manufacturer: currentProduct.manufacturer,
         vat: currentProduct.vat,
-        image: currentProduct.image,
+        image: currentProduct.image ?? `${CONFIG.assetsDir}/assets/images/home/nophoto.jpg`,
       });
     } else {
       methods.reset(defaultValues);
@@ -229,6 +229,7 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
               onChange={(_, newValue) => {
                 setSelectedCategory(newValue ?? null);
                 setValue('categoryId', newValue?.id ?? 0, { shouldValidate: true });
+                setValue('vat', newValue?.vat);
               }}
               noOptionsText="Không có dữ liệu"
               required

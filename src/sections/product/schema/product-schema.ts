@@ -15,7 +15,7 @@ export const NewProductSchema = zod.object({
             return isNaN(num) ? undefined : num;
         },
         zod.number({ required_error: 'Giá nhập là trường bắt buộc' })
-            .min(1, 'Giá nhập phải lớn hơn 0')
+            .min(0, 'Giá nhập không được nhỏ hơn 0')
     ),
     price: zod.preprocess(
         (val) => {
@@ -33,7 +33,7 @@ export const NewProductSchema = zod.object({
         .min(1, { message: 'Số lượng tồn kho là trường bắt buộc' }),
     warranty: zod
         .number({ coerce: true })
-        .min(1, { message: 'Thời gian bảo hành là trường bắt buộc' })
+        .min(0, { message: 'Thời gian bảo hành là trường bắt buộc' })
         .max(24, { message: 'Thời gian bảo hành không được lớn hơn 24 tháng' }),
     manufacturer: zod
         .string()

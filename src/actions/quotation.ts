@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IProductQuotationEdit, IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationProductToDelete, ResQuotationItem, ResQuotationList } from "src/types/quotation";
+import { IProductFormEdit, IProductQuotationEdit, IQuotationDao, IQuotationDetailDto, IQuotationDto, IQuotationProductToDelete, ResQuotationItem, ResQuotationList } from "src/types/quotation";
 import useSWR, { SWRConfiguration } from "swr";
 
 type quotationProps = {
@@ -125,6 +125,17 @@ export async function deleteProductSelected(bodyPayload: IQuotationProductToDele
 export async function editProductQuotation(bodyPayload: IProductQuotationEdit[]) {
     try {
         const { data } = await axiosInstance.patch(endpoints.quotation.update.editProducts, bodyPayload);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export async function editProductForm(id?: number, bodyPayload?: IProductFormEdit) {
+    try {
+        if (!id) return;
+        const { data } = await axiosInstance.patch(endpoints.quotation.update.editProductForm(id), bodyPayload);
         return data;
     } catch (error) {
         console.error(error);

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { customerSchema } from "./new-customer-schema";
 
 export const quotationItemSchema = z.object({
+    id: z.number().optional(),
     product: z.string().min(1, "Vui lòng chọn sản phẩm"),
     unit: z.string().optional().or(z.literal("")),
     unitName: z.string().optional().or(z.literal("")),

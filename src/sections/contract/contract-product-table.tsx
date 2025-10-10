@@ -1,6 +1,6 @@
 import { UseFieldArrayRemove, UseFormReturn, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Stack, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
 import { Field } from "src/components/hook-form";
 import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
 import { Iconify } from "src/components/iconify";
@@ -68,7 +68,6 @@ export function ContractItemsTable({
 
     const deleteEachProduct = async () => {
         try {
-            console.log(indexField);
             if (!idContract) return;
             if (indexField === 0) {
                 toast.warning("Phiếu hợp đồng đã tạo phải có ít nhất 1 sản phẩm");
@@ -144,48 +143,48 @@ export function ContractItemsTable({
     }, [roundedTotal]);
 
     return (
-        <>
-            <Stack spacing={2} sx={{ height: "100%" }}>
-                <Typography variant="subtitle2">Sản phẩm</Typography>
+        <Box>
+            <Typography variant="subtitle2">Sản phẩm</Typography>
 
-                <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-                    <Box sx={{ flex: 1, overflowY: "auto" }}>
-                        <Table size="small" stickyHeader>
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+                <Box sx={{ flex: 1, overflowY: "auto" }}>
+                    <TableContainer component={Paper} sx={{ maxWidth: "100%", overflowX: "auto" }}>
+                        <Table size="small" stickyHeader sx={{ minWidth: 600 }}>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell width="50">STT</TableCell>
-                                    <TableCell>Tên SP</TableCell>
-                                    <TableCell width="150">Số lượng</TableCell>
-                                    <TableCell width="150">Đơn giá</TableCell>
-                                    <TableCell width="150">Đơn vị tính</TableCell>
-                                    <TableCell width="100">VAT</TableCell>
-                                    <TableCell width="150">Thành tiền</TableCell>
-                                    <TableCell width="80"></TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }} width="50">STT</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }}>Tên SP</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Số lượng</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Đơn giá</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Đơn vị tính</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }} width="100">VAT</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }} width="150">Thành tiền</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }} width="80"></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {fields.map((field, index) => (
                                     <TableRow key={field.id}>
-                                        <TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
                                             {index + 1}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
                                             <ProductAutocomplete index={index} methods={methods} />
                                         </TableCell>
 
-                                        <TableCell>
-                                            <Field.NumberInput name={`products.${index}.qty`} />
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                            <Field.NumberInput name={`products.${index}.qty`} sx={{ width: 100 }} />
                                         </TableCell>
 
-                                        <TableCell>
-                                            <Field.VNCurrencyInput name={`products.${index}.price`} label="Đơn giá" />
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                            <Field.VNCurrencyInput name={`products.${index}.price`} label="Đơn giá" sx={{ width: 100 }} />
                                         </TableCell>
 
-                                        <TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
                                             <UnitSelection index={index} methods={methods} />
                                         </TableCell>
 
-                                        <TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
                                             <Typography variant="body2">
                                                 {items?.[index]?.vat != null
                                                     ? `${items[index].vat}%`
@@ -193,13 +192,13 @@ export function ContractItemsTable({
                                             </Typography>
                                         </TableCell>
 
-                                        <TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
                                             <Typography fontWeight="bold">
                                                 {fCurrency(calcAmount(items[index]))}
                                             </Typography>
                                         </TableCell>
 
-                                        <TableCell>
+                                        <TableCell sx={{ whiteSpace: "nowrap" }}>
                                             <Stack direction="row">
                                                 <Tooltip title="Xóa sản phẩm" placement="top" arrow>
                                                     <IconButton onClick={() => {
@@ -253,36 +252,40 @@ export function ContractItemsTable({
                                 </TableRow>
                             </TableBody>
                         </Table>
-                    </Box>
-
-                    <Box
-                        sx={{
-                            position: "sticky",
-                            bottom: -50,
-                            borderTop: "1px solid",
-                            borderColor: "divider",
-                            p: 2,
-                            bgcolor: "background.paper",
-                            zIndex: 1,
-                        }}
-                    >
-                        <Stack direction="row" justifyContent="space-between">
-                            <Typography fontWeight="bold">Tổng cộng</Typography>
-                            <Typography fontWeight="bold">Bằng chữ</Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                            <Typography fontWeight="bold">
-                                {fCurrency(roundedTotal)}
-                            </Typography>
-                            <Typography fontSize={15}>
-                                {capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}
-                            </Typography>
-                        </Stack>
-                    </Box>
+                    </TableContainer>
                 </Box>
-            </Stack>
+
+                <Box
+                    sx={{
+                        position: "sticky",
+                        bottom: -50,
+                        borderTop: "1px solid",
+                        borderColor: "divider",
+                        p: 2,
+                        bgcolor: "background.paper",
+                        zIndex: 1,
+                        display: 'flex',
+                        flexDirection: "row",
+                        gap: '50px',
+                        justifyContent: 'space-between'
+                    }}
+                >
+                    <Stack direction="column" justifyContent="flex-start" textAlign={'start'}>
+                        <Typography fontWeight={600}>Tổng cộng</Typography>
+                        <Typography fontWeight="bold" whiteSpace="nowrap">
+                            {fCurrency(roundedTotal)}
+                        </Typography>
+                    </Stack>
+                    <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
+                        <Typography fontWeight={600}>Bằng chữ</Typography>
+                        <Typography fontSize={15}>
+                            {capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}
+                        </Typography>
+                    </Stack>
+                </Box>
+            </Box>
             {confirmDeleteUpdateProduct()}
-        </>
+        </Box>
     );
 }
 
@@ -296,10 +299,10 @@ function ProductAutocomplete({
     const [keyword, setKeyword] = useState("");
     const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
-    useEffect(() => {
-        const handler = setTimeout(() => setDebouncedKeyword(keyword), 500);
-        return () => clearTimeout(handler);
-    }, [keyword]);
+    // useEffect(() => {
+    //     const handler = setTimeout(() => setDebouncedKeyword(keyword), 500);
+    //     return () => clearTimeout(handler);
+    // }, [keyword]);
 
     const { products = [], productsLoading } = useGetProducts({
         pageNumber: 1,
@@ -315,7 +318,7 @@ function ProductAutocomplete({
             loading={productsLoading}
             getOptionLabel={(opt) => opt?.name ?? ""}
             isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-            onInputChange={(_, value) => setKeyword(value)}
+            // onInputChange={(_, value) => setKeyword(value)}
             renderOption={(props, option) => (
                 <li {...props} key={option.id}>
                     {option.name}
@@ -341,12 +344,14 @@ function ProductAutocomplete({
                     );
                     methods.setValue(`products.${index}.price`, newValue.price ?? 0);
                     methods.setValue(`products.${index}.vat`, newValue.vat ?? 0);
-                } else {
-                    methods.setValue(`products.${index}.product`, "");
                 }
+                // else {
+                //     methods.setValue(`products.${index}.product`, "");
+                // }
             }}
             noOptionsText="Không có dữ liệu"
             fullWidth
+            sx={{ width: 150 }}
         />
     );
 }
@@ -364,7 +369,12 @@ function UnitSelection({
     });
 
     return (
-        <Field.Select name={`products.${index}.unit`} label="Đơn vị tính" fullWidth>
+        <Field.Select
+            name={`products.${index}.unit`}
+            label="Đơn vị tính"
+            fullWidth
+            sx={{ width: 100 }}
+        >
             {unitsLoading ? (
                 <MenuItem disabled>Đang tải...</MenuItem>
             ) : (

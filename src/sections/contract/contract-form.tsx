@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, MenuItem, Stack, TextField, Tooltip, Typography } from "@mui/material";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
 import { IContractDao, IContractDetailDto, IContractDetails, IContractDto, IContractItem } from "src/types/contract";
@@ -55,6 +55,7 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
     const defaultValues: ContractFormValues = {
         contractNo: generateContractNo('KH'),
         customerId: 0,
+        createDate: today.toISOString(),
         signatureDate: today.toISOString(),
         deliveryAddress: "",
         deliveryTime: today.toISOString(),
@@ -110,6 +111,7 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
         methods.setValue("customerId", selectedContract.customerID ?? 0);
         methods.setValue("contractNo", selectedContract.contractNo);
         methods.setValue("signatureDate", selectedContract.signatureDate ?? null);
+        methods.setValue("createDate", selectedContract.createDate ?? null);
         methods.setValue("deliveryAddress", selectedContract.deliveryAddress ?? '');
         methods.setValue("deliveryTime", selectedContract.deliveryTime ?? null);
         methods.setValue("downPayment", selectedContract.downPayment);
@@ -133,14 +135,19 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
 
     }, [selectedContract, CurrentContract, methods.reset]);
 
+    const customerId = methods.watch('customerId');
+
     useEffect(() => {
-        if (customers && CustomerRecords.totalRecord > 0) {
-            const c = customers.find((cus) => Number(cus.id) === methods.getValues('customerId')) || null;
-            setSelectedCustomer(c);
-        } else {
+        if (!customerId) {
             setSelectedCustomer(null);
+            return;
         }
-    }, [customers, methods.watch('customerId')]);
+
+        const found = customers.find((cus) => Number(cus.id) === Number(customerId));
+        if (found) {
+            setSelectedCustomer(found);
+        }
+    }, [customerId]);
 
     const {
         reset,
@@ -274,8 +281,31 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
         </DialogActions>
     );
 
+    const products = useWatch({
+        control,
+        name: "products",
+    }) || [];
+
+    const total = products.reduce((sum: number, item: any) => {
+        const qty = Number(item.qty) || 0;
+        const price = Number(item.price) || 0;
+        return sum + qty * price;
+    }, 0);
+
+    useEffect(() => {
+        if (total > 0) {
+            setValue("downPayment", Math.round(total * 0.3), { shouldValidate: true });
+            setValue("nextPayment", Math.round(total * 0.4), { shouldValidate: true });
+            setValue("lastPayment", Math.round(total * 0.3), { shouldValidate: true });
+        } else {
+            setValue("downPayment", 0);
+            setValue("nextPayment", 0);
+            setValue("lastPayment", 0);
+        }
+    }, [total, setValue]);
+
     const renderDetails = () => (
-        <Stack direction={{ xs: "column", md: "row" }} spacing={3} sx={{ mt: 1 }}>
+        <Stack direction={{ xs: "column", sm: "column", md: "row", lg: "row", xl: "row" }} spacing={3} sx={{ mt: 1 }}>
             {renderLeftColumn()}
             <Divider
                 flexItem
@@ -292,28 +322,32 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
                 }}
             />
             {/* Section thông tin thanh toán */}
-            <Box flex={1.5}>
-                <Typography variant="subtitle2">
-                    Thông tin thanh toán
-                </Typography>
-                <Stack direction="row" spacing={2} my={2}>
-                    <Field.VNCurrencyInput
-                        label="Lần 1"
-                        name="downPayment"
-                        sx={{ maxWidth: 150 }}
-                    />
-                    <Field.VNCurrencyInput
-                        label="Lần 2"
-                        name="nextPayment"
-                        sx={{ maxWidth: 150 }}
-                    />
-                    <Field.VNCurrencyInput
-                        label="Còn lại"
-                        name="lastPayment"
-                        sx={{ maxWidth: 150 }}
-                    />
-                </Stack>
-
+            <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={2} sx={{ height: "100%" }}>
+                <Box>
+                    <Typography variant="subtitle2">
+                        Thông tin thanh toán
+                    </Typography>
+                    <Stack direction="row" spacing={2} my={2}>
+                        <Field.VNCurrencyInput
+                            label="Lần 1"
+                            name="downPayment"
+                            disabled
+                            sx={{ maxWidth: 150 }}
+                        />
+                        <Field.VNCurrencyInput
+                            label="Lần 2"
+                            name="nextPayment"
+                            sx={{ maxWidth: 150 }}
+                            disabled
+                        />
+                        <Field.VNCurrencyInput
+                            label="Còn lại"
+                            name="lastPayment"
+                            sx={{ maxWidth: 150 }}
+                            disabled
+                        />
+                    </Stack>
+                </Box>
                 {/* Section Bảng sản phẩm */}
                 <ContractItemsTable
                     idContract={selectedContract?.id}
@@ -324,15 +358,15 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
                     remove={remove}
                     setPaid={setTotalPaid}
                 />
-            </Box>
+            </Stack>
         </Stack>
     );
 
     const renderLeftColumn = () => (
-        <Stack flex={1} spacing={3}>
+        <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={3}>
             {/* Section Thông tin khách hàng */}
             <Box>
-                <Stack direction="row" justifyContent="space-between">
+                <Stack direction={{ xs: "column", md: "row" }} gap={2} justifyContent="space-between">
                     <Typography variant="subtitle2">Thông tin khách hàng</Typography>
                     <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
                         <Field.Autocomplete
@@ -340,17 +374,25 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
                             label="Chọn khách hàng có sẵn"
                             options={customers}
                             loading={customersLoading}
-                            getOptionLabel={(opt) => opt?.name ?? ''}
+                            getOptionLabel={(opt) => opt?.name ?
+                                opt.name :
+                                opt?.companyName ?
+                                    opt.companyName : ''}
                             isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
                             onInputChange={(_, value) => setCustomerKeyword(value)}
                             value={selectedCustomer}
                             fullWidth
                             onChange={(_, newValue) => {
-                                setSelectedCustomer(newValue ?? null);
-                                setValue('customerId', newValue?.id ?? 0, { shouldValidate: true });
+                                methods.setValue('customerId', newValue?.id ?? 0, { shouldValidate: true });
+                                setCustomerKeyword(newValue?.name ?? '');
                             }}
                             noOptionsText="Không có dữ liệu"
                             sx={{ flex: 1, minWidth: 200 }}
+                            renderOption={(props, option) => (
+                                <li {...props} key={option.id}>
+                                    {option.name ? option.name : option.companyName}
+                                </li>
+                            )}
                         />
                         <Stack direction="row">
                             <Tooltip title="Tạo khách hàng mới">
@@ -428,7 +470,7 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
                     </Field.Select>
                 </Stack>
                 <Stack direction={{ xs: "column", md: "row" }} sx={{ mt: 2 }} spacing={2}>
-                    <Field.DatePicker name="createdDate" label="Ngày tạo" />
+                    <Field.DatePicker name="createDate" label="Ngày tạo" />
                     <Field.DatePicker name="signatureDate" label="Ngày ký" />
                 </Stack>
                 <Stack direction={{ xs: "column", md: "row" }} sx={{ mt: 2 }} spacing={2}>
@@ -504,7 +546,9 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
             <ContractCustomerForm
                 openChild={isCreatingCustomer}
                 setOpenChild={setIsCreatingCustomer}
-                contractMethods={methods}
+                methodsContract={methods}
+                setCustomerKeyword={setCustomerKeyword}
+                setSelectedCustomer={setSelectedCustomer}
             />
         </Dialog>
     );
