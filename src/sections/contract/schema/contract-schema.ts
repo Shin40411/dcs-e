@@ -2,6 +2,7 @@ import { IDateValue } from "src/types/common";
 import { z } from "zod";
 
 export const contractItemSchema = z.object({
+    id: z.number().optional(),
     product: z.string().min(1, "Vui lòng chọn sản phẩm"),
     unit: z.string().optional().or(z.literal("")),
     unitName: z.string().optional().or(z.literal("")),

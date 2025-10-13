@@ -3,7 +3,7 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
-import { IContractDao, IContractDetailDto, IContractDetails, IContractDto, IContractItem } from "src/types/contract";
+import { IContractDao, IContractDetailDto, IContractDetails, IContractDto, IContractItem, IProductFormEdit } from "src/types/contract";
 import { ContractFormValues, contractSchema } from "./schema/contract-schema";
 import { DetailItem } from "../quotation/helper/DetailItem";
 import { useGetCustomers } from "src/actions/customer";
@@ -13,11 +13,12 @@ import { ICustomerItem } from "src/types/customer";
 import { ContractItemsTable } from "./contract-product-table";
 import { ContractCustomerForm } from "./contract-customer-form";
 import { generateContractNo } from "src/utils/random-func";
-import { addMoreProducts, createOrUpdateContract, useGetContract } from "src/actions/contract";
+import { addMoreProducts, createOrUpdateContract, editProductForm, useGetContract } from "src/actions/contract";
 import { mapProductsToItems } from "./helper/mapProductToItems";
 import { endpoints } from "src/lib/axios";
 import { mutate } from "swr";
 import { toast } from "sonner";
+import { editAllContractDetails } from "./helper/mapContractProducts";
 
 type ContractFormProps = {
     open: boolean;
@@ -69,6 +70,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
         note: "",
         discount: 0,
         products: [{
+            id: undefined,
             product: "",
             unit: "",
             unitName: "",
@@ -202,6 +204,16 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 ...basePayload,
             };
 
+            const productPayload: IProductFormEdit[] = data.products
+                .map((item, idx) => ({
+                    rowId: item.id,
+                    productID: Number(item.product),
+                    price: item.price || 0,
+                    quantity: item.qty || 0,
+                    vat: item.vat || 0,
+                    unit: item.unitName ?? "",
+                }));
+
             // console.log(bodyPayload);
 
             await createOrUpdateContract(
@@ -211,6 +223,12 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
             );
 
             if (selectedContract) {
+                if (!productPayload) return;
+
+                for (const item of productPayload) {
+                    await editProductForm(item.rowId, item);
+                }
+
                 const newItems = bodyPayload.products.filter(
                     (item) => !originalItems.some((o) => o.productID === item.productID)
                 );
@@ -218,9 +236,9 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 if (newItems.length > 0) {
                     await addMoreProducts(selectedContract.id, newItems);
                 }
-                // else {
-                //     await editAllQuotationDetails(bodyPayload, selectedContract.id);
-                // }
+                else {
+                    await editAllContractDetails(bodyPayload, selectedContract.id);
+                }
             }
 
             toast.success(
@@ -272,6 +290,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 size="large"
                 sx={{ flex: 1, py: 1.5 }}
                 onClick={onClose}
+                loading={isSubmitting}
             >
                 Hủy
             </Button>
@@ -281,7 +300,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 size="large"
                 sx={{ flex: 1, py: 1.5 }}
                 disabled={isCreatingCustomer}
-                loading={false}
+                loading={isSubmitting}
             >
                 {selectedContract ? `Lưu hợp đồng` : 'Tạo hợp đồng'}
             </Button>

@@ -5,6 +5,7 @@ import { Iconify } from "src/components/iconify";
 import { IContractItem } from "src/types/contract";
 import { ContractPreview } from "./contract-preview";
 import { fCurrency } from "src/utils/format-number";
+import { useSettingsContext } from "src/components/settings";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
@@ -23,6 +24,7 @@ type Props = CardProps & {
 
 export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails, onEditing, sx, ...other }: Props) {
     const menuActions = usePopover();
+    const settings = useSettingsContext();
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -77,6 +79,8 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
         </CustomPopover>
     );
 
+    const totalDirection = settings.state.navLayout === 'vertical' ? 'column' : 'row';
+
     return (
         <>
             <Card
@@ -100,7 +104,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                 {...other}
             >
                 <ContractPreview contract={contract} />
-                <Stack direction={{ md: 'row', sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
+                <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
                         <Box
                             sx={{

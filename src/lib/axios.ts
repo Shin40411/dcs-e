@@ -129,6 +129,8 @@ export const endpoints = {
     update: {
       root: (id: number) => `/api/v1/contracts/update-contract-info/${id}`,
       addProducts: (id: number) => `/api/v1/contracts/add-product-to-contract/${id}`,
+      editProducts: '/api/v1/contracts/update-product-quantity-from-contract',
+      editProductForm: (id: number) => `/api/v1/contracts/edit-product-form-contract/${id}`,
       deleteProduct: `/api/v1/contracts/delete-product-from-contract`
     },
     sendMail: '/api/v1/contracts/send-email'
@@ -137,5 +139,14 @@ export const endpoints = {
   upload: {
     uploadImage: '/api/v1/uploads/upload',
     uploadMultipleImages: '/api/v1/uploads/upload-xml',
+  },
+  statistic: {
+    chart: {
+      customer: (year: number) => `/api/v1/statictis/total-customer-contract?year=${year}`,
+      supplier: (year: number) => `/api/v1/statictis/total-suplier-contract?year=${year}`
+    },
+    finance: '/api/v1/statictis/collect-spend-from-contracts',
+    contractValue: (params: string) => `/api/v1/statictis/top-contracts?${params}`,
+    topSaler: (params: string) => `/api/v1/statictis/get-top-seller?${params}`
   }
 };

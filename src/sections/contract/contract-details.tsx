@@ -90,11 +90,11 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
 
     return (
         <>
-            <Dialog open={openDetail} onClose={onClose} fullScreen>
+            <Dialog open={openDetail} onClose={() => { onClose(); setShowActions(false); }} fullScreen>
                 <DialogActions sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 2 }}>
                     <Stack direction="column" width="100%" alignItems="center">
                         <Stack direction="row" width="100%" justifyContent="space-between">
-                            <Button onClick={onClose}>Đóng</Button>
+                            <Button onClick={() => { onClose(); setShowActions(false); }}>Đóng</Button>
                             <Stack direction="row" flexWrap="wrap" justifyContent="flex-end" gap={4} width="100%" mt={2}>
                                 <Button
                                     variant="contained"
@@ -231,7 +231,8 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                     <Collapse sx={{ width: '100%' }} in={showActions} timeout="auto" unmountOnExit>
                         <ContractSendMail
                             email={selectedContract.customerEmail}
-                            contractId={selectedContract.id}
+                            contract={selectedContract}
+                            currentContract={contract}
                         />
                     </Collapse>
                 </DialogActions>

@@ -15,10 +15,23 @@ const LazyChart = lazy(() =>
   import('react-apexcharts').then((module) => ({ default: module.default }))
 );
 
-export function Chart({ type, series, options, slotProps, className, sx, ...other }: ChartProps) {
+export function Chart({ type, series, options, slotProps, className, sx, loading, ...other }: ChartProps & { loading?: boolean }) {
   const isClient = useIsClient();
 
   const renderFallback = () => <ChartLoading type={type} sx={slotProps?.loading} />;
+
+  if (loading) {
+    return (
+      <ChartRoot
+        dir="ltr"
+        className={mergeClasses([chartClasses.root, className])}
+        sx={sx}
+        {...other}
+      >
+        {renderFallback()}
+      </ChartRoot>
+    );
+  }
 
   return (
     <ChartRoot

@@ -1,7 +1,8 @@
+import { pdf } from "@react-pdf/renderer";
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, ResContractItem, ResContractList } from "src/types/contract";
+import { IContractDao, IContractData, IContractDetailDto, IContractDto, IContractItem, IContractProductToDelete, IProductContractEdit, IProductFormEdit, ResContractItem, ResContractList } from "src/types/contract";
 import useSWR, { SWRConfiguration } from "swr";
 
 type quotationProps = {
@@ -111,11 +112,9 @@ export async function addMoreProducts(id: number, bodyPayload: IContractDetailDt
     }
 }
 
-export async function deleteProductSelected(bodyPayload: IContractProductToDelete) {
+export async function editProductContract(bodyPayload: IProductContractEdit[]) {
     try {
-        const { data } = await axiosInstance.delete(endpoints.contract.update.deleteProduct, {
-            data: bodyPayload,
-        });
+        const { data } = await axiosInstance.patch(endpoints.contract.update.editProducts, bodyPayload);
         return data;
     } catch (error) {
         console.error(error);
@@ -123,10 +122,22 @@ export async function deleteProductSelected(bodyPayload: IContractProductToDelet
     }
 }
 
-export async function sendEmailContract({ contractId, email }: { contractId: number; email: string }) {
+export async function editProductForm(id?: number, bodyPayload?: IProductFormEdit) {
     try {
+        if (!id) return;
+        const { data } = await axiosInstance.patch(endpoints.contract.update.editProductForm(id), bodyPayload);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
-        const { data } = await axiosInstance.post(endpoints.contract.sendMail, { contractId, email });
+export async function deleteProductSelected(bodyPayload: IContractProductToDelete) {
+    try {
+        const { data } = await axiosInstance.delete(endpoints.contract.update.deleteProduct, {
+            data: bodyPayload,
+        });
         return data;
     } catch (error) {
         console.error(error);

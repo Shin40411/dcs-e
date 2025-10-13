@@ -48,8 +48,8 @@ export function JwtSignInView() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const defaultValues: SignInSchemaType = {
-    username: 'admin',
-    password: '12345',
+    username: '',
+    password: '',
   };
 
   const methods = useForm<SignInSchemaType>({
@@ -77,7 +77,7 @@ export function JwtSignInView() {
 
   const renderForm = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Field.Text name="username" label="Tên đăng nhập" slotProps={{ inputLabel: { shrink: true } }} />
+      <Field.Text name="username" label="Tên đăng nhập" />
 
       <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
         {/* <Link

@@ -69,7 +69,7 @@ export function ContractItemsTable({
     const deleteEachProduct = async () => {
         try {
             if (!idContract) return;
-            if (indexField === 0) {
+            if (fields.length <= 1) {
                 toast.warning("Phiếu hợp đồng đã tạo phải có ít nhất 1 sản phẩm");
                 toast.warning("Không thể xóa sản phẩm này");
                 openDel.onFalse();
@@ -331,9 +331,12 @@ function ProductAutocomplete({
             }
             onChange={(_, newValue) => {
                 if (newValue) {
+                    const rowId = methods.getValues(`products.${index}.id`);
+
                     methods.setValue(`products.${index}.product`, String(newValue.id), {
                         shouldValidate: true,
                     });
+                    methods.setValue(`products.${index}.id`, rowId);
                     methods.setValue(
                         `products.${index}.unit`,
                         newValue.unitID != null ? String(newValue.unitID) : ""

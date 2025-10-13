@@ -257,9 +257,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                     unit: item.unitName ?? "",
                 }));
 
-            // console.log(bodyPayload);
-            // console.log(productPayload);
-
             await createOrUpdateQuotation(
                 selectedQuotation?.id ?? null,
                 bodyPayload,
@@ -523,6 +520,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 size="large"
                 sx={{ flex: 1, py: 1.5 }}
                 onClick={onClose}
+                loading={isSubmitting}
             >
                 Hủy
             </Button>

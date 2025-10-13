@@ -116,14 +116,14 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Nhân viên', path: paths.dashboard.employees.root, icon: <Iconify icon={'streamline-cyber-color:account-group'} /> },
         ],
       },
-      {
-        title: 'Quản trị',
-        path: paths.dashboard.user.root,
-        icon: ICONS.user,
-        children: [
-          { title: 'Người dùng', path: paths.dashboard.user.list, icon: <Iconify icon={'streamline-cyber-color:headset-user'} /> },
-        ],
-      },
+      // {
+      //   title: 'Quản trị',
+      //   path: paths.dashboard.user.root,
+      //   icon: ICONS.user,
+      //   children: [
+      //     { title: 'Người dùng', path: paths.dashboard.user.list, icon: <Iconify icon={'streamline-cyber-color:headset-user'} /> },
+      //   ],
+      // },
       // {
       //   title: 'Thu chi',
       //   path: paths.dashboard.order.root,

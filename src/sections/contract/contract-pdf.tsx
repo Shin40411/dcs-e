@@ -40,7 +40,6 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract }: 
     const memoizedDoc = useMemo(() => (
         <ContractPdfDocument
             contract={contract}
-            currentStatus={currentStatus}
             currentContract={currentContract}
         />
     ), [contract, currentStatus, currentContract]);
@@ -132,11 +131,10 @@ Font.register({
 
 type ContractPdfDocumentProps = {
     contract?: IContractItem;
-    currentStatus: string;
     currentContract?: IContractData;
 };
 
-export function ContractPdfDocument({ contract, currentStatus, currentContract }: ContractPdfDocumentProps) {
+export function ContractPdfDocument({ contract, currentContract }: ContractPdfDocumentProps) {
     const styles = useStyles();
 
     const {

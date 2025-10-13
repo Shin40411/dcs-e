@@ -128,3 +128,20 @@ export type IContractProductToDelete = {
     contractId: string;
     productID: string;
 }
+
+export type IProductContractEdit = {
+    contractId: number;
+    productId: number;
+    quantity: number;
+    price: number;
+    unit: string;
+}
+
+export type IProductFormEdit = {
+    rowId?: number;
+    productID: number;
+    quantity: number;
+    price: number;
+    vat: number;
+    unit: string;
+}

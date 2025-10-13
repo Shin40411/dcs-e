@@ -6,11 +6,13 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, Form } from 'src/components/hook-form';
-import { sendEmailContract } from 'src/actions/contract';
+import { IContractData, IContractItem } from 'src/types/contract';
+import { sendEmailContract } from 'src/utils/send-mail';
 
 type Props = {
     email?: string;
-    contractId: number;
+    contract?: IContractItem;
+    currentContract?: IContractData;
 };
 
 const schema = z.object({
@@ -19,7 +21,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function ContractSendMail({ email, contractId }: Props) {
+export default function ContractSendMail({ email, contract, currentContract }: Props) {
     const methods = useForm<FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -31,7 +33,7 @@ export default function ContractSendMail({ email, contractId }: Props) {
 
     const onSubmit = async (data: FormValues) => {
         try {
-            await sendEmailContract({ contractId, email: data.email });
+            await sendEmailContract({ email: data.email, contract, currentContract });
             toast.success("Gửi hợp đồng thành công!");
             reset();
         } catch (error: any) {

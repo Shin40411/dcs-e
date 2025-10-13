@@ -18,7 +18,7 @@ import { Chart, useChart } from 'src/components/chart';
 type Props = BoxProps & {
   title: string;
   total: number;
-  icon: IconifyName;
+  icon: string;
   chart: {
     colors?: string[];
     series: number;
