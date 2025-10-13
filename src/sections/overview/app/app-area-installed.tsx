@@ -107,7 +107,6 @@ export function AppAreaInstalled({ title, subheader }: Props) {
         sx={{
           py: 2.5,
           height: 320,
-          width: totalWidth
         }}
       />
 
