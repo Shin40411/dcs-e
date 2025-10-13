@@ -122,3 +122,14 @@ export async function deleteProductSelected(bodyPayload: IContractProductToDelet
         throw error;
     }
 }
+
+export async function sendEmailContract({ contractId, email }: { contractId: number; email: string }) {
+    try {
+
+        const { data } = await axiosInstance.post(endpoints.contract.sendMail, { contractId, email });
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}

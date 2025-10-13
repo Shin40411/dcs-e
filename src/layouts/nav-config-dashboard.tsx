@@ -124,15 +124,15 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Người dùng', path: paths.dashboard.user.list, icon: <Iconify icon={'streamline-cyber-color:headset-user'} /> },
         ],
       },
-      {
-        title: 'Thu chi',
-        path: paths.dashboard.order.root,
-        icon: ICONS.invoice,
-        children: [
-          { title: 'Phiếu thu', path: paths.dashboard.invoice.root, icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} /> },
-          { title: 'Phiếu chi', path: paths.dashboard.order.root, icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} /> },
-        ],
-      },
+      // {
+      //   title: 'Thu chi',
+      //   path: paths.dashboard.order.root,
+      //   icon: ICONS.invoice,
+      //   children: [
+      //     { title: 'Phiếu thu', path: paths.dashboard.invoice.root, icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} /> },
+      //     { title: 'Phiếu chi', path: paths.dashboard.order.root, icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} /> },
+      //   ],
+      // },
       // {
       //   title: 'Blog',
       //   path: paths.dashboard.post.root,

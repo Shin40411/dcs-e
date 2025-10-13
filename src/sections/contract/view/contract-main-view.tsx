@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
@@ -10,8 +10,10 @@ import { CONFIG } from "src/global-config";
 import { Iconify } from "src/components/iconify";
 import { ContractForm } from "../contract-form";
 import { ContractDetails } from "../contract-details";
+import { useLocation, useNavigate } from "react-router";
 
 export function ContractMainView() {
+    const location = useLocation();
     const [openForm, setOpenForm] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedContract, setSelectedContract] = useState<IContractItem | null>(null);
@@ -19,6 +21,8 @@ export function ContractMainView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [fromDate, setFromDate] = useState<IDateValue>();
     const [toDate, setToDate] = useState<IDateValue>();
+    const [productDetails, setProductDetails] = useState([]);
+    const navigate = useNavigate();
 
     const handleViewDetails = (contract: IContractItem) => {
         setSelectedContract(contract);
@@ -34,6 +38,18 @@ export function ContractMainView() {
         setSelectedContract(null);
         setOpenForm(true);
     }
+
+    useEffect(() => {
+        if (location.state?.openForm) {
+            setOpenForm(true);
+            if (location.state.details) {
+                const quotation = location.state.details;
+                const products = quotation.items?.[0]?.products ?? [];
+                setProductDetails(products);
+            }
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location.state, location.pathname, navigate]);
 
     return (
         <>
@@ -70,8 +86,13 @@ export function ContractMainView() {
 
                 <ContractForm
                     open={openForm}
-                    onClose={() => { setOpenForm(false); setSelectedContract(null) }}
+                    onClose={() => {
+                        setOpenForm(false);
+                        setSelectedContract(null);
+                        setProductDetails([]);
+                    }}
                     selectedContract={selectedContract}
+                    detailsFromQuotation={productDetails}
                 />
                 {selectedContract && (
                     <ContractDetails

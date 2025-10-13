@@ -31,6 +31,12 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract }: 
         return () => clearTimeout(timer);
     }, []);
 
+    // useEffect(() => {
+    //     console.log('render 0:', contract);
+    //     console.log('render 1:', currentContract);
+    // }, [contract, currentContract]);
+
+
     const memoizedDoc = useMemo(() => (
         <ContractPdfDocument
             contract={contract}
@@ -167,40 +173,88 @@ export function ContractPdfDocument({ contract, currentStatus, currentContract }
         <Document
             title={`Hợp đồng số ${contractNo}`}
         >
-            <Page size="A4" style={styles.page}>
-                {renderHeader()}
-                <View style={styles.body}>
-                    {renderTitle(contractNo)}
-                    {renderLaw()}
-                    {renderTwoSides({
-                        customerAddress,
-                        companyName,
-                        customerBank,
-                        customerBankNo,
-                        customerName,
-                        customerPhone
-                    })}
-                    {renderRuleOne()}
-                    {renderTable({
-                        currentContract,
-                        discount,
-                        total
-                    })}
-                    {renderRuleTwo({
-                        downPayment,
-                        nextPayment,
-                        lastPayment,
-                        signatureDate,
-                        total
-                    })}
-                    {renderRuleThree()}
-                    {renderRuleFour()}
-                    {renderRuleFive()}
-                    {renderRuleSix()}
-                    {renderSigner({ companyName, customerName })}
-                </View>
-                {renderFooter()}
-            </Page>
+
+            {currentContract?.totalRecord && currentContract.totalRecord > 3 ?
+                (
+                    <>
+                        <Page size="A4" style={styles.page}>
+                            {renderHeader()}
+                            <View style={styles.body}>
+                                {renderTitle(contractNo)}
+                                {renderLaw()}
+                                {renderTwoSides({
+                                    customerAddress,
+                                    companyName,
+                                    customerBank,
+                                    customerBankNo,
+                                    customerName,
+                                    customerPhone
+                                })}
+                                {renderRuleOne()}
+                            </View>
+                            {renderFooter()}
+                        </Page>
+                        <Page size="A4" style={styles.page}>
+                            {renderHeader()}
+                            <View style={styles.body}>
+                                {renderTable({
+                                    currentContract,
+                                    discount,
+                                    total
+                                })}
+                                {renderRuleTwo({
+                                    downPayment,
+                                    nextPayment,
+                                    lastPayment,
+                                    signatureDate,
+                                    total
+                                })}
+                                {renderRuleThree()}
+                                {renderRuleFour()}
+                                {renderRuleFive()}
+                                {renderRuleSix()}
+                                {renderSigner({ companyName, customerName })}
+                            </View>
+                            {renderFooter()}
+                        </Page>
+                    </>
+                )
+                :
+                <Page size="A4" style={styles.page}>
+                    {renderHeader()}
+                    <View style={styles.body}>
+                        {renderTitle(contractNo)}
+                        {renderLaw()}
+                        {renderTwoSides({
+                            customerAddress,
+                            companyName,
+                            customerBank,
+                            customerBankNo,
+                            customerName,
+                            customerPhone
+                        })}
+                        {renderRuleOne()}
+                        {renderTable({
+                            currentContract,
+                            discount,
+                            total
+                        })}
+                        {renderRuleTwo({
+                            downPayment,
+                            nextPayment,
+                            lastPayment,
+                            signatureDate,
+                            total
+                        })}
+                        {renderRuleThree()}
+                        {renderRuleFour()}
+                        {renderRuleFive()}
+                        {renderRuleSix()}
+                        {renderSigner({ companyName, customerName })}
+                    </View>
+                    {renderFooter()}
+                </Page>
+            }
         </Document>
     );
 }

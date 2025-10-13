@@ -23,9 +23,10 @@ type ContractFormProps = {
     open: boolean;
     onClose: () => void;
     selectedContract: IContractItem | null;
+    detailsFromQuotation: any[];
 };
 
-export function ContractForm({ open, onClose, selectedContract }: ContractFormProps) {
+export function ContractForm({ open, onClose, selectedContract, detailsFromQuotation }: ContractFormProps) {
     const today = new Date();
     const [customerkeyword, setCustomerKeyword] = useState('');
     const debouncedCustomerKw = useDebounce(customerkeyword, 300);
@@ -84,6 +85,12 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
     });
 
     useEffect(() => {
+        if (detailsFromQuotation?.length > 0) {
+            const mapped = mapProductsToItems(detailsFromQuotation);
+            methods.setValue("products", mapped);
+            return;
+        }
+
         if (!selectedContract) {
             methods.reset(defaultValues);
             setOriginalItems(
@@ -133,7 +140,7 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
             }))
         );
 
-    }, [selectedContract, CurrentContract, methods.reset]);
+    }, [detailsFromQuotation, selectedContract, CurrentContract, methods.reset]);
 
     const customerId = methods.watch('customerId');
 
@@ -491,7 +498,7 @@ export function ContractForm({ open, onClose, selectedContract }: ContractFormPr
                 </Stack>
                 <Stack direction={{ xs: "column", md: "row" }} sx={{ mt: 2 }} spacing={2}>
                     <Field.DatePicker name="deliveryTime" label="Ngày giao hàng" />
-                    <Field.Text name="deliveryAddress" label="Địa điểm giao hàng" />
+                    <Field.Text name="deliveryAddress" label="Địa chỉ giao hàng" />
                 </Stack>
                 <Field.Text
                     name="note"

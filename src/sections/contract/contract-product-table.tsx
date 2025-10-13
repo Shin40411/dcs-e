@@ -373,7 +373,7 @@ function UnitSelection({
             name={`products.${index}.unit`}
             label="Đơn vị tính"
             fullWidth
-            sx={{ width: 100 }}
+            sx={{ width: 120 }}
         >
             {unitsLoading ? (
                 <MenuItem disabled>Đang tải...</MenuItem>

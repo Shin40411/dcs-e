@@ -11,7 +11,7 @@ export const renderByTextTotal = (totalAmount?: number) => {
         <View style={[styles.mt8, {
             width: '100%',
             flexDirection: 'row',
-            padding: '0 60px',
+            padding: '20px 20px',
             gap: 5
         }]}>
             <Text style={{ fontFamily: 'Niramit-SemiBold', fontSize: 13 }}>

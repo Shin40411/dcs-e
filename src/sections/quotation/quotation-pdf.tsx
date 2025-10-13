@@ -189,20 +189,51 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
         <Document
             title={`Báo giá số ${quotationNo}`}
         >
-            <Page size="A4" style={styles.page}>
-                {renderHeader()}
-                <View
-                    style={styles.body}
-                >
-                    {renderDates(createdDate, quotationNo)}
-                    {renderTitle()}
-                    {renderBillingInfo(companyName, customerName)}
-                    {renderTable({ currentQuotation, totalAmount })}
-                    {renderByTextTotal(totalAmount)}
-                    {renderNotes({ note, employeeType, department, seller })}
-                </View>
-                {renderFooter()}
-            </Page>
+            {currentQuotation?.totalRecord && currentQuotation?.totalRecord > 2 ?
+                (
+                    <>
+                        <Page size="A4" style={styles.page}>
+                            {renderHeader()}
+                            <View
+                                style={styles.body}
+                            >
+                                {renderDates(createdDate, quotationNo)}
+                                {renderTitle()}
+                                {renderBillingInfo(companyName, customerName)}
+                                {renderTable({ currentQuotation, totalAmount })}
+                                {renderByTextTotal(totalAmount)}
+                            </View>
+                            {renderFooter()}
+                        </Page>
+                        <Page size="A4" style={styles.page}>
+                            {renderHeader()}
+                            <View
+                                style={styles.body}
+                            >
+                                {renderNotes({ note, employeeType, department, seller })}
+                            </View>
+                            {renderFooter()}
+                        </Page>
+                    </>
+                )
+                :
+                (
+                    <Page size="A4" style={styles.page}>
+                        {renderHeader()}
+                        <View
+                            style={styles.body}
+                        >
+                            {renderDates(createdDate, quotationNo)}
+                            {renderTitle()}
+                            {renderBillingInfo(companyName, customerName)}
+                            {renderTable({ currentQuotation, totalAmount })}
+                            {renderByTextTotal(totalAmount)}
+                            {renderNotes({ note, employeeType, department, seller })}
+                        </View>
+                        {renderFooter()}
+                    </Page>
+                )
+            }
         </Document>
     );
 }

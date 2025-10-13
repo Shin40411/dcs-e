@@ -150,12 +150,15 @@ export const renderTable = ({ currentQuotation, discount, totalAmount }: props) 
                                             }}
                                         />
                                     )}
-                                    <Text style={[
-                                        item.styles ?? { fontFamily: 'Niramit-SemiBold', fontSize: 13 },
-                                        item.isTotal
-                                            ? { fontFamily: 'Niramit-Bold', fontSize: 14 }
-                                            : {}]}
-                                    >{item.value}</Text>
+                                    <Text
+                                        style={[
+                                            item.styles ?? { fontFamily: 'Niramit-SemiBold', fontSize: 13 },
+                                            item.isTotal
+                                                ? { fontFamily: 'Niramit-Bold', fontSize: 14, alignSelf: 'flex-end' }
+                                                : {}]}
+                                    >
+                                        {item.value}
+                                    </Text>
                                 </View>
                             </View>
                         </View>

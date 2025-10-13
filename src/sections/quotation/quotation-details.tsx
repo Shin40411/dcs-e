@@ -5,7 +5,8 @@ import { JSX, useEffect, useRef, useState } from "react";
 import { QuotationPDFViewer } from "./quotation-pdf";
 import { Iconify } from "src/components/iconify";
 import QuotationSendMail from "./quotation-sendmail";
-import { useBoolean } from "minimal-shared/hooks";
+import { useNavigate } from "react-router";
+import { paths } from "src/routes/paths";
 
 type Props = {
     selectedQuotation: IQuotationItem;
@@ -15,7 +16,7 @@ type Props = {
 }
 
 export function QuotationDetails({ selectedQuotation, openForm, openDetail = false, onClose }: Props) {
-    const openSendMail = useBoolean();
+    const navigate = useNavigate();
 
     const { quotation, quotationLoading, quotationError } = useGetQuotation({
         quotationId: selectedQuotation?.id,
@@ -24,13 +25,15 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
         options: { enabled: !!selectedQuotation?.id }
     });
 
+    const handleCreateContract = () => {
+        navigate(paths.dashboard.customerServices.contract, { state: { openForm: true, details: quotation } });
+    };
+
     const [showActions, setShowActions] = useState(false);
 
     const handleToggle = () => {
         setShowActions((prev) => !prev);
     };
-
-    const [currentQuotation, setSelectQuotation] = useState<IQuotationData>();
 
     const statusMap: { [key: number]: string } = {
         0: "Bỏ qua",
@@ -38,22 +41,22 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
         2: "Đang thực hiện",
         3: "Đã thanh toán",
     }
-
-    useEffect(() => {
-        if (quotation) {
-            setSelectQuotation(quotation);
-        }
-    }, [quotation]);
-
     const pdfRef = useRef<JSX.Element | null>(null);
-    if (!pdfRef.current && currentQuotation) {
+    const pdfQuotationIdRef = useRef<number | string | null>(null);
+
+    if (
+        quotation &&
+        selectedQuotation &&
+        pdfQuotationIdRef.current !== selectedQuotation.id
+    ) {
         pdfRef.current = (
             <QuotationPDFViewer
                 invoice={selectedQuotation}
                 currentStatus={statusMap[selectedQuotation.status]}
-                currentQuotation={currentQuotation}
+                currentQuotation={quotation}
             />
         );
+        pdfQuotationIdRef.current = selectedQuotation.id;
     }
 
     return (
@@ -85,6 +88,7 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
                             variant="contained"
                             type="button"
                             startIcon={<Iconify icon="clarity:contract-line" />}
+                            onClick={handleCreateContract}
                         >
                             Tạo hợp đồng
                         </Button>

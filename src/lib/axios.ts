@@ -131,6 +131,7 @@ export const endpoints = {
       addProducts: (id: number) => `/api/v1/contracts/add-product-to-contract/${id}`,
       deleteProduct: `/api/v1/contracts/delete-product-from-contract`
     },
+    sendMail: '/api/v1/contracts/send-email'
     // delete: (id: number) => `/api/v1/quotation/delete/${id}`,
   },
   upload: {
