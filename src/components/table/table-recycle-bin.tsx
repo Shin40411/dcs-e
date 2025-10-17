@@ -132,7 +132,7 @@ export function TableRecycleBin({
                                             />
                                         </TableCell>
                                         <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
-                                        <TableCell>{item.name}</TableCell>
+                                        <TableCell>{item.companyName ? item.companyName : item.name}</TableCell>
                                     </TableRow>
                                 );
                             })

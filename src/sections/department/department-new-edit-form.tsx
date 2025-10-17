@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const NewDepartmentSchema = zod.object({
-    name: zod.string().min(1, "Tên phòng ban là bắt buộc"),
+    name: zod.string().min(1, "Tên phòng ban là trường bắt buộc"),
 });
 
 export type NewDepartmentSchemaType = Zod.infer<typeof NewDepartmentSchema>;

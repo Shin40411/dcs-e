@@ -1,5 +1,6 @@
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { Iconify } from "src/components/iconify";
+import { IContractItem } from "src/types/contract";
 import { CloseIcon } from "yet-another-react-lightbox";
 interface FileItem {
     id: number;
@@ -8,18 +9,29 @@ interface FileItem {
 }
 
 interface FileDialogProps {
+    selectedContract: IContractItem;
     open: boolean;
     onClose: () => void;
 }
 
-export default function ContractAttachMent({ open, onClose }: FileDialogProps) {
+export default function ContractAttachMent({ selectedContract, open, onClose }: FileDialogProps) {
     const files: FileItem[] = [
         { id: 1, name: 'Phieu thu HD001.pdf', type: 'pdf' },
         { id: 2, name: 'Phieu chi HD001.pdf', type: 'pdf' },
     ];
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+        <Dialog
+            PaperProps={{
+                sx: {
+                    borderRadius: 0,
+                },
+            }}
+            open={open}
+            onClose={onClose}
+            fullWidth
+            maxWidth="sm"
+        >
             <DialogTitle
                 sx={{
                     display: 'flex',
@@ -29,14 +41,15 @@ export default function ContractAttachMent({ open, onClose }: FileDialogProps) {
                 }}
             >
                 <Box display="flex" alignItems="center" gap={1}>
-                    <Typography fontWeight={600}>📎 File chứng từ</Typography>
+                    <Iconify icon="teenyicons:attach-outline" />
+                    <Typography fontWeight={600} textTransform="uppercase">File chứng từ</Typography>
                 </Box>
                 <IconButton onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
 
-            <DialogContent sx={{ p: 2 }}>
+            <DialogContent sx={{ p: '0 !important' }}>
                 <Table size="small">
                     <TableHead>
                         <TableRow>
@@ -73,7 +86,7 @@ export default function ContractAttachMent({ open, onClose }: FileDialogProps) {
                     </TableBody>
                 </Table>
 
-                <Box mt={2} mb={2} display="flex" justifyContent="flex-start">
+                <Box mt={2} mb={2} p={2} display="flex" justifyContent="flex-start">
                     <Button
                         variant="outlined"
                         startIcon={<Iconify icon={'material-symbols:picture-as-pdf-rounded'} width={20} />}

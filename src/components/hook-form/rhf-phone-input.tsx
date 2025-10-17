@@ -53,7 +53,7 @@ export function RHFPhoneField({
       name={name}
       control={control}
       rules={{
-        required: required ? "Số điện thoại là bắt buộc" : false,
+        required: required ? "Số điện thoại là trường bắt buộc" : false,
         validate: (value) => {
           const digits = value.replace(/\D/g, "");
           if (!/^(\+84|0)\d{9}$/.test(digits)) {

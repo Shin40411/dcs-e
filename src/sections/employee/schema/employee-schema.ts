@@ -2,7 +2,7 @@ import { IDateValue } from 'src/types/common';
 import { z as zod } from 'zod';
 
 export const NewEmployeeSchema = zod.object({
-    name: zod.string().min(1, "Họ và tên là bắt buộc"),
+    name: zod.string().min(1, "Họ và tên là trường bắt buộc"),
     phone: zod.string().min(1, "Số điện thoại không được để trống").min(10, "Số điện thoại không hợp lệ"),
     email: zod.string().min(1, "Email không được để trống").email("Email không hợp lệ"),
     gender: zod.enum(["Male", "Female", "Other"]),

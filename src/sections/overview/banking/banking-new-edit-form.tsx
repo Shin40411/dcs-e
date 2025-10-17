@@ -17,9 +17,9 @@ type Props = {
 };
 
 export const NewBankingSchema = zod.object({
-    name: zod.string().min(1, "Tên tài khoản là bắt buộc"),
+    name: zod.string().min(1, "Tên tài khoản là trường bắt buộc"),
     bankNo: zod.string().min(5, "Số tài khoản không hợp lệ"),
-    bank: zod.string().min(1, "Tên ngân hàng là bắt buộc"),
+    bank: zod.string().min(1, "Tên ngân hàng là trường bắt buộc"),
     balance: zod.number({ coerce: true })
         .nonnegative({ message: "Số dư không được âm" })
         .default(0)

@@ -22,7 +22,7 @@ export const contractSchema = z.object({
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn ngày ký" }
     ),
-    deliveryAddress: z.string().min(1, { message: "Địa chỉ giao hàng là bắt buộc" }),
+    deliveryAddress: z.string().min(1, { message: "Địa chỉ giao hàng là trường bắt buộc" }),
     deliveryTime: z.custom<IDateValue>().refine(
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn thời gian giao" }

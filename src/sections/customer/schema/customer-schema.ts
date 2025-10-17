@@ -1,7 +1,7 @@
 import { z as zod } from 'zod';
 
 export const NewCustomerSchema = zod.object({
-    name: zod.string().min(1, "Họ và tên khách hàng là bắt buộc"),
+    name: zod.string().min(1, "Họ và tên khách hàng là trường bắt buộc"),
     phone: zod.string().min(10, "Số điện thoại không hợp lệ"),
     email: zod.string()
         .email("Email không hợp lệ")

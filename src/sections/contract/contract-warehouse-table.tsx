@@ -4,16 +4,13 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, 
 import { fCurrency, fRenderTextNumber } from "src/utils/format-number";
 import { Iconify } from "src/components/iconify";
 import { capitalizeFirstLetter } from "src/utils/format-string";
-import { toast } from "sonner";
 import { useBoolean } from "minimal-shared/hooks";
-import { mutate } from "swr";
-import { endpoints } from "src/lib/axios";
 import { ContractFormValues } from "./schema/contract-schema";
-import { deleteProductSelected } from "src/actions/contract";
-import { ContractItemsTableProps } from "./helper/ContractItemsTableProps";
+import { ContractWareHouseTableProps } from "./helper/ContractItemsTableProps";
 import ContractItemsTableContent from "./components/contractItemTable";
+import { ContractWareHouseSchemaType } from "./schema/contract-warehouse";
 
-export function ContractItemsTable({
+export function ContractWarehouseTable({
     idContract,
     contractProductDetail,
     methods,
@@ -21,16 +18,11 @@ export function ContractItemsTable({
     remove,
     append,
     setPaid
-}: ContractItemsTableProps) {
+}: ContractWareHouseTableProps) {
     const items = useWatch({
         control: methods.control,
         name: "products",
-    }) as ContractFormValues["products"];
-
-    const discount = useWatch({
-        control: methods.control,
-        name: "discount",
-    }) as number | undefined;
+    }) as ContractWareHouseSchemaType["products"];
 
     const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
         const qty = Number(item?.qty) || 0;
@@ -41,11 +33,7 @@ export function ContractItemsTable({
 
     const total = (items || []).reduce((acc, i) => acc + calcAmount(i), 0);
 
-    const discountRate = discount ? discount / 100 : 0;
-
-    const subtotal = total * (1 - discountRate);
-
-    const roundedTotal = Math.round(subtotal);
+    const roundedTotal = Math.round(total);
 
     const openDel = useBoolean();
 
@@ -53,40 +41,40 @@ export function ContractItemsTable({
 
     const [productIDSelected, setProductIDSelected] = useState('');
 
-    const deleteEachProduct = async () => {
-        try {
-            if (!idContract) return;
-            if (fields.length <= 1) {
-                toast.warning("Phiếu hợp đồng đã tạo phải có ít nhất 1 sản phẩm");
-                toast.warning("Không thể xóa sản phẩm này");
-                openDel.onFalse();
-                return;
-            }
+    // const deleteEachProduct = async () => {
+    //     try {
+    //         if (!idContract) return;
+    //         if (fields.length <= 1) {
+    //             toast.warning("Phiếu hợp đồng đã tạo phải có ít nhất 1 sản phẩm");
+    //             toast.warning("Không thể xóa sản phẩm này");
+    //             openDel.onFalse();
+    //             return;
+    //         }
 
-            await deleteProductSelected({
-                productID: productIDSelected,
-                contractId: String(idContract)
-            });
-            remove(indexField);
-            toast.success("Đã xóa sản phẩm ra khỏi danh sách");
-            openDel.onFalse();
+    //         await deleteProductSelected({
+    //             productID: productIDSelected,
+    //             contractId: String(idContract)
+    //         });
+    //         remove(indexField);
+    //         toast.success("Đã xóa sản phẩm ra khỏi danh sách");
+    //         openDel.onFalse();
 
-            mutate(
-                (k) => typeof k === "string" && k.startsWith("/api/v1/contracts/contracts"),
-                undefined,
-                { revalidate: true }
-            );
+    //         mutate(
+    //             (k) => typeof k === "string" && k.startsWith("/api/v1/contracts/contracts"),
+    //             undefined,
+    //             { revalidate: true }
+    //         );
 
-            mutate(endpoints.contract.detail(`?pageNumber=1&pageSize=999&ContractId=${idContract}`));
-        } catch (error: any) {
-            console.error(error);
-            if (error.message) {
-                toast.error(error.message);
-            } else {
-                toast.error("Đã có lỗi xảy ra!");
-            }
-        }
-    };
+    //         mutate(endpoints.contract.detail(`?pageNumber=1&pageSize=999&ContractId=${idContract}`));
+    //     } catch (error: any) {
+    //         console.error(error);
+    //         if (error.message) {
+    //             toast.error(error.message);
+    //         } else {
+    //             toast.error("Đã có lỗi xảy ra!");
+    //         }
+    //     }
+    // };
 
     const confirmDeleteUpdateProduct = () => (
         <Dialog open={openDel.value} onClose={openDel.onFalse} maxWidth="sm" fullWidth>
@@ -114,7 +102,7 @@ export function ContractItemsTable({
                         variant="contained"
                         sx={{ ml: 1 }}
                         fullWidth
-                        onClick={deleteEachProduct}
+                    // onClick={deleteEachProduct}
                     >
                         Xóa
                     </Button>
@@ -128,11 +116,11 @@ export function ContractItemsTable({
     }, [roundedTotal]);
 
     return (
-        <Box>
+        <Box mt={3}>
             <Typography variant="subtitle2">Sản phẩm</Typography>
 
-            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-                <Box sx={{ flex: 1, overflowY: "auto" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+                <Box sx={{ overflowY: "auto" }}>
                     <ContractItemsTableContent
                         fields={fields}
                         append={append}
@@ -177,7 +165,7 @@ export function ContractItemsTable({
                     </Stack>
                 </Box>
             </Box>
-            {confirmDeleteUpdateProduct()}
+            {/* {confirmDeleteUpdateProduct()} */}
         </Box>
     );
 }

@@ -7,6 +7,8 @@ import { ContractPDFViewer } from "./contract-pdf";
 import ContractAttachMent from "./contract-attachment";
 import { useBoolean } from "minimal-shared/hooks";
 import ContractSendMail from "./contract-sendmail";
+import { ContractReceipt } from "./contract-receipt";
+import { ContractWareHouse } from "./contract-warehouse";
 
 type Props = {
     selectedContract: IContractItem;
@@ -33,6 +35,8 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
     const openBB = Boolean(anchorBB);
 
     const openFileAttach = useBoolean();
+    const openReceipt = useBoolean();
+    const openWareHouse = useBoolean();
 
     const handleClickLP = (event: MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -172,15 +176,15 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                         //     },
                         // }}
                         >
-                            <MenuItem onClick={handleCloseLP}>
+                            <MenuItem onClick={() => { handleCloseLP(); openReceipt.onTrue(); }}>
                                 <Iconify icon="streamline-ultimate:receipt-bold" style={{ marginRight: 8 }} />
                                 Phiếu thu
                             </MenuItem>
-                            <MenuItem onClick={handleCloseLP}>
+                            {/* <MenuItem onClick={handleCloseLP}>
                                 <Iconify icon="hugeicons:payment-02" style={{ marginRight: 8 }} />
                                 Phiếu chi
-                            </MenuItem>
-                            <MenuItem onClick={handleCloseLP}>
+                            </MenuItem> */}
+                            <MenuItem onClick={() => { handleCloseLP(); openWareHouse.onTrue(); }}>
                                 <Iconify icon="lsicon:out-of-warehouse-filled" style={{ marginRight: 8 }} />
                                 Phiếu xuất kho
                             </MenuItem>
@@ -239,7 +243,21 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                 <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
                     {pdfRef.current}
                 </Box>
-                <ContractAttachMent open={openFileAttach.value} onClose={openFileAttach.onFalse} />
+                <ContractAttachMent
+                    selectedContract={selectedContract}
+                    open={openFileAttach.value}
+                    onClose={openFileAttach.onFalse}
+                />
+                <ContractReceipt
+                    selectedContract={selectedContract}
+                    open={openReceipt.value}
+                    onClose={openReceipt.onFalse}
+                />
+                <ContractWareHouse
+                    selectedContract={selectedContract}
+                    open={openWareHouse.value}
+                    onClose={openWareHouse.onFalse}
+                />
             </Dialog>
         </>
     );

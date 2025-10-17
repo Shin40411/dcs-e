@@ -16,14 +16,14 @@ export const customerSchema = z.object({
             ctx.addIssue({
                 code: "custom",
                 path: ["taxCode"],
-                message: "Mã số thuế là bắt buộc với khách hàng doanh nghiệp",
+                message: "Mã số thuế là trường bắt buộc với khách hàng doanh nghiệp",
             });
         }
         if (!data.companyName || data.companyName.trim() === "") {
             ctx.addIssue({
                 code: "custom",
                 path: ["companyName"],
-                message: "Tên công ty là bắt buộc với khách hàng doanh nghiệp",
+                message: "Tên công ty là trường bắt buộc với khách hàng doanh nghiệp",
             });
         }
     }

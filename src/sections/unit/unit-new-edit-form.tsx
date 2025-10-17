@@ -17,7 +17,7 @@ type Props = {
 };
 
 export const NewUnitSchema = zod.object({
-    name: zod.string().min(1, "Tên đơn vị tính là bắt buộc"),
+    name: zod.string().min(1, "Tên đơn vị tính là trường bắt buộc"),
 });
 
 export type NewUnitSchemaType = Zod.infer<typeof NewUnitSchema>;

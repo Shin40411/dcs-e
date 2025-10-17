@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const NewEmployeeTypeSchema = zod.object({
-    name: zod.string().min(1, "Tên chức vụ là bắt buộc"),
+    name: zod.string().min(1, "Tên chức vụ là trường bắt buộc"),
 });
 
 export type NewEmployeeTypeSchemaType = Zod.infer<typeof NewEmployeeTypeSchema>;
