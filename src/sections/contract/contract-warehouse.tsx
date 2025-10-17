@@ -1,4 +1,4 @@
-import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Iconify } from "src/components/iconify";
 import { IContractDetails, IContractItem } from "src/types/contract";
@@ -187,8 +187,15 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 </IconButton>
             </DialogTitle>
 
-            <DialogContent sx={{ p: 2 }}>
-                <Form methods={methods} onSubmit={onSubmit}>
+            <Form methods={methods} onSubmit={onSubmit}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flex: 1,
+                    overflow: 'hidden',
+                }}
+            >
+                <DialogContent sx={{ flex: 1, overflowY: 'auto', p: 2 }}>
                     <CardContent sx={{ pt: 0, px: 0 }}>
                         <Stack spacing={{ xs: 3, md: 2 }} direction="column">
                             {renderDetails()}
@@ -203,12 +210,11 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                             />
                         </Stack>
                     </CardContent>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }} />
-                    <CardActions>
-                        {renderActions()}
-                    </CardActions>
-                </Form>
-            </DialogContent>
-        </Dialog>
+                </DialogContent>
+                <DialogActions sx={{ flexShrink: 0, borderTop: '1px solid #e0e0e0', p: 4 }}>
+                    {renderActions()}
+                </DialogActions>
+            </Form>
+        </Dialog >
     );
 }

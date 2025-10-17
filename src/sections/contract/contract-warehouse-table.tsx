@@ -139,7 +139,7 @@ export function ContractWarehouseTable({
                 <Box
                     sx={{
                         position: "sticky",
-                        bottom: -50,
+                        bottom: -15,
                         borderTop: "1px solid",
                         borderColor: "divider",
                         p: 2,

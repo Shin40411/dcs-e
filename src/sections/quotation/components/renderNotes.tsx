@@ -57,15 +57,15 @@ export const renderNotes = ({ note, employeeType, department, seller }: props) =
                 </View>
             </View>
 
-            <View style={{ alignItems: 'center', lineHeight: 1, flexShrink: 0, maxWidth: '35%' }}>
+            <View style={{ alignItems: 'center', lineHeight: 1, flexShrink: 0, maxWidth: '40%' }}>
                 <Text style={[styles.text1Bold, { fontSize: 13 }]}>Người lập</Text>
-                {(employeeType && department) &&
+                {/* {(employeeType && department) &&
                     <Text style={[styles.text1Bold, { fontSize: 13, textTransform: 'uppercase' }]}>{`${employeeType ?? ''} / ${department ?? ''}`}</Text>
-                }
+                } */}
 
                 <View style={{ height: 60 }} />
 
-                <Text style={[styles.text1Bold, { fontSize: 13 }]}>{seller ?? `Họ và tên`}</Text>
+                {/* <Text style={[styles.text1Bold, { fontSize: 13 }]}>{seller ?? `Họ và tên`}</Text> */}
             </View>
         </View>
     );
