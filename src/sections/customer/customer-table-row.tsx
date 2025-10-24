@@ -92,6 +92,14 @@ export function RenderCellAddress({ params }: ParamsProps) {
     );
 }
 
+export function RenderPosition({ params }: ParamsProps) {
+    return (
+        <Box sx={{ gap: 0.5, display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 15 }}>{params.row.position}</span>
+        </Box>
+    );
+}
+
 export function RenderCellIsPartner({ params }: ParamsProps) {
     return (
         <Box sx={{ gap: 0.5, display: 'flex', flexDirection: 'column' }}>

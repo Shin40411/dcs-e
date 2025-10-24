@@ -97,7 +97,7 @@ export function DepartmentListView() {
     const renderCRUDForm = () => (
         <DepartmentNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
             selectedId={rowIdSelected || undefined}
             currentDepartment={tableRowSelected || undefined}
         />
@@ -117,7 +117,7 @@ export function DepartmentListView() {
                     heading="Phòng ban"
                     links={[
                         { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Cấu hình' },
+                        { name: 'Danh mục' },
                         { name: 'Phòng ban' },
                     ]}
                     action={

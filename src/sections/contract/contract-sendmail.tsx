@@ -33,6 +33,7 @@ export default function ContractSendMail({ email, contract, currentContract }: P
 
     const onSubmit = async (data: FormValues) => {
         try {
+            if (contract?.status !== 4) return toast.warning("Hợp đồng chưa được hoàn thành.");
             await sendEmailContract({ email: data.email, contract, currentContract });
             toast.success("Gửi hợp đồng thành công!");
             reset();

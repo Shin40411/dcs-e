@@ -305,7 +305,7 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
           <Stack spacing={1.5}>
             <Typography variant="subtitle2">Ảnh sản phẩm</Typography>
             {!currentProduct && (
-              <Field.Select label='Thư mục tải lên' name="Folder">
+              <Field.Select label='Thư mục tải lên' name="Folder" sx={{ display: 'none' }}>
                 <MenuItem key={'Hopdong'} value={'Hopdong'} sx={{ textTransform: 'capitalize' }}>Hợp đồng</MenuItem>
                 <MenuItem key={'HoaDon'} value={'HoaDon'} sx={{ textTransform: 'capitalize' }}>Hóa đơn</MenuItem>
                 <MenuItem key={'XuatKho'} value={'XuatKho'} sx={{ textTransform: 'capitalize' }}>Xuất kho</MenuItem>

@@ -9,9 +9,10 @@ type Props = {
     helperText?: string;
     required?: boolean;
     sx: SxProps<Theme> | undefined;
+    disabled?: boolean;
 };
 
-export function VnCurrencyInput({ value, label, onChange, error, helperText, required, sx }: Props) {
+export function VnCurrencyInput({ value, label, onChange, error, helperText, required, sx, disabled }: Props) {
     return (
         <>
             <NumericFormat
@@ -38,6 +39,7 @@ export function VnCurrencyInput({ value, label, onChange, error, helperText, req
                 ]}
                 error={error}
                 helperText={helperText}
+                disabled={disabled}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">

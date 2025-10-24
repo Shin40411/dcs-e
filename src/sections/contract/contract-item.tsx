@@ -15,16 +15,18 @@ type Props = CardProps & {
     onEditing: () => void;
 };
 
-// const statusMap: { [key: number]: string } = {
-//     0: "Bỏ qua",
-//     1: "Nháp",
-//     2: "Đang thực hiện",
-//     3: "Đã thanh toán",
-// }
+const statusMap: { [key: number]: [string, string] } = {
+    0: ["Hủy bỏ", "fluent-color:dismiss-circle-16"],
+    1: ["Nháp", "material-symbols:draft"],
+    2: ["Chờ duyệt", "streamline-pixel:interface-essential-waiting-hourglass-loading"],
+    3: ["Đang thực hiện", "line-md:uploading-loop"],
+    4: ["Đã hoàn thành", "fluent-color:checkmark-circle-16"],
+};
 
 export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails, onEditing, sx, ...other }: Props) {
     const menuActions = usePopover();
     const settings = useSettingsContext();
+    const darkMode = settings.state.colorScheme;
 
     const renderMenuActions = () => (
         <CustomPopover
@@ -94,7 +96,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                     flexDirection: "column",
                     width: "100%",
                     aspectRatio: { md: "210/297", sm: "210/200", xs: "210/200" },
-                    bgcolor: "#fdfdfd",
+                    bgcolor: darkMode === 'light' ? "#fdfdfd" : 'unset',
                     boxShadow: 3,
                     transition: "0.2s",
                     maxHeight: { lg: 240, md: 250, sm: 170 },
@@ -103,6 +105,13 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                 }}
                 {...other}
             >
+                <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 9 }}>
+                    <Tooltip title={statusMap[contract.status][0]}>
+                        <Box component="span" sx={{ display: 'inline-flex' }}>
+                            <Iconify icon={statusMap[contract.status][1]} />
+                        </Box>
+                    </Tooltip>
+                </Box>
                 <ContractPreview contract={contract} />
                 <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>

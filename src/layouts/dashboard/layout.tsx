@@ -164,7 +164,7 @@ export function DashboardLayout({
           {/* <ContactsPopover data={_contacts} /> */}
 
           {/** @slot Settings button */}
-          {/* <SettingsButton /> */}
+          <SettingsButton />
 
           {/** @slot Account drawer */}
           <AccountDrawer data={_account} />

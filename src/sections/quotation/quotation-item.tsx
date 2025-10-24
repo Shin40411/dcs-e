@@ -35,18 +35,17 @@ type Props = CardProps & {
 //     3: { label: "Đã hoàn thành", color: "success", icon: "fluent-color:checkmark-circle-16" },
 // } as const;
 
-const statusMap: { [key: number]: string } = {
-    0: "Bỏ qua",
-    1: "Nháp",
-    2: "Đang thực hiện",
-    3: "Đã thanh toán",
+const statusMap: { [key: number]: [string, string] } = {
+    0: ["Bỏ qua", "fluent-color:dismiss-circle-16"],
+    1: ["Nháp", "material-symbols:draft"],
+    2: ["Đang thực hiện", "streamline-pixel:interface-essential-waiting-hourglass-loading"],
+    3: ["Đã hoàn thành", "fluent-color:checkmark-circle-16"],
 }
 
 export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails, onEditing, sx, ...other }: Props) {
     const menuActions = usePopover();
     const settings = useSettingsContext();
     const statusValue = quotate.status;
-    // const statusInfo = statusMap[statusValue as keyof typeof statusMap] ?? statusMap[0];
 
     const { quotation } = useGetQuotation({
         quotationId: quotate?.id,
@@ -136,6 +135,8 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
 
     const totalDirection = settings.state.navLayout === 'vertical' ? 'column' : 'row';
 
+    const darkMode = settings.state.colorScheme;
+
     return (
         <>
             <Card
@@ -149,7 +150,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                     flexDirection: "column",
                     width: "100%",
                     aspectRatio: { md: "210/297", sm: "210/200", xs: "210/200" },
-                    bgcolor: "#fdfdfd",
+                    bgcolor: darkMode === 'light' ? "#fdfdfd" : 'unset',
                     boxShadow: 3,
                     transition: "0.2s",
                     maxHeight: { lg: 240, md: 250, sm: 170 },
@@ -158,6 +159,13 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                 }}
                 {...other}
             >
+                <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 9 }}>
+                    <Tooltip title={statusMap[statusValue][0]}>
+                        <Box component="span" sx={{ display: 'inline-flex' }}>
+                            <Iconify icon={statusMap[statusValue][1]} />
+                        </Box>
+                    </Tooltip>
+                </Box>
                 <QuotationPreview quotation={quotate} />
                 <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>

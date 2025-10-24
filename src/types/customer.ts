@@ -23,6 +23,7 @@ export type ICustomerItem = {
     bankName: string;
     address: string;
     isPartner: false;
+    position: string;
     rewardPoint: number;
     createDate: IDateValue;
     createBy: string;
@@ -44,4 +45,5 @@ export type ICustomerDto = {
     isPartner: boolean;
     rewardPoint: number;
     balance: number;
+    position: string;
 }

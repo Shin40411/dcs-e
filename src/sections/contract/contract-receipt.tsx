@@ -5,8 +5,11 @@ import { ContractReceiptSchema, ContractReceiptSchemaType } from "./schema/contr
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, Form } from "src/components/hook-form";
-import { IContractItem } from "src/types/contract";
+import { IContractItem, IReceiptContract, IReceiptContractDto } from "src/types/contract";
 import { generateReceipt } from "src/utils/random-func";
+import { createReceiptContract, useGetReceiptContract } from "src/actions/contract";
+import { toast } from "sonner";
+import { use, useEffect, useState } from "react";
 
 interface FileDialogProps {
     selectedContract: IContractItem;
@@ -16,12 +19,20 @@ interface FileDialogProps {
 
 export function ContractReceipt({ selectedContract, open, onClose }: FileDialogProps) {
     const today = new Date();
+    const { pagination: { totalRecord } } = useGetReceiptContract({
+        pageNumber: 1,
+        pageSize: 999,
+        ContractNo: selectedContract.contractNo,
+        enabled: open,
+    });
+
+    const [receiptNo, setReceiptNo] = useState<string>('');
 
     const defaultValues: ContractReceiptSchemaType = {
         companyName: selectedContract.companyName ?? "",
         customerName: selectedContract.customerName ?? "",
         amount: 0,
-        contractNo: generateReceipt('PT', selectedContract.contractNo),
+        receiptNo: '',
         date: today.toISOString(),
         address: "",
         payer: "",
@@ -33,6 +44,11 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
         defaultValues
     });
 
+    useEffect(() => {
+        methods.setValue('receiptNo', generateReceipt('PT', selectedContract.contractNo, totalRecord));
+        setReceiptNo(generateReceipt('PT', selectedContract.contractNo, totalRecord));
+    }, [totalRecord, setReceiptNo]);
+
     const {
         reset,
         watch,
@@ -43,7 +59,29 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
 
     const onSubmit = handleSubmit(async (data) => {
         try {
+            const payload: IReceiptContractDto = {
+                receiptNo: data.receiptNo || "",
+                contractNo: selectedContract.contractNo,
+                date: data.date,
+                receiptType: "Collect",
+                amount: data.amount,
+                note: data.reason || "",
+                contractType: "Customer",
+                companyName: data.companyName,
+                customerName: data.customerName,
+                address: data.address || "",
+                payer: data.payer,
+                reason: data.reason || "",
+            };
+
+            await createReceiptContract(payload);
+
+            toast.success("Tạo phiếu thu thành công!");
+            reset();
+            onClose();
         } catch (error: any) {
+            console.error(error);
+            toast.error("Tạo phiếu thu thất bại!");
         }
     });
 
@@ -84,7 +122,7 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                     disabled
                 />
                 <Field.Text
-                    name="contractNo"
+                    name="receiptNo"
                     label="Số phiếu thu"
                     helperText="Nhập số phiếu thu"
                     required
@@ -105,7 +143,6 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 name="address"
                 label="Địa chỉ"
                 helperText="Nhập địa chỉ người nộp tiền"
-                required
             />
             <Field.Text
                 name="reason"
@@ -190,7 +227,7 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 <TextField
                     disabled
                     id="contractNo-disabled"
-                    defaultValue={generateReceipt('PT', selectedContract.contractNo)}
+                    value={receiptNo}
                     sx={{ width: 400 }}
                 />
                 <IconButton onClick={onClose}>

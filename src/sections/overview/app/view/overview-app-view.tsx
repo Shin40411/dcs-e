@@ -22,7 +22,7 @@ export function OverviewAppView() {
     setValue(newValue);
   };
   return (
-    <DashboardContent maxWidth="xl">
+    <DashboardContent>
       <CustomBreadcrumbs
         heading="Thống kê"
         links={[
@@ -43,28 +43,28 @@ export function OverviewAppView() {
           </Tabs>
         }
       />
-      <Grid container spacing={3} flexDirection="column">
+      <Grid container spacing={3} flexDirection="column" height="100%">
         <Grid container spacing={2} alignItems="stretch">
-          <Grid size={{ xs: 12, md: 4.5 }}>
-            <DashBoardContract />
+          <Grid size={{ xs: 12, md: 6, lg: 6, xl: 4 }}>
+            <DashBoardContract filter={value} />
           </Grid>
-          <Grid size={{ xs: 12, md: 4.5 }}>
-            <DashBoardFinance />
+          <Grid size={{ xs: 12, md: 6, lg: 6, xl: 4 }}>
+            <DashBoardFinance filter={value} />
           </Grid>
-          <Grid size={{ xs: 12, md: 3 }}>
-            <DashBoardProduct />
+          <Grid size={{ xs: 12, md: 12, lg: 12, xl: 4 }}>
+            <DashBoardProduct filter={value} />
           </Grid>
         </Grid>
         <Grid container spacing={2} alignItems="stretch">
-          <Grid size={{ xs: 12, md: 6 }}>
-            <DashBoardBestSeller />
+          <Grid size={{ xs: 12, md: 12, lg: 12, xl: 6 }}>
+            <DashBoardBestSeller filter={value} />
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }} container direction="column" spacing={2}>
-            <Grid>
-              <DashBoardTopContractVal />
+          <Grid size={{ xs: 12, md: 12, lg: 12, xl: 6 }} container direction={{ xs: "column", sm: "row", md: "row" }} spacing={2}>
+            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
+              <DashBoardTopContractVal filter={value} />
             </Grid>
-            <Grid>
-              <DashBoardTopSaler />
+            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
+              <DashBoardTopSaler filter={value} />
             </Grid>
           </Grid>
         </Grid>

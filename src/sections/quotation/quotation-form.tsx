@@ -49,8 +49,16 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     const today = new Date();
     const nextMonth = new Date();
     nextMonth.setMonth(today.getMonth() + 1);
-    const sampleNote = `- Giá trên đã bao gồm chi phí giao hàng tận nơi nội thành
-- Báo cáo có giá trị trong vòng 30 ngày`;
+    const sampleNote = `
+<p data-pm-slice="0 0 []">
+    - Giá trên đã bao gồm thuế GTGT<br>
+    - Báo giá có giá trị trong 30 ngày<br>
+    - Tạm ứng 50% giá trị hợp đồng, ngay khi ký hợp đồng<br>
+    <strong>Ngân hàng Á Châu (ACB) - PGD Thảo Điền - TP.HCM</strong><br>
+    <strong>Tên tài khoản: Công ty TNHH GIẢI PHÁP DCS</strong><br>
+    <strong>Tài khoản số: 8100868</strong>
+</p>
+`;
     const sampleDiscount = [0, 10, 20, 30];
     const [originalItems, setOriginalItems] = useState<IQuotationDetailDto[]>([]);
 
@@ -96,6 +104,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
             vat: 0
         }],
         notes: sampleNote,
+        paid: 0
     };
 
     const methods = useForm<QuotationFormValues>({
@@ -125,6 +134,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 discount: CopiedQuotation.discount,
                 items: mappedItems,
                 notes: CopiedQuotation.note ?? sampleNote,
+                paid: CopiedQuotation.paid ?? 0
             });
 
             // setOriginalItems(
@@ -147,7 +157,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
             setOriginalItems(
                 defaultValues.items.map((item, i) => ({
                     productID: item.product ?? "",
-                    quantity: item.qty,
+                    quantity: item.qty ?? 0,
                     row: i + 1,
                     Unit: item.unitName || "",
                     Price: item.price || 0
@@ -178,11 +188,12 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         methods.setValue("items", mappedItems);
         methods.setValue("notes", selectedQuotation.note ?? "");
         methods.setValue("discount", selectedQuotation.discount);
+        methods.setValue("paid", selectedQuotation.paid);
 
         setOriginalItems(
             mappedItems.map((item, i) => ({
                 productID: item.product ?? "",
-                quantity: item.qty,
+                quantity: item.qty ?? 0,
                 row: i + 1,
                 Unit: item.unitName || "",
                 Price: item.price || 0
@@ -228,19 +239,22 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 expiryDate: data.validUntil,
                 discount: data.discount || 0,
                 note: data.notes || '',
-                paid: totalPaid,
+                paid: data.paid || 0,
                 Status: data.status
             };
 
             const bodyPayload: IQuotationDto = {
                 ...basePayload,
-                quotationDetails: data.items.map((item, i): IQuotationDetailDto => ({
-                    productID: item.product ?? "",
-                    quantity: item.qty,
-                    row: i + 1,
-                    Unit: item.unitName || "",
-                    Price: item.price || 0
-                })),
+                quotationDetails: data.items
+                    .filter((item) => item.product && item.product !== "")
+                    .map((item, i): IQuotationDetailDto => ({
+                        productID: item.product ?? "",
+                        quantity: item.qty ?? 0,
+                        row: i + 1,
+                        Unit: item.unitName || "",
+                        Price: item.price || 0,
+                    })),
+
             };
 
             const updatePayload: IQuotationDao = {
@@ -311,7 +325,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     });
 
     const renderLeftColumn = () => (
-        <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={3}>
+        <Stack width={{ xs: "100%", sm: "100%", md: "30%" }} spacing={3}>
             {/* Section Thông tin khách hàng */}
             <Box>
                 <Stack direction={{ xs: "column", md: "row" }} gap={2} justifyContent="space-between">
@@ -458,14 +472,13 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                         )}
                     />
                 </Stack>
-                <Field.Text
-                    name="notes"
-                    label="Ghi chú"
-                    multiline
-                    rows={8}
-                    fullWidth
-                    sx={{ mt: 2 }}
-                />
+                <Stack spacing={1.5} mt={2}>
+                    <Typography variant="subtitle2">Ghi chú</Typography>
+                    <Field.Editor
+                        name="notes"
+                    />
+                </Stack>
+                <Field.VNCurrencyInput name="paid" label="Số tiền tạm ứng" required sx={{ mt: 2, maxWidth: 200, display: 'none' }} />
             </Box>
         </Stack>
     );
@@ -519,7 +532,10 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 color="inherit"
                 size="large"
                 sx={{ flex: 1, py: 1.5 }}
-                onClick={onClose}
+                onClick={() => {
+                    onClose();
+                    reset(defaultValues);
+                }}
                 loading={isSubmitting}
             >
                 Hủy
@@ -538,7 +554,15 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     );
 
     return (
-        <Dialog open={openForm} onClose={onClose} fullScreen>
+        <Dialog
+            open={openForm}
+            onClose={
+                () => {
+                    onClose();
+                    reset(defaultValues);
+                }
+            }
+            fullScreen>
             <DialogTitle
                 sx={{
                     display: "flex",

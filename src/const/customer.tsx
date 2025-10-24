@@ -3,7 +3,7 @@ import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { UseBooleanReturn } from "minimal-shared/hooks";
 import { useState } from "react";
 import { Iconify } from "src/components/iconify";
-import { RenderCellAddress, RenderCellBankAccount, RenderCellCompanyName, RenderCellName, RenderCellPhone, RenderCellTaxCode } from "src/sections/customer/customer-table-row";
+import { RenderCellAddress, RenderCellBankAccount, RenderCellCompanyName, RenderCellName, RenderCellPhone, RenderCellTaxCode, RenderPosition } from "src/sections/customer/customer-table-row";
 
 type ColumnProps = {
     setTableRowSelected: (obj: any) => void;
@@ -72,6 +72,7 @@ export const CUSTOMER_COLUMNS: ({
                                         setTableRowSelected(params.row);
                                         handleClose();
                                     }}
+                                    sx={{ display: { xs: 'none', md: 'flex' } }}
                                 >
                                     <Iconify icon="solar:eye-bold" />
                                     <Box component="span" sx={{ ml: 1 }}>
@@ -129,6 +130,13 @@ export const CUSTOMER_COLUMNS: ({
                 renderCell: (params) => <RenderCellCompanyName params={params} />
             },
             {
+                field: 'position',
+                headerName: 'Chức vụ',
+                flex: 1,
+                minWidth: 250,
+                renderCell: (params) => <RenderPosition params={params} />
+            },
+            {
                 field: 'bankAccount',
                 headerName: 'Tài khoản ngân hàng',
                 flex: 1,
@@ -157,6 +165,7 @@ export const CUSTOMER_COLUMNS: ({
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:eye-bold" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
                         label="Chi tiết"
                         onClick={() => {
                             openDetailsForm?.onTrue();

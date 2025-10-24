@@ -8,17 +8,17 @@ export const renderByTextTotal = (totalAmount?: number) => {
     const roundedTotal = Math.round(totalAmount ?? 0);
 
     return (
-        <View style={[styles.mt8, {
+        <View style={[{
             width: '100%',
             flexDirection: 'row',
-            padding: '20px 20px',
+            padding: '20px 20px 0 39px',
             gap: 5
         }]}>
             <Text style={{ fontFamily: 'Niramit-SemiBold', fontSize: 13 }}>
                 Bằng chữ:
             </Text>
             <Text style={{ fontFamily: 'Niramit-LightItalic', fontSize: 13 }}>
-                <Text style={{ textTransform: 'capitalize' }}>{capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}</Text>
+                <Text>{capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}</Text>
             </Text>
         </View>
     );

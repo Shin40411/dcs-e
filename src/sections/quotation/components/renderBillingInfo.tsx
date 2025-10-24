@@ -6,7 +6,7 @@ export const renderBillingInfo = (companyName?: string, customerName?: string) =
 
     const intro = companyName ? 'Kính gửi:' : 'Kính gửi ông/bà:';
     return (
-        <View style={[styles.containerColumn, styles.mb8, { padding: '0 40px' }]}>
+        <View style={[styles.containerColumn, styles.mb8, { padding: '0 40px 0 59px' }]}>
             <Text style={[styles.mb4, { fontFamily: 'Niramit-Bold', fontSize: 14 }]}>{intro}{'   '}{companyName ? companyName : customerName}</Text>
             <Text style={{ fontSize: 14, fontFamily: 'Niramit' }}>
                 {'\u00A0\u00A0\u00A0\u00A0'}Xin chân thành cảm ơn sự quan tâm của Quý khách.

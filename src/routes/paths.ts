@@ -144,6 +144,9 @@ export const paths = {
     employees: {
       root: `${ROOTS.DASHBOARD}/employees`,
     },
+    unit: `${ROOTS.DASHBOARD}/unit`,
+    employeeType: `${ROOTS.DASHBOARD}/employee-type`,
+    department: `${ROOTS.DASHBOARD}/department`,
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
       new: `${ROOTS.DASHBOARD}/invoice/new`,
@@ -191,9 +194,6 @@ export const paths = {
     },
     settings: {
       root: `${ROOTS.DASHBOARD}/settings`,
-      unit: `${ROOTS.DASHBOARD}/settings/unit`,
-      employeeType: `${ROOTS.DASHBOARD}/settings/employee-type`,
-      department: `${ROOTS.DASHBOARD}/settings/department`
     }
   },
 };

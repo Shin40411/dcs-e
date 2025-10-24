@@ -10,7 +10,7 @@ export const renderRuleFive = () => {
     return (
         <View
             style={{
-                paddingLeft: 50,
+                paddingLeft: 69,
                 paddingRight: 50,
                 marginTop: 5,
                 flexDirection: 'column',

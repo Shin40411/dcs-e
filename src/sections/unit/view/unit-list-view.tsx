@@ -94,7 +94,7 @@ export function UnitListView() {
     const renderCRUDForm = () => (
         <UnitNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
             selectedId={rowIdSelected || undefined}
             currentUnit={tableRowSelected || undefined}
         />
@@ -114,7 +114,7 @@ export function UnitListView() {
                     heading="Đơn vị tính"
                     links={[
                         { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Cấu hình' },
+                        { name: 'Danh mục' },
                         { name: 'Đơn vị tính' },
                     ]}
                     action={

@@ -15,7 +15,7 @@ export function FormHead({ sx, icon, title, description, ...other }: FormHeadPro
   return (
     <>
       {icon && (
-        <Box component="span" sx={{ mb: 3, mx: 'auto', display: 'inline-flex' }}>
+        <Box component="span" sx={{ mb: 3, mx: 'auto', display: { xs: 'inline-flex', sm: 'inline-flex', md: 'none' } }}>
           {icon}
         </Box>
       )}

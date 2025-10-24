@@ -41,11 +41,11 @@ export function ContractItemsTable({
 
     const total = (items || []).reduce((acc, i) => acc + calcAmount(i), 0);
 
-    const discountRate = discount ? discount / 100 : 0;
+    // const discountRate = discount ? discount / 100 : 0;
 
-    const subtotal = total * (1 - discountRate);
+    // const subtotal = total * (1 - discountRate);
 
-    const roundedTotal = Math.round(subtotal);
+    const roundedTotal = Math.round(total);
 
     const openDel = useBoolean();
 

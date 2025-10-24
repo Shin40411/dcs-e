@@ -69,6 +69,7 @@ export const PRODUCT_COLUMNS: ({
                     setRowIdSelected(params.row.id);
                     handleClose();
                   }}
+                  sx={{ display: { xs: 'none', md: 'flex' } }}
                 >
                   <Iconify icon="solar:eye-bold" />
                   <Box component="span" sx={{ ml: 1 }}>
@@ -190,6 +191,7 @@ export const PRODUCT_COLUMNS: ({
           <GridActionsCellItem
             showInMenu
             icon={<Iconify icon="solar:eye-bold" />}
+            sx={{ display: { xs: 'none', md: 'block' } }}
             label="Chi tiết"
             onClick={() => { setRowIdSelected(params.row.id); openDetailsForm?.onTrue(); }}
           />,

@@ -25,9 +25,10 @@ type ContractFormProps = {
     onClose: () => void;
     selectedContract: IContractItem | null;
     detailsFromQuotation: any[];
+    customerIdFromQuotation?: number | null;
 };
 
-export function ContractForm({ open, onClose, selectedContract, detailsFromQuotation }: ContractFormProps) {
+export function ContractForm({ open, onClose, selectedContract, detailsFromQuotation, customerIdFromQuotation }: ContractFormProps) {
     const today = new Date();
     const [customerkeyword, setCustomerKeyword] = useState('');
     const debouncedCustomerKw = useDebounce(customerkeyword, 300);
@@ -87,9 +88,10 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     });
 
     useEffect(() => {
-        if (detailsFromQuotation?.length > 0) {
+        if (detailsFromQuotation?.length > 0 && customerIdFromQuotation) {
             const mapped = mapProductsToItems(detailsFromQuotation);
             methods.setValue("products", mapped);
+            methods.setValue("customerId", customerIdFromQuotation);
             return;
         }
 
@@ -98,7 +100,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
             setOriginalItems(
                 defaultValues.products.map((item, i) => ({
                     productID: item.product ?? "",
-                    quantity: item.qty,
+                    quantity: item.qty ?? 0,
                     unit: item.unitName || "",
                     price: item.price || 0
                 }))
@@ -136,7 +138,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
         setOriginalItems(
             mappedItems.map((item, i) => ({
                 productID: item.product ?? "",
-                quantity: item.qty,
+                quantity: item.qty ?? 0,
                 unit: item.unitName || "",
                 price: item.price || 0
             }))
@@ -162,6 +164,8 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
         reset,
         watch,
         setValue,
+        setError,
+        clearErrors,
         handleSubmit,
         control,
         formState: { isSubmitting },
@@ -178,7 +182,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 ContractNo: data.contractNo,
                 customerId: data.customerId,
                 signatureDate: data.signatureDate,
-                deliveryAddress: data.deliveryAddress,
+                deliveryAddress: data.deliveryAddress || "",
                 deliveryTime: data.deliveryTime,
                 downPayment: data.downPayment,
                 nextPayment: data.nextPayment,
@@ -192,12 +196,14 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
 
             const bodyPayload: IContractDto = {
                 ...basePayload,
-                products: data.products.map((item, i): IContractDetailDto => ({
-                    productID: item.product ?? "",
-                    quantity: item.qty,
-                    unit: item.unitName || "",
-                    price: item.price || 0
-                })),
+                products: data.products
+                    .filter((item) => item.product && item.product !== "")
+                    .map((item, i): IContractDetailDto => ({
+                        productID: item.product ?? "",
+                        quantity: item.qty ?? 0,
+                        unit: item.unitName || "",
+                        price: item.price || 0
+                    })),
             };
 
             const updatePayload: IContractDao = {
@@ -289,7 +295,10 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 color="inherit"
                 size="large"
                 sx={{ flex: 1, py: 1.5 }}
-                onClick={onClose}
+                onClick={() => {
+                    onClose();
+                    reset(defaultValues);
+                }}
                 loading={isSubmitting}
             >
                 Hủy
@@ -312,23 +321,62 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
         name: "products",
     }) || [];
 
-    const total = products.reduce((sum: number, item: any) => {
-        const qty = Number(item.qty) || 0;
-        const price = Number(item.price) || 0;
-        return sum + qty * price;
-    }, 0);
+    const downPayment = useWatch({
+        control,
+        name: "downPayment"
+    });
+
+    const nextPayment = useWatch({
+        control,
+        name: "nextPayment"
+    });
+
+    const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
+        const qty = Number(item?.qty) || 0;
+        const price = Number(item?.price) || 0;
+        const vat = Number(item?.vat) || 0;
+        return qty * price * (1 + vat / 100);
+    };
+
+    const total = (products || []).reduce((acc, i) => acc + calcAmount(i), 0);
 
     useEffect(() => {
         if (total > 0) {
-            setValue("downPayment", Math.round(total * 0.3), { shouldValidate: true });
-            setValue("nextPayment", Math.round(total * 0.4), { shouldValidate: true });
-            setValue("lastPayment", Math.round(total * 0.3), { shouldValidate: true });
-        } else {
-            setValue("downPayment", 0);
-            setValue("nextPayment", 0);
-            setValue("lastPayment", 0);
+            const down = Number(downPayment) || 0;
+            const next = Number(nextPayment) || 0;
+
+            // Nếu cả 2 ô đều đang rỗng -> tính mặc định theo % 30/40/30
+            if (!down && !next) {
+                const downDefault = Math.round(total * 0.3);
+                const nextDefault = Math.round(total * 0.4);
+                const lastDefault = Math.max(total - downDefault - nextDefault, 0);
+
+                setValue("downPayment", downDefault, { shouldValidate: true });
+                setValue("nextPayment", nextDefault, { shouldValidate: true });
+                setValue("lastPayment", lastDefault, { shouldValidate: true });
+                clearErrors(["downPayment", "nextPayment"]);
+                return;
+            }
+
+            // Nếu người dùng đã nhập (khác mặc định) thì không auto tính lại nữa
+            if (down + next > total) {
+                setError("downPayment", {
+                    type: "manual",
+                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+                });
+                setError("nextPayment", {
+                    type: "manual",
+                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+                });
+            } else {
+                clearErrors(["downPayment", "nextPayment"]);
+                const last = Math.max(total - down - next, 0);
+                if (last < total) {
+                    setValue("lastPayment", last, { shouldValidate: true });
+                }
+            }
         }
-    }, [total, setValue]);
+    }, [total, downPayment, nextPayment, setError, clearErrors, setValue]);
 
     const renderDetails = () => (
         <Stack direction={{ xs: "column", sm: "column", md: "row", lg: "row", xl: "row" }} spacing={3} sx={{ mt: 1 }}>
@@ -348,7 +396,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 }}
             />
             {/* Section thông tin thanh toán */}
-            <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={2} sx={{ height: "100%" }}>
+            <Stack width={{ xs: "100%", sm: "100%", md: "70%" }} spacing={2} sx={{ height: "100%" }}>
                 <Box>
                     <Typography variant="subtitle2">
                         Thông tin thanh toán
@@ -357,14 +405,12 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                         <Field.VNCurrencyInput
                             label="Lần 1"
                             name="downPayment"
-                            disabled
                             sx={{ maxWidth: 150 }}
                         />
                         <Field.VNCurrencyInput
                             label="Lần 2"
                             name="nextPayment"
                             sx={{ maxWidth: 150 }}
-                            disabled
                         />
                         <Field.VNCurrencyInput
                             label="Còn lại"
@@ -389,7 +435,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     );
 
     const renderLeftColumn = () => (
-        <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={3}>
+        <Stack width={{ xs: "100%", sm: "100%", md: "30%" }} spacing={3}>
             {/* Section Thông tin khách hàng */}
             <Box>
                 <Stack direction={{ xs: "column", md: "row" }} gap={2} justifyContent="space-between">
@@ -460,7 +506,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                     <Field.Text
                         label="Số hợp đồng"
                         name="contractNo"
-                        disabled
+                        disabled={!!selectedContract}
                     />
                     <Field.Select label="Trạng thái" name="status">
                         <MenuItem key={0} value={0}>
@@ -532,7 +578,15 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     );
 
     return (
-        <Dialog open={open} onClose={onClose} fullScreen>
+        <Dialog
+            open={open}
+            onClose={
+                () => {
+                    onClose();
+                    reset(defaultValues);
+                }
+            }
+            fullScreen>
             <DialogTitle
                 sx={{
                     display: "flex",

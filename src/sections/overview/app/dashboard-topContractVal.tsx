@@ -1,102 +1,23 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Divider, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Card, CardContent, CardHeader, Divider, Skeleton, Stack, Typography } from "@mui/material";
+import { TopContractValStatistic } from "src/actions/statistics";
 import { Iconify } from "src/components/iconify";
-import { IContractItem } from "src/types/contract";
+import { useSettingsContext } from "src/components/settings";
 import { fCurrency, fCurrencyNoUnit } from "src/utils/format-number";
+import { fDate } from "src/utils/format-time-vi";
 
 
-const contracts: IContractItem[] = [
-    {
-        id: 1,
-        contractNo: '',
-        customerID: 0,
-        customerName: 'Công ty TNHH MT ...',
-        customerEmail: '',
-        customerPhone: '',
-        customerAddress: '',
-        customerTaxCode: '',
-        companyName: '',
-        customerBank: '',
-        customerBankNo: '',
-        signatureDate: '',
-        deliveryAddress: '',
-        deliveryTime: '',
-        downPayment: 0,
-        nextPayment: 0,
-        lastPayment: 0,
-        total: 567_852_000,
-        copiesNo: 0,
-        keptNo: 0,
-        status: 0,
-        createDate: '11/09/2025',
-        createdBy: '',
-        modifyDate: '',
-        modifiedBy: '',
-        note: '',
-        seller: 'Nguyễn Văn An',
-        discount: 0,
-    },
-    {
-        id: 2,
-        contractNo: '',
-        customerID: 0,
-        customerName: 'Công ty TNHH ...',
-        customerEmail: '',
-        customerPhone: '',
-        customerAddress: '',
-        customerTaxCode: '',
-        companyName: '',
-        customerBank: '',
-        customerBankNo: '',
-        signatureDate: '',
-        deliveryAddress: '',
-        deliveryTime: '',
-        downPayment: 0,
-        nextPayment: 0,
-        lastPayment: 0,
-        total: 367_852_000,
-        copiesNo: 0,
-        keptNo: 0,
-        status: 1,
-        createDate: '11/09/2025',
-        createdBy: '',
-        modifyDate: '',
-        modifiedBy: '',
-        note: '',
-        seller: 'Nguyễn Văn An',
-        discount: 0,
-    },
-    {
-        id: 3,
-        contractNo: '',
-        customerID: 0,
-        customerName: 'Công ty ABC',
-        customerEmail: '',
-        customerPhone: '',
-        customerAddress: '',
-        customerTaxCode: '',
-        companyName: '',
-        customerBank: '',
-        customerBankNo: '',
-        signatureDate: '',
-        deliveryAddress: '',
-        deliveryTime: '',
-        downPayment: 0,
-        nextPayment: 0,
-        lastPayment: 0,
-        total: 167_852_000,
-        copiesNo: 0,
-        keptNo: 0,
-        status: 0,
-        createDate: '11/09/2025',
-        createdBy: '',
-        modifyDate: '',
-        modifiedBy: '',
-        note: '',
-        seller: 'Nguyễn Văn An',
-        discount: 0,
-    },
-];
-export function DashBoardTopContractVal() {
+type DashBoardTopContractValProps = {
+    filter: string;
+};
+
+export function DashBoardTopContractVal({ filter }: DashBoardTopContractValProps) {
+    const { contractValue, contractValueLoading, contractValueEmpty } = TopContractValStatistic({
+        pageNumber: 1,
+        pageSize: 3,
+        filter,
+    });
+    const settings = useSettingsContext();
+    const darkMode = settings.state.colorScheme;
     const getStatusLabel = (status: number) =>
         status === 1 ? 'Đã hoàn thành' : 'Đang thực hiện';
 
@@ -108,91 +29,151 @@ export function DashBoardTopContractVal() {
             sx={{
                 boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                 overflow: 'hidden',
-                height: '100%'
+                height: '100%',
             }}
         >
             <CardHeader
                 title={
-                    <Typography fontWeight={700} fontSize={18} color="rgba(5, 0, 78, 1)">
+                    <Typography fontWeight={700} fontSize={18} color={darkMode === 'light' ? "rgba(5, 0, 78, 1)" : "info"}>
                         Top giá trị hợp đồng
                     </Typography>
                 }
                 sx={{ pb: 0, px: 2, pt: 2 }}
             />
             <Divider sx={{ mt: 1 }} />
-            <CardContent sx={{ px: 2, pt: 1, pb: 2 }}>
-                <Stack spacing={1.5}>
-                    {contracts.map((c, i) => (
-                        <Stack
-                            key={c.id}
-                            direction="row"
-                            alignItems="center"
-                            sx={{
-                                border: '0.5px solid #ddd',
-                                boxShadow: 0.5,
-                                borderRadius: 1.5,
-                                px: 1.5,
-                                py: 1,
-                            }}
-                        >
+            <CardContent sx={{ px: 2, pt: 1, pb: 2, height: (contractValueEmpty) ? '100%' : 'auto', }}>
+                {contractValueLoading ? (
+                    <Stack spacing={1.5}>
+                        {[...Array(3)].map((_, i) => (
                             <Stack
+                                key={i}
                                 direction="row"
-                                spacing={1.5}
                                 alignItems="center"
-                                sx={{ flex: '1 1 40%' }}
+                                justifyContent="space-between"
+                                sx={{
+                                    border: '0.5px solid #ddd',
+                                    boxShadow: 0.5,
+                                    borderRadius: 1.5,
+                                    px: 1.5,
+                                    py: 1,
+                                    opacity: 0.7,
+                                }}
                             >
-                                <Iconify
-                                    icon={`noto:${i === 0 ? '1st' : i === 1 ? '2nd' : '3rd'}-place-medal`}
-                                    width={32}
-                                    height={32}
-                                />
-                                <Box>
-                                    <Typography fontWeight={600} fontSize="0.95rem" noWrap>
-                                        {c.customerName}
-                                    </Typography>
-                                    <Typography fontSize="0.8rem" color="text.secondary" noWrap>
-                                        {c.seller}
-                                    </Typography>
-                                </Box>
+                                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flex: '1 1 40%' }}>
+                                    <Skeleton variant="text" width={100} height={28} sx={{ ml: 'auto' }} />
+                                    <Box>
+                                        <Skeleton variant="text" width={100} height={28} sx={{ ml: 'auto' }} />
+                                        <Skeleton variant="text" width={100} height={28} sx={{ ml: 'auto' }} />
+                                    </Box>
+                                </Stack>
                             </Stack>
-
+                        ))}
+                    </Stack>
+                ) : contractValueEmpty ? (
+                    <Stack spacing={1.5} height={(contractValueEmpty) ? '100%' : 'auto'} justifyContent="center">
+                        <Typography textAlign="center" color="text.secondary" py={3}>
+                            Không có dữ liệu
+                        </Typography>
+                    </Stack>
+                ) : (
+                    <Stack spacing={1.5}>
+                        {contractValue?.map((c, i) => (
                             <Stack
-                                direction="column"
-                                justifyContent="center"
-                                alignItems="flex-end"
-                                sx={{ flex: '1 1 30%' }}
+                                key={c.contractID}
+                                direction="row"
+                                flexWrap="wrap"
+                                alignItems="center"
+                                sx={{
+                                    border: '0.5px solid #ddd',
+                                    boxShadow: 0.5,
+                                    borderRadius: 1.5,
+                                    px: 1.5,
+                                    py: 1,
+                                    rowGap: 1,
+                                    columnGap: 2,
+                                }}
                             >
-                                <Typography fontWeight={700} color="rgba(238, 0, 51, 1)" textAlign="right">
-                                    {fCurrencyNoUnit(c.total)}
-                                </Typography>
-                                <Typography
-                                    fontSize="0.75rem"
-                                    color="text.secondary"
-                                    textAlign="right"
-                                    sx={{ width: '100%' }}
+                                {/* --- Cột 1: Thông tin khách hàng --- */}
+                                <Stack
+                                    direction="row"
+                                    spacing={1.5}
+                                    alignItems="center"
+                                    sx={{
+                                        flex: '1 1 220px',
+                                        minWidth: 180,
+                                    }}
                                 >
-                                    VNĐ
-                                </Typography>
-                            </Stack>
+                                    <Iconify
+                                        icon={`noto:${i === 0 ? '1st' : i === 1 ? '2nd' : '3rd'}-place-medal`}
+                                        width={32}
+                                        height={32}
+                                        sx={{ flexShrink: 0 }}
+                                    />
+                                    <Box sx={{ minWidth: 0 }}>
+                                        <Typography
+                                            fontWeight={600}
+                                            fontSize="0.95rem"
+                                            title={c.customerName}
+                                        >
+                                            {c.customerName}
+                                        </Typography>
+                                        <Typography
+                                            fontSize="0.8rem"
+                                            color="text.secondary"
+                                            title={c.customerCompany || '—'}
+                                        >
+                                            {c.customerCompany || '—'}
+                                        </Typography>
+                                    </Box>
+                                </Stack>
 
+                                {/* --- Cột 2: Giá trị hợp đồng --- */}
+                                <Stack
+                                    direction="column"
+                                    justifyContent="center"
+                                    alignItems="flex-end"
+                                    sx={{
+                                        flex: '1 1 150px',
+                                        minWidth: 140,
+                                        textAlign: 'right',
+                                    }}
+                                >
+                                    {contractValueLoading ? (
+                                        <Skeleton variant="text" width={100} height={28} sx={{ ml: 'auto' }} />
+                                    ) : (
+                                        <>
+                                            <Typography fontWeight={700} color="rgba(238, 0, 51, 1)">
+                                                {fCurrencyNoUnit(c.total)}
+                                            </Typography>
+                                            <Typography fontSize="0.75rem" color="text.secondary">
+                                                VNĐ
+                                            </Typography>
+                                        </>
+                                    )}
+                                </Stack>
 
-                            <Stack
-                                direction="column"
-                                alignItems="flex-end"
-                                justifyContent="center"
-                                textAlign="right"
-                                sx={{ flex: '1 1 30%' }}
-                            >
-                                <Typography fontSize="0.8rem" color={getStatusColor(c.status)}>
-                                    {getStatusLabel(c.status)}
-                                </Typography>
-                                <Typography fontSize="0.75rem" color="text.secondary">
-                                    {String(c.createDate)}
-                                </Typography>
+                                {/* --- Cột 3: Trạng thái + ngày ký --- */}
+                                <Stack
+                                    direction="column"
+                                    alignItems="flex-end"
+                                    justifyContent="center"
+                                    sx={{
+                                        flex: '1 1 150px',
+                                        minWidth: 140,
+                                        textAlign: 'right',
+                                    }}
+                                >
+                                    <Typography fontSize="0.8rem" color={getStatusColor(c.status)}>
+                                        {getStatusLabel(c.status)}
+                                    </Typography>
+                                    <Typography fontSize="0.75rem" color="text.secondary">
+                                        {fDate(c.signatureDate)}
+                                    </Typography>
+                                </Stack>
                             </Stack>
-                        </Stack>
-                    ))}
-                </Stack>
+                        ))}
+                    </Stack>
+                )}
             </CardContent>
         </Card>
     );

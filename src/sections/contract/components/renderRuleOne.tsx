@@ -5,7 +5,7 @@ import { RenderRuleNameChild } from "../helper/renderRuleNameChild";
 export const renderRuleOne = () => (
     <View
         style={{
-            paddingLeft: 50,
+            paddingLeft: 69,
             paddingRight: 50,
             marginTop: 5,
             marginBottom: 15

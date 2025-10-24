@@ -133,6 +133,7 @@ export function ContractWarehouseTable({
                         setProductIDSelected={setProductIDSelected}
                         contractProductDetail={contractProductDetail}
                         idContract={idContract}
+                        disabledAddMore
                     />
                 </Box>
 

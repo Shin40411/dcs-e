@@ -56,7 +56,7 @@ export function SuppliersListView() {
     const renderCRUDForm = () => (
         <SupplierNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
             selectedId={rowIdSelected || undefined}
             currentSupplier={tableRowSelected || undefined}
         />

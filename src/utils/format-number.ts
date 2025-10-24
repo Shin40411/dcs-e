@@ -127,3 +127,19 @@ export function fRenderTextNumber(total: number) {
     }
   }
 }
+
+export function fRenderTextNumberNoUnit(total: number) {
+  try {
+    const config = new ReadingConfig()
+    config.unit = ['']
+    const number = String(total);
+    const result = doReadNumber(number, config);
+    return result;
+  } catch (err) {
+    if (err instanceof InvalidNumberError) {
+      console.error('Số không hợp lệ')
+    } else {
+      console.error(err)
+    }
+  }
+}

@@ -47,7 +47,12 @@ export function RenderCellDescription({ params }: ParamsProps) {
                     params.row.description
                 }
                 slotProps={{
-                    primary: { noWrap: true },
+                    primary: {
+                        display: '-webkit-box',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'normal',
+                    },
                     secondary: { sx: { color: 'text.disabled' } },
                 }}
             />
@@ -76,8 +81,8 @@ export function RenderCellVAT({ params }: ParamsProps) {
 
 export function RenderCellStatus({ params }: ParamsProps) {
     return (
-        <Label variant="soft" color={params.row.status === true ? 'info' : 'default'}>
-            {params.row.status === true ? 'Đang hoạt động' : 'Không hoạt động'}
+        <Label variant="soft" color={params.row.status === 1 ? 'info' : 'default'}>
+            {params.row.status === 1 ? 'Đang hoạt động' : 'Không hoạt động'}
         </Label>
     );
 }

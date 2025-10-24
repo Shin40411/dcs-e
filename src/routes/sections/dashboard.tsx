@@ -250,13 +250,13 @@ export const dashboardRoutes: RouteObject[] = [
       { path: 'permission', element: <PermissionDeniedPage /> },
       { path: 'params', element: <ParamsPage /> },
       { path: 'blank', element: <BlankPage /> },
+      { path: 'unit', element: <UnitListPage /> },
+      { path: 'employee-type', element: <EmployeeTypeListPage /> },
+      { path: 'department', element: <DepartmentListPage /> },
       {
         path: 'settings',
         children: [
           { index: true, element: <UnitListPage /> },
-          { path: 'unit', element: <UnitListPage /> },
-          { path: 'employee-type', element: <EmployeeTypeListPage /> },
-          { path: 'department', element: <DepartmentListPage /> }
         ]
       }
     ],

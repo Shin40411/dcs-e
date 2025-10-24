@@ -26,6 +26,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
         bankAccount: "",
         bankName: "",
         address: "",
+        position: "",
         isPartner: false,
         rewardPoint: 0,
         balance: null as unknown as number,
@@ -43,6 +44,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 companyName: currentCustomer.companyName ?? "",
                 bankAccount: currentCustomer.bankAccount ?? "",
                 bankName: currentCustomer.bankName ?? "",
+                position: currentCustomer.position ?? "",
                 address: currentCustomer.address ?? "",
                 isPartner: currentCustomer.isPartner ?? false,
                 rewardPoint: currentCustomer.rewardPoint ?? 0,
@@ -63,6 +65,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 bankAccount: currentCustomer.bankAccount ?? "",
                 bankName: currentCustomer.bankName ?? "",
                 address: currentCustomer.address ?? "",
+                position: currentCustomer.position ?? "",
                 isPartner: currentCustomer.isPartner ?? false,
                 rewardPoint: currentCustomer.rewardPoint ?? 0,
                 balance: currentCustomer.balance ?? 0,
@@ -95,6 +98,7 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 isPartner: data.isPartner,
                 rewardPoint: data.rewardPoint,
                 balance: data.balance ?? 0,
+                position: data.position ?? '',
             };
 
             await createOrUpdateCustomer(selectedId ?? 0, payloadData);
@@ -166,12 +170,21 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                     sx={{ flex: 1 }}
                 />
             </Stack>
-            <Field.Text
-                name="email"
-                label="Email"
-                helperText="Nhập địa chỉ email"
-                sx={{ flex: 1 }}
-            />
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                <Field.Text
+                    name="email"
+                    label="Email"
+                    helperText="Nhập địa chỉ email"
+                    sx={{ flex: 1 }}
+                />
+                <Field.Text
+                    name="position"
+                    label="Chức vụ"
+                    helperText="Nhập chức vụ khách hàng"
+                    required
+                    sx={{ flex: 1 }}
+                />
+            </Stack>
             <Field.Text
                 name="address"
                 label="Địa chỉ"

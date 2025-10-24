@@ -5,6 +5,7 @@ import {
     Font,
     Document,
     PDFViewer,
+    Image,
 } from '@react-pdf/renderer';
 
 import { IQuotationData, IQuotationItem } from 'src/types/quotation';
@@ -189,51 +190,47 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
         <Document
             title={`Báo giá số ${quotationNo}`}
         >
-            {currentQuotation?.totalRecord && currentQuotation?.totalRecord > 2 ?
-                (
-                    <>
-                        <Page size="A4" style={styles.page}>
-                            {renderHeader()}
-                            <View
-                                style={styles.body}
-                            >
-                                {renderDates(createdDate, quotationNo)}
-                                {renderTitle()}
-                                {renderBillingInfo(companyName, customerName)}
-                                {renderTable({ currentQuotation, totalAmount })}
-                                {renderByTextTotal(totalAmount)}
-                            </View>
-                            {renderFooter()}
-                        </Page>
-                        <Page size="A4" style={styles.page}>
-                            {renderHeader()}
-                            <View
-                                style={styles.body}
-                            >
-                                {renderNotes({ note, employeeType, department, seller })}
-                            </View>
-                            {renderFooter()}
-                        </Page>
-                    </>
-                )
-                :
-                (
-                    <Page size="A4" style={styles.page}>
-                        {renderHeader()}
-                        <View
-                            style={styles.body}
-                        >
-                            {renderDates(createdDate, quotationNo)}
-                            {renderTitle()}
-                            {renderBillingInfo(companyName, customerName)}
-                            {renderTable({ currentQuotation, totalAmount })}
-                            {renderByTextTotal(totalAmount)}
-                            {renderNotes({ note, employeeType, department, seller })}
-                        </View>
-                        {renderFooter()}
-                    </Page>
-                )
-            }
+            <Page size="A4" style={styles.page}>
+                <View style={[styles.header, styles.containerStart, styles.alignItemsStart, styles.ml10, styles.mb8]} fixed>
+                    <Image
+                        source="/assets/illustrations/bgpdf.png"
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            opacity: 1,
+                        }}
+                    />
+                </View>
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 8,
+                        left: styles.header?.left ?? 0,
+                        right: styles.header?.right ?? 0,
+                        marginLeft: 10,
+                        marginBottom: 8,
+                    }}
+                >
+                    {renderHeader()}
+                </View>
+                <View
+                    style={styles.body}
+                >
+                    {renderDates(createdDate, quotationNo)}
+                    {renderTitle()}
+                    {renderBillingInfo(companyName, customerName)}
+                    {renderTable({ currentQuotation, totalAmount })}
+                    {renderByTextTotal(totalAmount)}
+                    {renderNotes({ note, employeeType, department, seller })}
+                </View>
+                {renderFooter()}
+            </Page>
         </Document>
     );
 }

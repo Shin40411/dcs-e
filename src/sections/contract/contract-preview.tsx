@@ -13,10 +13,10 @@ export const ContractPreview = ({ contract }: { contract: IContractItem }) => {
         <>
             <Stack flexDirection="column" mb={2}>
                 <Box textAlign="center">
-                    <Typography variant="subtitle1" fontWeight="bold">
+                    <Typography variant="subtitle1" fontWeight="bold" color="#1C252E">
                         CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
                     </Typography>
-                    <Typography variant="subtitle2">Độc lập – Tự do – Hạnh phúc</Typography>
+                    <Typography variant="subtitle2" color="#1C252E">Độc lập – Tự do – Hạnh phúc</Typography>
                 </Box>
                 <Box
                     sx={{
@@ -29,32 +29,32 @@ export const ContractPreview = ({ contract }: { contract: IContractItem }) => {
             </Stack>
 
             <Box textAlign="center" mb={2}>
-                <Typography variant="h6" fontWeight="bold" textTransform="uppercase">
+                <Typography variant="h6" fontWeight="bold" textTransform="uppercase" color="#1C252E">
                     HỢP ĐỒNG MUA BÁN
                 </Typography>
-                <Typography>Số: {contract.contractNo}</Typography>
+                <Typography color="#1C252E">Số: {contract.contractNo}</Typography>
             </Box>
 
             <Stack px={6}>
                 <Stack width="100%" direction="row" justifyContent="center">
                     <List>
                         <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
-                            <Typography>
+                            <Typography color="#1C252E">
                                 - Căn cứ Bộ Luật Dân sự số 91/2015/QH13 ngày 24 tháng 11 năm 2015 của Nước Cộng hòa xã hội chủ nghĩa Việt Nam;
                             </Typography>
                         </ListItem>
                         <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
-                            <Typography>
+                            <Typography color="#1C252E">
                                 - Căn cứ Luật Thương mại số 36/2005/QH11 ngày 14/6/2005 của Quốc Hội Nước Cộng hòa xã hội chủ nghĩa Việt Nam;
                             </Typography>
                         </ListItem>
                         <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
-                            <Typography>
+                            <Typography color="#1C252E">
                                 - Căn cứ Luật Doanh Nghiệp Số 68/2014/QH13 ngày 26/11/2014 của Quốc Hội Nước Cộng hòa xã hội chủ nghĩa Việt Nam;
                             </Typography>
                         </ListItem>
                         <ListItem sx={{ py: 0, textAlign: 'justify', textIndent: '15px' }}>
-                            <Typography>
+                            <Typography color="#1C252E">
                                 - Căn cứ vào nhu cầu và khả năng của hai Bên.
                             </Typography>
                         </ListItem>
@@ -63,37 +63,37 @@ export const ContractPreview = ({ contract }: { contract: IContractItem }) => {
 
                 {/* Bên A */}
                 <Box mb={2}>
-                    <Typography variant="subtitle1" fontWeight="bold">
+                    <Typography variant="subtitle1" fontWeight="bold" color="#1C252E">
                         BÊN A (BÊN BÁN):
                     </Typography>
                     <List sx={{ pl: 2 }}>
                         {contract.companyName && (
                             <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                                <Typography>{contract.companyName}</Typography>
+                                <Typography color="#1C252E">{contract.companyName}</Typography>
                             </ListItem>
                         )}
 
                         {contract.customerAddress && (
                             <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                                <Typography>Địa chỉ: {contract.customerAddress}</Typography>
+                                <Typography color="#1C252E">Địa chỉ: {contract.customerAddress}</Typography>
                             </ListItem>
                         )}
 
                         {contract.customerPhone && (
                             <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                                <Typography>Điện thoại: {contract.customerPhone}</Typography>
+                                <Typography color="#1C252E">Điện thoại: {contract.customerPhone}</Typography>
                             </ListItem>
                         )}
 
                         {contract.customerEmail && (
                             <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                                <Typography>Email: {contract.customerEmail}</Typography>
+                                <Typography color="#1C252E">Email: {contract.customerEmail}</Typography>
                             </ListItem>
                         )}
 
                         {contract.createdBy && (
                             <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                                <Typography>
+                                <Typography color="#1C252E">
                                     Đại diện: {contract.createdBy} – Chức vụ: Giám Đốc
                                 </Typography>
                             </ListItem>
@@ -103,24 +103,24 @@ export const ContractPreview = ({ contract }: { contract: IContractItem }) => {
 
                 {/* Bên B */}
                 <Box mb={2}>
-                    <Typography variant="subtitle1" fontWeight="bold">
+                    <Typography variant="subtitle1" fontWeight="bold" color="#1C252E">
                         BÊN B (BÊN MUA):
                     </Typography>
                     <List sx={{ pl: 2 }}>
                         <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                            <Typography>{contract.customerName}</Typography>
+                            <Typography color="#1C252E">{contract.customerName}</Typography>
                         </ListItem>
                         <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                            <Typography>Địa chỉ: {contract.deliveryAddress}</Typography>
+                            <Typography color="#1C252E">Địa chỉ: {contract.deliveryAddress}</Typography>
                         </ListItem>
                         <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                            <Typography>Điện thoại: {contract.customerPhone}</Typography>
+                            <Typography color="#1C252E">Điện thoại: {contract.customerPhone}</Typography>
                         </ListItem>
                         <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                            <Typography>Email: {contract.customerEmail}</Typography>
+                            <Typography color="#1C252E">Email: {contract.customerEmail}</Typography>
                         </ListItem>
                         <ListItem sx={{ display: 'list-item', listStyleType: '"- "', py: 0 }}>
-                            <Typography>Đại diện: {contract.createdBy} – Chức vụ: Giám Đốc</Typography>
+                            <Typography color="#1C252E">Đại diện: {contract.createdBy} – Chức vụ: Giám Đốc</Typography>
                         </ListItem>
                     </List>
                 </Box>

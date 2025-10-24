@@ -136,6 +136,16 @@ export const endpoints = {
     sendMail: '/api/v1/contracts/send-email'
     // delete: (id: number) => `/api/v1/quotation/delete/${id}`,
   },
+  contractAttachment: {
+    list: (params: string) => `/api/v1/contract-storages/get-file-by-contract${params}`,
+    upload: '/api/v1/contract-storages/upload-file',
+    delete: '/api/v1/contract-storages/delete-contract-file',
+    download: (fileId: number) => `/api/v1/contract-storages/download/${fileId}`,
+  },
+  contractReceipt: {
+    list: (params: string) => `/api/v1/contract-receipts/get-receipts${params}`,
+    create: '/api/v1/contract-receipts/create',
+  },
   upload: {
     uploadImage: '/api/v1/uploads/upload',
     uploadMultipleImages: '/api/v1/uploads/upload-xml',
@@ -145,8 +155,11 @@ export const endpoints = {
       customer: (year: number) => `/api/v1/statictis/total-customer-contract?year=${year}`,
       supplier: (year: number) => `/api/v1/statictis/total-suplier-contract?year=${year}`
     },
-    finance: '/api/v1/statictis/collect-spend-from-contracts',
+    contract: (filter: string) => `/api/v1/statictis/sumary-on-and-over-time-amount-contract?TimeFilter=${filter}`,
+    finance: (filter: string) => `/api/v1/statictis/collect-spend-from-contracts?TimeFilter=${filter}`,
+    productsInStock: (filter: string) => `/api/v1/statictis/products-in-stock?timeFilter=${filter}`,
     contractValue: (params: string) => `/api/v1/statictis/top-contracts?${params}`,
+    bestSeller: (params: string) => `/api/v1/statictis/get-best-selling-product${params}`,
     topSaler: (params: string) => `/api/v1/statictis/get-top-seller?${params}`
   }
 };

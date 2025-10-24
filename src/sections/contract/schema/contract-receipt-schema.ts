@@ -8,7 +8,7 @@ export const ContractReceiptSchema = zod.object({
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn ngày lập phiếu" }
     ),
-    contractNo: zod.string().min(1, "Số phiếu thu là trường bắt buộc"),
+    receiptNo: zod.string().min(1, "Số phiếu thu là trường bắt buộc"),
     amount: zod.preprocess(
         (val) => (val === '' ? undefined : Number(val)),
         zod.number({
@@ -21,10 +21,7 @@ export const ContractReceiptSchema = zod.object({
         (val) => (typeof val === 'string' ? val.trim() : val),
         zod.string().min(2, 'Tên người nộp phải có ít nhất 2 ký tự')
     ),
-    address: zod.preprocess(
-        (val) => (typeof val === 'string' ? val.trim() : val),
-        zod.string().min(5, 'Địa chỉ người nộp phải có ít nhất 5 ký tự')
-    ),
+    address: zod.string().optional(),
     reason: zod.string().optional()
 });
 

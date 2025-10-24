@@ -25,13 +25,13 @@ export function NavList({
 
   const isActive = checkActive(pathname, data);
 
-  const { value: open, onFalse: onClose, onToggle } = useBoolean(isActive);
+  const { value: open, onFalse: onClose, onToggle } = useBoolean(true);
 
-  useEffect(() => {
-    if (!isActive) {
-      onClose();
-    }
-  }, [pathname]);
+  // useEffect(() => {
+  //   if (!isActive) {
+  //     onClose();
+  //   }
+  // }, [pathname]);
 
   const handleToggleMenu = useCallback(() => {
     if (data.children) {

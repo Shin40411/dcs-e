@@ -17,7 +17,8 @@ export default function ContractItemsTableContent({
     contractProductDetail,
     openDel,
     setProductIDSelected,
-    setIndexField
+    setIndexField,
+    disabledAddMore
 }: ContractItemsTableContentProps) {
     const total = fields.reduce((sum, item, index) => {
         const qty = Number(methods.getValues(`products.${index}.qty`) || 0);
@@ -48,7 +49,7 @@ export default function ContractItemsTableContent({
                                 {index + 1}
                             </TableCell>
                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                <ProductAutocomplete index={index} methods={methods} />
+                                <ProductAutocomplete index={index} methods={methods} append={append} />
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>
@@ -102,33 +103,34 @@ export default function ContractItemsTableContent({
                             </TableCell>
                         </TableRow>
                     ))}
-
-                    <TableRow>
-                        <TableCell colSpan={7}>
-                            <Stack
-                                direction="row"
-                                gap={2}
-                                my={1}
-                                justifyContent="space-between"
-                            >
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<Iconify icon="gridicons:add" />}
-                                    onClick={() =>
-                                        append({
-                                            name: "",
-                                            unit: "",
-                                            qty: 1,
-                                            price: 0,
-                                            vat: 0,
-                                        })
-                                    }
+                    {!disabledAddMore &&
+                        <TableRow>
+                            <TableCell colSpan={7}>
+                                <Stack
+                                    direction="row"
+                                    gap={2}
+                                    my={1}
+                                    justifyContent="space-between"
                                 >
-                                    Thêm sản phẩm
-                                </Button>
-                            </Stack>
-                        </TableCell>
-                    </TableRow>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<Iconify icon="gridicons:add" />}
+                                        onClick={() =>
+                                            append({
+                                                name: "",
+                                                unit: "",
+                                                qty: 1,
+                                                price: 0,
+                                                vat: 0,
+                                            })
+                                        }
+                                    >
+                                        Thêm sản phẩm
+                                    </Button>
+                                </Stack>
+                            </TableCell>
+                        </TableRow>
+                    }
                 </TableBody>
             </Table>
         </TableContainer>

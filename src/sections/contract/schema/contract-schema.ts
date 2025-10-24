@@ -11,6 +11,35 @@ export const contractItemSchema = z.object({
     vat: z.number().optional(),
 });
 
+const customItemsSchema = z
+    .array(contractItemSchema.partial()) // Cho phép field trống tạm thời
+    .superRefine((items, ctx) => {
+        // Nếu mảng trống thì không cần xử lý
+        if (items.length === 0) return;
+
+        const lastIndex = items.length - 1;
+
+        items.forEach((item, index) => {
+            const isLast = index === lastIndex;
+            const isEmpty = !item.product || item.product === "";
+
+            // Nếu là phần tử cuối và trống → bỏ qua
+            if (isLast && isEmpty) return;
+
+            // Các phần tử khác: validate lại đầy đủ theo schema gốc
+            const result = contractItemSchema.safeParse(item);
+            if (!result.success) {
+                for (const issue of result.error.issues) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: issue.message,
+                        path: [index, ...issue.path],
+                    });
+                }
+            }
+        });
+    });
+
 export const contractSchema = z.object({
     contractNo: z.string().min(1, "Vui lòng nhập số phiếu"),
     customerId: z.number().min(1, { message: "Vui lòng chọn khách hàng" }),
@@ -22,20 +51,36 @@ export const contractSchema = z.object({
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn ngày ký" }
     ),
-    deliveryAddress: z.string().min(1, { message: "Địa chỉ giao hàng là trường bắt buộc" }),
+    deliveryAddress: z.string().optional(),
     deliveryTime: z.custom<IDateValue>().refine(
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn thời gian giao" }
     ),
-    downPayment: z.number().nonnegative(),
-    nextPayment: z.number().nonnegative(),
-    lastPayment: z.number().nonnegative(),
-    copiesNo: z.number().int().min(1),
-    keptNo: z.number().int().min(1),
+    downPayment: z.number().min(0),
+    nextPayment: z.number().min(0),
+    lastPayment: z.number().min(0),
+    copiesNo: z.coerce
+        .number()
+        .int()
+        .min(1, "Số bản phải lớn hơn 0")
+        .refine((val) => !isNaN(val), { message: "Vui lòng nhập số bản hợp lệ" }),
+
+    keptNo: z.coerce
+        .number()
+        .int()
+        .min(1, "Số bản lưu phải lớn hơn 0")
+        .refine((val) => !isNaN(val), { message: "Vui lòng nhập số bản lưu hợp lệ" }),
     status: z.number().min(0).max(5),
     note: z.string().optional(),
     discount: z.number().min(0),
-    products: z.array(contractItemSchema).min(1, "Thêm ít nhất 1 sản phẩm"),
-});
+    products: customItemsSchema,
+}).refine((data) => data.copiesNo >= 2, {
+    message: "Số bản sao phải ít nhất là 2",
+    path: ["copiesNo"],
+})
+    .refine((data) => data.keptNo < data.copiesNo, {
+        message: "Số bản lưu phải nhỏ hơn tổng số bản",
+        path: ["keptNo"],
+    });;
 
 export type ContractFormValues = z.infer<typeof contractSchema>;

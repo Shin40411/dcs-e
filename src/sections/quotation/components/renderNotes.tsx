@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import { useStyles } from "./useStyle";
+import Html from 'react-pdf-html';
 
 type props = {
     note?: string;
@@ -18,20 +19,37 @@ export const renderNotes = ({ note, employeeType, department, seller }: props) =
                 {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
-                    paddingLeft: 20,
+                    paddingLeft: 39,
                     paddingRight: 20,
                 },
             ]}
+            wrap={false}
         >
-            <View style={{ alignItems: 'flex-start', lineHeight: 1, flexShrink: 1, maxWidth: '60%' }}>
-                <Text style={[styles.text1Bold, { fontSize: 14 }]}>Ghi chú</Text>
-                <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginLeft: 20, marginRight: 20 }}>
+            <View style={{ alignItems: 'flex-start', lineHeight: 1, flexShrink: 1, maxWidth: '70%' }} wrap={false}>
+                <View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
+                    <Text style={[styles.text1Bold, { fontSize: 14, marginBottom: 2 }]}>
+                        Ghi chú
+                    </Text>
                     {note ? (
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={[styles.text4]}>
-                                {note}
-                            </Text>
-                        </View>
+                        <Html
+                            stylesheet={{
+                                "*": { fontSize: 12 },
+                                p: {
+                                    fontFamily: "Niramit-Light",
+                                    marginTop: 0,
+                                    marginBottom: 4,
+                                },
+                                em: {
+                                    fontFamily: "Niramit-italic",
+                                },
+                                "p:first-child": { marginTop: 0 },
+                                "p:last-child": { marginBottom: 0 },
+                                strong: { fontFamily: "Niramit-SemiBold" },
+                                '[style*="text-align: center"]': { textAlign: "center" },
+                            }}
+                        >
+                            {note}
+                        </Html>
                     ) : (
                         <>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -57,7 +75,7 @@ export const renderNotes = ({ note, employeeType, department, seller }: props) =
                 </View>
             </View>
 
-            <View style={{ alignItems: 'center', lineHeight: 1, flexShrink: 0, maxWidth: '40%' }}>
+            <View style={{ alignItems: 'center', lineHeight: 1, flexShrink: 0, maxWidth: '30%', marginRight: 40 }}>
                 <Text style={[styles.text1Bold, { fontSize: 13 }]}>Người lập</Text>
                 {/* {(employeeType && department) &&
                     <Text style={[styles.text1Bold, { fontSize: 13, textTransform: 'uppercase' }]}>{`${employeeType ?? ''} / ${department ?? ''}`}</Text>

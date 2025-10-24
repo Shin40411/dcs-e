@@ -55,7 +55,8 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
                 address: '',
                 isPartner: false,
                 rewardPoint: 0,
-                balance: 0
+                balance: 0,
+                position: ''
             };
 
             const { data: dataCreated } = await createOrUpdateCustomer(undefined, payloadData);
@@ -84,6 +85,7 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
                 modifyBy: dataCreated.modifyBy ?? '',
                 status: dataCreated.status ?? true,
                 balance: dataCreated.balance ?? 0,
+                position: ''
             };
 
             methodsQuotation.setValue('customer', Number(createdCustomer.id), { shouldValidate: true });

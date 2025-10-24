@@ -1,7 +1,7 @@
 import { DataGrid, gridClasses, GridColDef, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton } from "@mui/x-data-grid";
 import { EmptyContent } from "../empty-content";
 import { Box, Button, Card, IconButton, TablePagination, TextField } from "@mui/material";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import { ChangeEvent, Dispatch, memo, SetStateAction, useState } from "react";
 import type { GridToolbarProps } from "@mui/x-data-grid";
 import { Iconify } from "../iconify";
 import { UseBooleanReturn } from "minimal-shared/hooks";
@@ -19,7 +19,7 @@ type GridProps = {
     searchText?: string;
     onSearchChange?: (value: string) => void;
     openBin?: UseBooleanReturn;
-}
+};
 
 export function UseGridTableList({
     dataFiltered,
@@ -103,15 +103,16 @@ export function UseGridTableList({
                     noResultsOverlayLabel: 'Không tìm thấy kết quả',
                 }}
                 slots={{
-                    toolbar: () => (
-                        <CustomToolbar
-                            searchText={searchText}
-                            onSearchChange={onSearchChange}
-                            openBin={openBin}
-                        />
-                    ),
+                    toolbar: CustomToolbarMemo,
                     noRowsOverlay: () => <EmptyContent />,
                     noResultsOverlay: () => <EmptyContent title="Không có kết quả" />,
+                }}
+                slotProps={{
+                    toolbar: {
+                        searchText,
+                        onSearchChange,
+                        openBin,
+                    },
                 }}
                 sx={{
                     [`& .${gridClasses.cell}`]: {
@@ -134,17 +135,17 @@ export function UseGridTableList({
                 }
             />
         </Card>
-    )
+    );
 }
 
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
-        setFilterButtonEl: Dispatch<SetStateAction<HTMLButtonElement | null>>;
+        setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
         searchText?: string;
         onSearchChange?: (value: string) => void;
+        openBin?: UseBooleanReturn;
     }
 }
-
 
 type CustomToolbarProps = GridToolbarProps & {
     searchText?: string;
@@ -152,45 +153,42 @@ type CustomToolbarProps = GridToolbarProps & {
     openBin?: UseBooleanReturn;
 };
 
-function CustomToolbar(props: CustomToolbarProps) {
-    const { searchText = "", onSearchChange = () => { }, openBin, ...rest } = props;
+function CustomToolbarComponent(props: CustomToolbarProps) {
+    const { searchText = '', onSearchChange = () => { }, openBin, ...rest } = props;
+
     return (
         <GridToolbarContainer {...rest}>
             <GridToolbarColumnsButton />
             <GridToolbarFilterButton />
             <GridToolbarDensitySelector />
-            {openBin &&
+
+            {openBin && (
                 <Button
                     variant="text"
                     color="error"
-                    startIcon={
-                        <Iconify
-                            icon="mdi:delete"
-                            sx={{ width: 24, height: 24 }}
-                        />
-                    }
-                    onClick={() => openBin?.onTrue()}
+                    startIcon={<Iconify icon="mdi:delete" sx={{ width: 24, height: 24 }} />}
+                    onClick={() => openBin?.onTrue?.()}
                 >
                     Thùng rác
                 </Button>
-            }
+            )}
 
             <Box sx={{ flexGrow: 1 }} />
+
             <TextField
                 size="small"
                 variant="outlined"
                 value={searchText}
-                onChange={(e) => onSearchChange(e.target.value)}
+                onChange={(e) => onSearchChange?.(e.target.value)}
                 placeholder="Tìm kiếm..."
                 InputProps={{
                     startAdornment: (
-                        <Iconify
-                            icon="eva:search-fill"
-                            sx={{ color: 'text.disabled', width: 20, height: 20, mr: 1 }}
-                        />
+                        <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20, mr: 1 }} />
                     ),
                 }}
             />
         </GridToolbarContainer>
     );
 }
+
+const CustomToolbarMemo = memo(CustomToolbarComponent);

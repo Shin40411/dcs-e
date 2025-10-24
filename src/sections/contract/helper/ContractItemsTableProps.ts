@@ -36,4 +36,5 @@ export type ContractItemsTableContentProps = {
     openDel: UseBooleanReturn;
     setProductIDSelected: (id: string) => void;
     setIndexField: (i: number) => void;
+    disabledAddMore?: boolean;
 };

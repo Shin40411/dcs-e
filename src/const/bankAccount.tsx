@@ -94,6 +94,7 @@ export const BANKACCOUNT_COLUMNS: ({
                         showInMenu
                         icon={<Iconify icon="solar:eye-bold" />}
                         label="Chi tiết"
+                        sx={{ display: { xs: 'none', md: 'block' } }}
                         onClick={() => { openDetailsForm.onTrue(), setTableRowSelected(params.row); }}
                     />,
                     <GridActionsCellItem

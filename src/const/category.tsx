@@ -98,6 +98,7 @@ export const CATEGORY_COLUMNS: ({
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:eye-bold" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
                         label="Chi tiết"
                         onClick={() => { openDetailsForm.onTrue(), setTableRowSelected(params.row); }}
                     />,

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
 import { CONFIG } from "src/global-config";
 import { EmployeeTypeBin } from "../employee-type-bin";
+import { set } from "nprogress";
 
 export function EmployeeTypeListView() {
     const openCrudForm = useBoolean();
@@ -97,7 +98,7 @@ export function EmployeeTypeListView() {
     const renderCRUDForm = () => (
         <EmployeeTypeNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
             selectedId={rowIdSelected || undefined}
             currentEmployeeType={tableRowSelected || undefined}
         />
@@ -117,7 +118,7 @@ export function EmployeeTypeListView() {
                     heading="Chức vụ"
                     links={[
                         { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Cấu hình' },
+                        { name: 'Danh mục' },
                         { name: 'Chức vụ' },
                     ]}
                     action={

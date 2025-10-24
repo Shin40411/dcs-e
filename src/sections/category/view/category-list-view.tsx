@@ -84,7 +84,7 @@ export function CategoryListView() {
     const renderCRUDForm = () => (
         <CategoryNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
             currentCategory={tableRowSelected || undefined}
         />
     );

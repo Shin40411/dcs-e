@@ -70,7 +70,7 @@ export function CustomerListView() {
     const renderCRUDForm = () => (
         <CustomerNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
             selectedId={rowIdSelected || undefined}
             currentCustomer={tableRowSelected || undefined}
         />

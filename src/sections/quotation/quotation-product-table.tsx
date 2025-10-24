@@ -143,7 +143,7 @@ export function QuotationItemsTable({
 
     return (
         <>
-            <Stack width={{ xs: "100%", sm: "100%", md: "50%" }} spacing={2} sx={{ height: "100%" }}>
+            <Stack width={{ xs: "100%", sm: "100%", md: "70%" }} spacing={2} sx={{ height: "100%" }}>
                 <Typography variant="subtitle2">Sản phẩm</Typography>
 
                 <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
@@ -167,7 +167,7 @@ export function QuotationItemsTable({
                                         <TableRow key={field.id}>
                                             <TableCell sx={{ whiteSpace: "nowrap" }}>{index + 1}</TableCell>
                                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                                <ProductAutocomplete index={index} methods={methods} />
+                                                <ProductAutocomplete index={index} methods={methods} append={append} />
                                             </TableCell>
                                             <TableCell sx={{ whiteSpace: "nowrap" }}>
                                                 <Field.NumberInput name={`items.${index}.qty`} sx={{ width: 100 }} />
@@ -285,9 +285,11 @@ export function QuotationItemsTable({
 function ProductAutocomplete({
     index,
     methods,
+    append
 }: {
     index: number;
     methods: UseFormReturn<any>;
+    append: (value: any) => void;
 }) {
     const [keyword, setKeyword] = useState("");
     const [debouncedKeyword, setDebouncedKeyword] = useState("");
@@ -338,13 +340,21 @@ function ProductAutocomplete({
                     methods.setValue(`items.${index}.price`, newValue.price ?? 0);
                     methods.setValue(`items.${index}.vat`, newValue.vat ?? 0);
                 }
-                // else {
-                //     methods.setValue(`items.${index}.product`, "");
-                // }
+                const productsArr = methods.getValues('items') || [];
+                const lastIndex = productsArr.length - 1;
+                if (index === lastIndex) {
+                    append({
+                        name: "",
+                        unit: "",
+                        qty: 1,
+                        price: 0,
+                        vat: 0,
+                    });
+                }
             }}
             noOptionsText="Không có dữ liệu"
             fullWidth
-            sx={{ width: 150 }}
+            sx={{ width: 500 }}
         />
     );
 }

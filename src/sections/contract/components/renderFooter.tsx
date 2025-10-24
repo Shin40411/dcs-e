@@ -7,9 +7,7 @@ export const renderFooter = () => {
     return (
         <View style={[styles.container, styles.footer]} fixed>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ width: '30%' }}>
-                </View>
-                <View style={{ flexDirection: 'column', width: '70%', alignItems: 'flex-start' }}>
+                <View style={{ flexDirection: 'column', width: '100%', alignItems: 'flex-end' }}>
                     <View style={{ marginTop: 5, paddingLeft: 70, flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={{
                             fontFamily: 'Niramit',
@@ -28,7 +26,7 @@ export const renderFooter = () => {
                     </View>
                 </View>
             </View>
-            <Image
+            {/* <Image
                 src="/assets/illustrations/footerContract.png"
                 style={{
                     position: 'absolute',
@@ -39,7 +37,7 @@ export const renderFooter = () => {
                     objectFit: 'cover',
                     opacity: 1
                 }}
-            />
+            /> */}
         </View>
     );
 }

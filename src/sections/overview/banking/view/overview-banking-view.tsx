@@ -85,7 +85,7 @@ export function OverviewBankingView() {
   const renderCRUDForm = () => (
     <BankingNewEditForm
       open={openCrudForm.value}
-      onClose={openCrudForm.onFalse}
+      onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
       selectedId={rowIdSelected || undefined}
       currentBankingAccount={tableRowSelected || undefined}
     />

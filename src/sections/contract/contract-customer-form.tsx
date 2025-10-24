@@ -57,7 +57,8 @@ export function ContractCustomerForm({ openChild, setOpenChild, setCustomerKeywo
                 address: '',
                 isPartner: false,
                 rewardPoint: 0,
-                balance: 0
+                balance: 0,
+                position: ''
             };
 
             const { data: dataCreated } = await createOrUpdateCustomer(undefined, payloadData);
@@ -86,6 +87,7 @@ export function ContractCustomerForm({ openChild, setOpenChild, setCustomerKeywo
                 modifyBy: dataCreated.modifyBy ?? '',
                 status: dataCreated.status ?? true,
                 balance: dataCreated.balance ?? 0,
+                position: ''
             };
 
             methodsContract.setValue('customerId', Number(createdCustomer.id) ?? 0, { shouldValidate: true });

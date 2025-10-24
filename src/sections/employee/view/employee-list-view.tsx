@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { endpoints } from "src/lib/axios";
 import { CONFIG } from "src/global-config";
 import { EmployeeBin } from "../employee-bin";
+import { set } from "nprogress";
 
 export function EmployeeListView() {
     const openCrudForm = useBoolean();
@@ -93,7 +94,7 @@ export function EmployeeListView() {
     const renderCRUDForm = () => (
         <EmployeeNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); setRowIdSelected(0); }}
             selectedId={rowIdSelected || undefined}
             currentEmployee={tableRowSelected || undefined}
         />

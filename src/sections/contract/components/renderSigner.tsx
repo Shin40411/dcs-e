@@ -3,13 +3,13 @@ import { Text, View } from "@react-pdf/renderer";
 type props = {
     customerName?: string;
     companyName?: string;
-    employeeType?: string;
+    position?: string;
 };
 
-export const renderSigner = ({ customerName, companyName, employeeType }: props) => {
+export const renderSigner = ({ customerName, companyName, position }: props) => {
     const sideA = [
-        companyName ? `${companyName} / ${customerName}` : customerName,
-        employeeType,
+        companyName ? companyName : customerName,
+        position,
         customerName
     ];
 
@@ -22,16 +22,19 @@ export const renderSigner = ({ customerName, companyName, employeeType }: props)
     return (
         <View
             style={{
-                paddingLeft: 50,
+                paddingLeft: 69,
                 paddingRight: 50,
                 marginTop: 10,
                 flexDirection: 'row',
                 alignItems: 'flex-start',
-                justifyContent: 'center',
-                gap: 50
-            }}>
+                justifyContent: 'space-between',
+            }}
+        >
+            {/* ==== Bên A ==== */}
             <View
                 style={{
+                    width: '48%',
+                    flexShrink: 0,
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -39,40 +42,54 @@ export const renderSigner = ({ customerName, companyName, employeeType }: props)
                 }}
             >
                 <View style={{ alignItems: 'center' }}>
-                    <Text style={{
-                        fontFamily: 'Niramit-Bold',
-                        fontSize: 13,
-                        textTransform: 'uppercase'
-                    }}>
-                        Bên A
+                    <Text
+                        style={{
+                            fontFamily: 'Niramit-Bold',
+                            fontSize: 13,
+                            textTransform: 'uppercase',
+                        }}
+                    >
+                        ĐẠI DIỆN BÊN A
                     </Text>
-                    <Text style={{
-                        fontFamily: 'Niramit-Bold',
-                        fontSize: 13,
-                        textTransform: 'uppercase',
-                        color: 'rgba(238, 0, 51, 1)'
-                    }}>
+                    <Text
+                        style={{
+                            fontFamily: 'Niramit-Bold',
+                            fontSize: 13,
+                            textAlign: 'center',
+                        }}
+                    >
                         {sideA[0]}
                     </Text>
-                    <Text style={{
-                        fontFamily: 'Niramit-SemiBold',
-                        fontSize: 13,
-                        color: 'rgba(238, 0, 51, 1)'
-                    }}>
+                    <Text
+                        style={{
+                            fontFamily: 'Niramit-SemiBold',
+                            fontSize: 13,
+                            textAlign: 'center',
+                            textTransform: 'uppercase',
+                        }}
+                    >
                         {sideA[1]}
                     </Text>
                 </View>
-                <Text style={{
-                    fontFamily: 'Niramit',
-                    fontSize: 13,
-                    marginTop: 60,
-                    color: 'rgba(238, 0, 51, 1)'
-                }}>
+
+                <Text
+                    style={{
+                        fontFamily: 'Niramit',
+                        fontSize: 13,
+                        marginTop: 60,
+                        color: 'rgba(238, 0, 51, 1)',
+                        textAlign: 'center',
+                    }}
+                >
                     {sideA[2]}
                 </Text>
             </View>
+
+            {/* ==== Bên B ==== */}
             <View
                 style={{
+                    width: '48%',
+                    flexShrink: 0,
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -80,32 +97,44 @@ export const renderSigner = ({ customerName, companyName, employeeType }: props)
                 }}
             >
                 <View style={{ alignItems: 'center' }}>
-                    <Text style={{
-                        fontFamily: 'Niramit-Bold',
-                        fontSize: 13,
-                        textTransform: 'uppercase'
-                    }}>
-                        Bên B
+                    <Text
+                        style={{
+                            fontFamily: 'Niramit-Bold',
+                            fontSize: 13,
+                            textTransform: 'upperfirst',
+                        }}
+                    >
+                        ĐẠI DIỆN BÊN B
                     </Text>
-                    <Text style={{
-                        fontFamily: 'Niramit-Bold',
-                        fontSize: 13,
-                    }}>
+                    <Text
+                        style={{
+                            fontFamily: 'Niramit-Bold',
+                            fontSize: 13,
+                            textAlign: 'center',
+                        }}
+                    >
                         {sideB[0]}
                     </Text>
-                    <Text style={{
-                        fontFamily: 'Niramit-SemiBold',
-                        fontSize: 13,
-                    }}>
+                    <Text
+                        style={{
+                            fontFamily: 'Niramit-SemiBold',
+                            fontSize: 13,
+                            textAlign: 'center',
+                        }}
+                    >
                         {sideB[1]}
                     </Text>
                 </View>
-                <Text style={{
-                    fontFamily: 'Niramit',
-                    fontSize: 13,
-                    marginTop: 60,
-                    color: 'rgba(238, 0, 51, 1)'
-                }}>
+
+                <Text
+                    style={{
+                        fontFamily: 'Niramit',
+                        fontSize: 13,
+                        marginTop: 60,
+                        color: 'rgba(238, 0, 51, 1)',
+                        textAlign: 'center',
+                    }}
+                >
                     {sideB[2]}
                 </Text>
             </View>

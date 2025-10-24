@@ -88,6 +88,11 @@ Font.register({
 });
 
 Font.register({
+    family: 'Niramit-ExtraLight',
+    fonts: [{ src: '/fonts/Niramit/Niramit-ExtraLight.ttf' }],
+});
+
+Font.register({
     family: 'Niramit-italic',
     fonts: [{ src: '/fonts/Niramit/Niramit-MediumItalic.ttf' }],
 });
@@ -147,6 +152,7 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
         customerTaxCode,
         customerBank,
         customerBankNo,
+        position,
         companyName,
         signatureDate,
         deliveryAddress,
@@ -171,88 +177,56 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
         <Document
             title={`Hợp đồng số ${contractNo}`}
         >
-
-            {currentContract?.totalRecord && currentContract.totalRecord > 3 ?
-                (
-                    <>
-                        <Page size="A4" style={styles.page}>
-                            {renderHeader()}
-                            <View style={styles.body}>
-                                {renderTitle(contractNo)}
-                                {renderLaw()}
-                                {renderTwoSides({
-                                    customerAddress,
-                                    companyName,
-                                    customerBank,
-                                    customerBankNo,
-                                    customerName,
-                                    customerPhone
-                                })}
-                                {renderRuleOne()}
-                            </View>
-                            {renderFooter()}
-                        </Page>
-                        <Page size="A4" style={styles.page}>
-                            {renderHeader()}
-                            <View style={styles.body}>
-                                {renderTable({
-                                    currentContract,
-                                    discount,
-                                    total
-                                })}
-                                {renderRuleTwo({
-                                    downPayment,
-                                    nextPayment,
-                                    lastPayment,
-                                    signatureDate,
-                                    total
-                                })}
-                                {renderRuleThree()}
-                                {renderRuleFour()}
-                                {renderRuleFive()}
-                                {renderRuleSix()}
-                                {renderSigner({ companyName, customerName })}
-                            </View>
-                            {renderFooter()}
-                        </Page>
-                    </>
-                )
-                :
-                <Page size="A4" style={styles.page}>
-                    {renderHeader()}
-                    <View style={styles.body}>
-                        {renderTitle(contractNo)}
-                        {renderLaw()}
-                        {renderTwoSides({
-                            customerAddress,
-                            companyName,
-                            customerBank,
-                            customerBankNo,
-                            customerName,
-                            customerPhone
-                        })}
-                        {renderRuleOne()}
-                        {renderTable({
-                            currentContract,
-                            discount,
-                            total
-                        })}
-                        {renderRuleTwo({
-                            downPayment,
-                            nextPayment,
-                            lastPayment,
-                            signatureDate,
-                            total
-                        })}
-                        {renderRuleThree()}
-                        {renderRuleFour()}
-                        {renderRuleFive()}
-                        {renderRuleSix()}
-                        {renderSigner({ companyName, customerName })}
-                    </View>
-                    {renderFooter()}
-                </Page>
-            }
+            <Page size="A4" style={styles.page}>
+                {renderHeader()}
+                <View style={styles.body}>
+                    {renderTitle(contractNo)}
+                    {renderLaw()}
+                    {renderTwoSides({
+                        customerAddress,
+                        companyName,
+                        customerBank,
+                        customerBankNo,
+                        position,
+                        customerName,
+                        customerPhone,
+                        customerTaxCode
+                    })}
+                    {renderRuleOne()}
+                    {/* {renderTable({
+                        currentContract,
+                        discount,
+                        total
+                    })} */}
+                    {/* {renderRuleTwo({
+                        downPayment,
+                        nextPayment,
+                        lastPayment,
+                        signatureDate,
+                        total,
+                        deliveryAddress
+                    })} */}
+                    {/* {renderRuleThree()} */}
+                    {/* {renderRuleFive()} */}
+                    {renderRuleSix({
+                        currentContract,
+                        discount,
+                        keptNo,
+                        copiesNo,
+                        companyName,
+                        customerName,
+                        position,
+                        downPayment,
+                        nextPayment,
+                        lastPayment,
+                        signatureDate,
+                        total,
+                        deliveryAddress
+                    })}
+                    {/* {renderSigner({ companyName, customerName, position })} */}
+                </View>
+                {renderFooter()}
+            </Page>
         </Document>
     );
 }

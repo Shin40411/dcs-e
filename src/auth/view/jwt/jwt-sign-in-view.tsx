@@ -22,6 +22,7 @@ import { useAuthContext } from '../../hooks';
 import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
 import { signInWithPassword } from '../../context/jwt';
+import { Logo } from 'src/components/logo';
 
 // ----------------------------------------------------------------------
 
@@ -129,6 +130,9 @@ export function JwtSignInView() {
   return (
     <>
       <FormHead
+        icon={
+          <Logo disabled />
+        }
         title="Đăng nhập tài khoản"
         sx={{ textAlign: { xs: 'center', md: 'left' } }}
       />

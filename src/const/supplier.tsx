@@ -83,6 +83,7 @@ export const SUPPLIERS_COLUMNS: ({
                                         openDetailsForm?.onTrue();
                                         handleClose();
                                     }}
+                                    sx={{ display: { xs: 'none', md: 'flex' } }}
                                 >
                                     <Iconify icon="solar:eye-bold" />
                                     <Box component="span" sx={{ ml: 1 }}>
@@ -224,6 +225,7 @@ export const SUPPLIERS_COLUMNS: ({
                         showInMenu
                         icon={<Iconify icon="solar:eye-bold" />}
                         label="Chi tiết"
+                        sx={{ display: { xs: 'none', md: 'block' } }}
                         onClick={() => {
                             setTableRowSelected(params.row);
                             openDetailsForm?.onTrue();

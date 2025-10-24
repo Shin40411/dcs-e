@@ -87,7 +87,7 @@ export const useStyles = () =>
                     fontFamily: 'Niramit-Medium',
                 },
                 // table
-                table: { marginTop: 5, display: 'flex', width: '100%', padding: '0 40px' },
+                table: { marginTop: 5, display: 'flex', width: '100%', paddingTop: 0, paddingBottom: 0 },
                 row: {
                     padding: '10px 0 0 0',
                     flexDirection: 'row',
@@ -114,10 +114,16 @@ export const useStyles = () =>
                     alignItems: 'center',
                 },
                 cell_1: { width: '5%' },
-                cell_2: { width: '50%' },
-                cell_3: { width: '15%' },
-                cell_4: { width: '15%', paddingLeft: 0 },
+                cell_2: { width: '45%' },
+                cell_3: { width: '15%', paddingLeft: 0 },
+                cell_4: { width: '5%' },
                 cell_5: { width: '15%' },
+                cell_6: { width: '15%' },
+                cell_sub1: { width: '5%' },
+                cell_sub2: { width: '60%' },
+                cell_sub3: { width: '15%' },
+                cell_sub4: { width: '20%', paddingLeft: 0 },
+                cell_sub5: { width: '20%' },
                 noBorder: { paddingTop: '10px', paddingBottom: 0, borderBottomWidth: 0 },
             }),
         []

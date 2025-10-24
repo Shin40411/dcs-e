@@ -22,6 +22,7 @@ export function ContractMainView() {
     const [fromDate, setFromDate] = useState<IDateValue>();
     const [toDate, setToDate] = useState<IDateValue>();
     const [productDetails, setProductDetails] = useState([]);
+    const [inVoiceCustomerId, setInVoiceCustomerId] = useState<number | null>(null);
     const navigate = useNavigate();
 
     const handleViewDetails = (contract: IContractItem) => {
@@ -46,6 +47,9 @@ export function ContractMainView() {
                 const quotation = location.state.details;
                 const products = quotation.items?.[0]?.products ?? [];
                 setProductDetails(products);
+            }
+            if (location.state.customer) {
+                setInVoiceCustomerId(location.state.customer);
             }
             navigate(location.pathname, { replace: true, state: {} });
         }
@@ -93,6 +97,7 @@ export function ContractMainView() {
                     }}
                     selectedContract={selectedContract}
                     detailsFromQuotation={productDetails}
+                    customerIdFromQuotation={inVoiceCustomerId}
                 />
                 {selectedContract && (
                     <ContractDetails

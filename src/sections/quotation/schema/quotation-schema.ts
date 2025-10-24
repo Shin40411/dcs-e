@@ -12,12 +12,41 @@ export const quotationItemSchema = z.object({
     vat: z.number().optional(),
 });
 
+const customItemsSchema = z
+    .array(quotationItemSchema.partial()) // Cho phép field trống tạm thời
+    .superRefine((items, ctx) => {
+        // Nếu mảng trống thì không cần xử lý
+        if (items.length === 0) return;
+
+        const lastIndex = items.length - 1;
+
+        items.forEach((item, index) => {
+            const isLast = index === lastIndex;
+            const isEmpty = !item.product || item.product === "";
+
+            // Nếu là phần tử cuối và trống → bỏ qua
+            if (isLast && isEmpty) return;
+
+            // Các phần tử khác: validate lại đầy đủ theo schema gốc
+            const result = quotationItemSchema.safeParse(item);
+            if (!result.success) {
+                for (const issue of result.error.issues) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: issue.message,
+                        path: [index, ...issue.path],
+                    });
+                }
+            }
+        });
+    });
+
+
 export const quotationSchema = z.object({
     customer: z.number().min(1, { message: "Vui lòng chọn khách hàng" }),
     quotationNo: z
         .string()
-        .min(1, "Mã báo giá là trường bắt buộc")
-        .max(15, "Mã báo giá tối đa 15 ký tự"),
+        .min(1, "Mã báo giá là trường bắt buộc"),
     date: z.custom<IDateValue>().refine(
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn ngày báo giá" }
@@ -27,7 +56,7 @@ export const quotationSchema = z.object({
         { message: "Vui lòng chọn ngày có hiệu lực" }
     ),
     status: z.number().min(0).max(4),
-    items: z.array(quotationItemSchema).min(1, "Thêm ít nhất 1 sản phẩm"),
+    items: customItemsSchema,
     discount: z.preprocess(
         (val) => {
             if (val === "" || val === null || val === undefined) {
@@ -37,6 +66,7 @@ export const quotationSchema = z.object({
         },
         z.number().min(0, "Khuyến mãi nhập tối thiểu là 0%").max(30, "Khuyến mãi nhập tối đa là 30%").optional()
     ),
+    paid: z.number().min(0, "Vui lòng nhập số tiền đã trả trước"),
     notes: z.string().optional(),
     customerDetails: customerSchema.optional(),
 });

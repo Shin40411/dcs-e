@@ -150,7 +150,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
     minHeight: 'var(--nav-item-root-height)',
     ...(open && {
       color: 'var(--nav-item-root-open-color)',
-      backgroundColor: 'var(--nav-item-root-open-bg)',
+      // backgroundColor: 'var(--nav-item-root-open-bg)',
     }),
     ...(active && {
       color: 'var(--nav-item-root-active-color)',
@@ -167,7 +167,7 @@ const ItemRoot = styled(ButtonBase, { shouldForwardProp })<StyledState>(({
     '&::before': bulletStyles,
     ...(open && {
       color: 'var(--nav-item-sub-open-color)',
-      backgroundColor: 'var(--nav-item-sub-open-bg)',
+      // backgroundColor: 'var(--nav-item-sub-open-bg)',
     }),
     ...(active && {
       color: 'var(--nav-item-sub-active-color)',

@@ -16,6 +16,7 @@ export const NewCustomerSchema = zod.object({
         .optional(),
     companyName: zod.string().optional(),
     bankAccount: zod.string().optional(),
+    position: zod.string().min(1, "Chức vụ là trường bắt buộc"),
     bankName: zod.string().optional(),
     address: zod.string().optional(),
     isPartner: zod.boolean().default(false),

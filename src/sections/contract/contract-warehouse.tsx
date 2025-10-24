@@ -81,26 +81,35 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <TextField defaultValue={selectedContract.seller} label="Tên nhân viên" disabled
-                    sx={{
-                        flex: 1.5,
-                        '& .MuiInputBase-root.Mui-disabled': {
-                            backgroundColor: '#ddd',
-                        },
-                    }} />
+                <Field.Text
+                    name="position"
+                    label="Bộ phận"
+                    helperText="Nhập bộ phận"
+                    sx={{ flex: 1.5 }}
+                />
                 <Field.Text
                     name="contractNo"
-                    label="Số phiếu chi"
-                    helperText="Nhập số phiếu chi"
+                    label="Số phiếu xuất kho"
+                    helperText="Nhập số phiếu xuất kho"
                     required
                     sx={{ flex: 1 }}
                 />
             </Stack>
-            <Field.Text
-                name="reason"
-                label="Lý do xuất kho"
-                helperText="Nhập lý do xuất kho"
-            />
+            <Stack direction="row" spacing={3}>
+                <Field.Text
+                    name="reason"
+                    label="Lý do xuất kho"
+                    helperText="Nhập lý do xuất kho"
+                    sx={{ flex: 1.5 }}
+                />
+                <TextField defaultValue={selectedContract.seller} label="Tên nhân viên" disabled
+                    sx={{
+                        flex: 1,
+                        '& .MuiInputBase-root.Mui-disabled': {
+                            backgroundColor: '#ddd',
+                        },
+                    }} />
+            </Stack>
             <Field.Text
                 name="address"
                 label="Địa điểm"

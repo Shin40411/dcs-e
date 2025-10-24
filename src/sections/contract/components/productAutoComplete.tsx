@@ -6,9 +6,11 @@ import { Field } from "src/components/hook-form";
 export function ProductAutocomplete({
     index,
     methods,
+    append
 }: {
     index: number;
     methods: UseFormReturn<any>;
+    append: (v: any) => void;
 }) {
     const [keyword, setKeyword] = useState("");
     const [debouncedKeyword, setDebouncedKeyword] = useState("");
@@ -61,14 +63,23 @@ export function ProductAutocomplete({
                     );
                     methods.setValue(`products.${index}.price`, newValue.price ?? 0);
                     methods.setValue(`products.${index}.vat`, newValue.vat ?? 0);
+
+                    const productsArr = methods.getValues('products') || [];
+                    const lastIndex = productsArr.length - 1;
+                    if (index === lastIndex) {
+                        append({
+                            name: "",
+                            unit: "",
+                            qty: 1,
+                            price: 0,
+                            vat: 0,
+                        });
+                    }
                 }
-                // else {
-                //     methods.setValue(`products.${index}.product`, "");
-                // }
             }}
             noOptionsText="Không có dữ liệu"
             fullWidth
-            sx={{ width: 150 }}
+            sx={{ width: 500 }}
         />
     );
 }

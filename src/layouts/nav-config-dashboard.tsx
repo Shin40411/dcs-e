@@ -64,9 +64,8 @@ export const navData: NavSectionProps['data'] = [
    * Overview
    */
   {
-    subheader: 'Tổng quan',
     items: [
-      { title: 'Thống kê', path: paths.dashboard.root, icon: ICONS.dashboard },
+      { title: 'Tổng quan', path: paths.dashboard.root, icon: ICONS.dashboard },
       // { title: 'Ecommerce', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
       // { title: 'Analytics', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
       // { title: 'Banking', path: paths.dashboard.general.banking, icon: ICONS.banking },
@@ -79,10 +78,9 @@ export const navData: NavSectionProps['data'] = [
    * Management
    */
   {
-    subheader: 'Nghiệp vụ khách hàng',
     items: [
       {
-        title: 'Hợp đồng',
+        title: 'Nghiệp vụ khách hàng',
         path: paths.dashboard.customerServices.contract,
         icon: <Iconify icon={'lsicon:contract-filled'} />,
         children: [
@@ -101,29 +99,50 @@ export const navData: NavSectionProps['data'] = [
     ]
   },
   {
-    subheader: 'Quản lý',
     items: [
       {
-        title: 'Danh mục',
+        title: 'Quản lý danh mục',
         path: paths.dashboard.product.root,
         icon: <Iconify icon={'material-symbols:category-rounded'} />,
         children: [
           { title: 'Nhóm sản phẩm', path: paths.dashboard.category.root, icon: <Iconify icon={'streamline-cyber-color:package-stack-2'} /> },
           { title: 'Sản phẩm', path: paths.dashboard.product.root, icon: <Iconify icon={'streamline-cyber-color:shopping-product'} /> },
+          {
+            title: 'Đơn vị tính',
+            path: paths.dashboard.unit,
+            icon: <Iconify icon={'streamline-cyber-color:coin-stack'} />
+          },
           { title: 'Khách hàng', path: paths.dashboard.customer.root, icon: <Iconify icon={'streamline-cyber-color:businessman'} /> },
-          { title: 'Tài khoản ngân hàng', path: paths.dashboard.general.banking, icon: <Iconify icon={'streamline-cyber-color:bank-1'} /> },
-          { title: 'Nhà cung cấp', path: paths.dashboard.suppliers.root, icon: <Iconify icon={'streamline-cyber-color:business-handshake-deal'} /> },
+          {
+            title: 'Phòng ban',
+            path: paths.dashboard.department,
+            icon: <Iconify icon={'streamline-cyber-color:hierarchy-business-2'} />
+          },
+          {
+            title: 'Chức vụ',
+            path: paths.dashboard.employeeType,
+            icon: <Iconify icon={'streamline-cyber-color:business-pick-user'} />
+          },
           { title: 'Nhân viên', path: paths.dashboard.employees.root, icon: <Iconify icon={'streamline-cyber-color:account-group'} /> },
+          { title: 'Nhà cung cấp', path: paths.dashboard.suppliers.root, icon: <Iconify icon={'streamline-cyber-color:business-handshake-deal'} /> },
+          { title: 'Tài khoản ngân hàng', path: paths.dashboard.general.banking, icon: <Iconify icon={'streamline-cyber-color:bank-1'} /> },
         ],
       },
-      // {
-      //   title: 'Quản trị',
-      //   path: paths.dashboard.user.root,
-      //   icon: ICONS.user,
-      //   children: [
-      //     { title: 'Người dùng', path: paths.dashboard.user.list, icon: <Iconify icon={'streamline-cyber-color:headset-user'} /> },
-      //   ],
-      // },
+      {
+        title: 'Quản lý nội bộ',
+        path: paths.dashboard.user.root,
+        icon: <Iconify icon={'carbon:id-management'} />,
+        disabled: true,
+        info: (
+          <Label
+            color="info"
+            variant="inverted"
+            startIcon={<Iconify icon="maki:construction" />}
+          >
+            Đang phát triển
+          </Label>
+        ),
+      },
       // {
       //   title: 'Thu chi',
       //   path: paths.dashboard.order.root,
@@ -183,29 +202,21 @@ export const navData: NavSectionProps['data'] = [
     ],
   },
   {
-    subheader: 'Cài đặt',
     items: [
       {
-        title: 'Cấu hình',
-        path: paths.dashboard.settings.unit,
-        icon: <Iconify icon={'carbon:category'} />,
-        children: [
-          {
-            title: 'Đơn vị tính',
-            path: paths.dashboard.settings.unit,
-            icon: <Iconify icon={'streamline-cyber-color:coin-stack'} />
-          },
-          {
-            title: 'Chức vụ',
-            path: paths.dashboard.settings.employeeType,
-            icon: <Iconify icon={'streamline-cyber-color:business-pick-user'} />
-          },
-          {
-            title: 'Phòng ban',
-            path: paths.dashboard.settings.department,
-            icon: <Iconify icon={'streamline-cyber-color:hierarchy-business-2'} />
-          }
-        ],
+        title: 'Cài đặt',
+        path: paths.dashboard.settings.root,
+        icon: <Iconify icon={'uil:setting'} />,
+        disabled: true,
+        info: (
+          <Label
+            color="info"
+            variant="inverted"
+            startIcon={<Iconify icon="maki:construction" />}
+          >
+            Đang phát triển
+          </Label>
+        ),
       },
     ]
   },

@@ -26,7 +26,13 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
     });
 
     const handleCreateContract = () => {
-        navigate(paths.dashboard.customerServices.contract, { state: { openForm: true, details: quotation } });
+        navigate(paths.dashboard.customerServices.contract, {
+            state: {
+                openForm: true,
+                details: quotation,
+                customer: selectedQuotation.customerId
+            }
+        });
     };
 
     const [showActions, setShowActions] = useState(false);

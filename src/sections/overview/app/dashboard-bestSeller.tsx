@@ -1,143 +1,238 @@
-import { Box, Card, Divider, LinearProgress, MenuItem, Select, SelectChangeEvent, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { Autocomplete, Box, Card, CircularProgress, Divider, LinearProgress, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { useDebounce } from "minimal-shared/hooks";
 import { useState } from "react";
+import { useGetCategories } from "src/actions/category";
+import { TopBestSellerStatistic } from "src/actions/statistics";
+import { useSettingsContext } from "src/components/settings";
+import { ICategoryItem } from "src/types/category";
+import { fCurrencyNoUnit } from "src/utils/format-number";
 
-export function DashBoardBestSeller() {
-    const [category, setCategory] = useState('PC - Lắp ráp');
+type DashBoardBestSellerProps = {
+    filter: string;
+};
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setCategory(event.target.value);
-    };
+export function DashBoardBestSeller({ filter }: DashBoardBestSellerProps) {
+    const [categorykeyword, setCategoryKeyword] = useState('');
+    const debouncedCategoryKw = useDebounce(categorykeyword, 300);
+    const [category, setCategory] = useState<null | ICategoryItem>(null);
+    const settings = useSettingsContext();
+    const darkMode = settings.state.colorScheme;
+    const { categories, categoriesLoading } = useGetCategories({
+        pageNumber: 1,
+        pageSize: 5,
+        key: debouncedCategoryKw,
+        enabled: true
+    });
 
-    const rows = [
-        {
-            id: 1,
-            name: 'Máy bộ lắp ráp',
-            percent: 0.8,
-            color: '#3b82f6',
-            value: '128.321.000',
-        },
-        {
-            id: 2,
-            name: 'Máy bộ vi tính',
-            percent: 0.7,
-            color: '#10b981',
-            value: '110.567.000',
-        },
-        {
-            id: 3,
-            name: 'Máy bộ lắp ráp core i5',
-            percent: 0.65,
-            color: '#a855f7',
-            value: '105.953.000',
-        },
-        {
-            id: 4,
-            name: 'Máy bộ lắp ráp core i3',
-            percent: 0.55,
-            color: '#f59e0b',
-            value: '95.258.000',
-        },
-        {
-            id: 5,
-            name: 'Máy bộ lắp ráp core i7',
-            percent: 0.45,
-            color: '#ef4444',
-            value: '90.258.000',
-        },
-    ];
+    const { bestSeller, bestSellerLoading, bestSellerEmpty } = TopBestSellerStatistic({
+        pageNumber: 1,
+        pageSize: 10,
+        key: category?.name ?? '',
+        filter: filter,
+    });
 
     return (
         <Card
             sx={{
                 boxShadow: 3,
                 overflow: 'hidden',
-                height: '100%'
+                height: '100%',
             }}
         >
             <Stack direction="row" justifyContent="space-between" alignItems="center" px={2.5} pt={2}>
-                <Typography fontWeight={700} fontSize={18} color="rgba(5, 0, 78, 1)">
+                <Typography fontWeight={700} fontSize={18} color={darkMode === 'light' ? "rgba(5, 0, 78, 1)" : "info"}>
                     Top hàng hóa bán chạy
                 </Typography>
 
-                <Select
+                <Autocomplete
                     size="small"
                     value={category}
-                    onChange={handleChange}
+                    inputValue={categorykeyword}
+                    onChange={(_, newValue) => setCategory(newValue)}
+                    onInputChange={(_, newInputValue) => setCategoryKeyword(newInputValue)}
+                    options={categories}
+                    getOptionLabel={(option) => option.name}
+                    loading={categoriesLoading}
+                    loadingText="Đang tải nhóm sản phẩm..."
+                    noOptionsText="Không có nhóm sản phẩm"
                     sx={{
-                        fontWeight: 500,
-                        borderRadius: 1,
+                        minWidth: 200,
                         bgcolor: '#f9fafb',
-                        '.MuiSelect-outlined': { py: 0.5 },
+                        borderRadius: 1,
+                        '& .MuiOutlinedInput-root': {
+                            py: 0.5,
+                            fontWeight: 500,
+                        },
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Nhóm sản phẩm"
+                            InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                    <>
+                                        {categoriesLoading ? <CircularProgress color="inherit" size={16} /> : null}
+                                        {params.InputProps.endAdornment}
+                                    </>
+                                ),
+                            }}
+                        />
+                    )}
+                />
+            </Stack>
+
+            <Divider sx={{ mt: 1 }} />
+
+            <Box pb={2.5} height="100%">
+                <TableContainer
+                    sx={{
+                        width: '100%',
+                        overflowX: 'auto',
+                        scrollbarWidth: 'thin',
+                        '&::-webkit-scrollbar': { height: 6 },
+                        '&::-webkit-scrollbar-thumb': { backgroundColor: '#ccc', borderRadius: 3 },
                     }}
                 >
-                    <MenuItem value="PC - Lắp ráp">PC - Lắp ráp</MenuItem>
-                    <MenuItem value="Laptop">Laptop</MenuItem>
-                    <MenuItem value="Linh kiện">Linh kiện</MenuItem>
-                </Select>
-            </Stack>
-            <Divider sx={{ mt: 1 }} />
-            <Box pb={2.5}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell sx={{ width: 60, fontWeight: 600, color: 'text.secondary' }}>#</TableCell>
-                            <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Tên sản phẩm</TableCell>
-                            <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>
-                                SL bán/ tổng SL kho
-                            </TableCell>
-                            <TableCell sx={{ textAlign: 'right', fontWeight: 600, color: 'text.secondary' }}>
-                                Giá trị bán
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-                        {rows.map((row, index) => (
-                            <TableRow
-                                key={row.id}
-                                sx={{
-                                    '&:last-child td': { border: 0 },
-                                }}
-                            >
-                                <TableCell sx={{ py: 3 }}>
-                                    <Typography fontWeight={600} color="rgba(5, 0, 78, 0.9)">
-                                        {String(index + 1).padStart(2, '0')}
-                                    </Typography>
+                    <Table
+                        sx={{
+                            height: (bestSellerEmpty || bestSellerLoading) ? '100%' : 'auto',
+                        }}
+                    >
+                        <TableHead>
+                            <TableRow>
+                                <TableCell sx={{ width: 60, fontWeight: 600, color: 'text.secondary' }}>#</TableCell>
+                                <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Tên sản phẩm</TableCell>
+                                <TableCell
+                                    sx={{
+                                        width: 200,
+                                        fontWeight: 600,
+                                        color: 'text.secondary',
+                                        p: 0
+                                    }}
+                                >
+                                    SL bán / Tồn kho
                                 </TableCell>
-
-                                <TableCell>
-                                    <Typography color="rgba(5, 0, 78, 0.9)" fontWeight={500}>
-                                        {row.name}
-                                    </Typography>
-                                </TableCell>
-
-                                <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <LinearProgress
-                                            variant="determinate"
-                                            value={row.percent * 100}
-                                            sx={{
-                                                flexGrow: 1,
-                                                height: 6,
-                                                borderRadius: 5,
-                                                backgroundColor: '#e5e7eb',
-                                                '& .MuiLinearProgress-bar': {
-                                                    backgroundColor: row.color,
-                                                },
-                                            }}
-                                        />
-                                    </Box>
-                                </TableCell>
-
-                                <TableCell align="right">
-                                    <Typography color={row.color} fontWeight={600}>
-                                        {row.value}
-                                    </Typography>
+                                <TableCell
+                                    sx={{
+                                        textAlign: 'right',
+                                        fontWeight: 600,
+                                        color: 'text.secondary',
+                                    }}
+                                >
+                                    Giá trị bán
                                 </TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHead>
+
+                        <TableBody>
+                            {bestSellerLoading ? (
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                                        <CircularProgress size={24} thickness={4} />
+                                    </TableCell>
+                                </TableRow>
+                            ) : bestSellerEmpty ? (
+                                <TableRow>
+                                    <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                                        Không có dữ liệu
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                bestSeller?.map((item, index) => {
+                                    const percent =
+                                        item.stock > 0 ? Math.min((item.sold / item.stock) * 100, 100) : 0;
+                                    const color = ['#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ef4444'][index % 5];
+
+                                    return (
+                                        <TableRow key={item.productID}>
+                                            {/* STT */}
+                                            <TableCell
+                                                sx={{
+                                                    width: { xs: 40, sm: 60 },
+                                                    fontWeight: 600,
+                                                    color: darkMode === 'light' ? 'rgba(5, 0, 78, 0.9)' : 'text.secondary',
+                                                    px: { xs: 1, sm: 2 },
+                                                }}
+                                            >
+                                                <Typography fontWeight={600}>{String(index + 1).padStart(2, '0')}</Typography>
+                                            </TableCell>
+
+                                            {/* Tên sản phẩm */}
+                                            <TableCell
+                                                sx={{
+                                                    maxWidth: { xs: 140, sm: 200 },
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    wordBreak: 'break-word',
+                                                    whiteSpace: 'normal',
+                                                    lineHeight: 1.3,
+                                                    px: { xs: 1, sm: 2 },
+                                                }}
+                                            >
+                                                <Typography
+                                                    fontWeight={500}
+                                                    fontSize={{ xs: 13, sm: 14 }}
+                                                    color={darkMode === 'light' ? "rgba(5, 0, 78, 0.9)" : 'info'}
+                                                >
+                                                    {item.name}
+                                                </Typography>
+                                            </TableCell>
+
+                                            {/* SL bán / Tồn kho */}
+                                            <TableCell
+                                                sx={{
+                                                    minWidth: 100,
+                                                    px: { xs: 1, sm: 2 },
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    <LinearProgress
+                                                        variant="determinate"
+                                                        value={percent}
+                                                        sx={{
+                                                            flexGrow: 1,
+                                                            height: 6,
+                                                            borderRadius: 5,
+                                                            backgroundColor: '#e5e7eb',
+                                                            '& .MuiLinearProgress-bar': {
+                                                                backgroundColor: color,
+                                                            },
+                                                        }}
+                                                    />
+                                                </Box>
+                                            </TableCell>
+
+                                            {/* Giá trị bán */}
+                                            <TableCell
+                                                align="right"
+                                                sx={{
+                                                    width: { xs: 100, sm: 140 },
+                                                    px: { xs: 1, sm: 2 },
+                                                    wordBreak: 'break-word',
+                                                }}
+                                            >
+                                                <Typography
+                                                    fontWeight={600}
+                                                    fontSize={{ xs: 13, sm: 14 }}
+                                                    color={color}
+                                                >
+                                                    {fCurrencyNoUnit(item.totalPurchaseAmounts)}
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </Box>
         </Card>
     );

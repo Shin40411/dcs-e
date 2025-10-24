@@ -20,7 +20,6 @@ export const useStyles = () =>
                 },
                 body: {
                     flex: 1,
-                    paddingTop: 25,
                 },
                 signature: {
                     width: '100%',
@@ -68,7 +67,7 @@ export const useStyles = () =>
                 h5: { fontSize: 10, fontWeight: 700 },
                 text1: { fontSize: 10 },
                 text2: { fontSize: 11 },
-                text4: { fontFamily: 'Niramit-Light', fontSize: 14 },
+                text4: { fontFamily: 'Niramit-Light', fontSize: 12 },
                 textBoldHeader: { fontFamily: 'Niramit-Bold', fontSize: 14, fontWeight: 700 },
                 text1Bold: { fontFamily: 'Niramit-Bold' },
                 text2Bold: { fontFamily: 'Niramit-SemiBold', fontSize: 12 },
@@ -87,7 +86,7 @@ export const useStyles = () =>
                     fontSize: 13
                 },
                 // table
-                table: { display: 'flex', width: '100%', padding: '0 20px' },
+                table: { display: 'flex', width: '100%', padding: '0 20px 0 39px' },
                 row: {
                     padding: '10px 0 0 0',
                     flexDirection: 'row',
@@ -114,10 +113,11 @@ export const useStyles = () =>
                     alignItems: 'center',
                 },
                 cell_1: { width: '5%' },
-                cell_2: { width: '50%' },
+                cell_2: { width: '40%' },
                 cell_3: { width: '15%' },
-                cell_4: { width: '15%', paddingLeft: 0 },
+                cell_4: { width: '10%', paddingLeft: 0 },
                 cell_5: { width: '15%' },
+                cell_6: { width: '15%' },
                 noBorder: { paddingTop: '10px', paddingBottom: 0, borderBottomWidth: 0 },
             }),
         []

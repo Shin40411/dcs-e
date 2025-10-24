@@ -12,6 +12,7 @@ export type IContractItem = {
     companyName: string;
     customerBank: string;
     customerBankNo: string;
+    position: string;
     signatureDate: IDateValue;
     deliveryAddress: string;
     deliveryTime: IDateValue;
@@ -50,7 +51,7 @@ export type IContractProduct = {
     unit: string;
     unitProductID: number;
     total: number;
-    exported: number; //số lượng xuất kho
+    exported: number;
     remaining: number;
 };
 
@@ -144,4 +145,86 @@ export type IProductFormEdit = {
     price: number;
     vat: number;
     unit: string;
+}
+
+export type ResContractFile = {
+    statusCode: number;
+    message: string;
+    data: IContractFileData;
+};
+
+export type IContractFileData = {
+    pageNumber: number;
+    pageSize: number;
+    totalRecord: number;
+    totalPages: number;
+    items: IContractFileItem[];
+};
+
+export type IContractFileItem = {
+    contractNo: string;
+    contractType: string;
+    files: IContractFile[];
+}
+
+export type IContractFile = {
+    fileName: string;
+    fileID: number;
+    fileUrl: string;
+    fileType: string;
+    createdDate: IDateValue;
+}
+
+export type IReceiptContractDto = {
+    receiptNo: string,
+    contractNo: string,
+    date: IDateValue,
+    receiptType: string,
+    amount: number,
+    note: string,
+    contractType: string,
+    bankAccountID?: number,
+    companyName: string,
+    customerName: string,
+    address: string,
+    payer: string,
+    reason?: string,
+}
+
+export type IReceiptContract = {
+    receiptId: number,
+    receiptNo: string,
+    contractNo: string,
+    date: IDateValue,
+    receiptType: string,
+    amount: number,
+    note: string,
+    contractType: string,
+    bankAccountID: number,
+    companyName: string,
+    customerName: string,
+    address: string,
+    payer: string,
+    reason?: string,
+}
+
+export type ResContractReceipt = {
+    statusCode: number;
+    message: string;
+    data: IContractReceiptData;
+}
+
+export type IContractReceiptData = {
+    pageNumber: number;
+    pageSize: number;
+    totalRecord: number;
+    totalPages: number;
+    items: IContractReceiptItem[];
+}
+
+export type IContractReceiptItem = {
+    contractNo: string;
+    totalCollect: number;
+    totalSpend: number;
+    receipts: IReceiptContract[];
 }

@@ -9,7 +9,9 @@ type props = {
     customerName?: string;
     customerBankNo?: string;
     customerBank?: string;
+    position?: string;
     companyName?: string;
+    customerTaxCode?: string;
 }
 
 export const renderTwoSides = ({
@@ -18,7 +20,9 @@ export const renderTwoSides = ({
     customerName,
     customerBankNo,
     customerBank,
-    companyName
+    companyName,
+    position,
+    customerTaxCode
 }: props) => {
     const SideLeft = [
         "- Địa chỉ:",
@@ -29,259 +33,291 @@ export const renderTwoSides = ({
     ];
 
     const ASideRight = [
-        customerAddress ? customerAddress : 'Chưa có',
+        customerAddress ? customerAddress : '',
         customerPhone,
         customerName,
-        'Chưa có',
-        customerBankNo ? `${customerBankNo}, tại Ngân hàng ${customerBank}` : 'Chưa có'
+        customerTaxCode,
+        customerBankNo ? `${customerBankNo}, tại Ngân hàng ${customerBank}` : ''
     ];
 
     const BSideRight = [
         "Số 1/50/5/16, Thanh Đa, P. Bình Quới, TP. Hồ Chí Minh",
         "0932 090207",
-        "NGUYỄN CHÍ NHÂN NGHĨA",
-        "0312456133",
-        "167058479, tại Ngân hàng Á Châu - Chi nhánh Bình Thạnh - TP. HCM"
+        "Nguyễn Chí Nhân Nghĩa",
+        "0318436084",
+        "8100868, tại Ngân Hàng ACB - Phòng GD Thảo Điền - TP.HCM"
     ];
     return (
         <View
             style={{
-                paddingLeft: 50,
+                paddingLeft: 69,
                 paddingRight: 50,
                 marginTop: 5,
                 marginBottom: 15
             }}
         >
             {/* Bên A */}
-            <View style={{
-                display: 'flex',
-                flexDirection: 'row',
-            }}>
+            <View style={{ display: 'flex', flexDirection: 'column' }}>
                 <View
                     style={{
                         display: 'flex',
-                        flexDirection: 'column'
+                        flexDirection: 'row',
+                        marginBottom: 4,
                     }}
                 >
                     <Text
-                        style={
-                            {
-                                fontSize: 13,
-                                fontFamily: "Niramit-Bold",
-                                marginBottom: 4
-                            }
-                        }
+                        style={{
+                            fontSize: 13,
+                            fontFamily: 'Niramit-Bold',
+                        }}
                     >
                         Bên A (Bên mua):
                     </Text>
-                    {SideLeft.map((item, index) => (
-                        <Text
-                            key={index}
-                            style={
-                                {
-                                    fontSize: 13,
-                                    fontFamily: "Niramit",
+
+                    <Text
+                        style={{
+                            fontSize: 13,
+                            fontFamily: 'Niramit-Bold',
+                            marginLeft: 8,
+                        }}
+                    >
+                        {companyName ? companyName : customerName}
+                    </Text>
+                </View>
+
+                {SideLeft.map((label, index) => {
+                    const value = ASideRight[index];
+
+                    if (label.includes('Đại diện')) {
+                        return (
+                            <View
+                                key={index}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
                                     marginBottom: 4,
-                                    textIndent: 20
-                                }
-                            }
-                        >
-                            {item}
-                        </Text>
-                    ))}
-                </View>
-                <View
-                    style={{
-                        marginLeft: 25,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        paddingRight: 60
-                    }}
-                >
-                    <Text
-                        style={
-                            {
-                                fontSize: 13,
-                                fontFamily: "Niramit-Bold",
-                                marginBottom: 4,
-                                color: 'rgba(238, 0, 51, 1)'
-                            }
-                        }
-                    >
-                        {`${companyName ? `${companyName} / ${customerName}` : customerName}`}
-                    </Text>
-                    {ASideRight.map((item, index) => (
-                        <Text
-                            key={index}
-                            style={
-                                {
-                                    fontSize: 13,
-                                    fontFamily: "Niramit",
-                                    marginBottom: 4,
-                                    color: 'rgba(238, 0, 51, 1)'
-                                }
-                            }
-                        >
-                            {item}
-                        </Text>
-                    ))}
-                </View>
-                <View
-                    style={{
-                        position: 'absolute',
-                        width: 100,
-                        top: 60,
-                        right: 0,
-                        display: 'flex',
-                        flexDirection: 'row',
-                    }}
-                >
-                    <Text
-                        style={
-                            {
-                                fontSize: 13,
-                                fontFamily: "Niramit",
-                            }
-                        }
-                    >
-                        Chức vụ:
-                    </Text>
-                    <Text
-                        style={
-                            {
-                                marginLeft: 25,
-                                fontSize: 13,
-                                fontFamily: "Niramit-Bold",
-                                color: 'rgba(238, 0, 51, 1)'
-                            }
-                        }
-                    >
-                        {'Chưa có'}
-                    </Text>
-                </View>
-            </View>
-            {/* Bên B */}
-            <View style={{
-                marginTop: 10,
-                display: 'flex',
-                flexDirection: 'row',
-                position: 'relative'
-            }}>
-                <View
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}
-                >
-                    <Text
-                        style={
-                            {
-                                fontSize: 13,
-                                fontFamily: "Niramit-Bold",
-                                marginBottom: 4
-                            }
-                        }
-                    >
-                        Bên B (Bên bán):
-                    </Text>
-                    {SideLeft.map((item, index) => (
-                        <Text
-                            key={index}
-                            style={
-                                {
-                                    fontSize: 13,
-                                    fontFamily: "Niramit",
-                                    marginBottom: 4,
-                                    textIndent: 20
-                                }
-                            }
-                        >
-                            {item}
-                        </Text>
-                    ))}
-                </View>
-                <View
-                    style={{
-                        marginLeft: 50,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        paddingRight: 60
-                    }}
-                >
-                    <Text
-                        style={
-                            {
-                                fontSize: 13,
-                                fontFamily: "Niramit-Bold",
-                                marginBottom: 4,
-                            }
-                        }
-                    >
-                        CÔNG TY TNHH GIẢI PHÁP DCS
-                    </Text>
-                    {BSideRight.map((item, index) => (
-                        <Fragment key={index}>
-                            {index === 2 ? (
+                                }}
+                            >
+                                <View style={{ width: 120 }}>
+                                    <Text
+                                        style={{
+                                            fontSize: 13,
+                                            fontFamily: 'Niramit',
+                                            textIndent: 20,
+                                        }}
+                                    >
+                                        {label}
+                                    </Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text
+                                        style={{
+                                            fontSize: 13,
+                                            fontFamily: 'Niramit-Bold',
+                                        }}
+                                    >
+                                        {value}
+                                    </Text>
+                                </View>
+
                                 <View
                                     style={{
                                         display: 'flex',
                                         flexDirection: 'row',
-                                        gap: 3,
-                                        marginBottom: 4,
+                                        marginLeft: 20,
+                                        flexShrink: 0,
                                     }}
                                 >
-                                    <Text style={{ fontSize: 13, fontFamily: "Niramit" }}>Ông</Text>
-                                    <Text style={{ fontSize: 13, fontFamily: "Niramit-Bold" }}>
-                                        {item}
+                                    <Text style={{ fontSize: 13, fontFamily: 'Niramit' }}>Chức vụ:</Text>
+                                    <Text
+                                        style={{
+                                            marginLeft: 8,
+                                            fontSize: 13,
+                                            fontFamily: 'Niramit-Bold',
+                                        }}
+                                    >
+                                        {position || 'Giám đốc'}
                                     </Text>
                                 </View>
-                            ) : (
+                            </View>
+                        );
+                    }
+
+                    return (
+                        <View
+                            key={index}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                marginBottom: 4,
+                            }}
+                        >
+                            <View style={{ width: 120 }}>
                                 <Text
                                     style={{
                                         fontSize: 13,
-                                        fontFamily: "Niramit",
-                                        marginBottom: 4,
+                                        fontFamily: 'Niramit',
+                                        textIndent: 20,
                                     }}
                                 >
-                                    {item}
+                                    {label}
                                 </Text>
-                            )}
-                        </Fragment>
-                    ))}
-                </View>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text
+                                    style={{
+                                        fontSize: 13,
+                                        fontFamily: 'Niramit',
+                                    }}
+                                >
+                                    {value}
+                                </Text>
+                            </View>
+                        </View>
+                    );
+                })}
+            </View>
+
+            {/* Bên B */}
+            <View
+                style={{
+                    marginTop: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}
+            >
                 <View
                     style={{
-                        position: 'absolute',
-                        width: 100,
-                        top: 60,
-                        right: 0,
                         display: 'flex',
                         flexDirection: 'row',
+                        marginBottom: 4,
                     }}
                 >
                     <Text
-                        style={
-                            {
-                                fontSize: 13,
-                                fontFamily: "Niramit",
-                            }
-                        }
+                        style={{
+                            fontSize: 13,
+                            fontFamily: 'Niramit-Bold',
+                        }}
                     >
-                        Chức vụ:
+                        Bên B (Bên bán):
                     </Text>
+
                     <Text
-                        style={
-                            {
-                                marginLeft: 25,
-                                fontSize: 13,
-                                fontFamily: "Niramit-Bold",
-                            }
-                        }
+                        style={{
+                            fontSize: 13,
+                            fontFamily: 'Niramit-Bold',
+                            marginLeft: 8,
+                        }}
                     >
-                        Giám đốc
+                        CÔNG TY TNHH GIẢI PHÁP DCS
                     </Text>
                 </View>
+
+                {SideLeft.map((label, index) => {
+                    const value = BSideRight[index];
+
+                    if (label.includes('Đại diện')) {
+                        return (
+                            <View
+                                key={index}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'flex-start',
+                                    marginBottom: 4,
+                                }}
+                            >
+                                <View style={{ width: 120 }}>
+                                    <Text
+                                        style={{
+                                            fontSize: 13,
+                                            fontFamily: 'Niramit',
+                                            textIndent: 20,
+                                        }}
+                                    >
+                                        {label}
+                                    </Text>
+                                </View>
+
+                                <View style={{ flex: 1 }}>
+                                    <View
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            gap: 3,
+                                        }}
+                                    >
+                                        <Text style={{ fontSize: 13, fontFamily: 'Niramit' }}>Ông</Text>
+                                        <Text
+                                            style={{
+                                                fontSize: 13,
+                                                fontFamily: 'Niramit-Bold',
+                                            }}
+                                        >
+                                            {value}
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <View
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        marginLeft: 20,
+                                        flexShrink: 0,
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 13, fontFamily: 'Niramit' }}>Chức vụ:</Text>
+                                    <Text
+                                        style={{
+                                            marginLeft: 8,
+                                            fontSize: 13,
+                                            fontFamily: 'Niramit-Bold',
+                                        }}
+                                    >
+                                        Giám đốc
+                                    </Text>
+                                </View>
+                            </View>
+                        );
+                    }
+
+                    return (
+                        <View
+                            key={index}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                marginBottom: 4,
+                            }}
+                        >
+                            <View style={{ width: 120 }}>
+                                <Text
+                                    style={{
+                                        fontSize: 13,
+                                        fontFamily: 'Niramit',
+                                        textIndent: 20,
+                                    }}
+                                >
+                                    {label}
+                                </Text>
+                            </View>
+
+                            <View style={{ flex: 1 }}>
+                                <Text
+                                    style={{
+                                        fontSize: 13,
+                                        fontFamily: 'Niramit',
+                                    }}
+                                >
+                                    {value}
+                                </Text>
+                            </View>
+                        </View>
+                    );
+                })}
             </View>
+
             <View style={{
                 marginTop: 10
             }}>

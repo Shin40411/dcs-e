@@ -84,7 +84,7 @@ function Group({
         <>
           <NavSubheader
             data-title={subheader}
-            open={groupOpen.value}
+            open={true}
             onClick={groupOpen.onToggle}
             sx={slotProps?.subheader}
           >

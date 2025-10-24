@@ -71,6 +71,7 @@ export const EMPLOYEE_COLUMNS: ({
                                         openDetailsForm?.onTrue();
                                         handleClose();
                                     }}
+                                    sx={{ display: { xs: 'none', md: 'flex' } }}
                                 >
                                     <Iconify icon="solar:eye-bold" />
                                     <Box component="span" sx={{ ml: 1 }}>
@@ -211,6 +212,7 @@ export const EMPLOYEE_COLUMNS: ({
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:eye-bold" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
                         label="Chi tiết"
                         onClick={() => { openDetailsForm?.onTrue(), setTableRowSelected(params.row); }}
                     />,
