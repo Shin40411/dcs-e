@@ -14,7 +14,7 @@ import { useStyles } from "./components/useStyle";
 import { renderRuleThree } from "./components/renderRuleThree";
 import { renderRuleFour } from "./components/renderRuleFour";
 import { renderRuleFive } from "./components/renderRuleFive";
-import { renderRuleSix } from "./components/renderRuleSix";
+import { renderRules } from "./components/renderRuleSix";
 import { renderSigner } from "./components/renderSigner";
 
 type ContractPDFProps = {
@@ -208,7 +208,7 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
                     })} */}
                     {/* {renderRuleThree()} */}
                     {/* {renderRuleFive()} */}
-                    {renderRuleSix({
+                    {renderRules({
                         currentContract,
                         discount,
                         keptNo,

@@ -24,7 +24,7 @@ export const NewProductSchema = zod.object({
             return isNaN(num) ? undefined : num;
         },
         zod.number({ required_error: 'Giá bán là trường bắt buộc' })
-            .min(1, 'Giá bán phải lớn hơn 0')
+            .min(0, 'Giá bán không được nhỏ hơn 0')
     ),
     unitId: zod.number().min(1, { message: 'Đơn vị tính là trường bắt buộc' }),
     categoryId: zod.number().min(1, { message: 'Nhóm sản phẩm là trường bắt buộc' }),

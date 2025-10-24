@@ -31,7 +31,7 @@ export const renderTable = ({ currentQuotation, discount, totalAmount }: props) 
         ...p,
         index
     }))) ?? [];
-
+    let displayIndex = 0;
     return (
         <View style={styles.table}>
 
@@ -46,24 +46,75 @@ export const renderTable = ({ currentQuotation, discount, totalAmount }: props) 
                 </View>
             </View>
 
-            {allProducts.map((p, index) => (
-                <View key={p.id || index} style={styles.row} wrap={false}>
-                    <View style={styles.cell_1}><Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>{index + 1}</Text></View>
-                    <View style={[styles.cell_2]}>
-                        <Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>{p.productName}</Text>
-                        <Text style={{ fontFamily: 'Niramit-ExtraLight', fontSize: 10 }}>{p.vat}% VAT</Text>
+            {allProducts.map((p, index) => {
+                if (p.price > 0) displayIndex++;
+                return (
+                    <View key={p.id || index} style={styles.row} wrap={false}>
+                        {p.price > 0 ?
+                            <>
+                                <View style={styles.cell_1}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>
+                                        {displayIndex}
+                                    </Text>
+                                </View>
+                                <View style={[styles.cell_2]}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>{p.productName}</Text>
+                                    <Text style={{ fontFamily: 'Niramit-ExtraLight', fontSize: 10 }}>{p.vat}% VAT</Text>
+                                </View>
+                                <View style={styles.cell_3}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>
+                                        {p.unit}
+                                    </Text>
+                                </View>
+                                <View style={styles.cell_4}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>
+                                        {p.quantity}
+                                    </Text>
+                                </View>
+                                <View style={styles.cell_5}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>
+                                        {fCurrencyNoUnit(p.price)}
+                                    </Text>
+                                </View>
+                                <View style={[styles.cell_6, { alignItems: 'flex-end', textAlign: 'right' }]}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>{fCurrencyNoUnit(p.price * p.quantity)}</Text>
+                                    <Text style={{ fontFamily: 'Niramit-ExtraLight', fontSize: 10 }}>
+                                        {fCurrencyNoUnit(((p.price * p.quantity) * p.vat) / 100)}
+                                    </Text>
+                                </View>
+                            </>
+                            :
+                            <>
+                                <View style={styles.cell_1}>
+                                </View>
+                                <View style={[styles.cell_2, {
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                    justifyContent: 'flex-start',
+                                    height: '100%'
+                                }]}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>
+                                        {p.productName}
+                                    </Text>
+                                </View>
+                                <View style={styles.cell_3}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>
+                                        {p.unit}
+                                    </Text>
+                                </View>
+                                <View style={styles.cell_4}>
+                                    <Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>
+                                        {p.quantity}
+                                    </Text>
+                                </View>
+                                <View style={styles.cell_5}></View>
+                                <View style={[styles.cell_6]}></View>
+                            </>
+                        }
                     </View>
-                    <View style={styles.cell_3}><Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>{p.unit}</Text></View>
-                    <View style={styles.cell_4}><Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>{p.quantity}</Text></View>
-                    <View style={styles.cell_5}><Text style={{ fontFamily: 'Niramit', fontSize: 12, textAlign: 'center' }}>{fCurrencyNoUnit(p.price)}</Text></View>
-                    <View style={[styles.cell_6, { alignItems: 'flex-end', textAlign: 'right' }]}>
-                        <Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>{fCurrencyNoUnit(p.price * p.quantity)}</Text>
-                        <Text style={{ fontFamily: 'Niramit-ExtraLight', fontSize: 10 }}>
-                            {fCurrencyNoUnit(((p.price * p.quantity) * p.vat) / 100)}
-                        </Text>
-                    </View>
-                </View>
-            ))}
+                )
+            })}
 
             <View break style={{ marginTop: 6 }}>
                 {[

@@ -89,7 +89,7 @@ export const useStyles = () =>
                 // table
                 table: { marginTop: 5, display: 'flex', width: '100%', paddingTop: 0, paddingBottom: 0 },
                 row: {
-                    padding: '10px 0 0 0',
+                    padding: '10px 0 5px 0',
                     flexDirection: 'row',
                     borderBottomWidth: 1,
                     borderStyle: 'solid',

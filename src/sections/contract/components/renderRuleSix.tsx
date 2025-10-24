@@ -24,7 +24,7 @@ type RenderRuleSixProps = {
     discount?: number;
 };
 
-export const renderRuleSix = ({
+export const renderRules = ({
     customerName,
     companyName,
     position,
@@ -126,6 +126,7 @@ export const renderRuleSix = ({
         '- Sau khi hai bên hoàn thành trách nhiệm của mình theo các điều khoản đã nêu trong hợp đồng này, 30 ngày sau đó hợp đồng mặc nhiên sẽ được thanh lý.',
         `- Hợp đồng này được lập thành ${renderBinaryNumber(copiesNo ?? 0)} (${fRenderTextNumberNoUnit(copiesNo ?? 0)}) bản gốc, có giá trị pháp lý như nhau; Bên A giữ ${renderBinaryNumber(keptAndCopies)} (${fRenderTextNumberNoUnit(keptAndCopies)}) bản, Bên B giữ ${renderBinaryNumber(keptNo ?? 0)} (${fRenderTextNumberNoUnit(keptNo ?? 0)}) bản. Hợp đồng có hiệu lực kể từ ngày ký kết và là căn cứ ràng buộc trách nhiệm pháp lý giữa các Bên./.`
     ];
+    let displayIndex = 0;
     return (
         <View
             style={{
@@ -165,37 +166,65 @@ export const renderRuleSix = ({
 
                 <View>
                     {currentContract?.items?.flatMap((q) =>
-                        q.products.map((p, index) => (
-                            <View key={p.id} style={styles.row} wrap={false}>
-                                <View style={styles.cell_1}>
-                                    <Text>{index + 1}</Text>
+                        q.products.map((p, index) => {
+                            if (p.price > 0) displayIndex++;
+                            return (
+                                <View key={p.id} style={styles.row} wrap={false}>
+                                    {p.price > 0 ?
+                                        <>
+                                            <View style={styles.cell_1}>
+                                                <Text>{displayIndex}</Text>
+                                            </View>
+                                            <View style={styles.cell_2}>
+                                                <Text style={[styles.text2Semi, { fontSize: 10 }]}>{p.productName}</Text>
+                                                <Text style={[styles.textMontserrat, { fontSize: 10 }]}>{p.vat}% VAT</Text>
+                                            </View>
+                                            <View style={[styles.cell_3, { textAlign: 'center' }]}>
+                                                <Text style={[styles.text2, { fontSize: 10 }]}>{p.unit}</Text>
+                                            </View>
+                                            <View style={[styles.cell_4, { textAlign: 'center' }]}>
+                                                <Text style={[styles.text2, { fontSize: 10 }]}>{p.quantity}</Text>
+                                            </View>
+                                            <View style={[styles.cell_5, { textAlign: 'center' }]}>
+                                                <Text style={[styles.text2, { fontSize: 10 }]}>{fCurrencyNoUnit(p.price)}</Text>
+                                            </View>
+                                            <View style={[styles.cell_6, {
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-end',
+                                                justifyContent: 'space-between',
+                                                textAlign: 'right',
+                                                height: '100%'
+                                            }]}>
+                                                <Text style={[styles.text2, { fontSize: 10 }]}>{fCurrencyNoUnit(p.price * p.quantity)}</Text>
+                                                <Text style={[styles.textMontserrat, { fontSize: 10 }]}>{fCurrencyNoUnit(((p.price * p.quantity) * p.vat) / 100)}</Text>
+                                            </View>
+                                        </>
+                                        :
+                                        <>
+                                            <View style={styles.cell_1}></View>
+                                            <View style={[styles.cell_2, {
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-start',
+                                                justifyContent: 'flex-start',
+                                                height: '100%'
+                                            }]}>
+                                                <Text style={[styles.text2Semi, { fontSize: 10 }]}>{p.productName}</Text>
+                                            </View>
+                                            <View style={[styles.cell_3, { textAlign: 'center' }]}>
+                                                <Text style={[styles.text2, { fontSize: 10 }]}>{p.unit}</Text>
+                                            </View>
+                                            <View style={[styles.cell_4, { textAlign: 'center' }]}>
+                                                <Text style={[styles.text2, { fontSize: 10 }]}>{p.quantity}</Text>
+                                            </View>
+                                            <View style={[styles.cell_5]}></View>
+                                            <View style={[styles.cell_6]}></View>
+                                        </>
+                                    }
                                 </View>
-                                <View style={styles.cell_2}>
-                                    <Text style={[styles.text2Semi, { fontSize: 10 }]}>{p.productName}</Text>
-                                    <Text style={[styles.textMontserrat, { fontSize: 10 }]}>{p.vat}% VAT</Text>
-                                </View>
-                                <View style={[styles.cell_3, { textAlign: 'center' }]}>
-                                    <Text style={[styles.text2, { fontSize: 10 }]}>{p.unit}</Text>
-                                </View>
-                                <View style={[styles.cell_4, { textAlign: 'center' }]}>
-                                    <Text style={[styles.text2, { fontSize: 10 }]}>{p.quantity}</Text>
-                                </View>
-                                <View style={[styles.cell_5, { textAlign: 'center' }]}>
-                                    <Text style={[styles.text2, { fontSize: 10 }]}>{fCurrencyNoUnit(p.price)}</Text>
-                                </View>
-                                <View style={[styles.cell_6, {
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'flex-end',
-                                    justifyContent: 'space-between',
-                                    textAlign: 'right',
-                                    height: '100%'
-                                }]}>
-                                    <Text style={[styles.text2, { fontSize: 10 }]}>{fCurrencyNoUnit(p.price * p.quantity)}</Text>
-                                    <Text style={[styles.textMontserrat, { fontSize: 10 }]}>{fCurrencyNoUnit(((p.price * p.quantity) * p.vat) / 100)}</Text>
-                                </View>
-                            </View>
-                        ))
+                            )
+                        })
                     )}
 
                     {[

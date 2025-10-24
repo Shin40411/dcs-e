@@ -51,7 +51,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     nextMonth.setMonth(today.getMonth() + 1);
     const sampleNote = `
 <p data-pm-slice="0 0 []">
-    - Giá trên đã bao gồm thuế GTGT<br>
+    - Giá trên <strong>đã bao gồm thuế GTGT</strong><br>
     - Báo giá có giá trị trong 30 ngày<br>
     - Tạm ứng 50% giá trị hợp đồng, ngay khi ký hợp đồng<br>
     <strong>Ngân hàng Á Châu (ACB) - PGD Thảo Điền - TP.HCM</strong><br>

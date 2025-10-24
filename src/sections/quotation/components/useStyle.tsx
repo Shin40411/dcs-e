@@ -88,7 +88,7 @@ export const useStyles = () =>
                 // table
                 table: { display: 'flex', width: '100%', padding: '0 20px 0 39px' },
                 row: {
-                    padding: '10px 0 0 0',
+                    padding: '5px 0 5px 0',
                     flexDirection: 'row',
                     borderBottomWidth: 1,
                     borderStyle: 'solid',
