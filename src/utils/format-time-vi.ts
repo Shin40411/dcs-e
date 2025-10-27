@@ -11,6 +11,12 @@ export function fDate(date: InputValue, newFormat?: string) {
     return date ? format(new Date(date), fm, { locale: vi }) : '';
 }
 
+export function fDateText(date: InputValue, newFormat?: string) {
+    const fm = newFormat || 'ngày dd tháng MM năm yyyy';
+
+    return date ? format(new Date(date), fm, { locale: vi }) : '';
+}
+
 export function fDateTime(date: InputValue, newFormat?: string) {
     const fm = newFormat || 'p dd/MM/yyyy';
 

@@ -107,6 +107,8 @@ export function ContractMainView() {
                         onClose={() => setOpenDetail(false)}
                     />
                 )}
+
+
             </DashboardContent>
         </>
     );

@@ -13,6 +13,7 @@ import { AccountLayout } from 'src/sections/account/account-layout';
 import { AuthGuard } from 'src/auth/guard';
 
 import { usePathname } from '../hooks';
+import { paths } from '../paths';
 
 // ----------------------------------------------------------------------
 
@@ -96,6 +97,9 @@ const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 const UnitListPage = lazy(() => import('src/pages/dashboard/unit/list'));
 const EmployeeTypeListPage = lazy(() => import('src/pages/dashboard/employeeType/list'));
 const DepartmentListPage = lazy(() => import('src/pages/dashboard/department/list'));
+// Receipt page
+const ReceiptPage = lazy(() => import('src/pages/dashboard/receipt/list'));
+
 // ----------------------------------------------------------------------
 
 function SuspenseOutlet() {
@@ -167,7 +171,7 @@ export const dashboardRoutes: RouteObject[] = [
         path: 'customer-services',
         children: [
           { index: true, element: <QuotationPage /> },
-          { path: 'contract', element: <ContractPage /> }
+          { path: 'contract', element: <ContractPage /> },
         ]
       },
       {
@@ -211,6 +215,12 @@ export const dashboardRoutes: RouteObject[] = [
           { path: ':id/edit', element: <InvoiceEditPage /> },
           { path: 'new', element: <InvoiceCreatePage /> },
         ],
+      },
+      {
+        path: 'receipt',
+        children: [
+          { index: true, element: <ReceiptPage /> },
+        ]
       },
       {
         path: 'post',

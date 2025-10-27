@@ -230,29 +230,24 @@ export function deleteAttachmentContract(FileID: number) {
 }
 
 export async function downloadAttachmentContract(fileId: number) {
-    try {
-        const { data } = await axiosInstance.get(endpoints.contractAttachment.download(fileId), {
-            responseType: 'blob',
-        });
-        return data;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
+    return axiosInstance.get(endpoints.contractAttachment.download(fileId), {
+        responseType: 'blob',
+    });
 }
 
 type contractReceiptProp = {
-    ContractNo: string,
+    ContractNo?: string,
     pageNumber: number,
     pageSize: number,
-    enabled?: boolean
+    enabled?: boolean,
+    key?: string,
 }
 
-export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enabled }: contractReceiptProp) {
+export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enabled, key }: contractReceiptProp) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?PageNumber=${pageNumber}&PageSize=${pageSize}`;
-
+    if (key) params += `&search=${key}`;
     if (ContractNo) params += `&ContractNo=${ContractNo}`;
 
     const url = enabled ? endpoints.contractReceipt.list(params) : null;
@@ -262,8 +257,15 @@ export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enable
     const memoizedValue = useMemo(
         () => {
             const filteredItems = data?.data.items ?? [];
+            const contractReceiptItem = filteredItems.flatMap((i) =>
+                i.receipts.map((receipt) => ({
+                    ...receipt,
+                    id: receipt.receiptId,
+                }))
+            );
             return {
                 contractReceipt: filteredItems,
+                contractReceiptItem,
                 pagination: {
                     pageNumber: data?.data.pageNumber ?? 1,
                     pageSize: data?.data.pageSize ?? pageSize,

@@ -7,6 +7,8 @@ import { MainLayout } from 'src/layouts/main';
 import { SimpleLayout } from 'src/layouts/simple';
 
 import { SplashScreen } from 'src/components/loading-screen';
+import { paths } from '../paths';
+import { AuthGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +32,8 @@ const Page403 = lazy(() => import('src/pages/error/403'));
 const Page404 = lazy(() => import('src/pages/error/404'));
 // Blank
 const BlankPage = lazy(() => import('src/pages/blank'));
-
+//Receipt
+const ReceiptPreviewPage = lazy(() => import('src/pages/dashboard/receipt/index'));
 // ----------------------------------------------------------------------
 
 export const mainRoutes: RouteObject[] = [
@@ -102,6 +105,14 @@ export const mainRoutes: RouteObject[] = [
             <MaintenancePage />
           </SimpleLayout>
         ),
+      },
+      {
+        path: paths.receipt,
+        element: (
+          <AuthGuard>
+            <ReceiptPreviewPage />
+          </AuthGuard>
+        )
       },
       {
         path: 'error',

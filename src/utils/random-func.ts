@@ -29,5 +29,5 @@ export function generateReceipt(head: string, contractNo: string, totalRecord?: 
     const day = String(now.getDate()).padStart(2, "0");
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${year}${month}${day}/${contractNo}-${head}${totalRecord !== undefined ? totalRecord + 1 : ''}`;
+    return `${year}${month}${day}/${head}${totalRecord !== undefined ? totalRecord + 1 : ''}`;
 }

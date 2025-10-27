@@ -117,7 +117,7 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                                 <Button
                                     variant="contained"
                                     startIcon={<Iconify icon="solar:document-add-bold" />}
-                                    endIcon={<Iconify icon={open ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+                                    endIcon={<Iconify icon={open ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
                                     onClick={handleClickLP}
                                 >
                                     Lập phiếu
@@ -125,7 +125,7 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                                 <Button
                                     variant="contained"
                                     startIcon={<Iconify icon="mdi:chart-line" />}
-                                    endIcon={<Iconify icon={openTD ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+                                    endIcon={<Iconify icon={openTD ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
                                     onClick={handleClickTD}
                                 >
                                     Theo dõi
@@ -135,7 +135,7 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                                 <Button
                                     variant="contained"
                                     startIcon={<Iconify icon="material-symbols:contract-edit-outline-sharp" />}
-                                    endIcon={<Iconify icon={openBB ? 'eva:chevron-up-fill' : 'eva:chevron-down-fill'} />}
+                                    endIcon={<Iconify icon={openBB ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
                                     onClick={handleClickBB}
                                 >
                                     Tạo biên bản

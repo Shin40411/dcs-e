@@ -111,24 +111,44 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
         }
     };
 
-    const handleDownloadFile = async (fileId: number) => {
-        if (!selectedContract) return;
-
+    const handleDownloadFile = async (fileUrl: string, fileName: string) => {
         try {
-            const data = await downloadAttachmentContract(fileId);
+            if (!fileUrl) {
+                toast.error('Không thể tải file hoặc file không thuộc định dạng để xem trước.');
+                return;
+            }
 
-            const blobUrl = window.URL.createObjectURL(data);
+            const fullUrl = `${CONFIG.serverUrl}/${fileUrl.startsWith('/') ? fileUrl.slice(1) : fileUrl}`;
 
+            const response = await fetch(fullUrl, {
+                method: 'GET'
+            });
+
+            if (!response.ok) throw new Error('Không thể tải file');
+
+            const blob = await response.blob();
+
+            let filename = fileName;
+
+            const disposition = response.headers.get('content-disposition');
+            if (disposition) {
+                const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/);
+                if (match?.[1]) {
+                    filename = decodeURIComponent(match[1]);
+                }
+            }
+
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = `file_${fileId}`;
+            link.href = url;
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             link.remove();
 
-            // Thu hồi URL tạm
-            window.URL.revokeObjectURL(blobUrl);
+            window.URL.revokeObjectURL(url);
         } catch (error) {
+            console.error('Lỗi khi tải file:', error);
             toast.error('Lỗi khi tải file');
         }
     };
@@ -243,7 +263,7 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
                                         <IconButton
                                             size="small"
                                             color="info"
-                                            onClick={() => handleDownloadFile(file.fileID)}
+                                            onClick={() => handleDownloadFile(file.fileUrl, file.fileName)}
                                         >
                                             <Iconify icon={'material-symbols:cloud-download-rounded'} width={20} />
                                         </IconButton>

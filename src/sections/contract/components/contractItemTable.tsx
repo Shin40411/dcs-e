@@ -57,7 +57,7 @@ export default function ContractItemsTableContent({
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                <Field.VNCurrencyInput name={`products.${index}.price`} label="Đơn giá" sx={{ width: 100 }} />
+                                <Field.VNCurrencyInput name={`products.${index}.price`} sx={{ width: 100 }} />
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>

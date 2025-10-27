@@ -173,7 +173,9 @@ export function QuotationItemsTable({
                                                 <Field.NumberInput name={`items.${index}.qty`} sx={{ width: 100 }} />
                                             </TableCell>
                                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                                <Field.VNCurrencyInput name={`items.${index}.price`} label="Đơn giá" sx={{ width: 100 }} />
+                                                <Field.VNCurrencyInput name={`items.${index}.price`}
+                                                    // label="Đơn giá"
+                                                    sx={{ width: 100 }} />
                                             </TableCell>
                                             <TableCell sx={{ whiteSpace: "nowrap" }}>
                                                 <UnitSelection index={index} methods={methods} />
@@ -308,7 +310,7 @@ function ProductAutocomplete({
     return (
         <Field.Autocomplete
             name={`items.${index}.product`}
-            label="Chọn sản phẩm"
+            placeholder="Chọn sản phẩm"
             options={products}
             loading={productsLoading}
             getOptionLabel={(opt) => opt?.name ?? ""}
@@ -379,7 +381,7 @@ function UnitSelection({
     return (
         <Field.Select
             name={`items.${index}.unit`}
-            label="Đơn vị tính"
+            placeholder="Đơn vị tính"
             onChange={(e) => {
                 const selectedId = e.target.value;
                 methods.setValue(`items.${index}.unit`, selectedId);

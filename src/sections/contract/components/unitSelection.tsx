@@ -18,7 +18,7 @@ export function UnitSelection({
     return (
         <Field.Select
             name={`products.${index}.unit`}
-            label="Đơn vị tính"
+            placeholder="Đơn vị tính"
             fullWidth
             sx={{ width: 120 }}
         >

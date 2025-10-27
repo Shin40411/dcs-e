@@ -132,16 +132,14 @@ export const navData: NavSectionProps['data'] = [
         title: 'Quản lý nội bộ',
         path: paths.dashboard.user.root,
         icon: <Iconify icon={'carbon:id-management'} />,
-        disabled: true,
-        info: (
-          <Label
-            color="info"
-            variant="inverted"
-            startIcon={<Iconify icon="maki:construction" />}
-          >
-            Đang phát triển
-          </Label>
-        ),
+        children: [
+          {
+            title: 'Phiếu thu', path: paths.dashboard.receipt.root, icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} />
+          },
+          // { 
+          //   title: 'Phiếu chi', path: paths.dashboard.order.root, icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} />
+          //  },
+        ],
       },
       // {
       //   title: 'Thu chi',

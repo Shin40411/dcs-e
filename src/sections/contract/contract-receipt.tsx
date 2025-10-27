@@ -10,6 +10,11 @@ import { generateReceipt } from "src/utils/random-func";
 import { createReceiptContract, useGetReceiptContract } from "src/actions/contract";
 import { toast } from "sonner";
 import { use, useEffect, useState } from "react";
+import { mutate } from "swr";
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
+import { useNavigate } from "react-router";
+import { fDate } from "src/utils/format-time-vi";
 
 interface FileDialogProps {
     selectedContract: IContractItem;
@@ -25,6 +30,9 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
         ContractNo: selectedContract.contractNo,
         enabled: open,
     });
+    const navigate = useNavigate();
+
+    const [watchTicket, setWatchTicket] = useState(true);
 
     const [receiptNo, setReceiptNo] = useState<string>('');
 
@@ -78,12 +86,48 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
 
             toast.success("Tạo phiếu thu thành công!");
             reset();
+            mutate(
+                (k) => typeof k === "string" && k.startsWith("/api/v1/contract-receipts/get-receipts"),
+                undefined,
+                { revalidate: true }
+            );
             onClose();
         } catch (error: any) {
             console.error(error);
             toast.error("Tạo phiếu thu thất bại!");
         }
     });
+
+    const companyName = watch('companyName');
+    const customerName = watch('customerName');
+    const date = watch('date');
+    const receiptNoToWatch = watch('receiptNo');
+    const amount = watch('amount');
+    const payer = watch('payer');
+    const reason = watch('reason');
+    const address = watch('address');
+
+    useEffect(() => {
+        if (companyName && customerName && date && receiptNoToWatch && amount && payer) {
+            setWatchTicket(false);
+        }
+    }, [companyName, customerName, date, receiptNoToWatch, amount, payer]);
+
+    const onPreviewReceipt = () => {
+        const params = new URLSearchParams({
+            companyName,
+            customerName,
+            date: String(fDate(date)),
+            receiptNoToWatch,
+            amount: String(amount),
+            payer,
+            contractNo: selectedContract.contractNo,
+            reason,
+            address
+        } as Record<string, string>);
+        const queryString = params.toString();
+        window.open(`${paths.receipt}?${queryString}`, '_blank');
+    }
 
     const renderDetails = () => (
         <>
@@ -119,7 +163,6 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                             backgroundColor: '#ddd',
                         },
                     }}
-                    disabled
                 />
                 <Field.Text
                     name="receiptNo"
@@ -174,25 +217,27 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                     type="button"
                     variant="contained"
                     sx={{ ml: 1 }}
-                    loading={isSubmitting}
+                    disabled={watchTicket}
                     fullWidth
+                    onClick={onPreviewReceipt}
                 >
-                    {'Xem phiếu'}
+                    Xem phiếu
                 </Button>
-                <Button
+                {/* <Button
                     type="button"
                     variant="contained"
                     sx={{ ml: 1 }}
-                    loading={isSubmitting}
+                    disabled={isSubmitting}
                     fullWidth
                 >
                     {'In phiếu'}
-                </Button>
+                </Button> */}
                 <Button
                     variant="outlined"
                     color="inherit"
                     onClick={() => { onClose(); reset(); }}
                     fullWidth
+                    disabled={isSubmitting}
                 >
                     Hủy bỏ
                 </Button>

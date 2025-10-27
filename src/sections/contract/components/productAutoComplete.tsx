@@ -29,7 +29,7 @@ export function ProductAutocomplete({
     return (
         <Field.Autocomplete
             name={`products.${index}.product`}
-            label="Chọn sản phẩm"
+            placeholder="Chọn sản phẩm"
             options={products}
             loading={productsLoading}
             getOptionLabel={(opt) => opt?.name ?? ""}
