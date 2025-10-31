@@ -1,6 +1,6 @@
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
 import { useStylesTicket as styles } from "./useStyleTicket";
-import { fCurrencyNoUnit, fRenderTextNumberNoUnit } from "src/utils/format-number";
+import { fCurrencyNoUnit, fRenderTextNumber, fRenderTextNumberNoUnit } from "src/utils/format-number";
 import { capitalizeFirstLetter } from "src/utils/format-string";
 
 interface ReceiptData {
@@ -12,6 +12,7 @@ interface ReceiptData {
     reason: string;
     amount: number;
     attachment: string;
+    createdBy: string;
 }
 
 interface RenderReceiptProps {
@@ -60,10 +61,10 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         </View>
                     </View>
                     <View style={{ paddingHorizontal: 40, marginTop: 30, marginBottom: 50, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 200 }}>
-                        <Text style={styles.textDefault}>Họ và tên người nộp tiền: {data.payerName} ....................</Text>
-                        <Text style={styles.textDefault}>Địa chỉ: {data.address} ....................</Text>
-                        <Text style={styles.textDefault}>Lý do nộp: {data.reason} ....................</Text>
-                        <Text style={styles.textDefault}>Số tiền: {fCurrencyNoUnit(data.amount)} VNĐ (Viết bằng chữ): {capitalizeFirstLetter(fRenderTextNumberNoUnit(data.amount))} ....................</Text>
+                        <Text style={styles.textDefault}>Họ và tên người nộp tiền: {data.payerName ? data.payerName : '....................'}</Text>
+                        <Text style={styles.textDefault}>Địa chỉ: {data.address ? data.address : '....................'}</Text>
+                        <Text style={styles.textDefault}>Lý do nộp: {data.reason ? data.reason : '....................'}</Text>
+                        <Text style={styles.textDefault}>Số tiền: {fCurrencyNoUnit(data.amount)} VNĐ (Viết bằng chữ): {data.amount ? capitalizeFirstLetter(fRenderTextNumber(data.amount)) : '....................'}</Text>
                         <Text style={styles.textDefault}>Kèm theo: {data.attachment}........................................Chứng từ gốc:</Text>
                     </View>
                 </View>
@@ -74,10 +75,15 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         "Người nộp tiền",
                         "Người lập phiếu",
                         "Thủ quỹ",
-                    ].map((title) => (
+                    ].map((title, index) => (
                         <View key={title} style={styles.signatureBox}>
-                            <Text style={styles.signatureLabel}>{title}</Text>
-                            <Text style={styles.signAndPrint}>(Ký, họ tên, đóng dấu)</Text>
+                            <View>
+                                <Text style={styles.signatureLabel}>{title}</Text>
+                                <Text style={styles.signAndPrint}>(Ký, họ tên, đóng dấu)</Text>
+                            </View>
+                            {index === 3 &&
+                                <Text style={styles.signatureLabel}>{data.createdBy}</Text>
+                            }
                         </View>
                     ))}
                 </View>
@@ -107,14 +113,14 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                             alignItems: 'center',
                             gap: 10,
                             height: '100%',
-                            width: '45%',
-                            marginLeft: 200
+                            width: '70%',
+                            marginLeft: 100
                         }}>
                             <Text style={styles.title}>PHIẾU THU</Text>
                             <Text style={styles.date}>ngày {data.date}</Text>
                         </View>
 
-                        <View style={{ width: '55%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <View style={{ width: '30%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <Text style={styles.contractNumber}>Số HĐ: {data.contractNo}</Text>
                             <Text style={styles.contractNumber}>Số PT: {data.receiptNo}</Text>
                             <Text style={styles.contractNumber}>Nợ: ............................</Text>
@@ -122,10 +128,10 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         </View>
                     </View>
                     <View style={{ paddingHorizontal: 40, marginTop: 30, marginBottom: 50, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 200 }}>
-                        <Text style={styles.textDefault}>Họ và tên người nộp tiền: {data.payerName} ....................</Text>
-                        <Text style={styles.textDefault}>Địa chỉ: {data.address} ....................</Text>
-                        <Text style={styles.textDefault}>Lý do nộp: {data.reason} ....................</Text>
-                        <Text style={styles.textDefault}>Số tiền: {fCurrencyNoUnit(data.amount)} VNĐ (Viết bằng chữ): {capitalizeFirstLetter(fRenderTextNumberNoUnit(data.amount))} ....................</Text>
+                        <Text style={styles.textDefault}>Họ và tên người nộp tiền: {data.payerName ? data.payerName : '....................'}</Text>
+                        <Text style={styles.textDefault}>Địa chỉ: {data.address ? data.address : '....................'}</Text>
+                        <Text style={styles.textDefault}>Lý do nộp: {data.reason ? data.reason : '....................'}</Text>
+                        <Text style={styles.textDefault}>Số tiền: {fCurrencyNoUnit(data.amount)} VNĐ (Viết bằng chữ): {data.amount ? capitalizeFirstLetter(fRenderTextNumber(data.amount)) : '....................'}</Text>
                         <Text style={styles.textDefault}>Kèm theo: {data.attachment}........................................Chứng từ gốc:</Text>
                     </View>
                 </View>
@@ -136,10 +142,15 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         "Người nộp tiền",
                         "Người lập phiếu",
                         "Thủ quỹ",
-                    ].map((title) => (
+                    ].map((title, index) => (
                         <View key={title} style={styles.signatureBox}>
-                            <Text style={styles.signatureLabel}>{title}</Text>
-                            <Text style={styles.signAndPrint}>(Ký, họ tên, đóng dấu)</Text>
+                            <View>
+                                <Text style={styles.signatureLabel}>{title}</Text>
+                                <Text style={styles.signAndPrint}>(Ký, họ tên, đóng dấu)</Text>
+                            </View>
+                            {index === 3 &&
+                                <Text style={styles.signatureLabel}>{data.createdBy}</Text>
+                            }
                         </View>
                     ))}
                 </View>

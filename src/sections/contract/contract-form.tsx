@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, MenuItem, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, MenuItem, Skeleton, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
@@ -19,6 +19,8 @@ import { endpoints } from "src/lib/axios";
 import { mutate } from "swr";
 import { toast } from "sonner";
 import { editAllContractDetails } from "./helper/mapContractProducts";
+import { fCurrency, fCurrencyNoUnit } from "src/utils/format-number";
+import { renderSkeleton } from "src/components/skeleton/skeleton-quotation-contract";
 
 type ContractFormProps = {
     open: boolean;
@@ -35,8 +37,8 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     const [totalPaid, setTotalPaid] = useState(0);
     const [originalItems, setOriginalItems] = useState<IContractDetailDto[]>([]);
 
-    const { contract: CurrentContract } = useGetContract({
-        contractId: selectedContract?.id ?? 0,
+    const { contract: CurrentContract, contractLoading } = useGetContract({
+        contractId: selectedContract?.id || 0,
         pageNumber: 1,
         pageSize: 999,
         options: { enabled: !!selectedContract?.id }
@@ -276,44 +278,31 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     });
 
     const renderActions = () => (
-        <DialogActions
-            sx={{
-                position: "fixed",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                bgcolor: "background.paper",
-                borderTop: "1px solid",
-                borderColor: "divider",
-                p: 2,
-                gap: 2,
-                zIndex: 9
-            }}
-        >
+        <Box display="flex" flexDirection="row" gap={2}>
             <Button
                 variant="outlined"
                 color="inherit"
-                size="large"
-                sx={{ flex: 1, py: 1.5 }}
+                size="medium"
+                sx={{ flex: 1 }}
                 onClick={() => {
                     onClose();
                     reset(defaultValues);
                 }}
-                loading={isSubmitting}
+                disabled={isSubmitting}
             >
                 Hủy
             </Button>
             <Button
                 type="submit"
                 variant="contained"
-                size="large"
-                sx={{ flex: 1, py: 1.5 }}
+                size="medium"
+                sx={{ flex: 1, whiteSpace: 'nowrap', px: 3 }}
                 disabled={isCreatingCustomer}
                 loading={isSubmitting}
             >
                 {selectedContract ? `Lưu hợp đồng` : 'Tạo hợp đồng'}
             </Button>
-        </DialogActions>
+        </Box>
     );
 
     const products = useWatch({
@@ -371,15 +360,17 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
             } else {
                 clearErrors(["downPayment", "nextPayment"]);
                 const last = Math.max(total - down - next, 0);
-                if (last < total) {
-                    setValue("lastPayment", last, { shouldValidate: true });
+                const formattedLast = Number(fCurrencyNoUnit(last));
+                const formattedTotal = Number(fCurrencyNoUnit(total));
+                if (formattedLast < formattedTotal) {
+                    setValue("lastPayment", formattedLast, { shouldValidate: true });
                 }
             }
         }
     }, [total, downPayment, nextPayment, setError, clearErrors, setValue]);
 
     const renderDetails = () => (
-        <Stack direction={{ xs: "column", sm: "column", md: "row", lg: "row", xl: "row" }} spacing={3} sx={{ mt: 1 }}>
+        <Stack direction={{ xs: "column", sm: "column", md: "column", lg: "row", xl: "row" }} height="100%" spacing={3} sx={{ mt: 1 }}>
             {renderLeftColumn()}
             <Divider
                 flexItem
@@ -395,50 +386,24 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                     display: { xs: "block", md: "none" },
                 }}
             />
-            {/* Section thông tin thanh toán */}
-            <Stack width={{ xs: "100%", sm: "100%", md: "70%" }} spacing={2} sx={{ height: "100%" }}>
-                <Box>
-                    <Typography variant="subtitle2">
-                        Thông tin thanh toán
-                    </Typography>
-                    <Stack direction="row" spacing={2} my={2}>
-                        <Field.VNCurrencyInput
-                            label="Lần 1"
-                            name="downPayment"
-                            sx={{ maxWidth: 150 }}
-                        />
-                        <Field.VNCurrencyInput
-                            label="Lần 2"
-                            name="nextPayment"
-                            sx={{ maxWidth: 150 }}
-                        />
-                        <Field.VNCurrencyInput
-                            label="Còn lại"
-                            name="lastPayment"
-                            sx={{ maxWidth: 150 }}
-                            disabled
-                        />
-                    </Stack>
-                </Box>
-                {/* Section Bảng sản phẩm */}
-                <ContractItemsTable
-                    idContract={selectedContract?.id}
-                    contractProductDetail={contractProductDetail}
-                    methods={methods}
-                    fields={fields}
-                    append={append}
-                    remove={remove}
-                    setPaid={setTotalPaid}
-                />
-            </Stack>
+            {/* Section Bảng sản phẩm */}
+            <ContractItemsTable
+                idContract={selectedContract?.id}
+                contractProductDetail={contractProductDetail}
+                methods={methods}
+                fields={fields}
+                append={append}
+                remove={remove}
+                setPaid={setTotalPaid}
+            />
         </Stack>
     );
 
     const renderLeftColumn = () => (
-        <Stack width={{ xs: "100%", sm: "100%", md: "30%" }} spacing={3}>
+        <Stack width={{ xs: "100%", sm: "100%", md: "100%", lg: "30%" }} spacing={3}>
             {/* Section Thông tin khách hàng */}
             <Box>
-                <Stack direction={{ xs: "column", md: "row" }} gap={2} justifyContent="space-between">
+                <Stack direction={{ xs: "column", md: "column", lg: "column", xl: "row" }} gap={2} justifyContent="space-between">
                     <Typography variant="subtitle2">Thông tin khách hàng</Typography>
                     <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
                         <Field.Autocomplete
@@ -565,13 +530,36 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                     <Field.DatePicker name="deliveryTime" label="Ngày giao hàng" />
                     <Field.Text name="deliveryAddress" label="Địa chỉ giao hàng" />
                 </Stack>
+                <Box mt={2}>
+                    <Typography variant="subtitle2">
+                        Thông tin thanh toán
+                    </Typography>
+                    <Stack direction="row" spacing={2} my={2}>
+                        <Field.VNCurrencyInput
+                            label="Lần 1"
+                            name="downPayment"
+                            sx={{ maxWidth: 150 }}
+                        />
+                        <Field.VNCurrencyInput
+                            label="Lần 2"
+                            name="nextPayment"
+                            sx={{ maxWidth: 150 }}
+                        />
+                        <Field.VNCurrencyInput
+                            label="Còn lại"
+                            name="lastPayment"
+                            sx={{ maxWidth: 150 }}
+                            disabled
+                        />
+                    </Stack>
+                </Box>
                 <Field.Text
                     name="note"
                     label="Ghi chú"
                     multiline
-                    rows={8}
                     fullWidth
-                    sx={{ mt: 2 }}
+                    minRows={5}
+                    sx={{ pb: 2 }}
                 />
             </Box>
         </Stack>
@@ -587,41 +575,30 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 }
             }
             fullScreen>
-            <DialogTitle
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                    py: 2,
-                    px: 3,
-                }}
-            >
-                {selectedContract ? `Chỉnh sửa - ${selectedContract.contractNo}` : 'Tạo hợp đồng'}
-                <IconButton
-                    edge="end"
-                    color="inherit"
-                    onClick={onClose}
+            <Form methods={methods} onSubmit={onSubmit} style={{ height: '100%' }}>
+                <DialogTitle
                     sx={{
-                        ml: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        borderBottom: "1px solid",
+                        borderColor: "divider",
+                        py: 2,
+                        px: 3,
                     }}
                 >
-                    <Iconify icon="eva:close-fill" />
-                </IconButton>
-            </DialogTitle>
-            <Form methods={methods} onSubmit={onSubmit}>
+                    {selectedContract ? `Chỉnh sửa - ${selectedContract.contractNo}` : 'Tạo hợp đồng'}
+                    {renderActions()}
+                </DialogTitle>
                 <DialogContent
                     sx={{
-                        pb: 10,
-                        pt: 3,
-                        maxHeight: "calc(100vh - 120px)",
-                        overflowY: "auto",
+                        pb: 0,
+                        pt: '10px !important',
+                        overflowY: { xs: "auto", sm: "auto", md: "auto", lg: "auto", xl: "hidden" },
                     }}
                 >
-                    {renderDetails()}
+                    {contractLoading ? renderSkeleton() : renderDetails()}
                 </DialogContent>
-                {renderActions()}
             </Form>
             <ContractCustomerForm
                 openChild={isCreatingCustomer}

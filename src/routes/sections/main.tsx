@@ -34,6 +34,10 @@ const Page404 = lazy(() => import('src/pages/error/404'));
 const BlankPage = lazy(() => import('src/pages/blank'));
 //Receipt
 const ReceiptPreviewPage = lazy(() => import('src/pages/dashboard/receipt/index'));
+//Report
+const ReportPreviewPage = lazy(() => import('src/pages/dashboard/report/index'));
+//Export
+const ExportWarehousePreviewPage = lazy(() => import('src/pages/dashboard/warehouse-export/index'));
 // ----------------------------------------------------------------------
 
 export const mainRoutes: RouteObject[] = [
@@ -111,6 +115,22 @@ export const mainRoutes: RouteObject[] = [
         element: (
           <AuthGuard>
             <ReceiptPreviewPage />
+          </AuthGuard>
+        )
+      },
+      {
+        path: paths.report,
+        element: (
+          <AuthGuard>
+            <ReportPreviewPage />
+          </AuthGuard>
+        )
+      },
+      {
+        path: paths.warehouseExport,
+        element: (
+          <AuthGuard>
+            <ExportWarehousePreviewPage />
           </AuthGuard>
         )
       },

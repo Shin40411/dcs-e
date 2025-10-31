@@ -90,7 +90,8 @@ export function ContractReceiptPdf() {
         payer: searchParams.get("payer") || "",
         contractNo: searchParams.get("contractNo") || "",
         address: searchParams.get("address") || "",
-        reason: searchParams.get("reason") || ""
+        reason: searchParams.get("reason") || "",
+        createdBy: searchParams.get("createdBy") || ""
     };
 
     return (
@@ -106,6 +107,7 @@ export function ContractReceiptPdf() {
                         reason: receiptBody.reason,
                         amount: receiptBody.amount,
                         attachment: "",
+                        createdBy: receiptBody.createdBy
                     }}
                 />
             </PDFViewer>

@@ -1,23 +1,22 @@
-import { Button } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { useBoolean } from "minimal-shared/hooks";
 import { ChangeEvent, useEffect, useState } from "react";
-import { useGetReceiptContract } from "src/actions/contract";
+import { useGetWarehouseExports } from "src/actions/contract";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { UseGridTableList } from "src/components/data-grid-table/data-grid-table";
-import { Iconify } from "src/components/iconify";
-import { RECEIPT_COLUMNS } from "src/const/receipt";
+import { WAREHOUSE_EXPORT_COLUMNS } from "src/const/warehouseExport";
 import { CONFIG } from "src/global-config";
 import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
-import { IContractReceiptItem, IReceiptContract } from "src/types/contract";
-import { ReceiptNewEditForm } from "../receipt-new-edit-form";
+import { IContractWarehouseExportItem } from "src/types/warehouseExport";
+import { WarehouseExportNewEditForm } from "../warehouse-export-new-edit-form";
 import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
+import { Button } from "@mui/material";
 
-export function ReceiptMainView() {
+export function WarehouseExportMainView() {
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
@@ -25,12 +24,13 @@ export function ReceiptMainView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+
     const {
-        contractReceipt,
-        contractReceiptItem,
-        contractReceiptLoading,
+        contractWarehouseExports,
+        contractWarehouseExportsEmpty,
+        contractWarehouseExportsLoading,
         pagination
-    } = useGetReceiptContract({
+    } = useGetWarehouseExports({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -48,26 +48,30 @@ export function ReceiptMainView() {
         setPage(0);
     };
 
-    const [tableData, setTableData] = useState<IReceiptContract[]>(contractReceiptItem);
+    const [tableData, setTableData] = useState<IContractWarehouseExportItem[]>(contractWarehouseExports);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
-    const [tableRowSelected, setTableRowSelected] = useState<IReceiptContract | null>(null);
+    const [tableRowSelected, setTableRowSelected] = useState<IContractWarehouseExportItem | null>(null);
     const [rowIdSelected, setRowIdSelected] = useState(0);
 
     useEffect(() => {
-        setTableData(contractReceiptItem);
-    }, [contractReceiptItem]);
+        setTableData(contractWarehouseExports);
+    }, [contractWarehouseExports]);
+
+    const renderForm = () => (
+        <WarehouseExportNewEditForm
+            open={openCrudForm.value}
+            onClose={openCrudForm.onFalse}
+            selectedWarehouseExport={tableRowSelected}
+        />
+    )
 
     const handleDeleteRow = async () => {
         const success = await deleteOne({
-            apiEndpoint: endpoints.contractReceipt.delete,
-            listEndpoint: '/api/v1/contract-receipts/get-receipts',
-            bodyEndpoint: {
-                receiptId: rowIdSelected,
-                contractNo: tableRowSelected?.contractNo
-            }
+            apiEndpoint: endpoints.contractWarehouse.delete(rowIdSelected),
+            listEndpoint: '/api/v1/warehouse-exports/get-exports',
         });
         if (success) {
-            toast.success('Xóa thành công 1 phiếu thu!');
+            toast.success('Xóa thành công 1 phiếu xuất kho!');
         } else {
             toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
         }
@@ -76,10 +80,10 @@ export function ReceiptMainView() {
         <ConfirmDialog
             open={confirmDelRowDialog.value}
             onClose={confirmDelRowDialog.onFalse}
-            title="Xác nhận xóa phiếu thu"
+            title="Xác nhận xóa phiếu xuất kho"
             content={
                 <>
-                    Bạn có chắc chắn muốn xóa phiếu thu này?
+                    Bạn có chắc chắn muốn xóa phiếu xuất kho này?
                 </>
             }
             action={
@@ -97,37 +101,23 @@ export function ReceiptMainView() {
         />
     );
 
-    const renderForm = () => (
-        <ReceiptNewEditForm open={openCrudForm.value} onClose={openCrudForm.onFalse} selectedReceipt={tableRowSelected} />
-    )
-
     return (
         <>
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Phiếu thu"
+                    heading="Phiếu xuất kho"
                     links={[
                         { name: 'Tổng quan', href: paths.dashboard.root },
                         { name: 'Nội bộ' },
-                        { name: 'Phiếu thu' },
+                        { name: 'Phiếu xuất kho' },
                     ]}
-                    // action={
-                    //     <Button
-                    //         variant="contained"
-                    //         startIcon={<Iconify icon="mingcute:add-line" />}
-                    //         onClick={() => {
-                    //         }}
-                    //     >
-                    //         Tạo phiếu thu
-                    //     </Button>
-                    // }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
                 <UseGridTableList
                     dataFiltered={tableData}
-                    loading={contractReceiptLoading}
+                    loading={contractWarehouseExportsLoading}
                     columns={
-                        RECEIPT_COLUMNS({
+                        WAREHOUSE_EXPORT_COLUMNS({
                             openDetailsForm,
                             openCrudForm,
                             confirmDelRowDialog,

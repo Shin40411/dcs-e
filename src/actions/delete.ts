@@ -5,14 +5,25 @@ import { mutate } from "swr";
 export async function deleteOne({
     apiEndpoint,
     listEndpoint,
+    bodyEndpoint
 }: {
     apiEndpoint: string;
     listEndpoint: string;
+    bodyEndpoint?: any;
 }) {
     try {
-        const { data } = await axiosInstance.delete(`${apiEndpoint}`);
-        if (data.statusCode !== 200) {
-            throw new Error(data.message || "Đã có lỗi xảy ra");
+        if (bodyEndpoint) {
+            const { data } = await axiosInstance.delete(`${apiEndpoint}`, {
+                data: bodyEndpoint,
+            });
+            if (data.statusCode !== 200) {
+                throw new Error(data.message || "Đã có lỗi xảy ra");
+            }
+        } else {
+            const { data } = await axiosInstance.delete(`${apiEndpoint}`);
+            if (data.statusCode !== 200) {
+                throw new Error(data.message || "Đã có lỗi xảy ra");
+            }
         }
 
         // await mutate(listEndpoint);

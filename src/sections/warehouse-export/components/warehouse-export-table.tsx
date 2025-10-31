@@ -1,16 +1,11 @@
-import { Box, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
+import { EmptyContent } from "src/components/empty-content";
+import { IWarehouseExportProduct } from "src/types/contract";
 import { fCurrency, fCurrencyNoUnit, fRenderTextNumber } from "src/utils/format-number";
 import { capitalizeFirstLetter } from "src/utils/format-string";
-import { ContractWareHouseTableProps } from "./helper/ContractItemsTableProps";
-import { IContractProduct, IContractRemainingProduct } from "src/types/contract";
-import { EmptyContent } from "src/components/empty-content";
 
-export function ContractWarehouseTable({
-    remainingProductEmpty,
-    remainingProduct,
-    remainingProductLoading
-}: ContractWareHouseTableProps) {
-    const calcAmount = (item: IContractRemainingProduct) => {
+export function WarehouseExportTable({ remainingProductEmpty, remainingProduct }: { remainingProductEmpty: boolean; remainingProduct: IWarehouseExportProduct[] }) {
+    const calcAmount = (item: IWarehouseExportProduct) => {
         const qty = Number(item?.quantity) || 0;
         const price = Number(item?.price) || 0;
         const vat = Number(item?.vat) || 0;
@@ -68,40 +63,46 @@ export function ContractWarehouseTable({
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {remainingProductLoading ? (
-                                    [...Array(5)].map((_, index) => (
-                                        <TableRow key={index}>
-                                            {[...Array(7)].map((__, cellIndex) => (
-                                                <TableCell key={cellIndex}>
-                                                    <Skeleton variant="rectangular" height={28} />
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    ))
-                                ) : remainingProductEmpty ? (
+                                {remainingProductEmpty ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
-                                            <EmptyContent content="" />
+                                        <TableCell colSpan={7}>
+                                            <EmptyContent />
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     (() => {
                                         let displayIndex = 0;
+
                                         return remainingProduct.map((item) => {
                                             const hasPrice = !!item.price && item.price > 0;
                                             if (hasPrice) displayIndex++;
+
                                             return (
                                                 <TableRow key={item.productID}>
-                                                    <TableCell sx={{ whiteSpace: "nowrap" }}>{hasPrice ? displayIndex : ""}</TableCell>
-                                                    <TableCell>{item.name}</TableCell>
-                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>{item.productUnitName}</TableCell>
-                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>{item.quantity}</TableCell>
+                                                    <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                                        {hasPrice ? displayIndex : ""}
+                                                    </TableCell>
+
+                                                    <TableCell>{item.productName}</TableCell>
+
+                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>
+                                                        {item.unitProductName}
+                                                    </TableCell>
+
+                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>
+                                                        {item.quantity}
+                                                    </TableCell>
+
                                                     <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>
                                                         {hasPrice ? fCurrencyNoUnit(item.price) : ""}
                                                     </TableCell>
+
                                                     <TableCell sx={{ whiteSpace: "nowrap", textAlign: "end" }}>
-                                                        <Typography variant="body2">{item.vat != null ? `${item.vat}%` : ""}</Typography>
+                                                        <Typography variant="body2">
+                                                            {item.vat != null ? `${item.vat}%` : ""}
+                                                        </Typography>
                                                     </TableCell>
+
                                                     <TableCell sx={{ whiteSpace: "nowrap", textAlign: "end" }}>
                                                         {hasPrice ? fCurrencyNoUnit(calcAmount(item)) : ""}
                                                     </TableCell>

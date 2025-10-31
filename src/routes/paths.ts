@@ -25,6 +25,8 @@ export const paths = {
   contact: '/contact-us',
   faqs: '/faqs',
   receipt: `${ROOTS.DASHBOARD}/customer-services/contract/receipt/preview`,
+  report: `${ROOTS.DASHBOARD}/customer-services/contract/report/preview`,
+  warehouseExport: `${ROOTS.DASHBOARD}/customer-services/contract/warehouse-export/preview`,
   page403: '/error/403',
   page404: '/error/404',
   page500: '/error/500',
@@ -160,6 +162,9 @@ export const paths = {
     },
     receipt: {
       root: `${ROOTS.DASHBOARD}/receipt`
+    },
+    warehouseExport: {
+      root: `${ROOTS.DASHBOARD}/warehouse-export`
     },
     post: {
       root: `${ROOTS.DASHBOARD}/post`,

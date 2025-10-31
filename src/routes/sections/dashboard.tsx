@@ -99,6 +99,8 @@ const EmployeeTypeListPage = lazy(() => import('src/pages/dashboard/employeeType
 const DepartmentListPage = lazy(() => import('src/pages/dashboard/department/list'));
 // Receipt page
 const ReceiptPage = lazy(() => import('src/pages/dashboard/receipt/list'));
+// Warehouse Export page
+const WarehouseExportPage = lazy(() => import('src/pages/dashboard/warehouse-export/list'));
 
 // ----------------------------------------------------------------------
 
@@ -220,6 +222,12 @@ export const dashboardRoutes: RouteObject[] = [
         path: 'receipt',
         children: [
           { index: true, element: <ReceiptPage /> },
+        ]
+      },
+      {
+        path: 'warehouse-export',
+        children: [
+          { index: true, element: <WarehouseExportPage /> }
         ]
       },
       {

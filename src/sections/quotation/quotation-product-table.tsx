@@ -143,13 +143,18 @@ export function QuotationItemsTable({
 
     return (
         <>
-            <Stack width={{ xs: "100%", sm: "100%", md: "70%" }} spacing={2} sx={{ height: "100%" }}>
+            <Stack width={{ xs: "100%", sm: "100%", md: "100%", lg: "70%" }} spacing={2} sx={{ height: "100%" }}>
                 <Typography variant="subtitle2">Sản phẩm</Typography>
 
                 <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-                    <Box sx={{ flex: 1, overflowY: "auto" }}>
-                        <TableContainer component={Paper} sx={{ maxWidth: "100%", overflowX: "auto" }}>
-                            <Table size="small" stickyHeader sx={{ minWidth: 600 }}>
+                    <Box sx={{ flex: 1, display: "flex", flexDirection: 'column', overflowY: "hidden" }}>
+                        <TableContainer component={Paper} sx={{
+                            maxWidth: "100%",
+                            maxHeight: 600,
+                            overflowX: "auto",
+                            flex: 1
+                        }}>
+                            <Table size="small" stickyHeader sx={{ minWidth: 600, overflowY: "auto" }}>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell sx={{ whiteSpace: "nowrap" }} width="50">STT</TableCell>
@@ -217,65 +222,65 @@ export function QuotationItemsTable({
                                             </TableCell>
                                         </TableRow>
                                     ))}
-
-                                    <TableRow>
-                                        <TableCell colSpan={7}>
-                                            <Stack
-                                                direction="row"
-                                                gap={2}
-                                                my={1}
-                                                justifyContent="space-between"
-                                            >
-                                                <Button
-                                                    variant="outlined"
-                                                    startIcon={<Iconify icon="gridicons:add" />}
-                                                    onClick={() =>
-                                                        append({
-                                                            name: "",
-                                                            unit: "",
-                                                            qty: 1,
-                                                            price: 0,
-                                                            vat: 0,
-                                                        })
-                                                    }
-                                                >
-                                                    Thêm sản phẩm
-                                                </Button>
-                                            </Stack>
-                                        </TableCell>
-                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                    </Box>
-
-                    <Box
-                        sx={{
-                            position: "sticky",
-                            bottom: -50,
-                            borderTop: "1px solid",
-                            borderColor: "divider",
-                            p: 2,
-                            bgcolor: "background.paper",
-                            zIndex: 1,
-                            display: 'flex',
-                            flexDirection: "row",
-                            gap: '50px',
-                            justifyContent: 'space-between'
-                        }}
-                    >
-                        <Stack direction="column" justifyContent="flex-start" textAlign={'start'}>
-                            <Typography fontWeight={600}>Tổng cộng</Typography>
-                            <Typography fontWeight="bold" whiteSpace="nowrap">
-                                {fCurrency(roundedTotal)}
-                            </Typography>
+                        <Stack
+                            direction="row"
+                            gap={2}
+                            my={1}
+                            justifyContent="space-between"
+                            pt={1}
+                            sx={{
+                                borderTop: "1px solid",
+                                borderColor: "divider",
+                            }}
+                        >
+                            <Button
+                                variant="outlined"
+                                startIcon={<Iconify icon="gridicons:add" />}
+                                onClick={() =>
+                                    append({
+                                        name: "",
+                                        unit: "",
+                                        qty: 1,
+                                        price: 0,
+                                        vat: 0,
+                                    })
+                                }
+                            >
+                                Thêm sản phẩm
+                            </Button>
                         </Stack>
-                        <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
-                            <Typography fontWeight={600}>Bằng chữ</Typography>
-                            <Typography fontSize={15}>
-                                {capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}
-                            </Typography>
-                        </Stack>
+                        <Box
+                            sx={{
+                                position: "sticky",
+                                bottom: -50,
+                                borderTop: "1px solid",
+                                borderColor: "divider",
+                                pt: 1,
+                                pb: 2,
+                                bgcolor: "background.paper",
+                                zIndex: 1,
+                                display: 'flex',
+                                flexDirection: "row",
+                                gap: '50px',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <Stack direction="column" justifyContent="flex-start" textAlign={'start'}>
+                                <Typography fontWeight={600}>Tổng cộng</Typography>
+                                <Typography fontWeight="bold" whiteSpace="nowrap">
+                                    {fCurrency(roundedTotal)}
+                                </Typography>
+                            </Stack>
+                            <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
+                                <Typography fontWeight={600}>Bằng chữ</Typography>
+                                <Typography fontSize={15}>
+                                    {capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}
+                                </Typography>
+                            </Stack>
+                        </Box>
                     </Box>
                 </Box>
             </Stack>

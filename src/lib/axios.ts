@@ -145,6 +145,16 @@ export const endpoints = {
   contractReceipt: {
     list: (params: string) => `/api/v1/contract-receipts/get-receipts${params}`,
     create: '/api/v1/contract-receipts/create',
+    update: (id: number) => `/api/v1/contract-receipts/edit-receipt/${id}`,
+    delete: '/api/v1/contract-receipts/delete-receipt'
+  },
+  contractWarehouse: {
+    list: (params: string) => `/api/v1/warehouse-exports/get-exports${params}`,
+    remaining: (contractId: number) => `/api/v1/contracts/get-remining-product?contractId=${contractId}`,
+    details: (ExportID: number) => `/api/v1/warehouse-exports/get-detail?ExportID=${ExportID}&pageNumber=1&pageSize=99999`,
+    create: '/api/v1/warehouse-exports/create',
+    update: (id: string) => `/api/v1/warehouse-exports/edit/${id}`,
+    delete: (id: number) => `/api/v1/warehouse-exports/delete/${id}`
   },
   upload: {
     uploadImage: '/api/v1/uploads/upload',

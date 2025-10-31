@@ -1,8 +1,8 @@
-import { pdf } from "@react-pdf/renderer";
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IContractDao, IContractData, IContractDetailDto, IContractDto, IContractItem, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContract, IReceiptContractDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt } from "src/types/contract";
+import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContractDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt, ResDetailsWarehouseExportProduct, ResRemainingProduct } from "src/types/contract";
+import { IContractWarehouseExportDto, ResContractWarehouseExport } from "src/types/warehouseExport";
 import useSWR, { SWRConfiguration } from "swr";
 
 type quotationProps = {
@@ -294,6 +294,116 @@ export async function createReceiptContract(dto: IReceiptContractDto) {
     }
 }
 
-export async function deleteReceiptContract() {
+export async function updateReceiptContract(dto: IReceiptContractDto, id: number) {
+    try {
+        const { data } = await axiosInstance.patch(endpoints.contractReceipt.update(id), dto);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
+type contractWarehouseExportsProp = {
+    pageNumber: number,
+    pageSize: number,
+    enabled?: boolean,
+    key?: string,
+}
+
+export function useGetWarehouseExports({ pageNumber, pageSize, enabled, key }: contractWarehouseExportsProp) {
+    let params = '';
+
+    if (pageNumber || pageSize) params = `?PageNumber=${pageNumber}&PageSize=${pageSize}`;
+    if (key) params += `&search=${key}`;
+
+    const url = enabled ? endpoints.contractWarehouse.list(params) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResContractWarehouseExport>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data.items ?? [];
+            return {
+                contractWarehouseExports: filteredItems,
+                pagination: {
+                    pageNumber: data?.data.pageNumber ?? 1,
+                    pageSize: data?.data.pageSize ?? pageSize,
+                    totalPages: data?.data.totalPages ?? 0,
+                    totalRecord: data?.data.totalRecord ?? 0,
+                },
+                contractWarehouseExportsLoading: isLoading,
+                contractWarehouseExportsError: error,
+                contractWarehouseExportsValidating: isValidating,
+                contractWarehouseExportsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+export function useGetUnExportProduct(contractId: number, enabled: boolean) {
+    const url = (enabled && contractId) ? endpoints.contractWarehouse.remaining(contractId) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResRemainingProduct>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data.items ?? [];
+            return {
+                remainingProduct: filteredItems,
+                remainingProductLoading: isLoading,
+                remainingProductError: error,
+                remainingProductValidating: isValidating,
+                remainingProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+export function useGetDetailWarehouseExportProduct(ExportID: number, enabled: boolean) {
+    const url = (enabled && ExportID) ? endpoints.contractWarehouse.details(ExportID) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResDetailsWarehouseExportProduct>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data.items ?? [];
+            return {
+                detailsProduct: filteredItems,
+                detailsProductLoading: isLoading,
+                detailsProductError: error,
+                detailsProductValidating: isValidating,
+                detailsProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+export async function createWarehouseExport(dto: IContractWarehouseExportDto) {
+    try {
+        const { data } = await axiosInstance.post(endpoints.contractWarehouse.create, dto);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export async function updateWarehouseExport(id: string, dto: IContractWarehouseExportDto) {
+    try {
+        const { data } = await axiosInstance.patch(endpoints.contractWarehouse.update(id), dto);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 }

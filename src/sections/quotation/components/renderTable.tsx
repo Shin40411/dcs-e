@@ -76,7 +76,14 @@ export const renderTable = ({ currentQuotation, discount, totalAmount }: props) 
                                         {fCurrencyNoUnit(p.price)}
                                     </Text>
                                 </View>
-                                <View style={[styles.cell_6, { alignItems: 'flex-end', textAlign: 'right' }]}>
+                                <View style={[styles.cell_6, {
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-end',
+                                    justifyContent: 'space-between',
+                                    textAlign: 'right',
+                                    height: '100%'
+                                }]}>
                                     <Text style={{ fontFamily: 'Niramit', fontSize: 12 }}>{fCurrencyNoUnit(p.price * p.quantity)}</Text>
                                     <Text style={{ fontFamily: 'Niramit-ExtraLight', fontSize: 10 }}>
                                         {fCurrencyNoUnit(((p.price * p.quantity) * p.vat) / 100)}

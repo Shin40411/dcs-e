@@ -139,6 +139,9 @@ export const navData: NavSectionProps['data'] = [
           // { 
           //   title: 'Phiếu chi', path: paths.dashboard.order.root, icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} />
           //  },
+          {
+            title: 'Phiếu xuất kho', path: paths.dashboard.warehouseExport.root, icon: <Iconify icon={'streamline-cyber-color:delivery-package-2'} />
+          },
         ],
       },
       // {

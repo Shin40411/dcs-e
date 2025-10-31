@@ -3,7 +3,7 @@ import { RenderRuleName } from "../helper/renderRuleName";
 import { fCurrencyNoUnit, fRenderTextNumber, fRenderTextNumberNoUnit } from "src/utils/format-number";
 import { RenderRuleNameChild } from "../helper/renderRuleNameChild";
 import { fDate } from "src/utils/format-time-vi";
-import { capitalizeFirstLetter } from "src/utils/format-string";
+import { capitalizeFirstLetter, capitalizeWords } from "src/utils/format-string";
 import { IDateValue } from "src/types/common";
 import { IContractData } from "src/types/contract";
 import { useStyles } from "./useStyle";
@@ -127,6 +127,7 @@ export const renderRules = ({
         `- Hợp đồng này được lập thành ${renderBinaryNumber(copiesNo ?? 0)} (${fRenderTextNumberNoUnit(copiesNo ?? 0)}) bản gốc, có giá trị pháp lý như nhau; Bên A giữ ${renderBinaryNumber(keptAndCopies)} (${fRenderTextNumberNoUnit(keptAndCopies)}) bản, Bên B giữ ${renderBinaryNumber(keptNo ?? 0)} (${fRenderTextNumberNoUnit(keptNo ?? 0)}) bản. Hợp đồng có hiệu lực kể từ ngày ký kết và là căn cứ ràng buộc trách nhiệm pháp lý giữa các Bên./.`
     ];
     let displayIndex = 0;
+    const text = sideA[2] ?? '';
     return (
         <View
             style={{
@@ -547,11 +548,10 @@ export const renderRules = ({
                             fontFamily: 'Niramit',
                             fontSize: 13,
                             marginTop: 60,
-                            // color: 'rgba(238, 0, 51, 1)',
                             textAlign: 'center',
                         }}
                     >
-                        {sideA[2]}
+                        {capitalizeWords(text ?? '')}
                     </Text>
                 </View>
 

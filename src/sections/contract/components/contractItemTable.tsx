@@ -18,7 +18,6 @@ export default function ContractItemsTableContent({
     openDel,
     setProductIDSelected,
     setIndexField,
-    disabledAddMore
 }: ContractItemsTableContentProps) {
     const total = fields.reduce((sum, item, index) => {
         const qty = Number(methods.getValues(`products.${index}.qty`) || 0);
@@ -28,8 +27,13 @@ export default function ContractItemsTableContent({
     }, 0);
 
     return (
-        <TableContainer component={Paper} sx={{ maxWidth: "100%", overflowX: "auto" }}>
-            <Table size="small" stickyHeader sx={{ minWidth: 600 }}>
+        <TableContainer component={Paper} sx={{
+            maxWidth: "100%",
+            maxHeight: 600,
+            overflowX: "auto",
+            flex: 1
+        }}>
+            <Table size="small" stickyHeader sx={{ minWidth: 600, overflowY: "auto" }}>
                 <TableHead>
                     <TableRow>
                         <TableCell sx={{ whiteSpace: "nowrap" }} width="50">STT</TableCell>
@@ -103,34 +107,6 @@ export default function ContractItemsTableContent({
                             </TableCell>
                         </TableRow>
                     ))}
-                    {!disabledAddMore &&
-                        <TableRow>
-                            <TableCell colSpan={7}>
-                                <Stack
-                                    direction="row"
-                                    gap={2}
-                                    my={1}
-                                    justifyContent="space-between"
-                                >
-                                    <Button
-                                        variant="outlined"
-                                        startIcon={<Iconify icon="gridicons:add" />}
-                                        onClick={() =>
-                                            append({
-                                                name: "",
-                                                unit: "",
-                                                qty: 1,
-                                                price: 0,
-                                                vat: 0,
-                                            })
-                                        }
-                                    >
-                                        Thêm sản phẩm
-                                    </Button>
-                                </Stack>
-                            </TableCell>
-                        </TableRow>
-                    }
                 </TableBody>
             </Table>
         </TableContainer>

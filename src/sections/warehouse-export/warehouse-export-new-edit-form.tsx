@@ -1,50 +1,48 @@
-import { Box, Button, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { Iconify } from "src/components/iconify";
-import { IContractItem } from "src/types/contract";
-import { generateWarehouseExport } from "src/utils/random-func";
-import { CloseIcon } from "yet-another-react-lightbox";
-import { ContractWareHouseSchema, ContractWareHouseSchemaType } from "./schema/contract-warehouse";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Box, Button, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Stack, TextField, Typography } from "@mui/material";
 import { Field, Form } from "src/components/hook-form";
-import { ContractWarehouseTable } from "./contract-warehouse-table";
+import { Iconify } from "src/components/iconify";
+import { IContractWarehouseExportDto, IContractWarehouseExportItem } from "src/types/warehouseExport";
+import { CloseIcon } from "yet-another-react-lightbox";
+import { IContractItem } from "src/types/contract";
+import { ContractWareHouseSchema, ContractWareHouseSchemaType } from "../contract/schema/contract-warehouse";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { fDate } from "src/utils/format-time-vi";
+import { paths } from "src/routes/paths";
 import { useEffect, useState } from "react";
-import { createWarehouseExport, useGetUnExportProduct, useGetWarehouseExports } from "src/actions/contract";
-import { IContractWarehouseExportDto } from "src/types/warehouseExport";
+import { useAuthContext } from "src/auth/hooks";
+import { updateWarehouseExport, useGetContract, useGetDetailWarehouseExportProduct } from "src/actions/contract";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { useAuthContext } from "src/auth/hooks";
-import { paths } from "src/routes/paths";
-import { fDate } from "src/utils/format-time-vi";
+import { WarehouseExportTable } from "./components/warehouse-export-table";
 
-interface FileDialogProps {
-    selectedContract: IContractItem;
+interface FormDialogProps {
+    selectedWarehouseExport: IContractWarehouseExportItem | null;
     open: boolean;
     onClose: () => void;
 }
 
-export function ContractWareHouse({ selectedContract, open, onClose }: FileDialogProps) {
+export function WarehouseExportNewEditForm({ selectedWarehouseExport, open, onClose }: FormDialogProps) {
     const { user } = useAuthContext();
     const today = new Date();
-
-    const { pagination: { totalRecord } } = useGetWarehouseExports({
-        pageNumber: 1,
-        pageSize: 999,
-        enabled: open,
-    });
-
-    const { remainingProduct, remainingProductEmpty, remainingProductLoading } = useGetUnExportProduct(selectedContract.id, open);
-
-    const [watchTicket, setWatchTicket] = useState(true);
-    const [warehouseExportNumber, setWarehouseExportNumber] = useState<string>('');
+    const {
+        detailsProduct,
+        detailsProductEmpty,
+        detailsProductLoading
+    } = useGetDetailWarehouseExportProduct(
+        selectedWarehouseExport?.id || 0,
+        open
+    );
 
     const defaultValues: ContractWareHouseSchemaType = {
-        wareHouseNo: warehouseExportNumber,
+        wareHouseNo: "",
         exportDate: today.toISOString(),
         receiverAddress: "",
         receiverName: "",
         note: "",
     };
+
+    const [watchTicket, setWatchTicket] = useState(true);
 
     const methods = useForm<ContractWareHouseSchemaType>({
         resolver: zodResolver(ContractWareHouseSchema),
@@ -52,9 +50,13 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     });
 
     useEffect(() => {
-        methods.setValue('wareHouseNo', generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
-        setWarehouseExportNumber(generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
-    }, [totalRecord, setWarehouseExportNumber]);
+        if (!selectedWarehouseExport) return;
+        methods.setValue('wareHouseNo', selectedWarehouseExport.warehouseExportNo);
+        methods.setValue('exportDate', selectedWarehouseExport.createdDate);
+        methods.setValue('receiverAddress', selectedWarehouseExport.reciverAddress);
+        methods.setValue('receiverName', selectedWarehouseExport.reciverName);
+        methods.setValue('note', selectedWarehouseExport.note || "");
+    }, [selectedWarehouseExport, methods.reset]);
 
     const {
         reset,
@@ -72,16 +74,17 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
 
     const onPreviewWarehouseExport = () => {
         const params = new URLSearchParams({
-            isCreating: 'true',
-            contractId: String(selectedContract.id),
+            isCreating: 'false',
+            exportId: String(selectedWarehouseExport?.id),
+            contractId: String(selectedWarehouseExport?.contractID || 0),
             exportDate: String(fDate(exportDate)),
-            contractNo: selectedContract.contractNo,
+            contractNo: selectedWarehouseExport?.contractNo,
             warehouseExportNo: warehouseExportNo,
             receiverName: receiverName,
-            position: selectedContract.position,
+            position: "",
             note: note,
             receiverAddress: receiverAddress,
-            seller: selectedContract.seller
+            seller: selectedWarehouseExport?.employerName
         } as Record<string, string>);
         const queryString = params.toString();
         window.open(`${paths.warehouseExport}?${queryString}`, '_blank');
@@ -90,25 +93,24 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     const onSubmit = handleSubmit(async (data) => {
         try {
             const payload: IContractWarehouseExportDto = {
-                warehouseExportNo: data.wareHouseNo,
-                customerID: selectedContract.customerID,
-                contractID: selectedContract.id,
-                employeeID: user?.accessToken || null,
+                customerID: selectedWarehouseExport?.customerID || 0,
+                contractID: selectedWarehouseExport?.contractID || 0,
+                employeeID: selectedWarehouseExport?.employeeID || user?.accessToken,
                 exportDate: data.exportDate,
                 receiverName: data.receiverName,
-                receiverPhone: "",
+                receiverPhone: selectedWarehouseExport?.reciverPhone || "",
                 receiverAddress: data.receiverAddress,
                 note: data.note || "",
-                discount: selectedContract.discount,
-                paid: selectedContract.total,
-                products:
-                    remainingProduct.map((p) => ({
-                        productID: p.productID,
-                        quantity: p.quantity,
-                    })),
+                discount: selectedWarehouseExport?.discount || 0,
+                paid: selectedWarehouseExport?.paid || 0,
             };
 
-            await createWarehouseExport(payload);
+            if (!selectedWarehouseExport) {
+                toast.error("Không tìm thấy id phiếu xuất kho!");
+                return;
+            }
+
+            await updateWarehouseExport(String(selectedWarehouseExport.id), payload);
 
             toast.success("Tạo phiếu xuất kho thành công!");
             reset();
@@ -150,7 +152,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <TextField value={selectedContract.companyName} label="Đơn vị nhận hàng" disabled
+                <TextField value={selectedWarehouseExport?.companyName} label="Đơn vị nhận hàng" disabled
                     sx={{
                         flex: 1.5,
                         '& .MuiInputBase-root.Mui-disabled': {
@@ -170,7 +172,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                     label="Lý do xuất kho"
                     sx={{ flex: 1.5 }}
                 />
-                <TextField value={selectedContract.seller} label="Tên nhân viên" disabled
+                <TextField value={selectedWarehouseExport?.employerName} label="Tên nhân viên" disabled
                     sx={{
                         flex: 1,
                         '& .MuiInputBase-root.Mui-disabled': {
@@ -267,12 +269,38 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 <DialogContent sx={{ flex: 1, height: '100%', p: 2 }}>
                     <CardContent sx={{ pt: 0, px: 0 }}>
                         <Stack spacing={{ xs: 3, md: 2 }} direction="column">
-                            {renderDetails()}
-                            <ContractWarehouseTable
-                                remainingProduct={remainingProduct}
-                                remainingProductEmpty={remainingProductEmpty}
-                                remainingProductLoading={remainingProductLoading}
-                            />
+                            {detailsProductLoading ? (
+                                <>
+                                    <Stack spacing={2}>
+                                        {[1, 2, 3, 4].map((i) => (
+                                            <Stack key={i} direction="row" spacing={3}>
+                                                <Skeleton variant="rectangular" height={56} sx={{ flex: 1.5 }} />
+                                                <Skeleton variant="rectangular" height={56} sx={{ flex: 1 }} />
+                                            </Stack>
+                                        ))}
+                                    </Stack>
+
+                                    <Box mt={2}>
+                                        <Skeleton variant="rectangular" height={40} width="40%" sx={{ mb: 1 }} />
+                                        {[...Array(4)].map((_, index) => (
+                                            <Skeleton
+                                                key={index}
+                                                variant="rectangular"
+                                                height={48}
+                                                sx={{ mb: 1, borderRadius: 1 }}
+                                            />
+                                        ))}
+                                    </Box>
+                                </>
+                            ) : (
+                                <>
+                                    {renderDetails()}
+                                    <WarehouseExportTable
+                                        remainingProduct={detailsProduct}
+                                        remainingProductEmpty={detailsProductEmpty}
+                                    />
+                                </>
+                            )}
                         </Stack>
                     </CardContent>
                 </DialogContent>

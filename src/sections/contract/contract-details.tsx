@@ -9,6 +9,7 @@ import { useBoolean } from "minimal-shared/hooks";
 import ContractSendMail from "./contract-sendmail";
 import { ContractReceipt } from "./contract-receipt";
 import { ContractWareHouse } from "./contract-warehouse";
+import { paths } from "src/routes/paths";
 
 type Props = {
     selectedContract: IContractItem;
@@ -65,6 +66,42 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
     const handleToggle = () => {
         setShowActions((prev) => !prev);
     };
+
+    const onPreviewReport = () => {
+        const params = new URLSearchParams({
+            id: String(selectedContract.id),
+            contractNo: selectedContract.contractNo,
+            customerID: String(selectedContract.customerID),
+            customerName: selectedContract.customerName,
+            customerEmail: selectedContract.customerEmail,
+            customerPhone: selectedContract.customerPhone,
+            customerAddress: selectedContract.customerAddress,
+            customerTaxCode: selectedContract.customerTaxCode,
+            companyName: selectedContract.companyName,
+            customerBank: selectedContract.customerBank,
+            customerBankNo: selectedContract.customerBankNo,
+            position: selectedContract.position,
+            signatureDate: selectedContract.signatureDate,
+            deliveryAddress: selectedContract.deliveryAddress,
+            deliveryTime: selectedContract.deliveryTime,
+            downPayment: String(selectedContract.downPayment),
+            nextPayment: String(selectedContract.nextPayment),
+            lastPayment: String(selectedContract.lastPayment),
+            total: String(selectedContract.total),
+            copiesNo: String(selectedContract.copiesNo),
+            keptNo: String(selectedContract.keptNo),
+            status: String(selectedContract.status),
+            createDate: selectedContract.createDate,
+            createdBy: selectedContract.createdBy,
+            modifyDate: selectedContract.modifyDate,
+            modifiedBy: selectedContract.modifiedBy,
+            note: selectedContract.note,
+            seller: selectedContract.seller,
+        } as Record<string, string>);
+        const queryString = params.toString();
+        window.open(`${paths.report}?${queryString}`, '_blank');
+    }
+
 
     const statusMap: { [key: number]: string } = {
         0: "Bỏ qua",
@@ -222,7 +259,7 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                                 },
                             }}
                         >
-                            <MenuItem onClick={handleCloseBB}>
+                            <MenuItem onClick={onPreviewReport}>
                                 <Iconify icon="mdi:file-document-edit" style={{ marginRight: 8 }} />
                                 BB nghiệm thu
                             </MenuItem>

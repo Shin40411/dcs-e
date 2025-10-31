@@ -13,14 +13,16 @@ export function RenderCellReceipt({ params }: ParamsProps) {
         <Box sx={{ py: 2, gap: 2, width: 1, display: 'flex', alignItems: 'center' }}>
             <ListItemText
                 primary={params.row.receiptNo}
-                secondary={params.row.contractNo}
                 slotProps={{
                     primary: { noWrap: true },
-                    secondary: { sx: { color: 'text.disabled' } },
                 }}
             />
         </Box>
     );
+}
+
+export function RenderCellContractNo({ params }: ParamsProps) {
+    return params.row.contractNo;
 }
 
 export function RenderCellCreateDate({ params }: ParamsProps) {
@@ -68,16 +70,33 @@ export function RenderCellContractType({ params }: ParamsProps) {
 }
 
 export function RenderCellCompanyName({ params }: ParamsProps) {
-    return (<Box sx={{ py: 2, gap: 2, width: 1, display: 'flex', alignItems: 'center' }}>
-        <ListItemText
-            primary={params.row.companyName}
-            secondary={params.row.customerName}
-            slotProps={{
-                primary: { noWrap: true },
-                secondary: { sx: { color: 'text.disabled' } },
-            }}
-        />
-    </Box>);
+    return (
+        <Box sx={{ py: 2, gap: 2, width: 1, display: 'flex', alignItems: 'center' }}>
+            <ListItemText
+                primary={
+                    <Typography
+                        component="div"
+                        variant="body2"
+                        fontWeight={700}
+                        sx={{
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 3,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'normal',
+                        }}
+                    >
+                        {params.row.companyName || ''}
+                    </Typography>
+                }
+                secondary={params.row.customerName}
+                slotProps={{
+                    secondary: { sx: { color: 'text.disabled' } },
+                }}
+            />
+        </Box>
+    );
 }
 
 export function RenderPayer({ params }: ParamsProps) {

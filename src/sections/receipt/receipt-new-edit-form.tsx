@@ -1,43 +1,35 @@
-import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
-import { Iconify } from "src/components/iconify";
-import { CloseIcon } from "yet-another-react-lightbox";
-import { ContractReceiptSchema, ContractReceiptSchemaType } from "./schema/contract-receipt-schema";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Field, Form } from "src/components/hook-form";
-import { IContractItem, IReceiptContract, IReceiptContractDto } from "src/types/contract";
-import { generateReceipt } from "src/utils/random-func";
-import { createReceiptContract, useGetReceiptContract } from "src/actions/contract";
+import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { use, useEffect, useState } from "react";
-import { mutate } from "swr";
+import { createReceiptContract, updateReceiptContract } from "src/actions/contract";
+import { Field, Form } from "src/components/hook-form";
+import { Iconify } from "src/components/iconify";
 import { paths } from "src/routes/paths";
-import { RouterLink } from "src/routes/components";
-import { useNavigate } from "react-router";
+import { IReceiptContract, IReceiptContractDto } from "src/types/contract";
 import { fDate } from "src/utils/format-time-vi";
+import { generateReceipt } from "src/utils/random-func";
+import { mutate } from "swr";
+import { CloseIcon } from "yet-another-react-lightbox";
+import { ContractReceiptSchema, ContractReceiptSchemaType } from "../contract/schema/contract-receipt-schema";
+import { useNavigate } from "react-router";
 
-interface FileDialogProps {
-    selectedContract: IContractItem;
+interface FormDialogProps {
+    selectedReceipt: IReceiptContract | null;
     open: boolean;
     onClose: () => void;
 }
 
-export function ContractReceipt({ selectedContract, open, onClose }: FileDialogProps) {
+export function ReceiptNewEditForm({ selectedReceipt, open, onClose }: FormDialogProps) {
     const today = new Date();
-    const { pagination: { totalRecord } } = useGetReceiptContract({
-        pageNumber: 1,
-        pageSize: 999,
-        ContractNo: selectedContract.contractNo,
-        enabled: open,
-    });
+    const navigate = useNavigate();
 
     const [watchTicket, setWatchTicket] = useState(true);
 
-    const [receiptNo, setReceiptNo] = useState<string>('');
-
     const defaultValues: ContractReceiptSchemaType = {
-        companyName: selectedContract.companyName ?? "",
-        customerName: selectedContract.customerName ?? "",
+        companyName: selectedReceipt?.companyName ?? "",
+        customerName: selectedReceipt?.customerName ?? "",
         amount: 0,
         receiptNo: '',
         date: today.toISOString(),
@@ -52,9 +44,16 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
     });
 
     useEffect(() => {
-        methods.setValue('receiptNo', generateReceipt('PT', selectedContract.contractNo, totalRecord));
-        setReceiptNo(generateReceipt('PT', selectedContract.contractNo, totalRecord));
-    }, [totalRecord, setReceiptNo]);
+        if (!selectedReceipt) return;
+        methods.setValue('companyName', selectedReceipt.companyName);
+        methods.setValue('customerName', selectedReceipt.customerName);
+        methods.setValue('address', selectedReceipt.address);
+        methods.setValue('amount', selectedReceipt.amount);
+        methods.setValue('date', selectedReceipt.date);
+        methods.setValue('payer', selectedReceipt.payer);
+        methods.setValue('reason', selectedReceipt.reason);
+        methods.setValue('receiptNo', selectedReceipt.receiptNo);
+    }, [selectedReceipt, methods.reset]);
 
     const {
         reset,
@@ -66,9 +65,11 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
 
     const onSubmit = handleSubmit(async (data) => {
         try {
+            if (!selectedReceipt) return;
+
             const payload: IReceiptContractDto = {
                 receiptNo: data.receiptNo || "",
-                contractNo: selectedContract.contractNo,
+                contractNo: selectedReceipt?.contractNo || "",
                 date: data.date,
                 receiptType: "Collect",
                 amount: data.amount,
@@ -81,9 +82,9 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 reason: data.reason || "",
             };
 
-            await createReceiptContract(payload);
+            await updateReceiptContract(payload, selectedReceipt.receiptId);
 
-            toast.success("Tạo phiếu thu thành công!");
+            toast.success("Dữ liệu phiếu thu đã được thay đổi!");
             reset();
             mutate(
                 (k) => typeof k === "string" && k.startsWith("/api/v1/contract-receipts/get-receipts"),
@@ -93,7 +94,7 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error("Tạo phiếu thu thất bại!");
+            toast.error("Đã có lỗi xảy ra!");
         }
     });
 
@@ -109,8 +110,6 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
     useEffect(() => {
         if (companyName && customerName && date && receiptNoToWatch && amount && payer) {
             setWatchTicket(false);
-        } else {
-            setWatchTicket(true);
         }
     }, [companyName, customerName, date, receiptNoToWatch, amount, payer]);
 
@@ -122,10 +121,10 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
             receiptNoToWatch,
             amount: String(amount),
             payer,
-            contractNo: selectedContract.contractNo,
+            contractNo: selectedReceipt?.contractNo || "",
             reason,
             address,
-            createdBy: selectedContract.seller
+            createdBy: selectedReceipt?.createdBy
         } as Record<string, string>);
         const queryString = params.toString();
         window.open(`${paths.receipt}?${queryString}`, '_blank');
@@ -137,7 +136,6 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 <Field.Text
                     name="companyName"
                     label="Tên công ty"
-                    helperText="Nhập tên công ty"
                     required
                     sx={{
                         flex: 1.5,
@@ -175,20 +173,14 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <Field.Text name="payer" label="Tên người nộp" required helperText="Nhập tên người nộp" sx={{ flex: 1.5 }} />
-                <TextField defaultValue={selectedContract.seller} label="Tên nhân viên" disabled
-                    sx={{
-                        flex: 1,
-                        '& .MuiInputBase-root.Mui-disabled': {
-                            backgroundColor: '#ddd',
-                        },
-                    }} />
+                <Field.Text
+                    name="address"
+                    label="Địa chỉ"
+                    helperText="Nhập địa chỉ người nộp tiền"
+                    sx={{ flex: 1.5 }}
+                />
+                <Field.Text name="payer" label="Tên người nộp" required helperText="Nhập tên người nộp" sx={{ flex: 1 }} />
             </Stack>
-            <Field.Text
-                name="address"
-                label="Địa chỉ"
-                helperText="Nhập địa chỉ người nộp tiền"
-            />
             <Field.Text
                 name="reason"
                 label="Lý do nộp"
@@ -225,15 +217,6 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 >
                     Xem phiếu
                 </Button>
-                {/* <Button
-                    type="button"
-                    variant="contained"
-                    sx={{ ml: 1 }}
-                    disabled={isSubmitting}
-                    fullWidth
-                >
-                    {'In phiếu'}
-                </Button> */}
                 <Button
                     variant="outlined"
                     color="inherit"
@@ -269,12 +252,12 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
             >
                 <Box display="flex" alignItems="center" gap={1}>
                     <Iconify icon="ph:file-x-bold" width={24} />
-                    <Typography fontWeight={700} textTransform="uppercase">Phiếu thu</Typography>
+                    <Typography fontWeight={700} textTransform="uppercase">Chỉnh sửa phiếu thu</Typography>
                 </Box>
                 <TextField
                     disabled
                     id="contractNo-disabled"
-                    value={receiptNo}
+                    value={selectedReceipt?.receiptNo}
                     sx={{ width: 400 }}
                 />
                 <IconButton onClick={onClose}>

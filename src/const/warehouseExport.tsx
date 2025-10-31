@@ -3,7 +3,7 @@ import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { UseBooleanReturn } from "minimal-shared/hooks";
 import { useState } from "react";
 import { Iconify } from "src/components/iconify";
-import { RenderCellAmount, RenderCellCompanyName, RenderCellContractNo, RenderCellContractType, RenderCellCreateDate, RenderCellReceipt, RenderNote, RenderPayer, RenderReason } from "src/sections/receipt/receipt-table-row";
+import { RenderCellCompanyName, RenderCellContractExport, RenderCellWarehouseExport, RenderCreatedBy, RenderReason, RenderReciverAddress, RenderReciverName, RenderReciverPhone } from "src/sections/warehouse-export/warehouse-export-table-row";
 
 type ColumnProps = {
     openDetailsForm?: UseBooleanReturn;
@@ -15,7 +15,7 @@ type ColumnProps = {
     rowsPerPage: number;
 }
 
-export const RECEIPT_COLUMNS: ({
+export const WAREHOUSE_EXPORT_COLUMNS: ({
     openDetailsForm,
     openCrudForm,
     confirmDelRowDialog,
@@ -46,8 +46,8 @@ export const RECEIPT_COLUMNS: ({
                 },
             },
             {
-                field: 'companyName',
-                headerName: 'Tên công ty',
+                field: 'warehouseExportNo',
+                headerName: 'Số phiếu xuất kho',
                 width: 300,
                 renderCell: (params) => {
                     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -60,7 +60,7 @@ export const RECEIPT_COLUMNS: ({
                     return (
                         <Box sx={{ display: 'flex', alignItems: 'center', width: 1 }}>
                             <Box sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={handleOpen}>
-                                <RenderCellCompanyName params={params} />
+                                <RenderCellWarehouseExport params={params} />
                             </Box>
 
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
@@ -82,7 +82,6 @@ export const RECEIPT_COLUMNS: ({
                                     onClick={() => {
                                         confirmDelRowDialog.onTrue();
                                         setRowIdSelected(params.row.id);
-                                        setTableRowSelected(params.row);
                                         handleClose();
                                     }}
                                 >
@@ -97,67 +96,51 @@ export const RECEIPT_COLUMNS: ({
                 },
             },
             {
-                field: 'receiptNo',
-                headerName: 'Số phiếu thu',
+                field: 'contractNo',
+                headerName: 'Số Hợp đồng',
                 width: 300,
                 renderCell: (params) => (
-                    <RenderCellReceipt params={params} />
+                    <RenderCellContractExport params={params} />
                 )
             },
             {
-                field: 'contractNo',
-                headerName: 'Số hợp đồng',
-                width: 300,
-                renderCell: (params) => (
-                    <RenderCellContractNo params={params} />
-                ),
-            },
-            {
-                field: 'payer',
-                headerName: 'Người nộp',
+                field: 'reciverName',
+                headerName: 'Tên người nhận',
                 width: 200,
                 renderCell: (params) => (
-                    <RenderPayer params={params} />
+                    <RenderReciverName params={params} />
                 ),
             },
             {
-                field: 'date',
-                headerName: 'Ngày nộp',
+                field: 'reciverPhone',
+                headerName: 'Số điện thoại người nhận',
                 width: 200,
                 renderCell: (params) => (
-                    <RenderCellCreateDate params={params} />
+                    <RenderReciverPhone params={params} />
                 ),
             },
             {
-                field: 'reason',
-                headerName: 'Lý do nộp',
-                width: 300,
+                field: 'reciverAddress',
+                headerName: 'Địa chỉ nhận hàng',
+                width: 280,
                 renderCell: (params) => (
-                    <RenderReason params={params} />
+                    <RenderReciverAddress params={params} />
                 ),
             },
             {
-                field: 'amount',
-                headerName: 'Số tiền nộp',
+                field: 'createdBy',
+                headerName: 'Tên người lập phiếu',
                 width: 200,
                 renderCell: (params) => (
-                    <RenderCellAmount params={params} />
-                ),
-            },
-            {
-                field: 'contractType',
-                headerName: 'Loại hợp đồng',
-                width: 150,
-                renderCell: (params) => (
-                    <RenderCellContractType params={params} />
+                    <RenderCreatedBy params={params} />
                 ),
             },
             {
                 field: 'note',
-                headerName: 'Ghi chú',
-                width: 300,
+                headerName: 'Lý do',
+                width: 200,
                 renderCell: (params) => (
-                    <RenderNote params={params} />
+                    <RenderReason params={params} />
                 ),
             },
             {
@@ -189,13 +172,9 @@ export const RECEIPT_COLUMNS: ({
                         showInMenu
                         icon={<Iconify icon="solar:trash-bin-trash-bold" />}
                         label="Xóa"
-                        onClick={() => {
-                            confirmDelRowDialog.onTrue();
-                            setRowIdSelected(params.row.id);
-                            setTableRowSelected(params.row);
-                        }}
+                        onClick={() => { confirmDelRowDialog.onTrue(); setRowIdSelected(params.row.id) }}
                         sx={{ color: 'error.main' }}
                     />,
                 ],
             },
-        ];
+        ]

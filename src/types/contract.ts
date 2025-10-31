@@ -53,6 +53,21 @@ export type IContractProduct = {
     total: number;
     exported: number;
     remaining: number;
+    warranty: number;
+};
+
+export type IContractRemainingProduct = {
+    productID: number;
+    name: string;
+    price: number;
+    quantity: number;
+    productUnitID: number;
+    productUnitName: string;
+    total: number;
+    vat: number;
+    warranty: number;
+    exported: number;
+    remaining: number;
 };
 
 export type IContractDetails = {
@@ -206,6 +221,7 @@ export type IReceiptContract = {
     address: string,
     payer: string,
     reason?: string,
+    createdBy: string,
 }
 
 export type ResContractReceipt = {
@@ -227,4 +243,40 @@ export type IContractReceiptItem = {
     totalCollect: number;
     totalSpend: number;
     receipts: IReceiptContract[];
+}
+
+export type ResRemainingProduct = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: IContractRemainingProduct[];
+    };
+}
+
+export type IWarehouseExportProduct = {
+    id: number;
+    productID: number;
+    productName: string;
+    unitProductName: string;
+    unitProductID: number;
+    price: number;
+    quantity: number;
+    vat: number;
+    total: number;
+};
+
+export type ResDetailsWarehouseExportProduct = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: IWarehouseExportProduct[];
+    };
 }

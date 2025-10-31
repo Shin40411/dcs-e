@@ -86,8 +86,11 @@ export const useStylesTicket = StyleSheet.create({
     },
     signatureBox: {
         textAlign: "center",
-        height: '100px',
+        height: '150px',
         width: "20%",
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between'
     },
     signatureLabel: {
         fontSize: 12,

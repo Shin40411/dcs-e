@@ -2,6 +2,7 @@ import {
     Fragment,
 } from "react";
 import { Text, View } from "@react-pdf/renderer";
+import { formatPhoneNumber } from "src/utils/format-string";
 
 type props = {
     customerAddress?: string;
@@ -34,7 +35,7 @@ export const renderTwoSides = ({
 
     const ASideRight = [
         customerAddress ? customerAddress : '',
-        customerPhone,
+        formatPhoneNumber(customerPhone || ''),
         customerName,
         customerTaxCode,
         customerBankNo ? `${customerBankNo}, tại Ngân hàng ${customerBank}` : ''

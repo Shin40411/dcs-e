@@ -1,4 +1,4 @@
-import { IContractDetails } from "src/types/contract";
+import { IContractDetails, IContractProduct, IContractRemainingProduct } from "src/types/contract";
 import { ContractFormValues } from "../schema/contract-schema";
 import { FieldArrayWithId, UseFieldArrayRemove, UseFormReturn } from "react-hook-form";
 import { UseBooleanReturn } from "minimal-shared/hooks";
@@ -15,13 +15,9 @@ export type ContractItemsTableProps = {
 };
 
 export type ContractWareHouseTableProps = {
-    idContract: number | undefined;
-    contractProductDetail: IContractDetails | undefined;
-    methods: UseFormReturn<ContractWareHouseSchemaType>;
-    fields: any[];
-    remove: UseFieldArrayRemove;
-    append: (value: any) => void;
-    setPaid: (value: any) => void;
+    remainingProductEmpty: boolean;
+    remainingProductLoading: boolean;
+    remainingProduct: IContractRemainingProduct[];
 };
 
 export type ContractItemsTableContentProps = {
@@ -36,5 +32,4 @@ export type ContractItemsTableContentProps = {
     openDel: UseBooleanReturn;
     setProductIDSelected: (id: string) => void;
     setIndexField: (i: number) => void;
-    disabledAddMore?: boolean;
 };

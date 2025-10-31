@@ -4,7 +4,6 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions,
     Button,
     Stack,
     Typography,
@@ -22,7 +21,7 @@ import { useGetCustomers } from "src/actions/customer";
 import { useDebounce } from "minimal-shared/hooks";
 import { useEffect, useState } from "react";
 import { ICustomerItem } from "src/types/customer";
-import { IProductFormEdit, IProductQuotationEdit, IQuotationDao, IQuotationDetailDto, IQuotationDetails, IQuotationDto, IQuotationItem } from "src/types/quotation";
+import { IProductFormEdit, IQuotationDao, IQuotationDetailDto, IQuotationDetails, IQuotationDto, IQuotationItem } from "src/types/quotation";
 import { QuotationItemsTable } from "./quotation-product-table";
 import { QuotationFormValues, quotationSchema } from "./schema/quotation-schema";
 import { addMoreProducts, createOrUpdateQuotation, editProductForm, useGetQuotation } from "src/actions/quotation";
@@ -35,6 +34,7 @@ import { useAuthContext } from "src/auth/hooks";
 import { mapProductsToItems } from "./helper/mapProductsToItems";
 import { DetailItem } from "./helper/DetailItem";
 import { editAllQuotationDetails } from "./helper/mapQuotationProduct";
+import { renderSkeleton } from "src/components/skeleton/skeleton-quotation-contract";
 
 export type QuotationFormProps = {
     selectedQuotation: IQuotationItem | null;
@@ -71,7 +71,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
 
     const [quotationProductDetail, setQuotationProductDetail] = useState<IQuotationDetails>();
 
-    const { quotation: CurrentQuotation } = useGetQuotation({
+    const { quotation: CurrentQuotation, quotationLoading } = useGetQuotation({
         quotationId: quotationId,
         pageNumber: 1,
         pageSize: 999,
@@ -325,10 +325,10 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     });
 
     const renderLeftColumn = () => (
-        <Stack width={{ xs: "100%", sm: "100%", md: "30%" }} spacing={3}>
+        <Stack width={{ xs: "100%", sm: "100%", md: "100%", lg: "30%" }} spacing={3}>
             {/* Section Thông tin khách hàng */}
             <Box>
-                <Stack direction={{ xs: "column", md: "row" }} gap={2} justifyContent="space-between">
+                <Stack direction={{ xs: "column", md: "column", lg: "column", xl: "row" }} gap={2} justifyContent="space-between">
                     <Typography variant="subtitle2">Thông tin khách hàng</Typography>
                     <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
                         <Field.Autocomplete
@@ -472,10 +472,13 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                         )}
                     />
                 </Stack>
-                <Stack spacing={1.5} mt={2}>
+                <Stack spacing={1.5} my={2}>
                     <Typography variant="subtitle2">Ghi chú</Typography>
                     <Field.Editor
                         name="notes"
+                        sx={{
+                            height: { xs: 'auto', sm: 'auto', md: 'auto', lg: 'auto', xl: 330 }
+                        }}
                     />
                 </Stack>
                 <Field.VNCurrencyInput name="paid" label="Số tiền tạm ứng" required sx={{ mt: 2, maxWidth: 200, display: 'none' }} />
@@ -484,7 +487,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     );
 
     const renderDetails = () => (
-        <Stack direction={{ xs: "column", sm: "column", md: "row", lg: "row", xl: "row" }} spacing={3} sx={{ mt: 1 }}>
+        <Stack direction={{ xs: "column", sm: "column", md: "column", lg: "row", xl: "row" }} height="100%" spacing={3} sx={{ mt: 1 }}>
             {renderLeftColumn()}
             <Divider
                 flexItem
@@ -513,44 +516,31 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
     );
 
     const renderActions = () => (
-        <DialogActions
-            sx={{
-                position: "fixed",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                bgcolor: "background.paper",
-                borderTop: "1px solid",
-                borderColor: "divider",
-                p: 2,
-                gap: 2,
-                zIndex: 9
-            }}
-        >
+        <Box display="flex" flexDirection="row" gap={2}>
             <Button
                 variant="outlined"
                 color="inherit"
-                size="large"
-                sx={{ flex: 1, py: 1.5 }}
+                size="medium"
+                sx={{ flex: 1 }}
                 onClick={() => {
                     onClose();
                     reset(defaultValues);
                 }}
-                loading={isSubmitting}
+                disabled={isSubmitting}
             >
                 Hủy
             </Button>
             <Button
                 type="submit"
                 variant="contained"
-                size="large"
-                sx={{ flex: 1, py: 1.5 }}
+                size="medium"
+                sx={{ flex: 1, whiteSpace: 'nowrap', px: 3 }}
                 disabled={isCreatingCustomer}
                 loading={isSubmitting}
             >
                 {selectedQuotation ? `Lưu báo giá` : 'Tạo báo giá'}
             </Button>
-        </DialogActions>
+        </Box>
     );
 
     return (
@@ -563,41 +553,30 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 }
             }
             fullScreen>
-            <DialogTitle
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                    py: 2,
-                    px: 3,
-                }}
-            >
-                {selectedQuotation ? `Chỉnh sửa - ${selectedQuotation.quotationNo}` : 'Tạo báo giá'}
-                <IconButton
-                    edge="end"
-                    color="inherit"
-                    onClick={onClose}
+            <Form methods={methods} onSubmit={onSubmit} style={{ height: '100%' }}>
+                <DialogTitle
                     sx={{
-                        ml: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        borderBottom: "1px solid",
+                        borderColor: "divider",
+                        py: 2,
+                        px: 3,
                     }}
                 >
-                    <Iconify icon="eva:close-fill" />
-                </IconButton>
-            </DialogTitle>
-            <Form methods={methods} onSubmit={onSubmit}>
+                    {selectedQuotation ? `Chỉnh sửa - ${selectedQuotation.quotationNo}` : 'Tạo báo giá'}
+                    {renderActions()}
+                </DialogTitle>
                 <DialogContent
                     sx={{
-                        pb: 10,
-                        pt: 3,
-                        maxHeight: "calc(100vh - 120px)",
+                        pb: 0,
+                        pt: '10px !important',
                         overflowY: "auto",
                     }}
                 >
-                    {renderDetails()}
+                    {quotationLoading ? renderSkeleton() : renderDetails()}
                 </DialogContent>
-                {renderActions()}
             </Form>
             <QuotationCustomerForm
                 openChild={isCreatingCustomer}
