@@ -19,9 +19,10 @@ interface FormDialogProps {
     selectedReceipt: IReceiptContract | null;
     open: boolean;
     onClose: () => void;
+    mutation: () => void;
 }
 
-export function ReceiptNewEditForm({ selectedReceipt, open, onClose }: FormDialogProps) {
+export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }: FormDialogProps) {
     const today = new Date();
     const navigate = useNavigate();
 
@@ -86,11 +87,7 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose }: FormDialo
 
             toast.success("Dữ liệu phiếu thu đã được thay đổi!");
             reset();
-            mutate(
-                (k) => typeof k === "string" && k.startsWith("/api/v1/contract-receipts/get-receipts"),
-                undefined,
-                { revalidate: true }
-            );
+            mutation();
             onClose();
         } catch (error: any) {
             console.error(error);

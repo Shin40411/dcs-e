@@ -1,11 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, Stack } from "@mui/material";
-import { useEffect } from "react";
+import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, MenuItem, Stack, Typography } from "@mui/material";
+import { useDebounce } from "minimal-shared/hooks";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { createOrUpdateBankAccount } from "src/actions/bankAccount";
+import { createOrUpdateBankAccount, useGetCallVietQrData } from "src/actions/bankAccount";
 import { Field, Form } from "src/components/hook-form";
-import { IBankAccountDto, IBankAccountItem } from "src/types/bankAccount";
+import { Image } from "src/components/image";
+import { BankQrItem, IBankAccountDto, IBankAccountItem } from "src/types/bankAccount";
 import { mutate } from "swr";
 import { z as zod } from 'zod';
 
@@ -17,8 +19,11 @@ type Props = {
 };
 
 export const NewBankingSchema = zod.object({
-    name: zod.string().min(1, "Tên tài khoản là trường bắt buộc"),
-    bankNo: zod.string().min(5, "Số tài khoản không hợp lệ"),
+    name: zod.string().min(1, "Tên tài khoản là trường bắt buộc").max(200, "Tên tài khoản vượt quá giới hạn cho phép"),
+    bankNo: zod.string()
+        .min(6, "Số tài khoản không hợp lệ")
+        .max(15, "Số tài khoản vượt quá giới hạn cho phép (Giới hạn 15 ký tự)")
+        .regex(/^[0-9]+$/, "Số tài khoản chỉ được chứa số"),
     bank: zod.string().min(1, "Tên ngân hàng là trường bắt buộc"),
     balance: zod.number({ coerce: true })
         .nonnegative({ message: "Số dư không được âm" })
@@ -29,9 +34,21 @@ export const NewBankingSchema = zod.object({
 export type NewBankingSchemaType = zod.infer<typeof NewBankingSchema>;
 
 export function BankingNewEditForm({ currentBankingAccount, open, onClose, selectedId }: Props) {
+    const [qrBankKeyword, setQrBankKeyword] = useState('');
+    const debouncedqrBankKw = useDebounce(qrBankKeyword, 300);
+
+    const { vietQrItem, vietQrItemLoading, vietQrItemEmpty } = useGetCallVietQrData({
+        pageNumber: 1,
+        pageSize: 20,
+        key: debouncedqrBankKw,
+        enabled: open || !!currentBankingAccount
+    });
+
+    const [selectedQrBank, setSelectedQrBank] = useState<BankQrItem | null>(null);
+
     const defaultValues: NewBankingSchemaType = {
         name: "",
-        bankNo: "",
+        bankNo: "0",
         bank: "",
         balance: 0,
     };
@@ -51,17 +68,29 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
 
     useEffect(() => {
         if (currentBankingAccount) {
-            methods.reset({
-                ...defaultValues,
-                name: currentBankingAccount.name ?? '',
-                bankNo: currentBankingAccount.bankNo ?? '',
-                bank: currentBankingAccount.bankName ?? '',
-                balance: currentBankingAccount.balance ?? 0,
-            });
+            methods.setValue("name", currentBankingAccount.name ?? '');
+            methods.setValue("bankNo", currentBankingAccount.bankNo ?? '');
+            methods.setValue("bank", currentBankingAccount.bankName ?? '');
+            methods.setValue("balance", currentBankingAccount.balance ?? 0);
         } else {
             methods.reset(defaultValues);
         }
     }, [currentBankingAccount, methods.reset]);
+
+    const bankFromVietQr = methods.watch('bank');
+
+    useEffect(() => {
+        if (!vietQrItem.length) return;
+
+        const found = vietQrItem.find((b) => b.shortName === bankFromVietQr);
+        setSelectedQrBank(found ?? null);
+    }, [bankFromVietQr, vietQrItem.length]);
+
+    const onBankClose = () => {
+        onClose();
+        setSelectedQrBank(null);
+        setQrBankKeyword('');
+    }
 
     const {
         reset,
@@ -87,6 +116,7 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
                 undefined,
                 { revalidate: true }
             );
+
             toast.success(currentBankingAccount ? 'Dữ liệu tài khoản ngân hàng đã được thay đổi!' : 'Tạo mới dữ liệu tài khoản ngân hàng thành công!');
             onClose();
             reset();
@@ -119,11 +149,34 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
                 />
             </Stack>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                <Field.Text
+                <Field.Autocomplete
                     name="bank"
-                    label="Tên ngân hàng"
-                    helperText="Nhập tên ngân hàng"
-                    required
+                    label={`Chọn ngân hàng`}
+                    options={vietQrItem}
+                    loading={vietQrItemLoading}
+                    getOptionLabel={(opt) => opt?.shortName || ''}
+                    isOptionEqualToValue={(opt, val) => opt?.shortName === val?.shortName}
+                    onInputChange={(_, value) => setQrBankKeyword(value)}
+                    value={selectedQrBank}
+                    fullWidth
+                    onChange={(_, newValue) => {
+                        methods.setValue('bank', newValue?.shortName ?? '', { shouldValidate: true });
+                        setQrBankKeyword(newValue?.shortName ?? '');
+                    }}
+                    noOptionsText="Không có dữ liệu"
+                    renderOption={(props, option) => (
+                        <MenuItem {...props} key={option.shortName} sx={{ display: 'flex', flex: '1 1' }}>
+                            <Box width={100} mr={5}>
+                                <Image
+                                    src={option.logo} alt={option.name}
+                                    sx={{ objectFit: 'cover' }}
+                                />
+                            </Box>
+                            <Typography variant="body2" fontWeight={600}>
+                                {option.shortName ? option.shortName : ""}
+                            </Typography>
+                        </MenuItem>
+                    )}
                 />
                 <Field.VNCurrencyInput
                     name="balance"
@@ -139,7 +192,7 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={onClose}
+                    onClick={onBankClose}
                     fullWidth
                 >
                     Hủy bỏ
@@ -157,7 +210,7 @@ export function BankingNewEditForm({ currentBankingAccount, open, onClose, selec
         </Box>
     );
     return (
-        <Dialog open={open} onClose={onClose} fullWidth scroll={'paper'}>
+        <Dialog open={open} onClose={onBankClose} fullWidth scroll={'paper'} maxWidth={"md"}>
             <DialogTitle>
                 {currentBankingAccount ? 'Chỉnh sửa tài khoản ngân hàng' : 'Tạo tài khoản ngân hàng'}
             </DialogTitle>

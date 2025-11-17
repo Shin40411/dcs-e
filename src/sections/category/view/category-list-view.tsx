@@ -18,6 +18,8 @@ import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { CONFIG } from "src/global-config";
 import { CategoryBin } from "../category-bin";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { RoleBasedGuard } from "src/auth/guard";
 // ----------------------------------------------------------------------
 
 export function CategoryListView() {
@@ -30,6 +32,8 @@ export function CategoryListView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+
+    const { permission } = useCheckPermission(['NHOMSANPHAM.VIEW']);
 
     const { categories, categoriesLoading, pagination } = useGetCategories({
         pageNumber: page + 1,
@@ -155,7 +159,12 @@ export function CategoryListView() {
     );
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['NHOMSANPHAM.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Nhóm sản phẩm"
@@ -200,6 +209,6 @@ export function CategoryListView() {
             {renderConfirmDeleteRow()}
             {renderDetails()}
             {renderBin()}
-        </>
+        </RoleBasedGuard>
     );
 }

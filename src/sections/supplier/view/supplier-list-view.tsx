@@ -18,6 +18,8 @@ import { endpoints } from "src/lib/axios"
 import { toast } from "sonner"
 import { CONFIG } from "src/global-config"
 import { SupplierBin } from "../supplier-bin"
+import { RoleBasedGuard } from "src/auth/guard"
+import { useCheckPermission } from "src/auth/hooks/use-check-permission"
 
 export function SuppliersListView() {
     const openCrudForm = useBoolean();
@@ -28,7 +30,9 @@ export function SuppliersListView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
-    const { suppliers, pagination, suppliersLoading } = useGetSuppliers({
+    const { permission } = useCheckPermission(['NHACUNGCAP.VIEW']);
+
+    const { suppliers, pagination, suppliersLoading, mutation } = useGetSuppliers({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -110,11 +114,17 @@ export function SuppliersListView() {
         <SupplierBin
             open={openBin.value}
             onClose={openBin.onFalse}
+            listMutation={mutation}
         />
     );
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['NHACUNGCAP.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Nhà cung cấp"
@@ -165,6 +175,6 @@ export function SuppliersListView() {
                 {renderConfirmDeleteRow()}
                 {renderBin()}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

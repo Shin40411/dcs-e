@@ -19,12 +19,7 @@ import { paths } from '../paths';
 
 // Overview
 const IndexPage = lazy(() => import('src/pages/dashboard'));
-const OverviewEcommercePage = lazy(() => import('src/pages/dashboard/ecommerce'));
-const OverviewAnalyticsPage = lazy(() => import('src/pages/dashboard/analytics'));
 const OverviewBankingPage = lazy(() => import('src/pages/dashboard/banking'));
-const OverviewBookingPage = lazy(() => import('src/pages/dashboard/booking'));
-const OverviewFilePage = lazy(() => import('src/pages/dashboard/file'));
-const OverviewCoursePage = lazy(() => import('src/pages/dashboard/course'));
 // Product
 const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
@@ -38,18 +33,16 @@ const CustomerPage = lazy(() => import('src/pages/dashboard/customer/list'));
 const SuppliersPage = lazy(() => import('src/pages/dashboard/suppliers/list'));
 // Employees
 const EmployeesPage = lazy(() => import('src/pages/dashboard/employee/list'));
-// Customer services
+// Quotation
 const QuotationPage = lazy(() => import('src/pages/dashboard/quotation/list'));
+// Booked ticket
+const OrderPage = lazy(() => import('src/pages/dashboard/booked-ticket/list'));
 //Contract
 const ContractPage = lazy(() => import('src/pages/dashboard/contract/list'));
+//Contract supplier
+const ContractSupplierPage = lazy(() => import('src/pages/dashboard/contractSupplier/list'));
 // Order
-const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
-const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
 // Invoice
-const InvoiceListPage = lazy(() => import('src/pages/dashboard/invoice/list'));
-const InvoiceDetailsPage = lazy(() => import('src/pages/dashboard/invoice/details'));
-const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
-const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 // User
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
@@ -81,24 +74,16 @@ const TourDetailsPage = lazy(() => import('src/pages/dashboard/tour/details'));
 const TourListPage = lazy(() => import('src/pages/dashboard/tour/list'));
 const TourCreatePage = lazy(() => import('src/pages/dashboard/tour/new'));
 const TourEditPage = lazy(() => import('src/pages/dashboard/tour/edit'));
-// File manager
-const FileManagerPage = lazy(() => import('src/pages/dashboard/file-manager'));
-// App
-const ChatPage = lazy(() => import('src/pages/dashboard/chat'));
-const MailPage = lazy(() => import('src/pages/dashboard/mail'));
-const CalendarPage = lazy(() => import('src/pages/dashboard/calendar'));
-const KanbanPage = lazy(() => import('src/pages/dashboard/kanban'));
 // Test render page by role
-const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission'));
-// Blank page
-const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
-const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
+const PermissionPage = lazy(() => import('src/pages/dashboard/permission'));
 // Settings page
 const UnitListPage = lazy(() => import('src/pages/dashboard/unit/list'));
 const EmployeeTypeListPage = lazy(() => import('src/pages/dashboard/employeeType/list'));
 const DepartmentListPage = lazy(() => import('src/pages/dashboard/department/list'));
 // Receipt page
 const ReceiptPage = lazy(() => import('src/pages/dashboard/receipt/list'));
+// Spend page
+const SpendPage = lazy(() => import('src/pages/dashboard/spend/list'));
 // Warehouse Export page
 const WarehouseExportPage = lazy(() => import('src/pages/dashboard/warehouse-export/list'));
 
@@ -131,34 +116,29 @@ export const dashboardRoutes: RouteObject[] = [
     element: CONFIG.auth.skip ? dashboardLayout() : <AuthGuard>{dashboardLayout()}</AuthGuard>,
     children: [
       { index: true, element: <IndexPage /> },
-      { path: 'ecommerce', element: <OverviewEcommercePage /> },
-      { path: 'analytics', element: <OverviewAnalyticsPage /> },
       { path: 'banking', element: <OverviewBankingPage /> },
-      { path: 'booking', element: <OverviewBookingPage /> },
-      { path: 'file', element: <OverviewFilePage /> },
-      { path: 'course', element: <OverviewCoursePage /> },
-      {
-        path: 'user',
-        children: [
-          { index: true, element: <UserProfilePage /> },
-          { path: 'profile', element: <UserProfilePage /> },
-          { path: 'cards', element: <UserCardsPage /> },
-          { path: 'list', element: <UserListPage /> },
-          { path: 'new', element: <UserCreatePage /> },
-          { path: ':id/edit', element: <UserEditPage /> },
-          {
-            path: 'account',
-            element: accountLayout(),
-            children: [
-              { index: true, element: <AccountGeneralPage /> },
-              { path: 'billing', element: <AccountBillingPage /> },
-              { path: 'notifications', element: <AccountNotificationsPage /> },
-              { path: 'socials', element: <AccountSocialsPage /> },
-              { path: 'change-password', element: <AccountChangePasswordPage /> },
-            ],
-          },
-        ],
-      },
+      // {
+      //   path: 'user',
+      //   children: [
+      //     { index: true, element: <UserProfilePage /> },
+      //     { path: 'profile', element: <UserProfilePage /> },
+      //     { path: 'cards', element: <UserCardsPage /> },
+      //     { path: 'list', element: <UserListPage /> },
+      //     { path: 'new', element: <UserCreatePage /> },
+      //     { path: ':id/edit', element: <UserEditPage /> },
+      //     {
+      //       path: 'account',
+      //       element: accountLayout(),
+      //       children: [
+      //         { index: true, element: <AccountGeneralPage /> },
+      //         { path: 'billing', element: <AccountBillingPage /> },
+      //         { path: 'notifications', element: <AccountNotificationsPage /> },
+      //         { path: 'socials', element: <AccountSocialsPage /> },
+      //         { path: 'change-password', element: <AccountChangePasswordPage /> },
+      //       ],
+      //     },
+      //   ],
+      // },
       {
         path: 'product',
         children: [
@@ -174,6 +154,13 @@ export const dashboardRoutes: RouteObject[] = [
         children: [
           { index: true, element: <QuotationPage /> },
           { path: 'contract', element: <ContractPage /> },
+        ]
+      },
+      {
+        path: 'supplier-services',
+        children: [
+          { index: true, element: <OrderPage /> },
+          { path: 'contract-supplier', element: <ContractSupplierPage /> },
         ]
       },
       {
@@ -201,27 +188,15 @@ export const dashboardRoutes: RouteObject[] = [
         ],
       },
       {
-        path: 'order',
-        children: [
-          { index: true, element: <OrderListPage /> },
-          { path: 'list', element: <OrderListPage /> },
-          { path: ':id', element: <OrderDetailsPage /> },
-        ],
-      },
-      {
-        path: 'invoice',
-        children: [
-          { index: true, element: <InvoiceListPage /> },
-          { path: 'list', element: <InvoiceListPage /> },
-          { path: ':id', element: <InvoiceDetailsPage /> },
-          { path: ':id/edit', element: <InvoiceEditPage /> },
-          { path: 'new', element: <InvoiceCreatePage /> },
-        ],
-      },
-      {
         path: 'receipt',
         children: [
           { index: true, element: <ReceiptPage /> },
+        ]
+      },
+      {
+        path: 'spend',
+        children: [
+          { index: true, element: <SpendPage /> },
         ]
       },
       {
@@ -260,14 +235,7 @@ export const dashboardRoutes: RouteObject[] = [
           { path: ':id/edit', element: <TourEditPage /> },
         ],
       },
-      { path: 'file-manager', element: <FileManagerPage /> },
-      { path: 'mail', element: <MailPage /> },
-      { path: 'chat', element: <ChatPage /> },
-      { path: 'calendar', element: <CalendarPage /> },
-      { path: 'kanban', element: <KanbanPage /> },
-      { path: 'permission', element: <PermissionDeniedPage /> },
-      { path: 'params', element: <ParamsPage /> },
-      { path: 'blank', element: <BlankPage /> },
+      { path: 'permission', element: <PermissionPage /> },
       { path: 'unit', element: <UnitListPage /> },
       { path: 'employee-type', element: <EmployeeTypeListPage /> },
       { path: 'department', element: <DepartmentListPage /> },

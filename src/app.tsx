@@ -21,6 +21,7 @@ import { AuthProvider as Auth0AuthProvider } from 'src/auth/context/auth0';
 import { AuthProvider as AmplifyAuthProvider } from 'src/auth/context/amplify';
 import { AuthProvider as SupabaseAuthProvider } from 'src/auth/context/supabase';
 import { AuthProvider as FirebaseAuthProvider } from 'src/auth/context/firebase';
+import { PermissionProvider } from './auth/context/jwt/permission-provider';
 
 // ----------------------------------------------------------------------
 
@@ -43,25 +44,27 @@ export default function App({ children }: AppProps) {
   return (
     <I18nProvider>
       <AuthProvider>
-        <SettingsProvider defaultSettings={defaultSettings}>
-          <LocalizationProvider>
-            <ThemeProvider
-              modeStorageKey={themeConfig.modeStorageKey}
-              defaultMode={themeConfig.enableSystemMode ? 'system' : themeConfig.defaultMode}
-            >
-              <MotionLazy>
-                <CheckoutProvider>
-                  <Snackbar />
-                  <ProgressBar />
-                  <SettingsDrawer defaultSettings={defaultSettings} />
-                  {children}
-                </CheckoutProvider>
-              </MotionLazy>
-            </ThemeProvider>
-          </LocalizationProvider>
-        </SettingsProvider>
+        <PermissionProvider>
+          <SettingsProvider defaultSettings={defaultSettings}>
+            <LocalizationProvider>
+              <ThemeProvider
+                modeStorageKey={themeConfig.modeStorageKey}
+                defaultMode={themeConfig.enableSystemMode ? 'system' : themeConfig.defaultMode}
+              >
+                <MotionLazy>
+                  <CheckoutProvider>
+                    <Snackbar />
+                    <ProgressBar />
+                    <SettingsDrawer defaultSettings={defaultSettings} />
+                    {children}
+                  </CheckoutProvider>
+                </MotionLazy>
+              </ThemeProvider>
+            </LocalizationProvider>
+          </SettingsProvider>
+        </PermissionProvider>
       </AuthProvider>
-    </I18nProvider>
+    </I18nProvider >
   );
 }
 

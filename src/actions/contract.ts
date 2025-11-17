@@ -1,17 +1,17 @@
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContractDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt, ResDetailsWarehouseExportProduct, ResRemainingProduct } from "src/types/contract";
+import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContractDto, ReportDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt, ResDetailsWarehouseExportProduct, ResRemainingProduct, ResReportLiquidation } from "src/types/contract";
 import { IContractWarehouseExportDto, ResContractWarehouseExport } from "src/types/warehouseExport";
 import useSWR, { SWRConfiguration } from "swr";
 
-type quotationProps = {
-    pageNumber: number,
-    pageSize: number,
-    key?: string,
-    enabled?: boolean,
-    fromDate: IDateValue,
-    toDate: IDateValue,
+type contracProps = {
+    pageNumber: number;
+    pageSize: number;
+    key?: string;
+    enabled?: boolean;
+    fromDate: IDateValue;
+    toDate: IDateValue;
 }
 
 const swrOptions: SWRConfiguration = {
@@ -20,7 +20,7 @@ const swrOptions: SWRConfiguration = {
     revalidateOnReconnect: false,
 };
 
-export function useGetContracts({ pageNumber, pageSize, key, enabled = true, fromDate, toDate }: quotationProps) {
+export function useGetContracts({ pageNumber, pageSize, key, enabled = true, fromDate, toDate }: contracProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
@@ -91,7 +91,6 @@ export function useGetContract({ contractId, pageNumber, pageSize, options }: co
 
 export async function createOrUpdateContract(id: number | null, bodyPayload: IContractDto, updatePayload: IContractDao) {
     if (id) {
-        console.log(updatePayload);
         const { data } = await axiosInstance.patch(endpoints.contract.update.root(id), updatePayload);
         return data;
     } else {
@@ -236,23 +235,27 @@ export async function downloadAttachmentContract(fileId: number) {
 }
 
 type contractReceiptProp = {
-    ContractNo?: string,
-    pageNumber: number,
-    pageSize: number,
-    enabled?: boolean,
-    key?: string,
+    ContractNo?: string;
+    pageNumber: number;
+    pageSize: number;
+    enabled?: boolean;
+    key?: string;
+    ContractType?: string;
+    ReceiptType?: string;
 }
 
-export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enabled, key }: contractReceiptProp) {
+export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enabled, key, ReceiptType, ContractType }: contractReceiptProp) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?PageNumber=${pageNumber}&PageSize=${pageSize}`;
+    if (ContractType) params += `&ContractType=${ContractType}`;
+    if (ReceiptType) params += `&ReceiptType=${ReceiptType}`;
     if (key) params += `&search=${key}`;
     if (ContractNo) params += `&ContractNo=${ContractNo}`;
 
     const url = enabled ? endpoints.contractReceipt.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResContractReceipt>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractReceipt>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => {
@@ -276,6 +279,7 @@ export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enable
                 contractReceiptError: error,
                 contractReceiptValidating: isValidating,
                 contractReceiptEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutation: mutate
             }
         },
         [data, error, isLoading, isValidating]
@@ -406,4 +410,46 @@ export async function updateWarehouseExport(id: string, dto: IContractWarehouseE
         console.error(error);
         throw error;
     }
+}
+
+type reportProps = {
+    pageNumber: number;
+    pageSize: number;
+    enabled?: boolean;
+    contractNo: string;
+}
+
+export function useGetReportLiquidation({ contractNo, pageNumber, pageSize, enabled }: reportProps) {
+    let params = '';
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    if (contractNo) params += `&contractNo=${contractNo}`;
+    const url = enabled ? endpoints.report.root(params) : null;
+    const { data, isLoading, error, isValidating } = useSWR<ResReportLiquidation>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data.items ?? [];
+            return {
+                report: filteredItems,
+                pagination: {
+                    pageNumber: data?.data.pageNumber ?? 1,
+                    pageSize: data?.data.pageSize ?? pageSize,
+                    totalPages: data?.data.totalPages ?? 0,
+                    totalRecord: data?.data.totalRecord ?? 0,
+                },
+                reportLoading: isLoading,
+                reportError: error,
+                reportValidating: isValidating,
+                reportEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+export async function createReport(dto: ReportDto) {
+    const { data } = await axiosInstance.post(endpoints.report.create, dto);
+    return data;
 }

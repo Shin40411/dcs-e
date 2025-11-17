@@ -9,6 +9,7 @@ import { fCurrencyNoUnit } from "src/utils/format-number";
 import { RenderRuleNameChild } from "../helper/renderRuleNameChild";
 import { capitalizeWords, formatPhoneNumber } from "src/utils/format-string";
 import { generateReportNo } from "src/utils/random-func";
+import { fDate } from "src/utils/format-time-vi";
 
 type RenderProps = {
     contractNo?: string;
@@ -57,7 +58,7 @@ export const RenderReport = ({
     const yyyy = today.getFullYear();
     const lawTexts = [
         `Căn cứ vào hợp đồng số: ${contractNo} giữa ${companyName} và CÔNG TY TNHH GIẢI PHÁP DCS.`,
-        `Hôm nay, ngày ${dd} tháng ${mm} năm ${yyyy}, hai bên gồm:`,
+        `Hôm nay, ngày ${fDate(signatureDate)}, hai bên gồm:`,
     ];
     const SideLeft = [
         "- Địa chỉ:",
@@ -160,7 +161,11 @@ export const RenderReport = ({
                                             {part === companyName || part === "CÔNG TY TNHH GIẢI PHÁP DCS" ? (
                                                 <Text style={{ fontFamily: "Niramit-Bold" }}>{part}</Text>
                                             ) : (
-                                                <Text>{part}</Text>
+                                                <Text
+                                                    style={{
+                                                        textIndent: 20
+                                                    }}
+                                                >{part}</Text>
                                             )}
                                         </Fragment>
                                     ))}

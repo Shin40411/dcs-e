@@ -25,3 +25,26 @@ export type IBankAccountDto = {
     Bank: string;
     balance: number;
 }
+
+export type ResBankQrList = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: BankQrItem[];
+    }
+}
+
+export type BankQrItem = {
+    id: number;
+    name: string;
+    code: string;
+    bin: string;
+    shortName: string;
+    logo: string;
+    transferSupported: number;
+    lookupSupported: number;
+}

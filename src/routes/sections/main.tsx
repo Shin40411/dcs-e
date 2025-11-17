@@ -34,8 +34,12 @@ const Page404 = lazy(() => import('src/pages/error/404'));
 const BlankPage = lazy(() => import('src/pages/blank'));
 //Receipt
 const ReceiptPreviewPage = lazy(() => import('src/pages/dashboard/receipt/index'));
+//Spend
+const SpendPreviewPage = lazy(() => import('src/pages/dashboard/spend/index'));
 //Report
 const ReportPreviewPage = lazy(() => import('src/pages/dashboard/report/index'));
+//Liquidation
+const LiquidationPreviewPage = lazy(() => import('src/pages/dashboard/liquidation/index'));
 //Export
 const ExportWarehousePreviewPage = lazy(() => import('src/pages/dashboard/warehouse-export/index'));
 // ----------------------------------------------------------------------
@@ -119,10 +123,26 @@ export const mainRoutes: RouteObject[] = [
         )
       },
       {
+        path: paths.spend,
+        element: (
+          <AuthGuard>
+            <SpendPreviewPage />
+          </AuthGuard>
+        )
+      },
+      {
         path: paths.report,
         element: (
           <AuthGuard>
             <ReportPreviewPage />
+          </AuthGuard>
+        )
+      },
+      {
+        path: paths.liquidation,
+        element: (
+          <AuthGuard>
+            <LiquidationPreviewPage />
           </AuthGuard>
         )
       },

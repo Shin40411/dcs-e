@@ -15,11 +15,14 @@ import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
 import { Button } from "@mui/material";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { RoleBasedGuard } from "src/auth/guard";
 
 export function WarehouseExportMainView() {
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
+    const { permission } = useCheckPermission(['PHIEUXUATKHO.VIEW']);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
@@ -102,7 +105,12 @@ export function WarehouseExportMainView() {
     );
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['PHIEUXUATKHO.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Phiếu xuất kho"
@@ -138,6 +146,6 @@ export function WarehouseExportMainView() {
                 {renderForm()}
                 {renderConfirmDeleteRow()}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

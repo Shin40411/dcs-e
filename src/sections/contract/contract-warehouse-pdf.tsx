@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router";
 import { useGetDetailWarehouseExportProduct, useGetUnExportProduct } from "src/actions/contract";
 import { EmptyContent } from "src/components/empty-content";
 import { useEffect, useMemo, useState } from "react";
-import { IContractRemainingProduct } from "src/types/contract";
+import { IContractRemainingProduct, IWarehouseExportProduct } from "src/types/contract";
 
 export function ContractWarehousePdf() {
     Font.register({
@@ -110,6 +110,13 @@ export function ContractWarehousePdf() {
     );
 
     const mappedProducts = useMemo<IContractRemainingProduct[]>(() => {
+        if (contractBody.productsPreviewKey) {
+            const productsFromStorage = JSON.parse(
+                sessionStorage.getItem(contractBody.productsPreviewKey) || '[]'
+            );
+            return productsFromStorage;
+        }
+
         if (isCreating) {
             return remainingProduct || [];
         }
@@ -127,7 +134,17 @@ export function ContractWarehousePdf() {
             exported: 0,
             remaining: p.quantity,
         }));
-    }, [isCreating, remainingProduct, detailsProduct]);
+    }, [contractBody.productsPreviewKey, isCreating, remainingProduct, detailsProduct]);
+
+    useEffect(() => {
+        if (contractBody.productsPreviewKey) {
+            const timer = setTimeout(() => {
+                sessionStorage.removeItem(contractBody.productsPreviewKey);
+            }, 1000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [contractBody.productsPreviewKey]);
 
     const isProductEmpty = isCreating ? remainingProductEmpty : detailsProductEmpty;
 

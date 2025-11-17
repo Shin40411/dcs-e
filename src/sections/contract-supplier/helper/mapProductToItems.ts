@@ -1,0 +1,15 @@
+import { IContractProduct } from "src/types/contract";
+import { ContractFormValues } from "../schema/contract-schema";
+import { IContractSupplyForDetail } from "src/types/contractSupplier";
+
+export function mapProductsToItems(products: IContractSupplyForDetail[]): ContractFormValues["products"] {
+    return products.map((p) => ({
+        id: Number(p.id),
+        product: String(p.productID),
+        unit: String(p.productUnitID ?? ""),
+        unitName: p.unit,
+        qty: p.quantity,
+        price: p.price,
+        vat: p.vat,
+    }));
+}

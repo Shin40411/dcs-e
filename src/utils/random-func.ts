@@ -53,3 +53,22 @@ export function generateReportNo() {
 
     return reportNo;
 }
+
+export function generateLiquidationNo() {
+    const now = new Date();
+    const yy = String(now.getFullYear()).slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+
+    const key = 'reportSequence';
+    let stt = Number(localStorage.getItem(key)) || 0;
+    stt += 1;
+
+    localStorage.setItem(key, String(stt));
+
+    const sttFormatted = String(stt).padStart(3, '0');
+
+    const reportNo = `${yy}${mm}${dd}${sttFormatted}/TL`;
+
+    return reportNo;
+}

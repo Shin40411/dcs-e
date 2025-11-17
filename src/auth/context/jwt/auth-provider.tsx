@@ -8,7 +8,6 @@ import { AuthContext } from '../auth-context';
 import { setSession, isValidToken } from './utils';
 
 import type { AuthState } from '../../types';
-
 // ----------------------------------------------------------------------
 type Props = {
   children: React.ReactNode;

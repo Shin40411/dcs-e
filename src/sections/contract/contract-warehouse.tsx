@@ -1,7 +1,7 @@
 import { Box, Button, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Iconify } from "src/components/iconify";
-import { IContractItem } from "src/types/contract";
+import { IContractItem, IContractRemainingProduct } from "src/types/contract";
 import { generateWarehouseExport } from "src/utils/random-func";
 import { CloseIcon } from "yet-another-react-lightbox";
 import { ContractWareHouseSchema, ContractWareHouseSchemaType } from "./schema/contract-warehouse";
@@ -33,7 +33,15 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
         enabled: open,
     });
 
-    const { remainingProduct, remainingProductEmpty, remainingProductLoading } = useGetUnExportProduct(selectedContract.id, open);
+    const { remainingProduct: initialProducts, remainingProductEmpty, remainingProductLoading } = useGetUnExportProduct(selectedContract.id, open);
+    const [products, setProducts] = useState<IContractRemainingProduct[]>([]);
+
+    useEffect(() => {
+        if (initialProducts && initialProducts.length > 0) {
+            setProducts([...initialProducts]);
+        }
+    }, [initialProducts]);
+
 
     const [watchTicket, setWatchTicket] = useState(true);
     const [warehouseExportNumber, setWarehouseExportNumber] = useState<string>('');
@@ -70,7 +78,27 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     const receiverAddress = watch('receiverAddress');
     const receiverName = watch('receiverName');
 
+    const handleQuantityChange = (productID: number, newQuantity: number) => {
+        setProducts(prev =>
+            prev.map(p =>
+                p.productID === productID
+                    ? { ...p, quantity: newQuantity }
+                    : p
+            )
+        );
+    };
+
+    const handleRemoveProduct = (productID: number) => {
+        if (products.length <= 1) {
+            toast.warning("Không thể xóa! Phải có ít nhất 1 sản phẩm trong phiếu xuất kho");
+            return;
+        }
+        setProducts(prev => prev.filter(p => p.productID !== productID));
+    };
+
     const onPreviewWarehouseExport = () => {
+        sessionStorage.setItem('wp_preview', JSON.stringify(products));
+
         const params = new URLSearchParams({
             isCreating: 'true',
             contractId: String(selectedContract.id),
@@ -81,7 +109,8 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
             position: selectedContract.position,
             note: note,
             receiverAddress: receiverAddress,
-            seller: selectedContract.seller
+            seller: selectedContract.seller,
+            productsPreviewKey: 'wp_preview'
         } as Record<string, string>);
         const queryString = params.toString();
         window.open(`${paths.warehouseExport}?${queryString}`, '_blank');
@@ -101,8 +130,9 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 note: data.note || "",
                 discount: selectedContract.discount,
                 paid: selectedContract.total,
-                products:
-                    remainingProduct.map((p) => ({
+                products: products
+                    .filter(p => p.quantity > 0)
+                    .map((p) => ({
                         productID: p.productID,
                         quantity: p.quantity,
                     })),
@@ -120,7 +150,8 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error("Tạo phiếu xuất kho thất bại!");
+            const message = error.message;
+            toast.error(message || "Tạo phiếu xuất kho thất bại!");
         }
     });
 
@@ -211,7 +242,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={() => { onClose(); reset(); }}
+                    onClick={() => { onClose(); reset(); sessionStorage.removeItem('wp_preview'); }}
                     fullWidth
                     disabled={isSubmitting}
                 >
@@ -229,7 +260,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 },
             }}
             open={open}
-            onClose={() => { onClose(); reset(); }}
+            onClose={() => { onClose(); reset(); sessionStorage.removeItem('wp_preview'); }}
             fullWidth
             maxWidth="md"
         >
@@ -269,9 +300,11 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                         <Stack spacing={{ xs: 3, md: 2 }} direction="column">
                             {renderDetails()}
                             <ContractWarehouseTable
-                                remainingProduct={remainingProduct}
-                                remainingProductEmpty={remainingProductEmpty}
+                                remainingProduct={products}
+                                remainingProductEmpty={products.length === 0}
                                 remainingProductLoading={remainingProductLoading}
+                                onQuantityChange={handleQuantityChange}
+                                onRemoveProduct={handleRemoveProduct}
                             />
                         </Stack>
                     </CardContent>

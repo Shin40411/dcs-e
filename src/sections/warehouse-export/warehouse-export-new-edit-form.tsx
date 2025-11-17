@@ -112,7 +112,7 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, open, onCl
 
             await updateWarehouseExport(String(selectedWarehouseExport.id), payload);
 
-            toast.success("Tạo phiếu xuất kho thành công!");
+            toast.success("Cập nhật phiếu xuất kho thành công!");
             reset();
             mutate(
                 (k) => typeof k === "string" && k.startsWith("/api/v1/warehouse-exports/get-exports"),
@@ -122,7 +122,8 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, open, onCl
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error("Tạo phiếu xuất kho thất bại!");
+            const message = error.message;
+            toast.error(message || "Cập nhật phiếu xuất kho thất bại!");
         }
     });
 

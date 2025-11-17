@@ -21,6 +21,12 @@ import { toast } from "sonner";
 import { editAllContractDetails } from "./helper/mapContractProducts";
 import { fCurrency, fCurrencyNoUnit } from "src/utils/format-number";
 import { renderSkeleton } from "src/components/skeleton/skeleton-quotation-contract";
+import { createSupplierContract } from "src/actions/contractSupplier";
+import { IContractSupplyDto, IContractSupplyProductDto } from "src/types/contractSupplier";
+import { useGetSuppliers } from "src/actions/suppliers";
+import { ISuppliersItem } from "src/types/suppliers";
+import { useNavigate } from "react-router";
+import { paths } from "src/routes/paths";
 
 type ContractFormProps = {
     open: boolean;
@@ -28,9 +34,18 @@ type ContractFormProps = {
     selectedContract: IContractItem | null;
     detailsFromQuotation: any[];
     customerIdFromQuotation?: number | null;
+    creatingSupplierContract: boolean;
 };
 
-export function ContractForm({ open, onClose, selectedContract, detailsFromQuotation, customerIdFromQuotation }: ContractFormProps) {
+export function ContractForm({
+    open,
+    onClose,
+    selectedContract,
+    detailsFromQuotation,
+    customerIdFromQuotation,
+    creatingSupplierContract
+}: ContractFormProps) {
+    const navigate = useNavigate();
     const today = new Date();
     const [customerkeyword, setCustomerKeyword] = useState('');
     const debouncedCustomerKw = useDebounce(customerkeyword, 300);
@@ -42,6 +57,13 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
         pageNumber: 1,
         pageSize: 999,
         options: { enabled: !!selectedContract?.id }
+    });
+
+    const { suppliers, suppliersLoading, pagination: SupplierRecords } = useGetSuppliers({
+        pageNumber: 1,
+        pageSize: 999,
+        key: debouncedCustomerKw,
+        enabled: creatingSupplierContract
     });
 
     const { customers, customersLoading, pagination: CustomerRecords } = useGetCustomers({
@@ -57,9 +79,12 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
 
     const [selectedCustomer, setSelectedCustomer] = useState<ICustomerItem | null>(null);
 
+    const [selectedSupplier, setSelectedSupplier] = useState<ISuppliersItem | null>(null);
+
     const defaultValues: ContractFormValues = {
-        contractNo: generateContractNo('KH'),
+        contractNo: generateContractNo(creatingSupplierContract ? 'NCC' : 'KH'),
         customerId: 0,
+        supplierId: 0,
         createDate: today.toISOString(),
         signatureDate: today.toISOString(),
         deliveryAddress: "",
@@ -121,21 +146,31 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
         }
 
         const mappedItems = mapProductsToItems(currentDetails?.products || []);
-        methods.setValue("customerId", selectedContract.customerID ?? 0);
-        methods.setValue("contractNo", selectedContract.contractNo);
-        methods.setValue("signatureDate", selectedContract.signatureDate ?? null);
-        methods.setValue("createDate", selectedContract.createDate ?? null);
-        methods.setValue("deliveryAddress", selectedContract.deliveryAddress ?? '');
-        methods.setValue("deliveryTime", selectedContract.deliveryTime ?? null);
-        methods.setValue("downPayment", selectedContract.downPayment);
-        methods.setValue("nextPayment", selectedContract.nextPayment);
-        methods.setValue("lastPayment", selectedContract.lastPayment);
-        methods.setValue("copiesNo", selectedContract.copiesNo);
-        methods.setValue("keptNo", selectedContract.keptNo);
-        methods.setValue("status", selectedContract.status ?? 1);
-        methods.setValue("products", mappedItems);
-        methods.setValue("note", selectedContract.note ?? "");
-        methods.setValue("discount", selectedContract.discount);
+
+        if (creatingSupplierContract) {
+            methods.setValue("customerId", defaultValues.customerId);
+            methods.setValue("contractNo", defaultValues.contractNo);
+            methods.setValue("deliveryAddress", defaultValues.deliveryAddress);
+            methods.setValue("copiesNo", defaultValues.copiesNo);
+            methods.setValue("keptNo", defaultValues.keptNo);
+            methods.setValue("status", defaultValues.status);
+            methods.setValue("note", defaultValues.note);
+            methods.setValue("discount", defaultValues.discount);
+        } else {
+            methods.setValue("supplierId", defaultValues.supplierId);
+            methods.setValue("customerId", selectedContract.customerID ?? 0);
+            methods.setValue("contractNo", selectedContract.contractNo);
+            methods.setValue("products", mappedItems);
+            methods.setValue("signatureDate", selectedContract.signatureDate ?? null);
+            methods.setValue("createDate", selectedContract.createDate ?? null);
+            methods.setValue("deliveryAddress", selectedContract.deliveryAddress ?? '');
+            methods.setValue("deliveryTime", selectedContract.deliveryTime ?? null);
+            methods.setValue("copiesNo", selectedContract.copiesNo);
+            methods.setValue("keptNo", selectedContract.keptNo);
+            methods.setValue("status", selectedContract.status ?? 1);
+            methods.setValue("note", selectedContract.note ?? "");
+            methods.setValue("discount", selectedContract.discount);
+        }
 
         setOriginalItems(
             mappedItems.map((item, i) => ({
@@ -146,7 +181,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
             }))
         );
 
-    }, [detailsFromQuotation, selectedContract, CurrentContract, methods.reset]);
+    }, [detailsFromQuotation, selectedContract, CurrentContract, creatingSupplierContract, methods.reset]);
 
     const customerId = methods.watch('customerId');
 
@@ -161,6 +196,20 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
             setSelectedCustomer(found);
         }
     }, [customerId]);
+
+    const supplierId = methods.watch('supplierId');
+
+    useEffect(() => {
+        if (!supplierId) {
+            setSelectedSupplier(null);
+            return;
+        }
+
+        const found = suppliers.find((cus) => Number(cus.id) === Number(supplierId));
+        if (found) {
+            setSelectedSupplier(found);
+        }
+    }, [supplierId]);
 
     const {
         reset,
@@ -222,38 +271,68 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                     unit: item.unitName ?? "",
                 }));
 
-            // console.log(bodyPayload);
+            const supplierCreatePayload: IContractSupplyDto = {
+                ContractNo: bodyPayload.ContractNo,
+                copiesNo: bodyPayload.copiesNo,
+                customerContractNo: selectedContract?.contractNo || "",
+                deliveryAddress: bodyPayload.deliveryAddress,
+                deliveryTime: bodyPayload.deliveryTime,
+                discount: bodyPayload.discount,
+                keptNo: bodyPayload.keptNo,
+                note: bodyPayload.note,
+                parentContractId: selectedContract?.id || 0,
+                products: bodyPayload.products.map((item): IContractSupplyProductDto => ({
+                    productID: typeof item.productID === 'string' ? parseInt(item.productID, 10) : item.productID,
+                    quantity: item.quantity,
+                    imported: item.quantity,
+                    price: item.price,
+                    unit: item.unit
+                })),
+                signatureDate: bodyPayload.signatureDate,
+                status: bodyPayload.status,
+                supplierId: data.supplierId
+            }
 
-            await createOrUpdateContract(
-                selectedContract?.id ?? null,
-                bodyPayload,
-                updatePayload
-            );
-
-            if (selectedContract) {
-                if (!productPayload) return;
-
-                for (const item of productPayload) {
-                    await editProductForm(item.rowId, item);
-                }
-
-                const newItems = bodyPayload.products.filter(
-                    (item) => !originalItems.some((o) => o.productID === item.productID)
+            if (creatingSupplierContract) {
+                await createSupplierContract(supplierCreatePayload);
+            } else {
+                await createOrUpdateContract(
+                    selectedContract?.id ?? null,
+                    bodyPayload,
+                    updatePayload
                 );
 
-                if (newItems.length > 0) {
-                    await addMoreProducts(selectedContract.id, newItems);
-                }
-                else {
-                    await editAllContractDetails(bodyPayload, selectedContract.id);
+                if (selectedContract) {
+                    if (!productPayload) return;
+
+                    for (const item of productPayload) {
+                        await editProductForm(item.rowId, item);
+                    }
+
+                    const newItems = bodyPayload.products.filter(
+                        (item) => !originalItems.some((o) => o.productID === item.productID)
+                    );
+
+                    if (newItems.length > 0) {
+                        await addMoreProducts(selectedContract.id, newItems);
+                    }
+                    else {
+                        await editAllContractDetails(bodyPayload, selectedContract.id);
+                    }
                 }
             }
 
             toast.success(
-                selectedContract
-                    ? "Dữ liệu hợp đồng đã được thay đổi!"
-                    : "Tạo hợp đồng thành công!"
+                creatingSupplierContract ? "Lập hợp đồng nhà cung cấp thành công!"
+                    :
+                    selectedContract
+                        ? "Dữ liệu hợp đồng đã được thay đổi!"
+                        : "Tạo hợp đồng thành công!"
             );
+
+            if (creatingSupplierContract) {
+                navigate(paths.dashboard.supplierServices.contractSupplier);
+            }
 
             mutate(
                 (k) => typeof k === "string" && k.startsWith("/api/v1/contracts/contracts"),
@@ -300,7 +379,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                 disabled={isCreatingCustomer}
                 loading={isSubmitting}
             >
-                {selectedContract ? `Lưu hợp đồng` : 'Tạo hợp đồng'}
+                {creatingSupplierContract ? 'Lập hợp đồng' : selectedContract ? `Lưu hợp đồng` : 'Tạo hợp đồng'}
             </Button>
         </Box>
     );
@@ -360,8 +439,8 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
             } else {
                 clearErrors(["downPayment", "nextPayment"]);
                 const last = Math.max(total - down - next, 0);
-                const formattedLast = Number(fCurrencyNoUnit(last));
-                const formattedTotal = Number(fCurrencyNoUnit(total));
+                const formattedLast = last;
+                const formattedTotal = total;
                 if (formattedLast < formattedTotal) {
                     setValue("lastPayment", formattedLast, { shouldValidate: true });
                 }
@@ -401,63 +480,128 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
 
     const renderLeftColumn = () => (
         <Stack width={{ xs: "100%", sm: "100%", md: "100%", lg: "30%" }} spacing={3}>
-            {/* Section Thông tin khách hàng */}
+            {/* Section Thông tin khách hàng & nhà cung cấp */}
             <Box>
                 <Stack direction={{ xs: "column", md: "column", lg: "column", xl: "row" }} gap={2} justifyContent="space-between">
-                    <Typography variant="subtitle2">Thông tin khách hàng</Typography>
+                    <Typography variant="subtitle2">Thông tin {creatingSupplierContract ? 'nhà cung cấp' : 'khách hàng'}</Typography>
                     <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
-                        <Field.Autocomplete
-                            name="customerId"
-                            label="Chọn khách hàng có sẵn"
-                            options={customers}
-                            loading={customersLoading}
-                            getOptionLabel={(opt) => opt?.name ?
-                                opt.name :
-                                opt?.companyName ?
-                                    opt.companyName : ''}
-                            isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-                            onInputChange={(_, value) => setCustomerKeyword(value)}
-                            value={selectedCustomer}
-                            fullWidth
-                            onChange={(_, newValue) => {
-                                methods.setValue('customerId', newValue?.id ?? 0, { shouldValidate: true });
-                                setCustomerKeyword(newValue?.name ?? '');
-                            }}
-                            noOptionsText="Không có dữ liệu"
-                            sx={{ flex: 1, minWidth: 200 }}
-                            renderOption={(props, option) => (
-                                <li {...props} key={option.id}>
-                                    {option.name ? option.name : option.companyName}
-                                </li>
-                            )}
-                        />
-                        <Stack direction="row">
-                            <Tooltip title="Tạo khách hàng mới">
-                                <IconButton
-                                    color="inherit"
-                                    sx={{
-                                        '&:hover': {
-                                            backgroundColor: 'transparent'
-                                        },
-                                    }}
-                                    onClick={() => setIsCreatingCustomer(true)}
-                                >
-                                    <Iconify
-                                        icon="line-md:person-add"
-                                    />
-                                </IconButton>
-                            </Tooltip>
-                        </Stack>
+                        {creatingSupplierContract ?
+                            <Field.Autocomplete
+                                name="supplierId"
+                                label={`Chọn nhà cung cấp`}
+                                options={suppliers}
+                                loading={suppliersLoading}
+                                getOptionLabel={(opt) => opt?.name ?
+                                    opt.name :
+                                    opt?.companyName ?
+                                        opt.companyName : ''}
+                                isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                                onInputChange={(_, value) => setCustomerKeyword(value)}
+                                value={selectedSupplier}
+                                fullWidth
+                                onChange={(_, newValue) => {
+                                    methods.setValue('supplierId', newValue?.id ?? 0, { shouldValidate: true });
+                                    setCustomerKeyword(newValue?.name ?? '');
+                                }}
+                                noOptionsText="Không có dữ liệu"
+                                sx={{ flex: 1, minWidth: 200 }}
+                                renderOption={(props, option) => (
+                                    <li {...props} key={option.id}>
+                                        {option.name ? option.name : option.companyName}
+                                    </li>
+                                )}
+                            />
+                            :
+                            <Field.Autocomplete
+                                name="customerId"
+                                label={`Chọn khách hàng có sẵn`}
+                                options={customers}
+                                loading={customersLoading}
+                                getOptionLabel={(opt) => opt?.name ?
+                                    opt.name :
+                                    opt?.companyName ?
+                                        opt.companyName : ''}
+                                isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                                onInputChange={(_, value) => setCustomerKeyword(value)}
+                                value={selectedCustomer}
+                                fullWidth
+                                onChange={(_, newValue) => {
+                                    methods.setValue('customerId', newValue?.id ?? 0, { shouldValidate: true });
+                                    setCustomerKeyword(newValue?.name ?? '');
+                                }}
+                                noOptionsText="Không có dữ liệu"
+                                sx={{ flex: 1, minWidth: 200 }}
+                                renderOption={(props, option) => (
+                                    <li {...props} key={option.id}>
+                                        {option.name ? option.name : option.companyName}
+                                    </li>
+                                )}
+                            />
+                        }
+                        {!creatingSupplierContract &&
+                            <Stack direction="row">
+                                <Tooltip title="Tạo khách hàng mới">
+                                    <IconButton
+                                        color="inherit"
+                                        sx={{
+                                            '&:hover': {
+                                                backgroundColor: 'transparent'
+                                            },
+                                        }}
+                                        onClick={() => setIsCreatingCustomer(true)}
+                                    >
+                                        <Iconify
+                                            icon="line-md:person-add"
+                                        />
+                                    </IconButton>
+                                </Tooltip>
+                            </Stack>
+                        }
                     </Stack>
                 </Stack>
                 <Stack spacing={2} sx={{ mt: 2 }}>
                     <Stack direction="row" gap={2}>
-                        <DetailItem label="Tên khách hàng" value={selectedCustomer?.name ?? ""} />
-                        <DetailItem label="Tên công ty" value={selectedCustomer?.companyName ?? ""} />
+                        <DetailItem
+                            label={`Tên ${creatingSupplierContract ? 'nhà cung cấp' : 'khách hàng'}`}
+                            value={
+                                creatingSupplierContract ?
+                                    selectedSupplier?.name :
+                                    selectedCustomer?.name ?
+                                        selectedCustomer?.name :
+                                        ""}
+                        />
+                        <DetailItem
+                            label="Tên công ty"
+                            value={
+                                creatingSupplierContract ?
+                                    selectedSupplier?.companyName :
+                                    selectedCustomer?.companyName ?
+                                        selectedCustomer?.companyName :
+                                        ""
+                            }
+                        />
                     </Stack>
                     <Stack direction="row" gap={2}>
-                        <DetailItem label="Email khách hàng" value={selectedCustomer?.email ?? ""} />
-                        <DetailItem label="Số điện thoại" value={selectedCustomer?.phone ?? ""} />
+                        <DetailItem
+                            label={`Email ${creatingSupplierContract ? 'nhà cung cấp' : 'khách hàng'}`}
+                            value={
+                                creatingSupplierContract ?
+                                    selectedSupplier?.email :
+                                    selectedCustomer?.email ?
+                                        selectedCustomer?.email :
+                                        ""
+                            }
+                        />
+                        <DetailItem
+                            label="Số điện thoại"
+                            value={
+                                creatingSupplierContract ?
+                                    selectedSupplier?.phone :
+                                    selectedCustomer?.phone ?
+                                        selectedCustomer?.phone :
+                                        ""
+                            }
+                        />
                     </Stack>
                 </Stack>
             </Box>
@@ -587,7 +731,12 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
                         px: 3,
                     }}
                 >
-                    {selectedContract ? `Chỉnh sửa - ${selectedContract.contractNo}` : 'Tạo hợp đồng'}
+                    {creatingSupplierContract ?
+                        'Lập hợp đồng nhà cung cấp'
+                        : selectedContract
+                            ? `Chỉnh sửa - ${selectedContract.contractNo}`
+                            : 'Tạo hợp đồng'
+                    }
                     {renderActions()}
                 </DialogTitle>
                 <DialogContent

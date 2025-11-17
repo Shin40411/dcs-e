@@ -35,16 +35,12 @@ export function NavList({ data, sx, ...other }: NavListProps) {
   const renderNavItem = () => (
     <NavItem
       ref={navItemRef}
-      // slots
       path={data.path}
       title={data.title}
-      // state
       open={open}
       active={isActive}
-      // options
       hasChild={!!data.children}
       externalLink={isExternalLink(data.path)}
-      // action
       onMouseEnter={handleOpenMenu}
       onMouseLeave={onClose}
     />

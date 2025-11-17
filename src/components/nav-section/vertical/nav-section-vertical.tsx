@@ -26,7 +26,6 @@ export function NavSectionVertical({
   const theme = useTheme();
 
   const cssVars = { ...navSectionCssVars.vertical(theme), ...overridesVars };
-
   return (
     <Nav
       className={mergeClasses([navSectionClasses.vertical, className])}

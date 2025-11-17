@@ -41,6 +41,7 @@ export const endpoints = {
     me: '/api/auth/me',
     signIn: '/api/v1/auth/auth/login',
     signUp: '/api/auth/sign-up',
+    changePassword: '/api/v1/auth/auth/change-password'
   },
   mail: {
     list: '/api/mail/list',
@@ -53,6 +54,7 @@ export const endpoints = {
     latest: '/api/post/latest',
     search: '/api/post/search',
   },
+  restore: '/api/v1/generic-repository/restore',
   product: {
     list: (params: string) => `/api/v1/products${params}`,
     details: (id: string) => `/api/v1/products/get-detail/${id}`,
@@ -92,6 +94,7 @@ export const endpoints = {
   },
   bankAccount: {
     list: (params: string) => `/api/v1/bank-accounts/bank-accounts${params}`,
+    callQr: (params: string) => `/api/v1/bank-accounts/vietqr-banks${params}`,
     create: `/api/v1/bank-accounts/create`,
     update: (id: string) => `/api/v1/bank-accounts/update${id}`,
     delete: (id: number) => `/api/v1/bank-accounts/delete/${id}`
@@ -104,7 +107,10 @@ export const endpoints = {
   },
   employees: {
     list: (params: string) => `/api/v1/employees/employees${params}`,
+    getUserType: (params: string) => `/api/v1/users/get-user-types${params}`,
     create: `/api/v1/employees/create`,
+    createUser: `/api/v1/users/create`,
+    lockUnlock: (id: number) => `/api/v1/users/lock-or-unlock/${id}`,
     update: (id: string) => `/api/v1/employees/update${id}`,
     delete: (id: number) => `/api/v1/employees/delete/${id}`
   },
@@ -133,8 +139,21 @@ export const endpoints = {
       editProductForm: (id: number) => `/api/v1/contracts/edit-product-form-contract/${id}`,
       deleteProduct: `/api/v1/contracts/delete-product-from-contract`
     },
-    sendMail: '/api/v1/contracts/send-email'
-    // delete: (id: number) => `/api/v1/quotation/delete/${id}`,
+    sendMail: '/api/v1/contracts/send-email',
+    delete: (id: number) => `/api/v1/contracts/delete-contract/${id}`,
+  },
+  contractSupplier: {
+    list: (params: string) => `/api/v1/contract-suppliers/supplier-contracts${params}`,
+    detail: (params: string) => `/api/v1/contract-suppliers/get-detail/${params}`,
+    create: `/api/v1/contract-suppliers/create`,
+    update: {
+      root: (id: number) => `/api/v1/contract-suppliers/edit-contract-sup/${id}`,
+      addProducts: (id: number) => `/api/v1/contract-suppliers/add-product-to-contract/${id}`,
+      editProducts: '/api/v1/contract-suppliers/update-quantity-product-from-contract',
+      editProductForm: (id: number) => `/api/v1/contract-suppliers/edit-product-from-sup-contract/${id}`,
+      deleteProduct: `/api/v1/contract-suppliers/delete-product-from-contract`
+    },
+    delete: (id: number) => `/api/v1/contract-suppliers/delete-supcontract/${id}`,
   },
   contractAttachment: {
     list: (params: string) => `/api/v1/contract-storages/get-file-by-contract${params}`,
@@ -171,5 +190,24 @@ export const endpoints = {
     contractValue: (params: string) => `/api/v1/statictis/top-contracts?${params}`,
     bestSeller: (params: string) => `/api/v1/statictis/get-best-selling-product${params}`,
     topSaler: (params: string) => `/api/v1/statictis/get-top-seller?${params}`
+  },
+  followContract: {
+    needCollect: (params: string) => `/api/v1/contracts/need-collect${params}`,
+    batchCollect: (params: string) => `/api/v1/contract-receipts/bach-need-collect${params}`,
+    historyCollect: (params: string) => `/api/v1/contract-receipts/history-collect${params}`,
+    needSpend: (params: string) => `/api/v1/contracts/need-spend${params}`,
+    needSpendForContract: (params: string) => `/api/v1/contracts/need-spend-supplier${params}`,
+    historySpend: (params: string) => `/api/v1/contract-receipts/history-spend${params}`,
+    getReceipt: (params: string) => `/api/v1/contract-receipts/receipt${params}`
+  },
+  report: {
+    root: (params: string) => `/api/v1/reports/get-reports-by-contract${params}`,
+    create: '/api/v1/reports'
+  },
+  permission: {
+    root: (params: string) => `/api/v1/permissions/get-permissions${params}`,
+    deparment: (params: string) => `/api/v1/permissions/department-permissions${params}`,
+    update: '/api/v1/permissions/set-unset-department-permission',
+    byUser: '/api/v1/permissions/permissions-by-user'
   }
 };

@@ -16,11 +16,14 @@ import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { RoleBasedGuard } from "src/auth/guard";
 
 export function ReceiptMainView() {
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
+    const { permission } = useCheckPermission(['PHIEUTHU.VIEW']);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
@@ -29,7 +32,8 @@ export function ReceiptMainView() {
         contractReceipt,
         contractReceiptItem,
         contractReceiptLoading,
-        pagination
+        pagination,
+        mutation
     } = useGetReceiptContract({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
@@ -98,11 +102,21 @@ export function ReceiptMainView() {
     );
 
     const renderForm = () => (
-        <ReceiptNewEditForm open={openCrudForm.value} onClose={openCrudForm.onFalse} selectedReceipt={tableRowSelected} />
+        <ReceiptNewEditForm
+            open={openCrudForm.value}
+            onClose={openCrudForm.onFalse}
+            selectedReceipt={tableRowSelected}
+            mutation={mutation}
+        />
     )
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['PHIEUTHU.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Phiếu thu"
@@ -148,6 +162,6 @@ export function ReceiptMainView() {
                 {renderForm()}
                 {renderConfirmDeleteRow()}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

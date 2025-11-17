@@ -7,6 +7,8 @@ import { Iconify } from "src/components/iconify";
 import QuotationSendMail from "./quotation-sendmail";
 import { useNavigate } from "react-router";
 import { paths } from "src/routes/paths";
+import { useBoolean } from "minimal-shared/hooks";
+import { toast } from "sonner";
 
 type Props = {
     selectedQuotation: IQuotationItem;
@@ -34,12 +36,7 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
             }
         });
     };
-
-    const [showActions, setShowActions] = useState(false);
-
-    const handleToggle = () => {
-        setShowActions((prev) => !prev);
-    };
+    const openSendMail = useBoolean();
 
     const statusMap: { [key: number]: string } = {
         0: "Bỏ qua",
@@ -65,51 +62,84 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
         pdfQuotationIdRef.current = selectedQuotation.id;
     }
 
+    useEffect(() => {
+        if (quotationError) {
+            toast.error("Không thể xem! Báo giá này đang thiếu dữ liệu chi tiết");
+        }
+    }, [quotationError]);
+
     return (
-        <Dialog open={openDetail} onClose={onClose} fullScreen>
-            <DialogActions sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 2 }}>
-                <Stack direction="row" width="100%" justifyContent="space-between">
-                    <Button onClick={onClose}>Đóng</Button>
-                    <Stack direction="row" gap={2} justifyContent="space-between">
-                        <Button
-                            variant="contained"
-                            type="button"
-                            onClick={handleToggle}
-                            startIcon={<Iconify icon="streamline-pixel:send-email" />}
-                        >
-                            {showActions ? 'Hủy' : 'Gửi báo giá'}
-                        </Button>
-                        <Button
-                            variant="contained"
-                            type="button"
-                            onClick={() => {
-                                onClose();
-                                openForm(selectedQuotation);
-                            }}
-                            startIcon={<Iconify icon="solar:copy-linear" />}
-                        >
-                            Copy báo giá
-                        </Button>
-                        <Button
-                            variant="contained"
-                            type="button"
-                            startIcon={<Iconify icon="clarity:contract-line" />}
-                            onClick={handleCreateContract}
-                        >
-                            Tạo hợp đồng
-                        </Button>
+        <>
+            <Dialog open={openDetail && !quotationError} onClose={onClose} fullScreen>
+                {quotationLoading ? (
+                    <Stack spacing={2} sx={{ p: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1, overflowX: 'auto' }}>
+                            <Skeleton variant="rectangular" width={120} height={40} sx={{ borderRadius: 1, flexShrink: 0 }} />
+
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                {Array.from({ length: 5 }).map((_, idx) => (
+                                    <Skeleton
+                                        key={idx}
+                                        variant="rectangular"
+                                        width={120}
+                                        height={40}
+                                        sx={{ borderRadius: 1, flexShrink: 0 }}
+                                    />
+                                ))}
+                            </Box>
+                        </Box>
+                        <Skeleton
+                            variant="rectangular"
+                            sx={{ flexGrow: 1, width: '100%', height: '100vh', borderRadius: 1 }}
+                        />
                     </Stack>
-                </Stack>
-                <Collapse sx={{ width: '100%' }} in={showActions} timeout="auto" unmountOnExit>
-                    <QuotationSendMail
-                        email={selectedQuotation.email}
-                        quotationId={selectedQuotation.id}
-                    />
-                </Collapse>
-            </DialogActions>
-            <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-                {pdfRef.current}
-            </Box>
-        </Dialog>
+                ) : quotation && selectedQuotation ? (
+                    <>
+                        <DialogActions sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 2 }}>
+                            <Stack direction="row" width="100%" justifyContent="space-between">
+                                <Button onClick={onClose}>Đóng</Button>
+                                <Stack direction="row" gap={2} justifyContent="space-between">
+                                    <Button
+                                        variant="contained"
+                                        type="button"
+                                        onClick={openSendMail.onTrue}
+                                        startIcon={<Iconify icon="streamline-pixel:send-email" />}
+                                    >
+                                        Gửi báo giá
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        type="button"
+                                        onClick={() => {
+                                            onClose();
+                                            openForm(selectedQuotation);
+                                        }}
+                                        startIcon={<Iconify icon="solar:copy-linear" />}
+                                    >
+                                        Copy báo giá
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        type="button"
+                                        startIcon={<Iconify icon="clarity:contract-line" />}
+                                        onClick={handleCreateContract}
+                                    >
+                                        Tạo hợp đồng
+                                    </Button>
+                                </Stack>
+                            </Stack>
+                        </DialogActions>
+                        <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+                            {pdfRef.current}
+                        </Box>
+                    </>
+                ) : null}
+            </Dialog>
+            <QuotationSendMail
+                openSendMail={openSendMail}
+                email={selectedQuotation.email}
+                quotationId={selectedQuotation.id}
+            />
+        </>
     );
 }

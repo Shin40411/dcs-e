@@ -43,35 +43,18 @@ const ICONS = {
   parameter: icon('ic-parameter'),
 };
 
-// ----------------------------------------------------------------------
-
-/**
- * Input nav data is an array of navigation section items used to define the structure and content of a navigation bar.
- * Each section contains a subheader and an array of items, which can include nested children items.
- *
- * Each item can have the following properties:
- * - `title`: The title of the navigation item.
- * - `path`: The URL path the item links to.
- * - `icon`: An optional icon component to display alongside the title.
- * - `info`: Optional additional information to display, such as a label.
- * - `allowedRoles`: An optional array of roles that are allowed to see the item.
- * - `caption`: An optional caption to display below the title.
- * - `children`: An optional array of nested navigation items.
- * - `disabled`: An optional boolean to disable the item.
- */
 export const navData: NavSectionProps['data'] = [
   /**
    * Overview
    */
   {
     items: [
-      { title: 'Tổng quan', path: paths.dashboard.root, icon: ICONS.dashboard },
-      // { title: 'Ecommerce', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
-      // { title: 'Analytics', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
-      // { title: 'Banking', path: paths.dashboard.general.banking, icon: ICONS.banking },
-      // { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
-      // { title: 'File', path: paths.dashboard.general.file, icon: ICONS.file },
-      // { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
+      {
+        title: 'Tổng quan',
+        path: paths.dashboard.root,
+        icon: ICONS.dashboard,
+        allowedRoles: ['TOANQUYEN.VIEW', 'THONGKE.VIEW'],
+      }
     ],
   },
   /**
@@ -83,17 +66,40 @@ export const navData: NavSectionProps['data'] = [
         title: 'Nghiệp vụ khách hàng',
         path: paths.dashboard.customerServices.contract,
         icon: <Iconify icon={'lsicon:contract-filled'} />,
+        allowedRoles: ['TOANQUYEN.VIEW', 'BAOGIA.VIEW', 'HOPDONG.VIEW'],
         children: [
           {
             title: 'Báo giá',
             path: paths.dashboard.customerServices.quotation,
             icon: <Iconify icon={'streamline-cyber-color:megaphone-1'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'BAOGIA.VIEW'],
           },
           {
             title: 'Hợp đồng',
             path: paths.dashboard.customerServices.contract,
-            icon: <Iconify icon={'streamline-cyber-color:new-document-layer'} />
-          }
+            icon: <Iconify icon={'streamline-cyber-color:new-document-layer'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
+          },
+        ]
+      },
+      {
+        title: 'Nghiệp vụ nhà cung cấp',
+        path: paths.dashboard.supplierServices.contractSupplier,
+        icon: <Iconify icon={'lsicon:contract-outline'} />,
+        allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
+        children: [
+          {
+            title: 'Đặt hàng',
+            path: paths.dashboard.supplierServices.orderSupplier,
+            icon: <Iconify icon={'streamline-cyber-color:megaphone-1'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
+          },
+          {
+            title: 'Hợp đồng',
+            path: paths.dashboard.supplierServices.contractSupplier,
+            icon: <Iconify icon={'streamline-cyber-color:new-document-layer'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
+          },
         ]
       },
     ]
@@ -104,102 +110,99 @@ export const navData: NavSectionProps['data'] = [
         title: 'Quản lý danh mục',
         path: paths.dashboard.product.root,
         icon: <Iconify icon={'material-symbols:category-rounded'} />,
+        allowedRoles: [
+          'TOANQUYEN.VIEW',
+          'NHOMSANPHAM.VIEW',
+          'SANPHAM.VIEW',
+          'DONVITINH.VIEW',
+          'KHACHHANG.VIEW',
+          'PHONGBAN.VIEW',
+          'CHUCVU.VIEW',
+          'NHANVIEN.VIEW',
+          'NHACUNGCAP.VIEW',
+          'TAIKHOAN.VIEW'
+        ],
         children: [
-          { title: 'Nhóm sản phẩm', path: paths.dashboard.category.root, icon: <Iconify icon={'streamline-cyber-color:package-stack-2'} /> },
-          { title: 'Sản phẩm', path: paths.dashboard.product.root, icon: <Iconify icon={'streamline-cyber-color:shopping-product'} /> },
+          {
+            title: 'Nhóm sản phẩm', path: paths.dashboard.category.root,
+            icon: <Iconify icon={'streamline-cyber-color:package-stack-2'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'NHOMSANPHAM.VIEW'],
+          },
+          {
+            title: 'Sản phẩm', path: paths.dashboard.product.root,
+            icon: <Iconify icon={'streamline-cyber-color:shopping-product'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'SANPHAM.VIEW'],
+          },
           {
             title: 'Đơn vị tính',
             path: paths.dashboard.unit,
-            icon: <Iconify icon={'streamline-cyber-color:coin-stack'} />
+            icon: <Iconify icon={'streamline-cyber-color:coin-stack'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'DONVITINH.VIEW'],
           },
-          { title: 'Khách hàng', path: paths.dashboard.customer.root, icon: <Iconify icon={'streamline-cyber-color:businessman'} /> },
+          {
+            title: 'Khách hàng', path: paths.dashboard.customer.root,
+            icon: <Iconify icon={'streamline-cyber-color:businessman'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'KHACHHANG.VIEW'],
+          },
           {
             title: 'Phòng ban',
             path: paths.dashboard.department,
-            icon: <Iconify icon={'streamline-cyber-color:hierarchy-business-2'} />
+            icon: <Iconify icon={'streamline-cyber-color:hierarchy-business-2'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHONGBAN.VIEW'],
           },
           {
             title: 'Chức vụ',
             path: paths.dashboard.employeeType,
-            icon: <Iconify icon={'streamline-cyber-color:business-pick-user'} />
+            icon: <Iconify icon={'streamline-cyber-color:business-pick-user'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'CHUCVU.VIEW'],
           },
-          { title: 'Nhân viên', path: paths.dashboard.employees.root, icon: <Iconify icon={'streamline-cyber-color:account-group'} /> },
-          { title: 'Nhà cung cấp', path: paths.dashboard.suppliers.root, icon: <Iconify icon={'streamline-cyber-color:business-handshake-deal'} /> },
-          { title: 'Tài khoản ngân hàng', path: paths.dashboard.general.banking, icon: <Iconify icon={'streamline-cyber-color:bank-1'} /> },
+          {
+            title: 'Nhân viên', path: paths.dashboard.employees.root,
+            icon: <Iconify icon={'streamline-cyber-color:account-group'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'NHANVIEN.VIEW'],
+          },
+          {
+            title: 'Nhà cung cấp', path: paths.dashboard.suppliers.root,
+            icon: <Iconify icon={'streamline-cyber-color:business-handshake-deal'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'NHACUNGCAP.VIEW'],
+          },
+          {
+            title: 'Tài khoản ngân hàng',
+            path: paths.dashboard.general.banking,
+            icon: <Iconify icon={'streamline-cyber-color:bank-1'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'TAIKHOAN.VIEW'],
+          },
         ],
       },
       {
         title: 'Quản lý nội bộ',
         path: paths.dashboard.user.root,
         icon: <Iconify icon={'carbon:id-management'} />,
+        allowedRoles: [
+          'TOANQUYEN.VIEW',
+          'PHIEUTHU.VIEW',
+          'PHIEUCHI.VIEW',
+          'PHIEUXUATKHO.VIEW'
+        ],
         children: [
           {
-            title: 'Phiếu thu', path: paths.dashboard.receipt.root, icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} />
+            title: 'Phiếu thu', path: paths.dashboard.receipt.root,
+            icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUTHU.VIEW'],
           },
-          // { 
-          //   title: 'Phiếu chi', path: paths.dashboard.order.root, icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} />
-          //  },
           {
-            title: 'Phiếu xuất kho', path: paths.dashboard.warehouseExport.root, icon: <Iconify icon={'streamline-cyber-color:delivery-package-2'} />
+            title: 'Phiếu chi',
+            path: paths.dashboard.spend.root,
+            icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUCHI.VIEW'],
+          },
+          {
+            title: 'Phiếu xuất kho', path: paths.dashboard.warehouseExport.root,
+            icon: <Iconify icon={'streamline-cyber-color:delivery-package-2'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUXUATKHO.VIEW'],
           },
         ],
       },
-      // {
-      //   title: 'Thu chi',
-      //   path: paths.dashboard.order.root,
-      //   icon: ICONS.invoice,
-      //   children: [
-      //     { title: 'Phiếu thu', path: paths.dashboard.invoice.root, icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} /> },
-      //     { title: 'Phiếu chi', path: paths.dashboard.order.root, icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} /> },
-      //   ],
-      // },
-      // {
-      //   title: 'Blog',
-      //   path: paths.dashboard.post.root,
-      //   icon: ICONS.blog,
-      //   children: [
-      //     { title: 'List', path: paths.dashboard.post.root },
-      //     { title: 'Details', path: paths.dashboard.post.demo.details },
-      //     { title: 'Create', path: paths.dashboard.post.new },
-      //     { title: 'Edit', path: paths.dashboard.post.demo.edit },
-      //   ],
-      // },
-      // {
-      //   title: 'Job',
-      //   path: paths.dashboard.job.root,
-      //   icon: ICONS.job,
-      //   children: [
-      //     { title: 'List', path: paths.dashboard.job.root },
-      //     { title: 'Details', path: paths.dashboard.job.demo.details },
-      //     { title: 'Create', path: paths.dashboard.job.new },
-      //     { title: 'Edit', path: paths.dashboard.job.demo.edit },
-      //   ],
-      // },
-      // {
-      //   title: 'Tour',
-      //   path: paths.dashboard.tour.root,
-      //   icon: ICONS.tour,
-      //   children: [
-      //     { title: 'List', path: paths.dashboard.tour.root },
-      //     { title: 'Details', path: paths.dashboard.tour.demo.details },
-      //     { title: 'Create', path: paths.dashboard.tour.new },
-      //     { title: 'Edit', path: paths.dashboard.tour.demo.edit },
-      //   ],
-      // },
-      // { title: 'File manager', path: paths.dashboard.fileManager, icon: ICONS.folder },
-      // {
-      //   title: 'Mail',
-      //   path: paths.dashboard.mail,
-      //   icon: ICONS.mail,
-      //   info: (
-      //     <Label color="error" variant="inverted">
-      //       +32
-      //     </Label>
-      //   ),
-      // },
-      // { title: 'Chat', path: paths.dashboard.chat, icon: ICONS.chat },
-      // { title: 'Calendar', path: paths.dashboard.calendar, icon: ICONS.calendar },
-      // { title: 'Kanban', path: paths.dashboard.kanban, icon: ICONS.kanban },
     ],
   },
   {
@@ -208,16 +211,16 @@ export const navData: NavSectionProps['data'] = [
         title: 'Cài đặt',
         path: paths.dashboard.settings.root,
         icon: <Iconify icon={'uil:setting'} />,
-        disabled: true,
-        info: (
-          <Label
-            color="info"
-            variant="inverted"
-            startIcon={<Iconify icon="maki:construction" />}
-          >
-            Đang phát triển
-          </Label>
-        ),
+        allowedRoles: ['TOANQUYEN.VIEW', 'PHANQUYEN.VIEW'],
+        children: [
+          {
+            title: 'Phân quyền',
+            path: paths.dashboard.permission,
+            icon: <Iconify icon={'streamline-cyber-color:lock-shield'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHANQUYEN.VIEW'],
+            // caption: 'Chỉ tài khoản cấp super mới xem được trang này.',
+          },
+        ]
       },
     ]
   },

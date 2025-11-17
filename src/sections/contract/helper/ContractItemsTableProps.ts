@@ -15,9 +15,11 @@ export type ContractItemsTableProps = {
 };
 
 export type ContractWareHouseTableProps = {
+    remainingProduct: IContractRemainingProduct[];
     remainingProductEmpty: boolean;
     remainingProductLoading: boolean;
-    remainingProduct: IContractRemainingProduct[];
+    onQuantityChange?: (productID: number, newQuantity: number) => void;
+    onRemoveProduct?: (productID: number) => void;
 };
 
 export type ContractItemsTableContentProps = {

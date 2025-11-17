@@ -240,6 +240,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 discount: data.discount || 0,
                 note: data.notes || '',
                 paid: data.paid || 0,
+                Type: 'Quotation',
                 Status: data.status
             };
 

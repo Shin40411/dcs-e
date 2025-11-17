@@ -26,7 +26,7 @@ export function useGetSuppliers({ pageNumber, pageSize, key, enabled = true }: s
 
     const url = enabled ? endpoints.suppliers.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResSuppliersList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResSuppliersList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -41,6 +41,7 @@ export function useGetSuppliers({ pageNumber, pageSize, key, enabled = true }: s
             suppliersError: error,
             suppliersValidating: isValidating,
             suppliersEmpty: !isLoading && !isValidating && !data?.data?.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );
@@ -55,7 +56,7 @@ export function useGetDeletedSuppliers({ pageNumber, pageSize, key, enabled = tr
 
     const url = enabled ? endpoints.suppliers.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResSuppliersList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResSuppliersList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -70,6 +71,7 @@ export function useGetDeletedSuppliers({ pageNumber, pageSize, key, enabled = tr
             suppliersError: error,
             suppliersValidating: isValidating,
             suppliersEmpty: !isLoading && !isValidating && !data?.data?.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

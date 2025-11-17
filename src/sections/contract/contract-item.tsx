@@ -66,7 +66,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                     Chỉnh sửa
                 </MenuItem>
 
-                {/* <MenuItem
+                <MenuItem
                     onClick={() => {
                         menuActions.onClose();
                         openDeleteDialog.onTrue();
@@ -76,7 +76,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                 >
                     <Iconify icon="solar:trash-bin-trash-bold" />
                     Xóa
-                </MenuItem> */}
+                </MenuItem>
             </MenuList>
         </CustomPopover>
     );

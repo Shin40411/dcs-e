@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
-import { IBankAccountDto, ResBankAccountList } from "src/types/bankAccount";
+import { IBankAccountDto, ResBankAccountList, ResBankQrList } from "src/types/bankAccount";
 import useSWR, { SWRConfiguration } from "swr";
 
 type bankAccountProps = {
@@ -84,4 +84,35 @@ export async function createOrUpdateBankAccount(id: number, bodyPayload: IBankAc
         const { data } = await axiosInstance.post(endpoints.bankAccount.create, bodyPayload);
         return data;
     }
+}
+
+export function useGetCallVietQrData({ pageNumber, pageSize, key, enabled }: bankAccountProps) {
+    let params = '';
+
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+
+    if (key) params += `&search=${key}`;
+
+    const url = enabled ? endpoints.bankAccount.callQr(params) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResBankQrList>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => ({
+            vietQrItem: data?.data.items || [],
+            pagination: {
+                pageNumber: data?.data.pageNumber ?? 1,
+                pageSize: data?.data.pageSize ?? pageSize,
+                totalPages: data?.data.totalPages ?? 0,
+                totalRecord: data?.data.totalRecord ?? 0,
+            },
+            vietQrItemLoading: isLoading,
+            vietQrItemError: error,
+            vietQrItemValidating: isValidating,
+            vietQrItemEmpty: !isLoading && !isValidating && !data?.data.items.length,
+        }),
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
 }

@@ -79,7 +79,7 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         <View key={title} style={styles.signatureBox}>
                             <View>
                                 <Text style={styles.signatureLabel}>{title}</Text>
-                                <Text style={styles.signAndPrint}>(Ký, họ tên, đóng dấu)</Text>
+                                <Text style={styles.signAndPrint}>{index === 0 ? '(Ký, họ tên, đóng dấu)' : '(Ký, họ tên)'}</Text>
                             </View>
                             {index === 3 &&
                                 <Text style={styles.signatureLabel}>{data.createdBy}</Text>
@@ -146,7 +146,7 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         <View key={title} style={styles.signatureBox}>
                             <View>
                                 <Text style={styles.signatureLabel}>{title}</Text>
-                                <Text style={styles.signAndPrint}>(Ký, họ tên, đóng dấu)</Text>
+                                <Text style={styles.signAndPrint}>{index === 0 ? '(Ký, họ tên, đóng dấu)' : '(Ký, họ tên)'}</Text>
                             </View>
                             {index === 3 &&
                                 <Text style={styles.signatureLabel}>{data.createdBy}</Text>

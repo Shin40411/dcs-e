@@ -280,3 +280,42 @@ export type ResDetailsWarehouseExportProduct = {
         items: IWarehouseExportProduct[];
     };
 }
+
+export type ResReportLiquidation = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: {
+            contractNo: string;
+            reports: {
+                id: number;
+                reportNo: string;
+                type: string;
+                signatureDate: IDateValue;
+                customerCompany: string;
+                customerAddress: string;
+                customerPhone: string;
+                customerName: string;
+                customerTaxcode: string;
+                customerBankAccount: string;
+                customerBank: string;
+                totalContractAmount: number;
+                totalPaid: number;
+                debt: number;
+            }[]
+        }[];
+    };
+}
+
+export type ReportDto = {
+    reportNo: string;
+    type: "Acceptance" | "HandOver" | "Liquidation" | "Commissioning";
+    contractNo: string;
+    contractType: "Customer" | "Supplier";
+    date: IDateValue;
+    status: number;
+}

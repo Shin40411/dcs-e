@@ -101,6 +101,7 @@ export type IQuotationDto = {
     discount: number;
     paid: number;
     quotationDetails: IQuotationDetailDto[];
+    Type: string;
     Status: number;
 }
 

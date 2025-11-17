@@ -8,6 +8,7 @@ type quotationProps = {
     pageNumber: number,
     pageSize: number,
     key?: string,
+    type?: string,
     enabled?: boolean,
     fromDate: IDateValue,
     toDate: IDateValue,
@@ -19,7 +20,7 @@ const swrOptions: SWRConfiguration = {
     revalidateOnReconnect: false,
 };
 
-export function useGetQuotations({ pageNumber, pageSize, key, enabled = true, fromDate, toDate }: quotationProps) {
+export function useGetQuotations({ pageNumber, pageSize, key, type, enabled = true, fromDate, toDate }: quotationProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
@@ -27,6 +28,8 @@ export function useGetQuotations({ pageNumber, pageSize, key, enabled = true, fr
     if (fromDate || toDate) params += `&fromDate=${fromDate}&toDate=${toDate}`;
 
     if (key) params += `&search=${key}`;
+
+    if (type) params += `&Type=${type}`;
 
     const url = enabled ? endpoints.quotation.list(params) : null;
 

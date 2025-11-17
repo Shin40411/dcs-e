@@ -137,7 +137,7 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 <Field.Text
                     name="companyName"
                     label="Tên công ty"
-                    helperText="Nhập tên công ty"
+                    placeholder="Nhập tên công ty"
                     required
                     sx={{
                         flex: 1.5,
@@ -157,7 +157,7 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 <Field.Text
                     name="customerName"
                     label="Tên khách hàng"
-                    helperText="Nhập tên khách hàng"
+                    placeholder="Nhập tên khách hàng"
                     required
                     sx={{
                         flex: 1.5,
@@ -169,13 +169,13 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
                 <Field.Text
                     name="receiptNo"
                     label="Số phiếu thu"
-                    helperText="Nhập số phiếu thu"
+                    placeholder="Nhập số phiếu thu"
                     required
                     sx={{ flex: 1 }}
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <Field.Text name="payer" label="Tên người nộp" required helperText="Nhập tên người nộp" sx={{ flex: 1.5 }} />
+                <Field.Text name="payer" label="Tên người nộp" required placeholder="Nhập tên người nộp" sx={{ flex: 1.5 }} />
                 <TextField defaultValue={selectedContract.seller} label="Tên nhân viên" disabled
                     sx={{
                         flex: 1,
@@ -187,11 +187,12 @@ export function ContractReceipt({ selectedContract, open, onClose }: FileDialogP
             <Field.Text
                 name="address"
                 label="Địa chỉ"
-                helperText="Nhập địa chỉ người nộp tiền"
+                placeholder="Nhập địa chỉ người nộp tiền"
             />
             <Field.Text
                 name="reason"
                 label="Lý do nộp"
+                placeholder="Nhập lý do nộp"
             />
             <Field.VNCurrencyInput
                 name="amount"

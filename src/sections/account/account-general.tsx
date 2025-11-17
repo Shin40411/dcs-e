@@ -154,7 +154,7 @@ export function AccountGeneral() {
             >
               <Field.Text name="displayName" label="Name" />
               <Field.Text name="email" label="Email address" />
-              <Field.Phone name="phoneNumber" label="Phone number" />
+              {/* <Field.Phone name="phoneNumber" label="Phone number" /> */}
               <Field.Text name="address" label="Address" />
 
               <Field.CountrySelect name="country" label="Country" placeholder="Choose a country" />

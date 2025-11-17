@@ -17,6 +17,8 @@ import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { CONFIG } from "src/global-config";
 import { UnitBin } from "../unit-bin";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { RoleBasedGuard } from "src/auth/guard";
 
 export function UnitListView() {
     const openCrudForm = useBoolean();
@@ -26,6 +28,8 @@ export function UnitListView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+    const { permission } = useCheckPermission(['DONVITINH.VIEW']);
+
     const { units, pagination, unitsLoading } = useGetUnits({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
@@ -108,7 +112,12 @@ export function UnitListView() {
     );
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['DONVITINH.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Đơn vị tính"
@@ -149,6 +158,6 @@ export function UnitListView() {
                 {renderConfirmDeleteRow()}
                 {renderBin()}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

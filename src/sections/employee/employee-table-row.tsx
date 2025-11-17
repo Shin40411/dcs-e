@@ -5,6 +5,8 @@ import ListItemText from '@mui/material/ListItemText';
 import { Label } from 'src/components/label';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate } from 'src/utils/format-time-vi';
+import { Stack } from '@mui/material';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -20,14 +22,21 @@ export function RenderCellEmployee({ params }: ParamsProps) {
                 src={params.row.image}
                 sx={{ width: 48, height: 48 }}
             />
-            <ListItemText
-                primary={params.row.name}
-                secondary={params.row.email}
-                slotProps={{
-                    primary: { noWrap: true },
-                    secondary: { sx: { color: 'text.disabled' } },
-                }}
-            />
+            <Stack direction="column">
+                <ListItemText
+                    primary={params.row.name}
+                    secondary={params.row.email}
+                    slotProps={{
+                        primary: { noWrap: true },
+                        secondary: { sx: { color: 'text.disabled' } },
+                    }}
+                />
+                {params.row.lock === true &&
+                    <Box py={1}>
+                        <Label variant='filled' startIcon={<Iconify icon="mdi:password-alert" />}>Tài khoản đang bị khóa</Label>
+                    </Box>
+                }
+            </Stack>
         </Box>
     );
 }

@@ -33,6 +33,7 @@ export type IEmployeeItem = {
     balance: number;
     employeeTypeId: number;
     employeeType: string;
+    lock: boolean;
 }
 
 export type IEmployeeDto = {
@@ -50,4 +51,27 @@ export type IEmployeeDto = {
     bankName: string;
     balance: number;
     employeeTypeId: number;
+}
+
+export type IUserDto = {
+    userName: string;
+    fullName: string;
+    password: string;
+    userTypeId: number;
+    employee: IEmployeeDto;
+}
+
+export type ResUserType = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: {
+            id: number;
+            name: string;
+        }[];
+    };
 }

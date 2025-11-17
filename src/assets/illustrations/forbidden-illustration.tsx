@@ -15,10 +15,9 @@ type SvgProps = SvgIconProps & { hideBackground?: boolean };
 function ForbiddenIllustration({ hideBackground, sx, ...other }: SvgProps) {
   const renderCharacterImage = () => (
     <image
-      href={`${CONFIG.assetsDir}/assets/illustrations/characters/character-reject.webp`}
+      href={`${CONFIG.assetsDir}/assets/background/accessdenied-removebg.png`}
       height="280"
-      x="220"
-      y="40"
+      width='100%'
     />
   );
 
@@ -32,7 +31,7 @@ function ForbiddenIllustration({ hideBackground, sx, ...other }: SvgProps) {
           '--primary-main': theme.vars.palette.primary.main,
           '--primary-dark': theme.vars.palette.primary.dark,
           '--primary-darker': theme.vars.palette.primary.darker,
-          width: 320,
+          width: 500,
           maxWidth: 1,
           flexShrink: 0,
           height: 'auto',
@@ -41,7 +40,7 @@ function ForbiddenIllustration({ hideBackground, sx, ...other }: SvgProps) {
       ]}
       {...other}
     >
-      {!hideBackground && <BackgroundShape />}
+      {/* {!hideBackground && <BackgroundShape />} */}
 
       {renderCharacterImage()}
 

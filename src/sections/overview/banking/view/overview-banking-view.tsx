@@ -21,6 +21,8 @@ import { deleteOne } from 'src/actions/delete';
 import { toast } from 'sonner';
 import { CONFIG } from 'src/global-config';
 import { BankingBin } from '../banking-bin';
+import { useCheckPermission } from 'src/auth/hooks/use-check-permission';
+import { RoleBasedGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +35,7 @@ export function OverviewBankingView() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
   const [searchText, setSearchText] = useState('');
+  const { permission } = useCheckPermission(['TAIKHOAN.VIEW']);
 
   const { bankAccounts, pagination, bankAccountsLoading } = useGetBankAccounts({
     pageNumber: page + 1,
@@ -125,55 +128,62 @@ export function OverviewBankingView() {
 
 
   return (
-    <DashboardContent maxWidth="xl">
-      <CustomBreadcrumbs
-        heading="Tài khoản ngân hàng"
-        links={[
-          { name: 'Tổng quan', href: paths.dashboard.root },
-          { name: 'Danh mục' },
-          { name: 'Tài khoản ngân hàng' },
-        ]}
-        action={
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            onClick={() => {
-              setTableRowSelected(null),
-                openCrudForm.onTrue();
-            }}
-          >
-            Tạo tài khoản ngân hàng
-          </Button>
-        }
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
-      <UseGridTableList
-        dataFiltered={dataFiltered}
-        loading={bankAccountsLoading}
-        columns={
-          BANKACCOUNT_COLUMNS({
-            openDetailsForm,
-            openCrudForm,
-            confirmDelRowDialog,
-            setTableRowSelected,
-            setRowIdSelected,
-            page,
-            rowsPerPage
-          })}
-        rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
-        paginationCount={pagination?.totalRecord ?? 0}
-        page={page}
-        handleChangePage={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        handleChangeRowsPerPage={handleChangeRowsPerPage}
-        searchText={searchText}
-        onSearchChange={setSearchText}
-        openBin={openBin}
-      />
-      {renderDetails()}
-      {renderCRUDForm()}
-      {renderConfirmDeleteRow()}
-      {renderBin()}
-    </DashboardContent>
+    <RoleBasedGuard
+      hasContent
+      currentRole={permission?.name || ''}
+      allowedRoles={['TAIKHOAN.VIEW']}
+      sx={{ py: 10 }}
+    >
+      <DashboardContent maxWidth="xl">
+        <CustomBreadcrumbs
+          heading="Tài khoản ngân hàng"
+          links={[
+            { name: 'Tổng quan', href: paths.dashboard.root },
+            { name: 'Danh mục' },
+            { name: 'Tài khoản ngân hàng' },
+          ]}
+          action={
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              onClick={() => {
+                setTableRowSelected(null),
+                  openCrudForm.onTrue();
+              }}
+            >
+              Tạo tài khoản ngân hàng
+            </Button>
+          }
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
+        <UseGridTableList
+          dataFiltered={dataFiltered}
+          loading={bankAccountsLoading}
+          columns={
+            BANKACCOUNT_COLUMNS({
+              openDetailsForm,
+              openCrudForm,
+              confirmDelRowDialog,
+              setTableRowSelected,
+              setRowIdSelected,
+              page,
+              rowsPerPage
+            })}
+          rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
+          paginationCount={pagination?.totalRecord ?? 0}
+          page={page}
+          handleChangePage={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          searchText={searchText}
+          onSearchChange={setSearchText}
+          openBin={openBin}
+        />
+        {renderDetails()}
+        {renderCRUDForm()}
+        {renderConfirmDeleteRow()}
+        {renderBin()}
+      </DashboardContent>
+    </RoleBasedGuard>
   );
 }

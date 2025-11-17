@@ -124,7 +124,7 @@ export function WarehouseExportTable({ remainingProductEmpty, remainingProduct }
                                 }}
                             >
                                 <TableRow>
-                                    <TableCell colSpan={7}>
+                                    <TableCell colSpan={7} padding="none">
                                         <Box
                                             sx={{
                                                 borderTop: "1px solid #000",

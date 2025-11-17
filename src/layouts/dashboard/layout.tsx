@@ -9,13 +9,11 @@ import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
-import { allLangs } from 'src/locales';
 import { _contacts, _notifications } from 'src/_mock';
 
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
 
-import { useMockedUser } from 'src/auth/hooks';
 
 import { NavMobile } from './nav-mobile';
 import { VerticalDivider } from './content';
@@ -31,16 +29,13 @@ import { HeaderSection } from '../core/header-section';
 import { LayoutSection } from '../core/layout-section';
 import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
-import { LanguagePopover } from '../components/language-popover';
-import { ContactsPopover } from '../components/contacts-popover';
-import { WorkspacesPopover } from '../components/workspaces-popover';
 import { navData as dashboardNavData } from '../nav-config-dashboard';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
-import { NotificationsDrawer } from '../components/notifications-drawer';
 
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
+import { usePermission } from 'src/auth/context/jwt/permission-provider';
 
 // ----------------------------------------------------------------------
 
@@ -57,6 +52,27 @@ export type DashboardLayoutProps = LayoutBaseProps & {
   };
 };
 
+const SUPER_PERMISSIONS = "TOANQUYEN.VIEW";
+
+// const NORMAL_PERMISSIONS = [
+//   "THONGKE.VIEW",
+//   "BAOGIA.VIEW",
+//   "HOPDONG.VIEW",
+//   "NHOMSANPHAM.VIEW",
+//   "SANPHAM.VIEW",
+//   "DONVITINH.VIEW",
+//   "KHACHHANG.VIEW",
+//   "PHONGBAN.VIEW",
+//   "CHUCVU.VIEW",
+//   "NHANVIEN.VIEW",
+//   "NHACUNGCAP.VIEW",
+//   "TAIKHOAN.VIEW",
+//   "PHIEUTHU.VIEW",
+//   "PHIEUCHI.VIEW",
+//   "PHIEUXUATKHO.VIEW",
+//   "PHANQUYEN.VIEW"
+// ];
+
 export function DashboardLayout({
   sx,
   cssVars,
@@ -66,7 +82,7 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const theme = useTheme();
 
-  const { user } = useMockedUser();
+  const { permissions } = usePermission();
 
   const settings = useSettingsContext();
 
@@ -80,8 +96,17 @@ export function DashboardLayout({
   const isNavHorizontal = settings.state.navLayout === 'horizontal';
   const isNavVertical = isNavMini || settings.state.navLayout === 'vertical';
 
-  const canDisplayItemByRole = (allowedRoles: NavItemProps['allowedRoles']): boolean =>
-    !allowedRoles?.includes(user?.role);
+  const foundSuper = permissions?.find((p) => SUPER_PERMISSIONS === p.name);
+  const userPermissions: string[] = permissions?.map((p) => p.name) ?? [];
+  const userPermissionSet = new Set(userPermissions);
+
+  const canDisplayItemByRole = (allowedRoles: NavItemProps['allowedRoles']): boolean => {
+    if (!allowedRoles) return true;
+    const allowed = typeof allowedRoles === 'string' ? [allowedRoles] : allowedRoles;
+    if (!allowed || allowed.length === 0) return false;
+
+    return !allowed.some((role) => userPermissionSet.has(role));
+  }
 
   const renderHeader = () => {
     const headerSlotProps: HeaderSectionProps['slotProps'] = {

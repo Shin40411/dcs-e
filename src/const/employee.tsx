@@ -9,6 +9,8 @@ type ColumnProps = {
     openDetailsForm?: UseBooleanReturn;
     openCrudForm: UseBooleanReturn;
     confirmDelRowDialog: UseBooleanReturn;
+    confirmUnlockDialog: UseBooleanReturn;
+    confirmChangePass: UseBooleanReturn;
     setRowIdSelected: (id: any) => void;
     setTableRowSelected: (obj: any) => void;
     page: number;
@@ -19,6 +21,8 @@ export const EMPLOYEE_COLUMNS: ({
     openDetailsForm,
     openCrudForm,
     confirmDelRowDialog,
+    confirmUnlockDialog,
+    confirmChangePass,
     setRowIdSelected,
     setTableRowSelected,
     page,
@@ -27,6 +31,8 @@ export const EMPLOYEE_COLUMNS: ({
     openDetailsForm,
     openCrudForm,
     confirmDelRowDialog,
+    confirmUnlockDialog,
+    confirmChangePass,
     setRowIdSelected,
     setTableRowSelected,
     page,
@@ -76,6 +82,30 @@ export const EMPLOYEE_COLUMNS: ({
                                     <Iconify icon="solar:eye-bold" />
                                     <Box component="span" sx={{ ml: 1 }}>
                                         Chi tiết
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        setTableRowSelected(params.row);
+                                        setRowIdSelected(params.row.id);
+                                        confirmChangePass.onTrue();
+                                        handleClose();
+                                    }}>
+                                    <Iconify icon="solar:password-outline" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Đổi mật khẩu
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        setTableRowSelected(params.row);
+                                        setRowIdSelected(params.row.id);
+                                        confirmUnlockDialog.onTrue();
+                                        handleClose();
+                                    }}>
+                                    <Iconify icon={params.row.lock === false ? "solar:lock-password-bold" : "solar:lock-password-unlocked-bold"} />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        {params.row.lock === false ? 'Khóa' : 'Mở khóa'} tài khoản
                                     </Box>
                                 </MenuItem>
                                 <MenuItem
@@ -215,6 +245,28 @@ export const EMPLOYEE_COLUMNS: ({
                         sx={{ display: { xs: 'none', md: 'block' } }}
                         label="Chi tiết"
                         onClick={() => { openDetailsForm?.onTrue(), setTableRowSelected(params.row); }}
+                    />,
+                    <GridActionsCellItem
+                        showInMenu
+                        icon={<Iconify icon="solar:password-outline" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
+                        label=" Đổi mật khẩu"
+                        onClick={() => {
+                            setTableRowSelected(params.row);
+                            setRowIdSelected(params.row.id);
+                            confirmChangePass.onTrue();
+                        }}
+                    />,
+                    <GridActionsCellItem
+                        showInMenu
+                        icon={<Iconify icon={params.row.lock === false ? "solar:lock-password-bold" : "solar:lock-password-unlocked-bold"} />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
+                        label={`${params.row.lock === false ? 'Khóa' : 'Mở khóa'} tài khoản`}
+                        onClick={() => {
+                            setTableRowSelected(params.row);
+                            setRowIdSelected(params.row.id);
+                            confirmUnlockDialog.onTrue();
+                        }}
                     />,
                     <GridActionsCellItem
                         showInMenu

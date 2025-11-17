@@ -18,6 +18,8 @@ import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { CONFIG } from "src/global-config";
 import { CustomerBin } from "../customer-bin";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { RoleBasedGuard } from "src/auth/guard";
 
 export function CustomerListView() {
     const openCrudForm = useBoolean();
@@ -28,6 +30,8 @@ export function CustomerListView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+    const { permission } = useCheckPermission(['KHACHHANG.VIEW']);
+
     const { customers, pagination, customersLoading } = useGetCustomers({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
@@ -117,7 +121,12 @@ export function CustomerListView() {
     );
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['KHACHHANG.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Khách hàng"
@@ -168,6 +177,6 @@ export function CustomerListView() {
                 {renderDetails()}
                 {renderBin()}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

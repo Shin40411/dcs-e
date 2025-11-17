@@ -16,6 +16,9 @@ import { useGetContracts } from 'src/actions/contract';
 import { IContractItem } from 'src/types/contract';
 import { ContractItem } from './contract-item';
 import { ContractFilterBar } from './contract-filter';
+import { toast } from 'sonner';
+import { endpoints } from 'src/lib/axios';
+import { deleteOne } from 'src/actions/delete';
 
 type Props = {
     onViewDetails: (quotation: IContractItem) => void;
@@ -95,7 +98,15 @@ export function ContractCardList({
     };
 
     const handleDeleteRow = async (id: number) => {
-        if (id === 0 || !id) return;
+        const success = await deleteOne({
+            apiEndpoint: endpoints.contract.delete(id),
+            listEndpoint: '/api/v1/contracts/contracts',
+        });
+        if (success) {
+            toast.success('Xóa thành công 1 hợp đồng!');
+        } else {
+            toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
+        }
     }
 
     const renderConfirmDeleteRow = () => (

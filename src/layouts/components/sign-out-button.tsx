@@ -16,6 +16,7 @@ import { signOut as jwtSignOut } from 'src/auth/context/jwt/action';
 import { signOut as amplifySignOut } from 'src/auth/context/amplify/action';
 import { signOut as supabaseSignOut } from 'src/auth/context/supabase/action';
 import { signOut as firebaseSignOut } from 'src/auth/context/firebase/action';
+import { usePermission } from 'src/auth/context/jwt/permission-provider';
 
 // ----------------------------------------------------------------------
 
@@ -33,9 +34,12 @@ export function SignOutButton({ onClose, sx, ...other }: Props) {
   const router = useRouter();
 
   const { checkUserSession } = useAuthContext();
+  const { clearPermissions } = usePermission();
 
   const handleLogout = useCallback(async () => {
     try {
+
+      clearPermissions();
       await signOut();
       await checkUserSession?.();
 

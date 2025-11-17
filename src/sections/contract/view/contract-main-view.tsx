@@ -11,6 +11,9 @@ import { Iconify } from "src/components/iconify";
 import { ContractForm } from "../contract-form";
 import { ContractDetails } from "../contract-details";
 import { useLocation, useNavigate } from "react-router";
+import { useBoolean } from "minimal-shared/hooks";
+import { RoleBasedGuard } from "src/auth/guard";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 
 export function ContractMainView() {
     const location = useLocation();
@@ -23,7 +26,10 @@ export function ContractMainView() {
     const [toDate, setToDate] = useState<IDateValue>();
     const [productDetails, setProductDetails] = useState([]);
     const [inVoiceCustomerId, setInVoiceCustomerId] = useState<number | null>(null);
+    const isCreatingSupplierContract = useBoolean();
     const navigate = useNavigate();
+
+    const { permission } = useCheckPermission(['HOPDONG.VIEW']);
 
     const handleViewDetails = (contract: IContractItem) => {
         setSelectedContract(contract);
@@ -39,6 +45,16 @@ export function ContractMainView() {
         setSelectedContract(null);
         setOpenForm(true);
     }
+
+    const handleCreateSupplierContract = () => {
+        // setSelectedContract(null);
+        isCreatingSupplierContract.onTrue();
+        setOpenForm(true);
+    }
+
+    // useEffect(() => {
+    //     console.log('isCreatingSupplierContract:', isCreatingSupplierContract.value);
+    // }, [isCreatingSupplierContract.value]);
 
     useEffect(() => {
         if (location.state?.openForm) {
@@ -56,7 +72,12 @@ export function ContractMainView() {
     }, [location.state, location.pathname, navigate]);
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['HOPDONG.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent
                 sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
             >
@@ -94,22 +115,25 @@ export function ContractMainView() {
                         setOpenForm(false);
                         setSelectedContract(null);
                         setProductDetails([]);
+                        isCreatingSupplierContract.onFalse();
                     }}
                     selectedContract={selectedContract}
                     detailsFromQuotation={productDetails}
                     customerIdFromQuotation={inVoiceCustomerId}
+                    creatingSupplierContract={isCreatingSupplierContract.value}
                 />
                 {selectedContract && (
                     <ContractDetails
                         selectedContract={selectedContract}
-                        openForm={handleCopying}
+                        copyContract={handleCopying}
                         openDetail={openDetail}
                         onClose={() => setOpenDetail(false)}
+                        createSupplierContract={handleCreateSupplierContract}
                     />
                 )}
 
 
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

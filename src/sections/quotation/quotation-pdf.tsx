@@ -34,7 +34,7 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }:
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 1500);
+        const timer = setTimeout(() => setLoading(false), 1000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -223,7 +223,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                     style={styles.body}
                 >
                     {renderDates(createdDate, quotationNo)}
-                    {renderTitle()}
+                    {renderTitle('Bảng báo giá')}
                     {renderBillingInfo(companyName, customerName)}
                     {renderTable({ currentQuotation, totalAmount })}
                     {renderByTextTotal(totalAmount)}

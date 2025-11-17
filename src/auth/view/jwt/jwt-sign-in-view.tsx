@@ -23,6 +23,8 @@ import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
 import { signInWithPassword } from '../../context/jwt';
 import { Logo } from 'src/components/logo';
+import { getPermissionByUser } from 'src/actions/permission';
+import { usePermission } from 'src/auth/context/jwt/permission-provider';
 
 // ----------------------------------------------------------------------
 
@@ -62,12 +64,11 @@ export function JwtSignInView() {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
-
   const onSubmit = handleSubmit(async (data) => {
     try {
       await signInWithPassword({ username: data.username, password: data.password });
+      await getPermissionByUser();
       await checkUserSession?.();
-
       router.refresh();
     } catch (error) {
       console.error(error);

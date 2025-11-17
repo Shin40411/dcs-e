@@ -42,7 +42,8 @@ const customItemsSchema = z
 
 export const contractSchema = z.object({
     contractNo: z.string().min(1, "Vui lòng nhập số phiếu"),
-    customerId: z.number().min(1, { message: "Vui lòng chọn khách hàng" }),
+    customerId: z.number(),
+    supplierId: z.number(),
     createDate: z.custom<IDateValue>().refine(
         (val) => val !== null && val !== undefined && val !== "",
         { message: "Vui lòng chọn ngày tạo" }
@@ -77,10 +78,25 @@ export const contractSchema = z.object({
 }).refine((data) => data.copiesNo >= 2, {
     message: "Số bản sao phải ít nhất là 2",
     path: ["copiesNo"],
-})
-    .refine((data) => data.keptNo < data.copiesNo, {
-        message: "Số bản lưu phải nhỏ hơn tổng số bản",
-        path: ["keptNo"],
-    });;
+}).refine((data) => data.keptNo < data.copiesNo, {
+    message: "Số bản lưu phải nhỏ hơn tổng số bản",
+    path: ["keptNo"],
+}).superRefine((data, ctx) => {
+    if (data.supplierId <= 0 && data.customerId <= 0) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Vui lòng chọn khách hàng",
+            path: ["customerId"],
+        });
+    }
+
+    if (data.customerId <= 0 && data.supplierId <= 0) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Vui lòng chọn nhà cung cấp",
+            path: ["supplierId"],
+        });
+    }
+});;
 
 export type ContractFormValues = z.infer<typeof contractSchema>;

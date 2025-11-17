@@ -10,6 +10,8 @@ import { QuotationDetails } from "../quotation-details";
 import { IQuotationItem } from "src/types/quotation";
 import { CONFIG } from "src/global-config";
 import { IDateValue } from "src/types/common";
+import { RoleBasedGuard } from "src/auth/guard";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 
 export function QuotationMainView() {
     const [openForm, setOpenForm] = useState(false);
@@ -20,6 +22,8 @@ export function QuotationMainView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [fromDate, setFromDate] = useState<IDateValue>();
     const [toDate, setToDate] = useState<IDateValue>();
+
+    const { permission } = useCheckPermission(['BAOGIA.VIEW']);
 
     const handleViewDetails = (quotation: IQuotationItem) => {
         setSelectedQuotation(quotation);
@@ -39,7 +43,12 @@ export function QuotationMainView() {
     }
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['BAOGIA.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Báo giá"
@@ -92,6 +101,6 @@ export function QuotationMainView() {
                     />
                 )}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

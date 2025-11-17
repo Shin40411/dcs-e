@@ -26,6 +26,8 @@ import { deleteOne } from 'src/actions/delete';
 import { endpoints } from 'src/lib/axios';
 import { CONFIG } from 'src/global-config';
 import { ProductBin } from '../product-bin';
+import { RoleBasedGuard } from 'src/auth/guard';
+import { useCheckPermission } from 'src/auth/hooks/use-check-permission';
 
 // ----------------------------------------------------------------------
 
@@ -58,6 +60,7 @@ export function ProductListView() {
   const [tableData, setTableData] = useState<ProductItem[]>(products);
   const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
   const [rowIdSelected, setRowIdSelected] = useState('');
+  const { permission } = useCheckPermission(['SANPHAM.VIEW']);
 
   const filters = useSetState<ProductTableFilters>({ Search: '', Filter: '' });
   const { state: currentFilters } = filters;
@@ -165,7 +168,12 @@ export function ProductListView() {
   );
 
   return (
-    <>
+    <RoleBasedGuard
+      hasContent
+      currentRole={permission?.name || ''}
+      allowedRoles={['SANPHAM.VIEW']}
+      sx={{ py: 10 }}
+    >
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <CustomBreadcrumbs
           heading="Sản phẩm"
@@ -218,7 +226,7 @@ export function ProductListView() {
       {renderCRUDForm()}
       {renderDetails()}
       {renderBin()}
-    </>
+    </RoleBasedGuard>
   );
 }
 

@@ -17,7 +17,8 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
 import { CONFIG } from "src/global-config";
 import { EmployeeTypeBin } from "../employee-type-bin";
-import { set } from "nprogress";
+import { RoleBasedGuard } from "src/auth/guard";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 
 export function EmployeeTypeListView() {
     const openCrudForm = useBoolean();
@@ -27,6 +28,7 @@ export function EmployeeTypeListView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+    const { permission } = useCheckPermission(['CHUCVU.VIEW']);
 
     const { employeeTypes, pagination, employeeTypesLoading } = useGetEmployeeTypes({
         pageNumber: page + 1,
@@ -112,7 +114,12 @@ export function EmployeeTypeListView() {
     );
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['CHUCVU.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Chức vụ"
@@ -153,6 +160,6 @@ export function EmployeeTypeListView() {
                 {renderConfirmDeleteRow()}
                 {renderBin()}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

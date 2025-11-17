@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
 import { CONFIG } from "src/global-config";
 import { DepartmentBin } from "../department-bin";
+import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { RoleBasedGuard } from "src/auth/guard";
 
 export function DepartmentListView() {
     const openCrudForm = useBoolean();
@@ -26,6 +28,7 @@ export function DepartmentListView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+    const { permission } = useCheckPermission(['PHONGBAN.VIEW']);
 
     const { departments, pagination, departmentsLoading } = useGetDepartments({
         pageNumber: page + 1,
@@ -111,7 +114,12 @@ export function DepartmentListView() {
     );
 
     return (
-        <>
+        <RoleBasedGuard
+            hasContent
+            currentRole={permission?.name || ''}
+            allowedRoles={['PHONGBAN.VIEW']}
+            sx={{ py: 10 }}
+        >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
                     heading="Phòng ban"
@@ -152,6 +160,6 @@ export function DepartmentListView() {
                 {renderConfirmDeleteRow()}
                 {renderBin()}
             </DashboardContent>
-        </>
+        </RoleBasedGuard>
     );
 }

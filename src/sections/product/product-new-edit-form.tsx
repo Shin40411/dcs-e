@@ -27,6 +27,8 @@ import { uploadImage } from 'src/actions/upload';
 import { ICategoryItem } from 'src/types/category';
 import { CONFIG } from 'src/global-config';
 import { NewProductSchema, NewProductSchemaType } from './schema/product-schema';
+import { renderSkeleton } from 'src/components/skeleton/skeleton-quotation-contract';
+import { renderSkeletonV2 } from 'src/components/skeleton/skeleton-product-employee';
 
 type Props = {
   open: boolean;
@@ -361,7 +363,7 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
         <Form methods={methods} onSubmit={onSubmit}>
           <CardContent sx={{ pt: 0, px: 0 }}>
             <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto' }}>
-              {renderDetails()}
+              {productLoading ? renderSkeletonV2() : renderDetails()}
             </Stack>
           </CardContent>
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }} />

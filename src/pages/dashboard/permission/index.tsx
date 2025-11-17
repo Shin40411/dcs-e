@@ -1,17 +1,16 @@
 import { CONFIG } from 'src/global-config';
-
-import { PermissionDeniedView } from 'src/sections/permission/view';
+import { PermissionView } from 'src/sections/permission/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Permission | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Phân quyền - ${CONFIG.appName}` };
 
 export default function Page() {
   return (
     <>
       <title>{metadata.title}</title>
 
-      <PermissionDeniedView />
+      <PermissionView />
     </>
   );
 }

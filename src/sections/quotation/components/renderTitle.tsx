@@ -1,8 +1,8 @@
 import { Text, View } from "@react-pdf/renderer";
 
-export const renderTitle = () => (
+export const renderTitle = (title: string) => (
     <View style={{ width: '100%', margin: '10px 0', textAlign: 'center' }}>
-        <Text style={{ fontFamily: 'Montserrat-bold', fontSize: 20, fontWeight: 600, textTransform: 'uppercase' }}>Bảng báo giá</Text>
+        <Text style={{ fontFamily: 'Montserrat-bold', fontSize: 20, fontWeight: 600, textTransform: 'uppercase' }}>{title}</Text>
         <View
             style={{
                 height: 1,

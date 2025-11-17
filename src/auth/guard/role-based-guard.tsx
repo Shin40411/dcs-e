@@ -9,13 +9,6 @@ import { ForbiddenIllustration } from 'src/assets/illustrations';
 
 import { varBounce, MotionContainer } from 'src/components/animate';
 
-// ----------------------------------------------------------------------
-
-/**
- * NOTE:
- * This component is for reference only.
- * You can customize the logic and conditions to better suit your application's requirements.
- */
 
 export type RoleBasedGuardProp = {
   sx?: SxProps<Theme>;
@@ -25,6 +18,10 @@ export type RoleBasedGuardProp = {
   children: React.ReactNode;
 };
 
+const SUPER_PERMISSIONS = [
+  "TOANQUYEN.VIEW",
+];
+
 export function RoleBasedGuard({
   sx,
   children,
@@ -32,7 +29,16 @@ export function RoleBasedGuard({
   currentRole,
   allowedRoles,
 }: RoleBasedGuardProp) {
-  if (currentRole && allowedRoles && !allowedRoles.includes(currentRole)) {
+  let isInAllowedRole = false;
+
+  if (SUPER_PERMISSIONS.includes(currentRole)) {
+    isInAllowedRole = true;
+  } else {
+    isInAllowedRole = allowedRoles.includes(currentRole);
+  }
+
+  // if (currentRole && allowedRoles && !isInAllowedRole) {
+  if (!isInAllowedRole) {
     return hasContent ? (
       <Container
         component={MotionContainer}
@@ -40,13 +46,13 @@ export function RoleBasedGuard({
       >
         <m.div variants={varBounce('in')}>
           <Typography variant="h3" sx={{ mb: 2 }}>
-            Permission denied
+            Không có quyền truy cập
           </Typography>
         </m.div>
 
         <m.div variants={varBounce('in')}>
           <Typography sx={{ color: 'text.secondary' }}>
-            You do not have permission to access this page.
+            Tài khoản của bạn không có quyền để truy cập trang này!
           </Typography>
         </m.div>
 

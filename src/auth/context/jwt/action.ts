@@ -2,6 +2,7 @@ import axios, { endpoints } from 'src/lib/axios';
 
 import { setSession } from './utils';
 import { JWT_STORAGE_KEY } from './constant';
+import { usePermission } from './permission-provider';
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +32,6 @@ export const signInWithPassword = async ({ username, password }: SignInParams): 
     if (!data?.token) {
       throw new Error('Token không được tìm thấy');
     }
-
     sessionStorage.setItem(JWT_STORAGE_KEY, data.token);
     sessionStorage.setItem('user',
       JSON.stringify({
