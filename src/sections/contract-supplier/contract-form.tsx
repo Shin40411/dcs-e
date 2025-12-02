@@ -12,9 +12,16 @@ import { ContractItemsTable } from "./contract-product-table";
 import { generateContractNo } from "src/utils/random-func";
 import { mapProductsToItems } from "./helper/mapProductToItems";
 import { toast } from "sonner";
-import { fCurrencyNoUnit } from "src/utils/format-number";
 import { renderSkeleton } from "src/components/skeleton/skeleton-quotation-contract";
-import { IContractSupDetailDto, IContractSupplyDto, IContractSupplyForDetail, IContractSupplyItem, IContractSupplyProductDto, IContractSupplyUpdateDto, IProductFromSup } from "src/types/contractSupplier";
+import {
+    IContractSupDetailDto,
+    IContractSupplyDto,
+    IContractSupplyForDetail,
+    IContractSupplyItem,
+    IContractSupplyProductDto,
+    IContractSupplyUpdateDto,
+    IProductFromSup
+} from "src/types/contractSupplier";
 import { addMoreSupProducts, editProductSupplierForm, updateSupplierContract, useGetSupplierContract } from "src/actions/contractSupplier";
 import { useGetSuppliers } from "src/actions/suppliers";
 import { ISuppliersItem } from "src/types/suppliers";
@@ -25,11 +32,19 @@ type ContractFormProps = {
     open: boolean;
     onClose: () => void;
     selectedContract: IContractSupplyItem | null;
+    CopiedContract: IContractSupplyItem | null;
     detailsFromQuotation: any[];
     mutation: () => void;
 };
 
-export function ContractForm({ open, onClose, selectedContract, detailsFromQuotation, mutation: listMutate }: ContractFormProps) {
+export function ContractForm({
+    open,
+    onClose,
+    selectedContract,
+    CopiedContract,
+    detailsFromQuotation,
+    mutation: listMutate }: ContractFormProps) {
+    const contractId = selectedContract?.id ?? CopiedContract?.id ?? 0;
     const today = new Date();
     const { user } = useAuthContext();
     const [customerkeyword, setCustomerKeyword] = useState('');
@@ -38,7 +53,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     const [originalItems, setOriginalItems] = useState<IContractDetailDto[]>([]);
 
     const { contract: CurrentContract, contractLoading, mutation: detailMutate } = useGetSupplierContract({
-        contractId: selectedContract?.id || 0,
+        contractId: contractId,
         pageNumber: 1,
         pageSize: 999,
         options: { enabled: !!selectedContract?.id }
@@ -53,7 +68,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
 
     const [isCreatingSupplier, setIsCreatingSupplier] = useState(false);
 
-    const [contractProductDetail, setContractProductDetail] = useState<IContractSupplyForDetail>();
+    const [contractProductDetail, setContractProductDetail] = useState<IContractSupplyForDetail[]>();
 
     const [selectedSupplier, setSelectedSupplier] = useState<ISuppliersItem | null>(null);
 
@@ -67,7 +82,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
         downPayment: 0,
         nextPayment: 0,
         lastPayment: 0,
-        copiesNo: 1,
+        copiesNo: 2,
         keptNo: 1,
         status: 1,
         note: "",
@@ -90,6 +105,35 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     });
 
     useEffect(() => {
+        if (CopiedContract) {
+            if (!CurrentContract) return;
+            const currentDetails = CurrentContract.items.filter(
+                (c) => c.contractSupID === CopiedContract.id
+            );
+
+            setContractProductDetail(currentDetails);
+
+            const mappedItems = mapProductsToItems(currentDetails || []);
+
+            methods.reset({
+                supplierId: CopiedContract.supplierId,
+                contractNo: generateContractNo('KH'),
+                createDate: CopiedContract.createDate,
+                signatureDate: CopiedContract.signatureDate,
+                deliveryAddress: CopiedContract.deliveryAddress,
+                deliveryTime: CopiedContract.deliveryTime,
+                downPayment: CopiedContract.downPayment,
+                nextPayment: CopiedContract.nextPayment,
+                lastPayment: CopiedContract.lastPayment,
+                copiesNo: CopiedContract.copiesNo,
+                keptNo: CopiedContract.keptNo,
+                status: CopiedContract.status,
+                note: CopiedContract.note,
+                discount: CopiedContract.discount,
+                products: mappedItems
+            });
+        }
+
         if (!selectedContract) {
             methods.reset(defaultValues);
             setOriginalItems(
@@ -105,7 +149,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
 
         if (!CurrentContract) return;
 
-        const currentDetails = CurrentContract.items.find(
+        const currentDetails = CurrentContract.items.filter(
             (q) => q.contractSupID === selectedContract.id
         );
 
@@ -144,16 +188,16 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
     const supplierId = methods.watch('supplierId');
 
     useEffect(() => {
-        if (!supplierId) {
+        if (!supplierId || supplierId === 0) {
             setSelectedSupplier(null);
             return;
         }
-
         const found = suppliers.find((cus) => Number(cus.id) === Number(supplierId));
+        console.log(found);
         if (found) {
             setSelectedSupplier(found);
         }
-    }, [supplierId]);
+    }, [supplierId, suppliers]);
 
     const {
         reset,
@@ -384,7 +428,7 @@ export function ContractForm({ open, onClose, selectedContract, detailsFromQuota
             {/* Section Bảng sản phẩm */}
             <ContractItemsTable
                 idContract={selectedContract?.id}
-                contractProductDetail={CurrentContract?.items}
+                contractProductDetail={contractProductDetail}
                 methods={methods}
                 fields={fields}
                 append={append}

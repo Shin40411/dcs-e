@@ -26,7 +26,7 @@ export function useGetEmployeeTypes({ pageNumber, pageSize, key, enabled = true 
 
     const url = enabled ? endpoints.employeeType.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResEmployeeTypeList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResEmployeeTypeList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -41,6 +41,7 @@ export function useGetEmployeeTypes({ pageNumber, pageSize, key, enabled = true 
             employeeTypesError: error,
             employeeTypesValidating: isValidating,
             employeeTypesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );
@@ -55,7 +56,7 @@ export function useGetDeletedEmployeeTypes({ pageNumber, pageSize, key, enabled 
 
     const url = enabled ? endpoints.employeeType.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResEmployeeTypeList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResEmployeeTypeList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -70,6 +71,7 @@ export function useGetDeletedEmployeeTypes({ pageNumber, pageSize, key, enabled 
             employeeTypesError: error,
             employeeTypesValidating: isValidating,
             employeeTypesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

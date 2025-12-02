@@ -14,6 +14,7 @@ export type ResEmployeesList = {
 
 export type IEmployeeItem = {
     id: number;
+    code: string;
     name: string;
     status: boolean;
     createDate: IDateValue;

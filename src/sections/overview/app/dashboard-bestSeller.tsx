@@ -3,6 +3,7 @@ import { useDebounce } from "minimal-shared/hooks";
 import { useState } from "react";
 import { useGetCategories } from "src/actions/category";
 import { TopBestSellerStatistic } from "src/actions/statistics";
+import { EmptyContent } from "src/components/empty-content";
 import { useSettingsContext } from "src/components/settings";
 import { ICategoryItem } from "src/types/category";
 import { fCurrencyNoUnit } from "src/utils/format-number";
@@ -135,7 +136,7 @@ export function DashBoardBestSeller({ filter }: DashBoardBestSellerProps) {
                             ) : bestSellerEmpty ? (
                                 <TableRow>
                                     <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                                        Không có dữ liệu
+                                        <EmptyContent />
                                     </TableCell>
                                 </TableRow>
                             ) : (

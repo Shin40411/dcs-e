@@ -19,8 +19,13 @@ import { CONFIG } from "src/global-config";
 import { DepartmentBin } from "../department-bin";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { useLocation } from "react-router";
+import { EMPLOYEE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 
 export function DepartmentListView() {
+    const location = useLocation();
+
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const openBin = useBoolean();
@@ -30,7 +35,7 @@ export function DepartmentListView() {
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['PHONGBAN.VIEW']);
 
-    const { departments, pagination, departmentsLoading } = useGetDepartments({
+    const { departments, pagination, departmentsLoading, mutation } = useGetDepartments({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -71,7 +76,6 @@ export function DepartmentListView() {
         }
     }
 
-
     const renderConfirmDeleteRow = () => (
         <ConfirmDialog
             open={confirmDelRowDialog.value}
@@ -110,6 +114,7 @@ export function DepartmentListView() {
         <DepartmentBin
             open={openBin.value}
             onClose={openBin.onFalse}
+            listMutation={mutation}
         />
     );
 
@@ -122,10 +127,9 @@ export function DepartmentListView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Phòng ban"
+                    heading="Nhân viên"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Danh mục' },
+                        { name: 'Quản lý danh mục' },
                         { name: 'Phòng ban' },
                     ]}
                     action={
@@ -136,12 +140,15 @@ export function DepartmentListView() {
                                 openCrudForm.onTrue();
                                 setTableRowSelected(null);
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo phòng ban
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={EMPLOYEE_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={departmentsLoading}

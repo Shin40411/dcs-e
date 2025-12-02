@@ -102,7 +102,9 @@ export function PermissionView() {
       <DashboardContent>
         <CustomBreadcrumbs
           heading="Phân quyền"
-          links={[{ name: 'Tổng quan', href: paths.dashboard.root }, { name: 'Cài đặt' }, { name: 'Phân quyền' }]}
+          links={[
+            { name: 'Cài đặt' },
+            { name: 'Phân quyền' }]}
           sx={{ mb: { xs: 3, md: 5 } }}
         />
         {permissionsLoading ?

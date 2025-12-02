@@ -20,9 +20,14 @@ import { CONFIG } from "src/global-config";
 import { CategoryBin } from "../category-bin";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { useLocation } from "react-router";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { PRODUCT_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
 // ----------------------------------------------------------------------
 
 export function CategoryListView() {
+    const location = useLocation();
+
     const confirmDialog = useBoolean();
     const confirmDelRowDialog = useBoolean();
     const openCrudForm = useBoolean();
@@ -35,7 +40,7 @@ export function CategoryListView() {
 
     const { permission } = useCheckPermission(['NHOMSANPHAM.VIEW']);
 
-    const { categories, categoriesLoading, pagination } = useGetCategories({
+    const { categories, categoriesLoading, pagination, mutation } = useGetCategories({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -155,6 +160,7 @@ export function CategoryListView() {
         <CategoryBin
             open={openBin.value}
             onClose={openBin.onFalse}
+            listMutation={mutation}
         />
     );
 
@@ -167,10 +173,9 @@ export function CategoryListView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Nhóm sản phẩm"
+                    heading="Sản phẩm"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Danh mục', href: paths.dashboard.category.root },
+                        { name: 'Quản lý danh mục', href: paths.dashboard.product.root },
                         { name: 'Nhóm sản phẩm' },
                     ]}
                     action={
@@ -181,12 +186,15 @@ export function CategoryListView() {
                                 openCrudForm.onTrue();
                                 setTableRowSelected(null);
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo nhóm sản phẩm
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={PRODUCT_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={categoriesLoading}

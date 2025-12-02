@@ -130,6 +130,7 @@ export const endpoints = {
   },
   contract: {
     list: (params: string) => `/api/v1/contracts/contracts${params}`,
+    contractSupplier: (contractNo: string) => `/api/v1/contracts/get-supplier-contract-by-contract?contractNo=${contractNo}`,
     detail: (params: string) => `/api/v1/contracts/get-contract-detail${params}`,
     create: `/api/v1/contracts/create`,
     update: {
@@ -163,6 +164,7 @@ export const endpoints = {
   },
   contractReceipt: {
     list: (params: string) => `/api/v1/contract-receipts/get-receipts${params}`,
+    totalSpend: (contractNo: string) => `/api/v1/contract-receipts/history-spend-by-customer-contract?customerContractNo=${contractNo}`,
     create: '/api/v1/contract-receipts/create',
     update: (id: number) => `/api/v1/contract-receipts/edit-receipt/${id}`,
     delete: '/api/v1/contract-receipts/delete-receipt'
@@ -174,6 +176,14 @@ export const endpoints = {
     create: '/api/v1/warehouse-exports/create',
     update: (id: string) => `/api/v1/warehouse-exports/edit/${id}`,
     delete: (id: number) => `/api/v1/warehouse-exports/delete/${id}`
+  },
+  contractWarehouseImport: {
+    list: (params: string) => `/api/v1/warehouse-imports/get-imports${params}`,
+    remaining: (contractId: number) => `/api/v1/contract-suppliers/reamainning-supplier-contract?supplierContractId=${contractId}`,
+    details: (ImportID: number) => `/api/v1/warehouse-imports/get-details?importId=${ImportID}&pageNumber=1&pageSize=99999`,
+    create: '/api/v1/warehouse-imports/create',
+    update: (id: string) => `/api/v1/warehouse-imports/edit-import/${id}`,
+    delete: (id: number) => `/api/v1/warehouse-imports/delete/${id}`
   },
   upload: {
     uploadImage: '/api/v1/uploads/upload',
@@ -209,5 +219,14 @@ export const endpoints = {
     deparment: (params: string) => `/api/v1/permissions/department-permissions${params}`,
     update: '/api/v1/permissions/set-unset-department-permission',
     byUser: '/api/v1/permissions/permissions-by-user'
+  },
+  internal: {
+    root: (params: string) => `/api/v1/receipts/get-receipts${params}`,
+    transfer: (params: string) => `/api/v1/transfer/get-transfer${params}`,
+    createTransfer: '/api/v1/transfer/internal-transfer',
+    create: '/api/v1/receipts/create',
+    update: (id: number) => `/api/v1/receipts/edit-receipt/${id}`,
+    delete: (id: number) => `/api/v1/receipts/delete-receipt/${id}`,
+    deleteTransfer: (id: number) => `/api/v1/transfer/delete/${id}`
   }
 };

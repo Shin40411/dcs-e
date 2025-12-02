@@ -11,14 +11,24 @@ import { UseGridTableList } from "src/components/data-grid-table/data-grid-table
 import { CONFIG } from "src/global-config";
 import { DashboardContent } from "src/layouts/dashboard";
 import { endpoints } from "src/lib/axios";
-import { paths } from "src/routes/paths";
 import { IReceiptContract } from "src/types/contract";
 import { SpendNewEditForm } from "../spend-new-edit-form";
 import { SPEND_COLUMNS } from "src/const/spend";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { useLocation } from "react-router";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { CUSTOMER_SERVICE_TAB_DATA, SUPPLIER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import { SpendFilterBar } from "../components/spend-filter";
+import { FilterValues } from "src/types/filter-values";
+import { formatDate } from "src/utils/format-time-vi";
+import { Iconify } from "src/components/iconify";
 
-export function SpendMainView() {
+export function SpendMainView({ contractType }: { contractType: string }) {
+    const location = useLocation();
+    const today = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(today.getMonth() - 1);
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
@@ -27,6 +37,10 @@ export function SpendMainView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['PHIEUCHI.VIEW']);
+    const [filters, setFilters] = useState<FilterValues>({
+        fromDate: null,
+        toDate: null,
+    });
 
     const {
         contractReceipt,
@@ -37,11 +51,30 @@ export function SpendMainView() {
     } = useGetReceiptContract({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
-        key: searchText,
+        key: searchText.trim(),
         enabled: true,
-        ContractType: 'supplier',
-        ReceiptType: 'spend'
+        ContractType: contractType,
+        ReceiptType: 'spend',
+        ContractNo: filters.contract,
+        FromDate: filters.fromDate,
+        ToDate: filters.toDate,
+        Month: filters.month,
     });
+
+    const handleFilterChange = (values: FilterValues) => {
+        setFilters(values);
+        setPage(0);
+    };
+
+    const handleReset = () => {
+        setFilters({
+            fromDate: formatDate(lastMonth),
+            toDate: formatDate(today),
+            contract: undefined,
+            month: undefined
+        });
+        setPage(0);
+    };
 
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
@@ -79,6 +112,8 @@ export function SpendMainView() {
         }
     }
 
+    const titleBreadcrumb = contractType === 'Customer' ? 'Nghiệp vụ khách hàng' : 'Nghiệp vụ nhà cung cấp';
+
     return (
         <RoleBasedGuard
             hasContent
@@ -88,23 +123,33 @@ export function SpendMainView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Phiếu chi"
+                    heading={titleBreadcrumb}
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Nội bộ' },
+                        { name: titleBreadcrumb },
                         { name: 'Phiếu chi' },
                     ]}
-                    // action={
-                    //     <Button
-                    //         variant="contained"
-                    //         startIcon={<Iconify icon="mingcute:add-line" />}
-                    //         onClick={() => {
-                    //         }}
-                    //     >
-                    //         Tạo phiếu chi
-                    //     </Button>
-                    // }
+                    action={
+                        <Button
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                            onClick={() => {
+                                openCrudForm.onTrue();
+                                setTableRowSelected(null);
+                            }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
+                        >
+                            Tạo phiếu chi
+                        </Button>
+                    }
                     sx={{ mb: { xs: 3, md: 5 } }}
+                />
+
+                <ServiceNavTabs
+                    tabs={
+                        contractType === 'Customer' ?
+                            CUSTOMER_SERVICE_TAB_DATA :
+                            SUPPLIER_SERVICE_TAB_DATA}
+                    activePath={location.pathname}
                 />
                 <UseGridTableList
                     dataFiltered={tableData}
@@ -127,11 +172,21 @@ export function SpendMainView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    disableDefaultFilter
+                    additionalFilter={
+                        <SpendFilterBar
+                            onFilterChange={handleFilterChange}
+                            onSearching={setSearchText}
+                            onReset={handleReset}
+                            contractType={contractType}
+                        />
+                    }
                 />
                 <SpendNewEditForm
                     open={openCrudForm.value}
                     onClose={openCrudForm.onFalse}
                     selectedReceipt={tableRowSelected}
+                    contractType={contractType}
                     mutation={mutation}
                 />
                 <ConfirmDialog

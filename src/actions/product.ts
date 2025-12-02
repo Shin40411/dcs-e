@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import { useMemo } from 'react';
 
 import axiosInstance, { fetcher, endpoints } from 'src/lib/axios';
+import { IContractProduct } from 'src/types/contract';
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +33,7 @@ export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
 
   const url = endpoints.product.list(params);
 
-  const { data, isLoading, error, isValidating } = useSWR<ResProductList>(
+  const { data, isLoading, error, isValidating, mutate } = useSWR<ResProductList>(
     url,
     fetcher,
     swrOptions
@@ -51,6 +52,7 @@ export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
       productsError: error,
       productsValidating: isValidating,
       productsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+      mutation: mutate
     }),
     [data, error, isLoading, isValidating, pageNumber, pageSize]
   );
@@ -67,7 +69,7 @@ export function useGetDeletedProducts({ pageNumber, key, pageSize, enabled = tru
 
   const url = enabled ? endpoints.product.list(params) : null;
 
-  const { data, isLoading, error, isValidating } = useSWR<ResProductList>(
+  const { data, isLoading, error, isValidating, mutate } = useSWR<ResProductList>(
     url,
     fetcher,
     swrOptions
@@ -86,6 +88,7 @@ export function useGetDeletedProducts({ pageNumber, key, pageSize, enabled = tru
       productsError: error,
       productsValidating: isValidating,
       productsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+      mutation: mutate
     }),
     [data, error, isLoading, isValidating, pageNumber, pageSize]
   );
@@ -149,4 +152,11 @@ export function createOrUpdateProduct(id: string | null, bodyPayload: ProductDto
   } else {
     return axiosInstance.post(endpoints.product.create, bodyPayload);
   }
+}
+
+export async function fetchProductById(productId: string) {
+  const url = endpoints.product.details(productId);
+  const res = await axiosInstance.get(url);
+
+  return res.data.data;
 }

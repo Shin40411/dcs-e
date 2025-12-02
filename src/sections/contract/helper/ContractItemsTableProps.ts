@@ -12,6 +12,7 @@ export type ContractItemsTableProps = {
     remove: UseFieldArrayRemove;
     append: (value: any) => void;
     setPaid: (value: any) => void;
+    isCreateSupplierContract?: boolean;
 };
 
 export type ContractWareHouseTableProps = {
@@ -34,4 +35,5 @@ export type ContractItemsTableContentProps = {
     openDel: UseBooleanReturn;
     setProductIDSelected: (id: string) => void;
     setIndexField: (i: number) => void;
+    isCreateSupplierContract?: boolean;
 };

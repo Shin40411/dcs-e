@@ -181,7 +181,6 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                     name="position"
                     label="Chức vụ"
                     helperText="Nhập chức vụ khách hàng"
-                    required
                     sx={{ flex: 1 }}
                 />
             </Stack>
@@ -191,7 +190,6 @@ export function CustomerNewEditForm({ currentCustomer, open, onClose, selectedId
                 helperText="Nhập địa chỉ"
                 fullWidth
             />
-
             <Stack
                 direction={{ xs: 'column', md: 'row' }}
                 spacing={2}

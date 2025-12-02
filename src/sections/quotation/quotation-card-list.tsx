@@ -10,7 +10,7 @@ import { QuotationItem } from './quotation-item';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { QuotationFilterBar } from './quotation-filter';
 import { useGetQuotations } from 'src/actions/quotation';
-import { FilterValues, IQuotationItem } from 'src/types/quotation';
+import { IQuotationItem } from 'src/types/quotation';
 import { formatDate } from 'src/utils/format-time-vi';
 import { EmptyContent } from 'src/components/empty-content';
 import { deleteOne } from 'src/actions/delete';
@@ -18,6 +18,7 @@ import { endpoints } from 'src/lib/axios';
 import { toast } from 'sonner';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useBoolean } from 'minimal-shared/hooks';
+import { FilterValues } from 'src/types/filter-values';
 
 type Props = {
     onViewDetails: (quotation: IQuotationItem) => void;
@@ -26,8 +27,6 @@ type Props = {
     setPage: (value: any) => void;
     rowsPerPage: number;
     setRowsPerPage: (value: any) => void;
-    setFromDate: (value: any) => void;
-    setToDate: (value: any) => void;
 };
 
 export function QuotationCardList({
@@ -37,8 +36,6 @@ export function QuotationCardList({
     setPage,
     rowsPerPage,
     setRowsPerPage,
-    setFromDate,
-    setToDate
 }: Props) {
     const today = new Date();
     const lastMonth = new Date();
@@ -55,9 +52,12 @@ export function QuotationCardList({
     const { quotations, quotationsLoading, pagination, quotationsEmpty } = useGetQuotations({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
-        key: searchText,
+        key: searchText.trim(),
         fromDate: filters.fromDate,
         toDate: filters.toDate,
+        Filter: filters.customer,
+        Month: filters.month,
+        Status: filters.status
     });
 
     const [tableData, setTableData] = useState<IQuotationItem[]>([]);
@@ -70,8 +70,6 @@ export function QuotationCardList({
 
     const handleFilterChange = (values: FilterValues) => {
         setFilters(values);
-        setFromDate(values.fromDate);
-        setToDate(values.toDate);
         setPage(0);
     };
 
@@ -79,9 +77,10 @@ export function QuotationCardList({
         setFilters({
             fromDate: formatDate(lastMonth),
             toDate: formatDate(today),
+            customer: undefined,
+            month: undefined,
+            status: undefined
         });
-        setFromDate(formatDate(lastMonth));
-        setToDate(formatDate(today));
         setPage(0);
     };
 
@@ -136,11 +135,16 @@ export function QuotationCardList({
 
     return (
         <Card
-            sx={{
+            elevation={0}
+            sx={(theme) => ({
                 display: "flex",
                 flexDirection: "column",
-                height: { md: "75vh", sm: "100%" },
-            }}
+                height: { md: "70vh", sm: "100%" },
+                "&&": {
+                    borderRadius: 0,
+                    border: `1px solid ${theme.palette.divider}`,
+                },
+            })}
         >
             <QuotationFilterBar
                 onFilterChange={handleFilterChange}

@@ -5,6 +5,7 @@ import { fCurrency } from "src/utils/format-number";
 import { ContractItemsTableContentProps, ContractItemsTableProps } from "../helper/ContractItemsTableProps";
 import { ProductAutocomplete } from "./productAutoComplete";
 import { UnitSelection } from "./unitSelection";
+import { useEffect } from "react";
 
 export default function ContractItemsTableContent({
     fields,
@@ -18,6 +19,7 @@ export default function ContractItemsTableContent({
     openDel,
     setProductIDSelected,
     setIndexField,
+    isCreateSupplierContract
 }: ContractItemsTableContentProps) {
     const total = fields.reduce((sum, item, index) => {
         const qty = Number(methods.getValues(`products.${index}.qty`) || 0);
@@ -53,7 +55,12 @@ export default function ContractItemsTableContent({
                                 {index + 1}
                             </TableCell>
                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                <ProductAutocomplete index={index} methods={methods} append={append} />
+                                <ProductAutocomplete
+                                    index={index}
+                                    methods={methods}
+                                    append={append}
+                                    isCreateSupplierContract={isCreateSupplierContract}
+                                />
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>
@@ -61,7 +68,7 @@ export default function ContractItemsTableContent({
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                <Field.VNCurrencyInput name={`products.${index}.price`} sx={{ width: 100 }} />
+                                <Field.VNCUrrenInputResizable name={`products.${index}.price`} />
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>

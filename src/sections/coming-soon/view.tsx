@@ -24,11 +24,7 @@ export function ComingSoonView() {
   return (
     <Container>
       <Typography variant="h3" sx={{ mb: 2 }}>
-        Coming soon!
-      </Typography>
-
-      <Typography sx={{ color: 'text.secondary' }}>
-        We are currently working hard on this page!
+        Phiên bản dành cho ứng dụng di động sẽ sớm ra mắt!
       </Typography>
 
       <ComingSoonIllustration sx={{ my: { xs: 5, sm: 10 } }} />
@@ -37,52 +33,11 @@ export function ComingSoonView() {
         divider={<Box sx={{ mx: { xs: 1, sm: 2.5 } }}>:</Box>}
         sx={{ typography: 'h2', justifyContent: 'center', flexDirection: 'row' }}
       >
-        <TimeBlock label="days" value={countdown.days} />
-        <TimeBlock label="hours" value={countdown.hours} />
-        <TimeBlock label="minutes" value={countdown.minutes} />
-        <TimeBlock label="seconds" value={countdown.seconds} />
+        <TimeBlock label="ngày" value={countdown.days} />
+        <TimeBlock label="giờ" value={countdown.hours} />
+        <TimeBlock label="phút" value={countdown.minutes} />
+        <TimeBlock label="giây" value={countdown.seconds} />
       </Stack>
-
-      <TextField
-        fullWidth
-        placeholder="Enter your email"
-        slotProps={{
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <Button variant="contained" size="large">
-                  Notify me
-                </Button>
-              </InputAdornment>
-            ),
-            sx: [
-              (theme) => ({
-                pr: 0.5,
-                [`&.${outlinedInputClasses.focused}`]: {
-                  boxShadow: theme.vars.customShadows.z20,
-                  transition: theme.transitions.create(['box-shadow'], {
-                    duration: theme.transitions.duration.shorter,
-                  }),
-                  [`& .${outlinedInputClasses.notchedOutline}`]: {
-                    border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.32)}`,
-                  },
-                },
-              }),
-            ],
-          },
-        }}
-        sx={{ my: 5 }}
-      />
-      <Box sx={{ gap: 1, display: 'flex', justifyContent: 'center' }}>
-        {_socials.map((social) => (
-          <IconButton key={social.label}>
-            {social.value === 'twitter' && <Iconify icon="socials:twitter" />}
-            {social.value === 'facebook' && <Iconify icon="socials:facebook" />}
-            {social.value === 'instagram' && <Iconify icon="socials:instagram" />}
-            {social.value === 'linkedin' && <Iconify icon="socials:linkedin" />}
-          </IconButton>
-        ))}
-      </Box>
     </Container>
   );
 }

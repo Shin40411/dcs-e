@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { Page, Document, Font, View, PDFViewer } from "@react-pdf/renderer";
 import { useEffect, useMemo, useState } from "react";
 import { IContractData, IContractItem } from "src/types/contract";
@@ -16,14 +16,18 @@ import { renderRuleFour } from "./components/renderRuleFour";
 import { renderRuleFive } from "./components/renderRuleFive";
 import { renderRules } from "./components/renderRuleSix";
 import { renderSigner } from "./components/renderSigner";
+import { Iconify } from "src/components/iconify";
+import { generatePdfBlob } from "src/utils/generateblob-func";
+import { downloadPdf, printPdf } from "src/utils/random-func";
 
 type ContractPDFProps = {
     contract: IContractItem;
     currentStatus: string;
     currentContract?: IContractData;
+    openDetail: boolean;
 };
 
-export function ContractPDFViewer({ contract, currentStatus, currentContract }: ContractPDFProps) {
+export function ContractPDFViewer({ contract, currentStatus, currentContract, openDetail }: ContractPDFProps) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -31,11 +35,41 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract }: 
         return () => clearTimeout(timer);
     }, []);
 
-    // useEffect(() => {
-    //     console.log('render 0:', contract);
-    //     console.log('render 1:', currentContract);
-    // }, [contract, currentContract]);
+    useEffect(() => {
+        if (openDetail) {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        }
 
+        return () => {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        };
+    }, [openDetail]);
+
+    const handleDownload = async () => {
+        const blob = await generatePdfBlob(
+            <ContractPdfDocument
+                contract={contract}
+                currentContract={currentContract}
+            />
+        );
+
+        await downloadPdf(blob, `${contract.contractNo}.pdf`);
+    };
+
+    const handlePrint = async () => {
+        const blob = await generatePdfBlob(
+            <ContractPdfDocument
+                contract={contract}
+                currentContract={currentContract}
+            />
+        );
+
+        await printPdf(blob);
+    };
 
     const memoizedDoc = useMemo(() => (
         <ContractPdfDocument
@@ -45,7 +79,7 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract }: 
     ), [contract, currentStatus, currentContract]);
 
     return (
-        <>
+        <Box height="100%" overflow="hidden" pb={8}>
             {loading && (
                 <Box
                     sx={{
@@ -65,10 +99,23 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract }: 
                     </Typography>
                 </Box>
             )}
-            <PDFViewer width="100%" height="100%" style={{ border: "none" }}>
+            <Stack direction="row" spacing={1} padding={2} bgcolor="rgb(60,60,60)" justifyContent="space-between">
+                <Box>
+                    <Typography variant="caption" sx={{ color: '#fff' }} fontWeight={700}>{contract.contractNo}</Typography>
+                </Box>
+                <Box>
+                    <Button variant="text" onClick={handleDownload} title="Tải về">
+                        <Iconify icon="material-symbols:download" color="#fff" />
+                    </Button>
+                    <Button variant="text" onClick={handlePrint} title="In">
+                        <Iconify icon="material-symbols:print-outline" color="#fff" />
+                    </Button>
+                </Box>
+            </Stack>
+            <PDFViewer width="100%" height="100%" style={{ border: "none" }} showToolbar={false}>
                 {memoizedDoc}
             </PDFViewer>
-        </>
+        </Box>
     );
 }
 
@@ -193,21 +240,6 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
                         customerTaxCode
                     })}
                     {renderRuleOne()}
-                    {/* {renderTable({
-                        currentContract,
-                        discount,
-                        total
-                    })} */}
-                    {/* {renderRuleTwo({
-                        downPayment,
-                        nextPayment,
-                        lastPayment,
-                        signatureDate,
-                        total,
-                        deliveryAddress
-                    })} */}
-                    {/* {renderRuleThree()} */}
-                    {/* {renderRuleFive()} */}
                     {renderRules({
                         currentContract,
                         discount,
@@ -223,7 +255,6 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
                         total,
                         deliveryAddress
                     })}
-                    {/* {renderSigner({ companyName, customerName, position })} */}
                 </View>
                 {renderFooter()}
             </Page>

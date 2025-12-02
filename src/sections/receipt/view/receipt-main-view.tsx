@@ -5,12 +5,11 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useGetReceiptContract } from "src/actions/contract";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { UseGridTableList } from "src/components/data-grid-table/data-grid-table";
-import { Iconify } from "src/components/iconify";
 import { RECEIPT_COLUMNS } from "src/const/receipt";
 import { CONFIG } from "src/global-config";
 import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
-import { IContractReceiptItem, IReceiptContract } from "src/types/contract";
+import { IReceiptContract } from "src/types/contract";
 import { ReceiptNewEditForm } from "../receipt-new-edit-form";
 import { deleteOne } from "src/actions/delete";
 import { endpoints } from "src/lib/axios";
@@ -18,8 +17,19 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "src/components/custom-dialog";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { CUSTOMER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { useLocation } from "react-router";
+import { ReceiptFilterBar } from "../components/receipt-filter";
+import { FilterValues } from "src/types/filter-values";
+import { formatDate } from "src/utils/format-time-vi";
+import { Iconify } from "src/components/iconify";
 
 export function ReceiptMainView() {
+    const location = useLocation();
+    const today = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(today.getMonth() - 1);
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
@@ -28,8 +38,12 @@ export function ReceiptMainView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+    const [filters, setFilters] = useState<FilterValues>({
+        fromDate: null,
+        toDate: null,
+    });
+
     const {
-        contractReceipt,
         contractReceiptItem,
         contractReceiptLoading,
         pagination,
@@ -37,9 +51,30 @@ export function ReceiptMainView() {
     } = useGetReceiptContract({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
-        key: searchText,
-        enabled: true
+        key: searchText.trim(),
+        enabled: true,
+        ContractType: 'Customer',
+        ReceiptType: 'Collect',
+        ContractNo: filters.contract,
+        FromDate: filters.fromDate,
+        ToDate: filters.toDate,
+        Month: filters.month,
     });
+
+    const handleFilterChange = (values: FilterValues) => {
+        setFilters(values);
+        setPage(0);
+    };
+
+    const handleReset = () => {
+        setFilters({
+            fromDate: formatDate(lastMonth),
+            toDate: formatDate(today),
+            contract: undefined,
+            month: undefined
+        });
+        setPage(0);
+    };
 
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
@@ -104,11 +139,11 @@ export function ReceiptMainView() {
     const renderForm = () => (
         <ReceiptNewEditForm
             open={openCrudForm.value}
-            onClose={openCrudForm.onFalse}
+            onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); }}
             selectedReceipt={tableRowSelected}
             mutation={mutation}
         />
-    )
+    );
 
     return (
         <RoleBasedGuard
@@ -119,24 +154,28 @@ export function ReceiptMainView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Phiếu thu"
+                    heading="Nghiệp vụ khách hàng"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Nội bộ' },
+                        { name: 'Nghiệp vụ khách hàng' },
                         { name: 'Phiếu thu' },
                     ]}
-                    // action={
-                    //     <Button
-                    //         variant="contained"
-                    //         startIcon={<Iconify icon="mingcute:add-line" />}
-                    //         onClick={() => {
-                    //         }}
-                    //     >
-                    //         Tạo phiếu thu
-                    //     </Button>
-                    // }
+                    action={
+                        <Button
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                            onClick={() => {
+                                openCrudForm.onTrue();
+                                setTableRowSelected(null);
+                            }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
+                        >
+                            Tạo phiếu thu
+                        </Button>
+                    }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={CUSTOMER_SERVICE_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={tableData}
                     loading={contractReceiptLoading}
@@ -158,6 +197,14 @@ export function ReceiptMainView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    disableDefaultFilter
+                    additionalFilter={
+                        <ReceiptFilterBar
+                            onFilterChange={handleFilterChange}
+                            onSearching={setSearchText}
+                            onReset={handleReset}
+                        />
+                    }
                 />
                 {renderForm()}
                 {renderConfirmDeleteRow()}

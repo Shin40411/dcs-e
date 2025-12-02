@@ -7,19 +7,17 @@ import {
     Divider,
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { FilterValues } from 'src/types/quotation';
 import { formatDate } from 'src/utils/format-time-vi';
 import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useBoolean } from 'minimal-shared/hooks';
-import { IContractItem } from 'src/types/contract';
 import { ContractItem } from './contract-item';
 import { ContractFilterBar } from './contract-filter';
-import { useGetSupplierContracts } from 'src/actions/contractSupplier';
 import { IContractSupplyItem } from 'src/types/contractSupplier';
 import { endpoints } from 'src/lib/axios';
 import { deleteOne } from 'src/actions/delete';
 import { toast } from 'sonner';
+import { FilterValues } from 'src/types/filter-values';
 
 type Props = {
     contracts: IContractSupplyItem[];
@@ -38,8 +36,6 @@ type Props = {
     setFilters: (value: any) => void;
     setPage: (value: any) => void;
     setRowsPerPage: (value: any) => void;
-    setFromDate: (value: any) => void;
-    setToDate: (value: any) => void;
     setSearchText: (value: any) => void;
 };
 
@@ -55,8 +51,6 @@ export function ContractCardList({
     setPage,
     setFilters,
     setRowsPerPage,
-    setFromDate,
-    setToDate,
     setSearchText,
 }: Props) {
     const today = new Date();
@@ -73,8 +67,6 @@ export function ContractCardList({
 
     const handleFilterChange = (values: FilterValues) => {
         setFilters(values);
-        setFromDate(values.fromDate);
-        setToDate(values.toDate);
         setPage(0);
     };
 
@@ -82,9 +74,10 @@ export function ContractCardList({
         setFilters({
             fromDate: formatDate(lastMonth),
             toDate: formatDate(today),
+            customer: undefined,
+            month: undefined,
+            status: undefined
         });
-        setFromDate(formatDate(lastMonth));
-        setToDate(formatDate(today));
         setPage(0);
     };
 
@@ -138,11 +131,16 @@ export function ContractCardList({
 
     return (
         <Card
-            sx={{
+            elevation={0}
+            sx={(theme) => ({
                 display: "flex",
                 flexDirection: "column",
-                height: { md: "75vh", sm: "100%" },
-            }}
+                height: { md: "70vh", sm: "100%" },
+                "&&": {
+                    borderRadius: 0,
+                    border: `1px solid ${theme.palette.divider}`,
+                },
+            })}
         >
             <ContractFilterBar
                 onFilterChange={handleFilterChange}

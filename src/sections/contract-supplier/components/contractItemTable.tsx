@@ -61,7 +61,7 @@ export default function ContractItemsTableContent({
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                <Field.VNCurrencyInput name={`products.${index}.price`} sx={{ width: 100 }} />
+                                <Field.VNCUrrenInputResizable name={`products.${index}.price`} />
                             </TableCell>
 
                             <TableCell sx={{ whiteSpace: "nowrap" }}>

@@ -3,7 +3,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { NumberInput } from '../number-input';
 
 import type { NumberInputProps } from '../number-input';
-import { VnCurrencyInput } from '../numeric-format';
+import { ResizableCurrencyInput, VnCurrencyInput } from '../numeric-format';
 
 // ----------------------------------------------------------------------
 
@@ -50,6 +50,29 @@ export function RHFNumericInput({ name, label, helperText, required, sx, ...othe
           required={required}
           sx={sx}
           {...other}
+        />
+      )}
+    />
+  );
+}
+
+export function RHFNumericInputResizable({ name, label, helperText, required, sx, ...other }: RHFNumberInputProps) {
+  const { control } = useFormContext();
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field, fieldState }) => (
+        <ResizableCurrencyInput
+          label={label || ""}
+          value={field.value}
+          onChange={field.onChange}
+          error={!!fieldState.error}
+          helperText={fieldState.error?.message}
+          required={required}
+          sx={sx}
+          disabled={other.disabled}
         />
       )}
     />

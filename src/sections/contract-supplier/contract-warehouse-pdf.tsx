@@ -1,11 +1,14 @@
-import { Box } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { Font, PDFViewer } from "@react-pdf/renderer";
-import { RenderWarehouseExport } from "./components/renderWarehouseExport";
+import { RenderWarehouseImport } from "./components/renderWarehouseExport";
 import { useSearchParams } from "react-router";
-import { useGetDetailWarehouseExportProduct, useGetUnExportProduct } from "src/actions/contract";
 import { EmptyContent } from "src/components/empty-content";
-import { useEffect, useMemo, useState } from "react";
-import { IContractRemainingProduct } from "src/types/contract";
+import { useEffect, useMemo } from "react";
+import { useGetDetailWarehouseImportProduct, useGetUnImportProduct } from "src/actions/contractSupplier";
+import { IImportRemainingProduct } from "src/types/contractSupplier";
+import { Iconify } from "src/components/iconify";
+import { generatePdfBlob } from "src/utils/generateblob-func";
+import { downloadPdf, printPdf } from "src/utils/random-func";
 
 export function ContractWarehousePdf() {
     Font.register({
@@ -81,13 +84,7 @@ export function ContractWarehousePdf() {
     });
     const [searchParams] = useSearchParams();
     const contractBody = Object.fromEntries(searchParams.entries());
-
-
-    if (!contractBody.contractId) {
-        return (<Box height="100vh" overflow="hidden">
-            <EmptyContent content="Không có dữ liệu để tạo phiếu xuất kho" />
-        </Box>);
-    }
+    const invalidContract = !contractBody.contractId;
 
     const contractId = Number(contractBody.contractId);
     const exportId = Number(contractBody.exportId);
@@ -99,50 +96,99 @@ export function ContractWarehousePdf() {
         isCreating
     }), [contractId, exportId, isCreating]);
 
-    const { remainingProduct, remainingProductEmpty } = useGetUnExportProduct(
+    const { remainingProduct, remainingProductEmpty } = useGetUnImportProduct(
         hookParams.contractId,
         hookParams.isCreating
     );
 
-    const { detailsProduct, detailsProductEmpty } = useGetDetailWarehouseExportProduct(
+    const { detailsProduct, detailsProductEmpty } = useGetDetailWarehouseImportProduct(
         hookParams.exportId,
         !hookParams.isCreating
     );
 
-    const mappedProducts = useMemo<IContractRemainingProduct[]>(() => {
+    const mappedProducts = useMemo<IImportRemainingProduct[]>(() => {
         if (isCreating) {
             return remainingProduct || [];
         }
 
         return (detailsProduct || []).map((p) => ({
             productID: p.productID,
-            name: p.productName,
-            price: p.price,
+            productName: p.productName,
+            unit: p.unitProductName,
             quantity: p.quantity,
-            productUnitID: p.unitProductID,
-            productUnitName: p.unitProductName,
-            total: p.total,
+            price: p.price,
             vat: p.vat,
-            warranty: 0,
-            exported: 0,
-            remaining: p.quantity,
+            amounts: p.total,
         }));
     }, [isCreating, remainingProduct, detailsProduct]);
 
     const isProductEmpty = isCreating ? remainingProductEmpty : detailsProductEmpty;
 
+    useEffect(() => {
+        const isEmpty = isProductEmpty;
+
+        if (isEmpty) {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        }
+
+        return () => {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        };
+    }, [isProductEmpty]);
+
+    const handleDownload = async () => {
+        const blob = await generatePdfBlob(
+            <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} />
+        );
+
+        await downloadPdf(blob, `${contractBody.warehouseExportNo}.pdf`);
+    };
+
+    const handlePrint = async () => {
+        const blob = await generatePdfBlob(
+            <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} />
+        );
+
+        await printPdf(blob);
+    };
+
+    if (invalidContract) {
+        return (
+            <Box height="100vh" overflow="hidden">
+                <EmptyContent title="Không có dữ liệu để tạo phiếu nhập kho" />
+            </Box>
+        );
+    }
+
     if (isProductEmpty) {
         return (
             <Box height="100vh" overflow="hidden">
-                <EmptyContent content="Không có dữ liệu để tạo phiếu xuất kho" />
+                <EmptyContent title="Không có dữ liệu để tạo phiếu nhập kho" />
             </Box>
         );
     }
 
     return (
-        <Box height="100vh" overflow="hidden">
-            <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }}>
-                <RenderWarehouseExport contractBody={contractBody} productsUnExported={mappedProducts} />
+        <Box height="100vh" overflow="hidden" pb={8}>
+            <Stack direction="row" spacing={1} padding={2} bgcolor="rgb(60,60,60)" justifyContent="space-between">
+                <Box>
+                    <Typography variant="caption" sx={{ color: '#fff' }} fontWeight={700}>{contractBody.warehouseExportNo}</Typography>
+                </Box>
+                <Box>
+                    <Button variant="text" onClick={handleDownload} title="Tải về">
+                        <Iconify icon="material-symbols:download" color="#fff" />
+                    </Button>
+                    <Button variant="text" onClick={handlePrint} title="In">
+                        <Iconify icon="material-symbols:print-outline" color="#fff" />
+                    </Button>
+                </Box>
+            </Stack>
+            <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }} showToolbar={false}>
+                <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} />
             </PDFViewer>
         </Box>
     );

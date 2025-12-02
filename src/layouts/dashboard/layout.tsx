@@ -52,27 +52,6 @@ export type DashboardLayoutProps = LayoutBaseProps & {
   };
 };
 
-const SUPER_PERMISSIONS = "TOANQUYEN.VIEW";
-
-// const NORMAL_PERMISSIONS = [
-//   "THONGKE.VIEW",
-//   "BAOGIA.VIEW",
-//   "HOPDONG.VIEW",
-//   "NHOMSANPHAM.VIEW",
-//   "SANPHAM.VIEW",
-//   "DONVITINH.VIEW",
-//   "KHACHHANG.VIEW",
-//   "PHONGBAN.VIEW",
-//   "CHUCVU.VIEW",
-//   "NHANVIEN.VIEW",
-//   "NHACUNGCAP.VIEW",
-//   "TAIKHOAN.VIEW",
-//   "PHIEUTHU.VIEW",
-//   "PHIEUCHI.VIEW",
-//   "PHIEUXUATKHO.VIEW",
-//   "PHANQUYEN.VIEW"
-// ];
-
 export function DashboardLayout({
   sx,
   cssVars,
@@ -96,7 +75,7 @@ export function DashboardLayout({
   const isNavHorizontal = settings.state.navLayout === 'horizontal';
   const isNavVertical = isNavMini || settings.state.navLayout === 'vertical';
 
-  const foundSuper = permissions?.find((p) => SUPER_PERMISSIONS === p.name);
+  // const foundSuper = permissions?.find((p) => SUPER_PERMISSIONS === p.name);
   const userPermissions: string[] = permissions?.map((p) => p.name) ?? [];
   const userPermissionSet = new Set(userPermissions);
 

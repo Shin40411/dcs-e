@@ -12,16 +12,19 @@ import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { QuotationCardList } from "../supplier/quotation-card-list";
 import { QuotationForm } from "../supplier/quotation-form";
 import { QuotationDetails } from "../supplier/quotation-details";
+import { useLocation } from "react-router";
+import { SUPPLIER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 
 export function OrderSupplierMainView() {
+    const location = useLocation();
+
     const [openForm, setOpenForm] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<IQuotationItem | null>(null);
     const [copiedQuotation, setCopiedQuotation] = useState<IQuotationItem | null>(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
-    const [fromDate, setFromDate] = useState<IDateValue>();
-    const [toDate, setToDate] = useState<IDateValue>();
 
     const { permission } = useCheckPermission(['BAOGIA.VIEW']);
 
@@ -51,9 +54,8 @@ export function OrderSupplierMainView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Đặt hàng"
+                    heading="Nghiệp vụ nhà cung cấp"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
                         { name: 'Nghiệp vụ nhà cung cấp' },
                         { name: 'Đặt hàng' },
                     ]}
@@ -66,12 +68,15 @@ export function OrderSupplierMainView() {
                                 setCopiedQuotation(null)
                                 setOpenForm(true)
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo phiếu đặt hàng
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={SUPPLIER_SERVICE_TAB_DATA} activePath={location.pathname} />
                 <QuotationCardList
                     onViewDetails={handleViewDetails}
                     onEditing={handleEditing}
@@ -79,8 +84,6 @@ export function OrderSupplierMainView() {
                     setPage={setPage}
                     rowsPerPage={rowsPerPage}
                     setRowsPerPage={setRowsPerPage}
-                    setFromDate={setFromDate}
-                    setToDate={setToDate}
                 />
                 <QuotationForm
                     selectedQuotation={selectedQuotation}

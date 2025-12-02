@@ -17,8 +17,19 @@ import { ConfirmDialog } from "src/components/custom-dialog";
 import { Button } from "@mui/material";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { useLocation } from "react-router";
+import { CUSTOMER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { FilterValues } from "src/types/filter-values";
+import { formatDate } from "src/utils/format-time-vi";
+import { WarehouseExportFilterBar } from "../components/warehoue-export-filter";
+import { Iconify } from "src/components/iconify";
 
 export function WarehouseExportMainView() {
+    const location = useLocation();
+    const today = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(today.getMonth() - 1);
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
@@ -27,18 +38,42 @@ export function WarehouseExportMainView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+    const [filters, setFilters] = useState<FilterValues>({
+        fromDate: null,
+        toDate: null,
+    });
 
     const {
         contractWarehouseExports,
         contractWarehouseExportsEmpty,
         contractWarehouseExportsLoading,
-        pagination
+        pagination,
+        mutation
     } = useGetWarehouseExports({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
-        key: searchText,
-        enabled: true
+        key: searchText.trim(),
+        enabled: true,
+        ContractNo: filters.contract,
+        FromDate: filters.fromDate,
+        ToDate: filters.toDate,
+        Month: filters.month,
     });
+
+    const handleFilterChange = (values: FilterValues) => {
+        setFilters(values);
+        setPage(0);
+    };
+
+    const handleReset = () => {
+        setFilters({
+            fromDate: formatDate(lastMonth),
+            toDate: formatDate(today),
+            contract: undefined,
+            month: undefined
+        });
+        setPage(0);
+    };
 
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
@@ -65,6 +100,7 @@ export function WarehouseExportMainView() {
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedWarehouseExport={tableRowSelected}
+            refetchList={mutation}
         />
     )
 
@@ -79,6 +115,7 @@ export function WarehouseExportMainView() {
             toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
         }
     }
+
     const renderConfirmDeleteRow = () => (
         <ConfirmDialog
             open={confirmDelRowDialog.value}
@@ -113,14 +150,28 @@ export function WarehouseExportMainView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Phiếu xuất kho"
+                    heading="Nghiệp vụ khách hàng"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Nội bộ' },
+                        { name: 'Nghiệp vụ khách hàng' },
                         { name: 'Phiếu xuất kho' },
                     ]}
                     sx={{ mb: { xs: 3, md: 5 } }}
+                    action={
+                        <Button
+                            variant="contained"
+                            startIcon={<Iconify icon="mingcute:add-line" />}
+                            onClick={() => {
+                                openCrudForm.onTrue();
+                                setTableRowSelected(null);
+                            }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
+                        >
+                            Tạo phiếu xuất kho
+                        </Button>
+                    }
                 />
+
+                <ServiceNavTabs tabs={CUSTOMER_SERVICE_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={tableData}
                     loading={contractWarehouseExportsLoading}
@@ -142,6 +193,14 @@ export function WarehouseExportMainView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    disableDefaultFilter
+                    additionalFilter={
+                        <WarehouseExportFilterBar
+                            onFilterChange={handleFilterChange}
+                            onSearching={setSearchText}
+                            onReset={handleReset}
+                        />
+                    }
                 />
                 {renderForm()}
                 {renderConfirmDeleteRow()}

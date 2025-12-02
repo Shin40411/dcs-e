@@ -19,8 +19,13 @@ import { CONFIG } from "src/global-config";
 import { UnitBin } from "../unit-bin";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { useLocation } from "react-router";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { PRODUCT_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
 
 export function UnitListView() {
+    const location = useLocation();
+
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const openBin = useBoolean();
@@ -30,7 +35,7 @@ export function UnitListView() {
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['DONVITINH.VIEW']);
 
-    const { units, pagination, unitsLoading } = useGetUnits({
+    const { units, pagination, unitsLoading, mutation } = useGetUnits({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -108,6 +113,7 @@ export function UnitListView() {
         <UnitBin
             open={openBin.value}
             onClose={openBin.onFalse}
+            listMutation={mutation}
         />
     );
 
@@ -120,10 +126,9 @@ export function UnitListView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Đơn vị tính"
+                    heading="Sản phẩm"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Danh mục' },
+                        { name: 'Quản lý danh mục' },
                         { name: 'Đơn vị tính' },
                     ]}
                     action={
@@ -134,12 +139,15 @@ export function UnitListView() {
                                 openCrudForm.onTrue();
                                 setTableRowSelected(null);
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo đơn vị tính
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={PRODUCT_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={unitsLoading}

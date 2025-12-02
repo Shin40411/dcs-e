@@ -4,10 +4,10 @@ import { z as zod } from 'zod';
 export const ContractWareHouseSchema = zod.object({
     exportDate: zod.custom<IDateValue>().refine(
         (val) => val !== null && val !== undefined && val !== "",
-        { message: "Vui lòng chọn ngày xuất kho" }
+        { message: "Vui lòng chọn ngày lập phiếu" }
     ),
 
-    wareHouseNo: zod.string({ required_error: 'Số phiếu xuất kho là trường bắt buộc' }),
+    wareHouseNo: zod.string({ required_error: 'Số phiếu nhập kho là trường bắt buộc' }),
 
     receiverName: zod.string().min(1, 'Tên người nhận là trường bắt buộc'),
 

@@ -14,6 +14,9 @@ export type IQuotationItem = {
     customerId: number;
     customerName: string;
     customerPhone: string;
+    supplierID: number;
+    supplierName: string;
+    supplierPhone: string;
     companyName: string;
     email: string;
     address: string;
@@ -68,11 +71,6 @@ export type IQuotationData = {
     items: IQuotationDetails[];
 };
 
-export type FilterValues = {
-    fromDate: IDateValue;
-    toDate: IDateValue;
-};
-
 export type ResQuotationList = {
     statusCode: number;
     message: string;
@@ -95,7 +93,8 @@ export type IQuotationDetailDto = {
 
 export type IQuotationDto = {
     quotationNo: string;
-    customerID: number;
+    customerID?: number;
+    SupplierID?: number;
     expiryDate: IDateValue;
     note: string;
     discount: number;
@@ -107,7 +106,8 @@ export type IQuotationDto = {
 
 export type IQuotationDao = {
     quotationNo: string;
-    customerID: number;
+    customerID?: number;
+    SupplierId?: number;
     expiryDate: IDateValue;
     note: string;
     discount: number;

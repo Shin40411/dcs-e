@@ -8,7 +8,6 @@ import { UseGridTableList } from "src/components/data-grid-table/data-grid-table
 import { Iconify } from "src/components/iconify";
 import { EMPLOYEETYPES_COLUMNS } from "src/const/employeeTypes";
 import { DashboardContent } from "src/layouts/dashboard";
-import { paths } from "src/routes/paths";
 import { IEmployeeTypeItem } from "src/types/employeeType";
 import { EmployeeTypeNewEditForm } from "../employee-type-new-edit-form";
 import { deleteOne } from "src/actions/delete";
@@ -19,8 +18,13 @@ import { CONFIG } from "src/global-config";
 import { EmployeeTypeBin } from "../employee-type-bin";
 import { RoleBasedGuard } from "src/auth/guard";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { useLocation } from "react-router";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { EMPLOYEE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
 
 export function EmployeeTypeListView() {
+    const location = useLocation();
+
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const openBin = useBoolean();
@@ -30,7 +34,7 @@ export function EmployeeTypeListView() {
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['CHUCVU.VIEW']);
 
-    const { employeeTypes, pagination, employeeTypesLoading } = useGetEmployeeTypes({
+    const { employeeTypes, pagination, employeeTypesLoading, mutation } = useGetEmployeeTypes({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -110,6 +114,7 @@ export function EmployeeTypeListView() {
         <EmployeeTypeBin
             open={openBin.value}
             onClose={openBin.onFalse}
+            listMutation={mutation}
         />
     );
 
@@ -122,10 +127,9 @@ export function EmployeeTypeListView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Chức vụ"
+                    heading="Nhân viên"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Danh mục' },
+                        { name: 'Quản lý danh mục' },
                         { name: 'Chức vụ' },
                     ]}
                     action={
@@ -136,12 +140,15 @@ export function EmployeeTypeListView() {
                                 openCrudForm.onTrue();
                                 setTableRowSelected(null);
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo chức vụ
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={EMPLOYEE_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={employeeTypesLoading}

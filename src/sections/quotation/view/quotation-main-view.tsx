@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Tab, Tabs } from "@mui/material";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { Iconify } from "src/components/iconify";
 import { DashboardContent } from "src/layouts/dashboard";
@@ -9,19 +9,21 @@ import { QuotationForm } from "../quotation-form";
 import { QuotationDetails } from "../quotation-details";
 import { IQuotationItem } from "src/types/quotation";
 import { CONFIG } from "src/global-config";
-import { IDateValue } from "src/types/common";
 import { RoleBasedGuard } from "src/auth/guard";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { useLocation } from "react-router";
+import { CUSTOMER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
 
 export function QuotationMainView() {
+    const location = useLocation();
+
     const [openForm, setOpenForm] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<IQuotationItem | null>(null);
     const [copiedQuotation, setCopiedQuotation] = useState<IQuotationItem | null>(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
-    const [fromDate, setFromDate] = useState<IDateValue>();
-    const [toDate, setToDate] = useState<IDateValue>();
 
     const { permission } = useCheckPermission(['BAOGIA.VIEW']);
 
@@ -51,9 +53,8 @@ export function QuotationMainView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Báo giá"
+                    heading="Nghiệp vụ khách hàng"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
                         { name: 'Nghiệp vụ khách hàng' },
                         { name: 'Báo giá' },
                     ]}
@@ -66,12 +67,15 @@ export function QuotationMainView() {
                                 setCopiedQuotation(null)
                                 setOpenForm(true)
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo báo giá
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={CUSTOMER_SERVICE_TAB_DATA} activePath={location.pathname} />
                 <QuotationCardList
                     onViewDetails={handleViewDetails}
                     onEditing={handleEditing}
@@ -79,8 +83,6 @@ export function QuotationMainView() {
                     setPage={setPage}
                     rowsPerPage={rowsPerPage}
                     setRowsPerPage={setRowsPerPage}
-                    setFromDate={setFromDate}
-                    setToDate={setToDate}
                 />
                 <QuotationForm
                     selectedQuotation={selectedQuotation}

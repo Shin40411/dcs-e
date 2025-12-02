@@ -137,16 +137,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 paid: CopiedQuotation.paid ?? 0
             });
 
-            // setOriginalItems(
-            //     mappedItems.map((item, i) => ({
-            //         productID: item.product ?? "",
-            //         quantity: item.qty,
-            //         row: i + 1,
-            //         Unit: item.unitName || "",
-            //         Price: item.price || 0,
-            //     }))
-            // );
-
             return;
         }
         //end copy case

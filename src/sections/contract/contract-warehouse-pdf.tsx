@@ -1,11 +1,14 @@
-import { Box } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { Font, PDFViewer } from "@react-pdf/renderer";
 import { RenderWarehouseExport } from "./components/renderWarehouseExport";
 import { useSearchParams } from "react-router";
 import { useGetDetailWarehouseExportProduct, useGetUnExportProduct } from "src/actions/contract";
 import { EmptyContent } from "src/components/empty-content";
-import { useEffect, useMemo, useState } from "react";
-import { IContractRemainingProduct, IWarehouseExportProduct } from "src/types/contract";
+import { useEffect, useMemo } from "react";
+import { IContractRemainingProduct } from "src/types/contract";
+import { Iconify } from "src/components/iconify";
+import { downloadPdf, printPdf } from "src/utils/random-func";
+import { generatePdfBlob } from "src/utils/generateblob-func";
 
 export function ContractWarehousePdf() {
     Font.register({
@@ -156,9 +159,54 @@ export function ContractWarehousePdf() {
         );
     }
 
+    useEffect(() => {
+        const isEmpty = isProductEmpty;
+
+        if (isEmpty) {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        }
+
+        return () => {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        };
+    }, [isProductEmpty]);
+
+    const handleDownload = async () => {
+        const blob = await generatePdfBlob(
+            <RenderWarehouseExport contractBody={contractBody} productsUnExported={mappedProducts} />
+        );
+
+        await downloadPdf(blob, `${contractBody.warehouseExportNo}.pdf`);
+    };
+
+    const handlePrint = async () => {
+        const blob = await generatePdfBlob(
+            <RenderWarehouseExport contractBody={contractBody} productsUnExported={mappedProducts} />
+        );
+
+        await printPdf(blob);
+    };
+
     return (
-        <Box height="100vh" overflow="hidden">
-            <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }}>
+        <Box height="100vh" overflow="hidden" pb={8}>
+            <Stack direction="row" spacing={1} padding={2} bgcolor="rgb(60,60,60)" justifyContent="space-between">
+                <Box>
+                    <Typography variant="caption" sx={{ color: '#fff' }} fontWeight={700}>{contractBody.warehouseExportNo}</Typography>
+                </Box>
+                <Box>
+                    <Button variant="text" onClick={handleDownload} title="Tải về">
+                        <Iconify icon="material-symbols:download" color="#fff" />
+                    </Button>
+                    <Button variant="text" onClick={handlePrint} title="In">
+                        <Iconify icon="material-symbols:print-outline" color="#fff" />
+                    </Button>
+                </Box>
+            </Stack>
+            <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }} showToolbar={false}>
                 <RenderWarehouseExport contractBody={contractBody} productsUnExported={mappedProducts} />
             </PDFViewer>
         </Box>

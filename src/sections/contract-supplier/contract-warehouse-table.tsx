@@ -1,16 +1,19 @@
-import { Box, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, IconButton, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { fCurrency, fCurrencyNoUnit, fRenderTextNumber } from "src/utils/format-number";
 import { capitalizeFirstLetter } from "src/utils/format-string";
 import { ContractWareHouseTableProps } from "./helper/ContractItemsTableProps";
-import { IContractProduct, IContractRemainingProduct } from "src/types/contract";
 import { EmptyContent } from "src/components/empty-content";
+import { IImportRemainingProduct } from "src/types/contractSupplier";
+import { Iconify } from "src/components/iconify";
 
 export function ContractWarehouseTable({
     remainingProductEmpty,
     remainingProduct,
-    remainingProductLoading
+    remainingProductLoading,
+    onQuantityChange,
+    onRemoveProduct
 }: ContractWareHouseTableProps) {
-    const calcAmount = (item: IContractRemainingProduct) => {
+    const calcAmount = (item: IImportRemainingProduct) => {
         const qty = Number(item?.quantity) || 0;
         const price = Number(item?.price) || 0;
         const vat = Number(item?.vat) || 0;
@@ -20,6 +23,11 @@ export function ContractWarehouseTable({
     const total = (remainingProduct || []).reduce((acc, i) => acc + calcAmount(i), 0);
 
     const roundedTotal = Math.round(total);
+
+    const handleQuantityChange = (productID: number, newQuantity: number) => {
+        if (newQuantity < 1) return;
+        onQuantityChange?.(productID, newQuantity);
+    };
 
     return (
         <Box>
@@ -65,13 +73,14 @@ export function ContractWarehouseTable({
                                             <Box component="span">(VNĐ)</Box>
                                         </Stack>
                                     </TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap", color: "#000 !important", textAlign: 'center' }} width="50">Xóa</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {remainingProductLoading ? (
                                     [...Array(5)].map((_, index) => (
                                         <TableRow key={index}>
-                                            {[...Array(7)].map((__, cellIndex) => (
+                                            {[...Array(8)].map((__, cellIndex) => (
                                                 <TableCell key={cellIndex}>
                                                     <Skeleton variant="rectangular" height={28} />
                                                 </TableCell>
@@ -80,7 +89,7 @@ export function ContractWarehouseTable({
                                     ))
                                 ) : remainingProductEmpty ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={8} align="center">
                                             <EmptyContent content="" />
                                         </TableCell>
                                     </TableRow>
@@ -93,9 +102,41 @@ export function ContractWarehouseTable({
                                             return (
                                                 <TableRow key={item.productID}>
                                                     <TableCell sx={{ whiteSpace: "nowrap" }}>{hasPrice ? displayIndex : ""}</TableCell>
-                                                    <TableCell>{item.name}</TableCell>
-                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>{item.productUnitName}</TableCell>
-                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>{item.quantity}</TableCell>
+                                                    <TableCell>{item.productName}</TableCell>
+                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>{item.unit}</TableCell>
+                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => handleQuantityChange(item.productID, item.quantity - 1)}
+                                                                disabled={item.quantity <= 0}
+                                                                sx={{ p: 0.5 }}
+                                                            >
+                                                                <Iconify icon="mdi:minus" width={16} />
+                                                            </IconButton>
+                                                            <TextField
+                                                                size="small"
+                                                                type="number"
+                                                                value={item.quantity}
+                                                                onChange={(e) => handleQuantityChange(item.productID, Number(e.target.value))}
+                                                                sx={{
+                                                                    width: 60,
+                                                                    '& input': {
+                                                                        textAlign: 'center',
+                                                                        padding: '4px 8px',
+                                                                    }
+                                                                }}
+                                                                inputProps={{ min: 0 }}
+                                                            />
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => handleQuantityChange(item.productID, item.quantity + 1)}
+                                                                sx={{ p: 0.5 }}
+                                                            >
+                                                                <Iconify icon="mdi:plus" width={16} />
+                                                            </IconButton>
+                                                        </Box>
+                                                    </TableCell>
                                                     <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>
                                                         {hasPrice ? fCurrencyNoUnit(item.price) : ""}
                                                     </TableCell>
@@ -104,6 +145,15 @@ export function ContractWarehouseTable({
                                                     </TableCell>
                                                     <TableCell sx={{ whiteSpace: "nowrap", textAlign: "end" }}>
                                                         {hasPrice ? fCurrencyNoUnit(calcAmount(item)) : ""}
+                                                    </TableCell>
+                                                    <TableCell sx={{ whiteSpace: "nowrap", textAlign: "center" }}>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => onRemoveProduct?.(item.productID)}
+                                                            sx={{ p: 0.5 }}
+                                                        >
+                                                            <Iconify icon="material-symbols:scan-delete-outline-sharp" width={20} />
+                                                        </IconButton>
                                                     </TableCell>
                                                 </TableRow>
                                             );
@@ -123,7 +173,7 @@ export function ContractWarehouseTable({
                                 }}
                             >
                                 <TableRow>
-                                    <TableCell colSpan={7}>
+                                    <TableCell colSpan={8}>
                                         <Box
                                             sx={{
                                                 borderTop: "1px solid #000",

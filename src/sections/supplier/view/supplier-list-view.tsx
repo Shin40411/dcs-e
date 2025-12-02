@@ -20,8 +20,13 @@ import { CONFIG } from "src/global-config"
 import { SupplierBin } from "../supplier-bin"
 import { RoleBasedGuard } from "src/auth/guard"
 import { useCheckPermission } from "src/auth/hooks/use-check-permission"
+import { useLocation } from "react-router"
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs"
+import { CUSTOMER_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data"
 
 export function SuppliersListView() {
+    const location = useLocation();
+
     const openCrudForm = useBoolean();
     const confirmDialog = useBoolean();
     const openBin = useBoolean();
@@ -127,10 +132,9 @@ export function SuppliersListView() {
         >
             <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <CustomBreadcrumbs
-                    heading="Nhà cung cấp"
+                    heading="Khách hàng"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Cấu hình' },
+                        { name: 'Quản lý danh mục' },
                         { name: 'Nhà cung cấp' },
                     ]}
                     action={
@@ -141,12 +145,15 @@ export function SuppliersListView() {
                                 setTableRowSelected(null);
                                 openCrudForm.onTrue();
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo nhà cung cấp
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={CUSTOMER_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={suppliersLoading}

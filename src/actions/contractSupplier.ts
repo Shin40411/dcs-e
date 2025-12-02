@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IContractSupDetailDto, IContractSupplyDto, IContractSupplyForDetail, IContractSupplyItem, IContractSupplyProductDto, IContractSupplyUpdateDto, IContractSupProductToDelete, IProductContractSupEdit, IProductFromSup, ResponseContractSupplier } from "src/types/contractSupplier";
+import { IContractSupDetailDto, IContractSupplyDto, IContractSupplyForDetail, IContractSupplyItem, IContractSupplyProductDto, IContractSupplyUpdateDto, IContractSupProductToDelete, IProductContractSupEdit, IProductFromSup, ResponseContractSupplier, ResRemainingProduct } from "src/types/contractSupplier";
+import { IContractWarehouseImportDto, ResContractWarehouseImport, ResDetailsWarehouseImportProduct } from "src/types/warehouse-import";
 import useSWR, { SWRConfiguration } from "swr";
 
 type contracProps = {
@@ -9,8 +10,11 @@ type contracProps = {
     pageSize: number,
     key?: string,
     enabled?: boolean,
-    fromDate: IDateValue,
-    toDate: IDateValue,
+    fromDate?: IDateValue,
+    toDate?: IDateValue,
+    Filter?: string;
+    Month?: number;
+    Status?: string;
 }
 
 const swrOptions: SWRConfiguration = {
@@ -19,7 +23,17 @@ const swrOptions: SWRConfiguration = {
     revalidateOnReconnect: false,
 };
 
-export function useGetSupplierContracts({ pageNumber, pageSize, key, enabled = true, fromDate, toDate }: contracProps) {
+export function useGetSupplierContracts({
+    pageNumber,
+    pageSize,
+    key,
+    enabled = true,
+    fromDate,
+    toDate,
+    Filter,
+    Month,
+    Status
+}: contracProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
@@ -27,6 +41,12 @@ export function useGetSupplierContracts({ pageNumber, pageSize, key, enabled = t
     if (fromDate || toDate) params += `&fromDate=${fromDate}&toDate=${toDate}`;
 
     if (key) params += `&search=${key}`;
+
+    if (Status) params += `&Status=${Status}`;
+
+    if (Month) params += `&Month=${Month}`;
+
+    if (Filter) params += `&Filter=${Filter}`;
 
     const url = enabled ? endpoints.contractSupplier.list(params) : null;
 
@@ -153,4 +173,125 @@ export async function deleteSupProductSelected(bodyPayload: IContractSupProductT
         console.error(error);
         throw error;
     }
+}
+
+type contractWarehouseImportsProp = {
+    pageNumber: number,
+    pageSize: number,
+    enabled?: boolean,
+    key?: string,
+    ContractNo?: string;
+    Month?: number;
+    FromDate?: IDateValue;
+    ToDate?: IDateValue;
+}
+
+export function useGetWarehouseImports({
+    pageNumber,
+    pageSize,
+    enabled,
+    key,
+    ContractNo,
+    FromDate,
+    ToDate,
+    Month
+}: contractWarehouseImportsProp) {
+    let params = '';
+
+    if (pageNumber || pageSize) params = `?PageNumber=${pageNumber}&PageSize=${pageSize}`;
+    if (key) params += `&search=${key}`;
+    if (ContractNo) params += `&ContractNo=${ContractNo}`;
+    if (FromDate || ToDate) params += `&fromDate=${FromDate}&toDate=${ToDate}`;
+    if (Month) params += `&Month=${Month}`;
+
+    const url = enabled ? endpoints.contractWarehouseImport.list(params) : null;
+
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractWarehouseImport>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data.items ?? [];
+            return {
+                contractWarehouseImports: filteredItems,
+                pagination: {
+                    pageNumber: data?.data.pageNumber ?? 1,
+                    pageSize: data?.data.pageSize ?? pageSize,
+                    totalPages: data?.data.totalPages ?? 0,
+                    totalRecord: data?.data.totalRecord ?? 0,
+                },
+                contractWarehouseImportsLoading: isLoading,
+                contractWarehouseImportsError: error,
+                contractWarehouseImportsValidating: isValidating,
+                contractWarehouseImportsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutation: mutate
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+export function useGetUnImportProduct(contractId: number, enabled: boolean) {
+    const url = (enabled && contractId) ? endpoints.contractWarehouseImport.remaining(contractId) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResRemainingProduct>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data ?? [];
+            return {
+                remainingProduct: filteredItems,
+                remainingProductLoading: isLoading,
+                remainingProductError: error,
+                remainingProductValidating: isValidating,
+                remainingProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+export async function createWarehouseImport(dto: IContractWarehouseImportDto) {
+    try {
+        const { data } = await axiosInstance.post(endpoints.contractWarehouseImport.create, dto);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export async function updateWarehouseImport(id: string, dto: IContractWarehouseImportDto) {
+    try {
+        const { data } = await axiosInstance.patch(endpoints.contractWarehouseImport.update(id), dto);
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export function useGetDetailWarehouseImportProduct(ImportId: number, enabled: boolean) {
+    const url = (enabled && ImportId) ? endpoints.contractWarehouseImport.details(ImportId) : null;
+
+    const { data, isLoading, error, isValidating } = useSWR<ResDetailsWarehouseImportProduct>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data.items ?? [];
+            return {
+                detailsProduct: filteredItems,
+                detailsProductLoading: isLoading,
+                detailsProductError: error,
+                detailsProductValidating: isValidating,
+                detailsProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
 }

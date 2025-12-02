@@ -5,7 +5,7 @@ import { RHFSlider } from './rhf-slider';
 import { RHFTaxCodeField, RHFTextField } from './rhf-text-field';
 import { RHFRadioGroup } from './rhf-radio-group';
 import { RHFPhoneField, RHFPhoneInput } from './rhf-phone-input';
-import { RHFNumberInput, RHFNumericInput } from './rhf-number-input';
+import { RHFNumberInput, RHFNumericInput, RHFNumericInputResizable } from './rhf-number-input';
 import { RHFAutocomplete } from './rhf-autocomplete';
 import { RHFCountrySelect } from './rhf-country-select';
 import { RHFSwitch, RHFMultiSwitch } from './rhf-switch';
@@ -34,6 +34,7 @@ export const Field = {
   DatePicker: RHFDatePicker,
   NumberInput: RHFNumberInput,
   VNCurrencyInput: RHFNumericInput,
+  VNCUrrenInputResizable: RHFNumericInputResizable,
   MultiSelect: RHFMultiSelect,
   MultiSwitch: RHFMultiSwitch,
   UploadAvatar: RHFUploadAvatar,

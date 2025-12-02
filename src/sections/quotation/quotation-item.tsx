@@ -19,6 +19,8 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useGetQuotation } from "src/actions/quotation";
 import { useEffect, useState } from "react";
 import { useSettingsContext } from "src/components/settings";
+import NewSticker from "src/components/label/news";
+import { isToday } from "date-fns";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
@@ -28,17 +30,10 @@ type Props = CardProps & {
     onEditing: () => void;
 };
 
-// const statusMap = {
-//     0: { label: "Bỏ qua", color: "default", icon: "fluent-color:dismiss-circle-16" },
-//     1: { label: "Nháp", color: "info", icon: "material-symbols:draft" },
-//     2: { label: "Đang thực hiện", color: "warning", icon: "line-md:uploading-loop" },
-//     3: { label: "Đã hoàn thành", color: "success", icon: "fluent-color:checkmark-circle-16" },
-// } as const;
-
 const statusMap: { [key: number]: [string, string] } = {
     0: ["Bỏ qua", "fluent-color:dismiss-circle-16"],
     1: ["Nháp", "material-symbols:draft"],
-    2: ["Đang thực hiện", "streamline-pixel:interface-essential-waiting-hourglass-loading"],
+    2: ["Đang thực hiện", "line-md:uploading-loop"],
     3: ["Đã hoàn thành", "fluent-color:checkmark-circle-16"],
 }
 
@@ -89,25 +84,6 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                     <Iconify icon="solar:eye-bold" />
                     Xem báo giá
                 </MenuItem>
-
-                {/* <PDFDownloadLink
-                    document={
-                        <QuotationPdfDocument
-                            invoice={quotate}
-                            currentStatus={statusMap[quotate.status]}
-                            currentQuotation={currentQuotation}
-                        />
-                    }
-                    fileName={`${quotate?.quotationNo}.pdf`}
-                    style={{ textDecoration: "none" }}
-                >
-                    {({ loading }) => (
-                        <MenuItem onClick={menuActions.onClose}>
-                            <Iconify icon="eva:cloud-download-fill" />
-                            {loading ? "Đang tạo..." : "Tải xuống"}
-                        </MenuItem>
-                    )}
-                </PDFDownloadLink> */}
 
                 <MenuItem onClick={() => {
                     onEditing();
@@ -166,6 +142,11 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                         </Box>
                     </Tooltip>
                 </Box>
+                {quotate.createdDate && isToday(quotate.createdDate) && (
+                    <Box sx={{ position: "absolute", top: 8, left: 8, zIndex: 9 }}>
+                        <NewSticker />
+                    </Box>
+                )}
                 <QuotationPreview quotation={quotate} />
                 <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>

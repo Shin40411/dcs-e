@@ -61,7 +61,7 @@ export function ProductAutocomplete({
                         `products.${index}.unitName`,
                         newValue.unit != null ? newValue.unit : ""
                     );
-                    methods.setValue(`products.${index}.price`, newValue.price ?? 0);
+                    methods.setValue(`products.${index}.price`, newValue.purchasePrice ?? 0);
                     methods.setValue(`products.${index}.vat`, newValue.vat ?? 0);
 
                     const productsArr = methods.getValues('products') || [];
@@ -79,7 +79,7 @@ export function ProductAutocomplete({
             }}
             noOptionsText="Không có dữ liệu"
             fullWidth
-            sx={{ width: 500 }}
+            sx={{ width: 450 }}
         />
     );
 }

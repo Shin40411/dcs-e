@@ -20,7 +20,8 @@ export function ContractItemsTable({
     fields,
     remove,
     append,
-    setPaid
+    setPaid,
+    isCreateSupplierContract
 }: ContractItemsTableProps) {
     const items = useWatch({
         control: methods.control,
@@ -145,6 +146,7 @@ export function ContractItemsTable({
                         setProductIDSelected={setProductIDSelected}
                         contractProductDetail={contractProductDetail}
                         idContract={idContract}
+                        isCreateSupplierContract={isCreateSupplierContract}
                     />
                     <Stack
                         direction="row"

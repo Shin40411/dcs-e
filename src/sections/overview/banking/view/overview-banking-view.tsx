@@ -37,7 +37,7 @@ export function OverviewBankingView() {
   const [searchText, setSearchText] = useState('');
   const { permission } = useCheckPermission(['TAIKHOAN.VIEW']);
 
-  const { bankAccounts, pagination, bankAccountsLoading } = useGetBankAccounts({
+  const { bankAccounts, pagination, bankAccountsLoading, mutation } = useGetBankAccounts({
     pageNumber: page + 1,
     pageSize: rowsPerPage,
     key: searchText,
@@ -123,6 +123,7 @@ export function OverviewBankingView() {
     <BankingBin
       open={openBin.value}
       onClose={openBin.onFalse}
+      listMutation={mutation}
     />
   );
 
@@ -138,8 +139,7 @@ export function OverviewBankingView() {
         <CustomBreadcrumbs
           heading="Tài khoản ngân hàng"
           links={[
-            { name: 'Tổng quan', href: paths.dashboard.root },
-            { name: 'Danh mục' },
+            { name: 'Quản lý danh mục' },
             { name: 'Tài khoản ngân hàng' },
           ]}
           action={
@@ -150,6 +150,7 @@ export function OverviewBankingView() {
                 setTableRowSelected(null),
                   openCrudForm.onTrue();
               }}
+              sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
             >
               Tạo tài khoản ngân hàng
             </Button>

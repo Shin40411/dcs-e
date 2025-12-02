@@ -1,7 +1,7 @@
 import { DataGrid, gridClasses, GridColDef, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarFilterButton } from "@mui/x-data-grid";
 import { EmptyContent } from "../empty-content";
-import { Box, Button, Card, IconButton, TablePagination, TextField } from "@mui/material";
-import { ChangeEvent, Dispatch, memo, SetStateAction, useState } from "react";
+import { Box, Button, Card, Stack, TablePagination, TextField } from "@mui/material";
+import { ChangeEvent, Dispatch, memo, ReactNode, SetStateAction, useState } from "react";
 import type { GridToolbarProps } from "@mui/x-data-grid";
 import { Iconify } from "../iconify";
 import { UseBooleanReturn } from "minimal-shared/hooks";
@@ -18,7 +18,9 @@ type GridProps = {
     handleChangeRowsPerPage: (event: ChangeEvent<HTMLInputElement>) => void;
     searchText?: string;
     onSearchChange?: (value: string) => void;
+    disableDefaultFilter?: boolean;
     openBin?: UseBooleanReturn;
+    additionalFilter?: ReactNode;
 };
 
 export function UseGridTableList({
@@ -33,17 +35,24 @@ export function UseGridTableList({
     handleChangeRowsPerPage,
     searchText = '',
     onSearchChange = () => { },
+    disableDefaultFilter = false,
     openBin,
+    additionalFilter
 }: GridProps) {
     return (
         <Card
-            sx={{
+            elevation={0}
+            sx={(theme) => ({
                 minHeight: 640,
                 flexGrow: { md: 1 },
                 display: { md: 'flex' },
                 height: { xs: 800, md: '1px' },
                 flexDirection: { md: 'column' },
-            }}
+                "&&": {
+                    borderRadius: 0,
+                    border: `1px solid ${theme.palette.divider}`,
+                },
+            })}
         >
             <DataGrid
                 disableRowSelectionOnClick
@@ -111,7 +120,9 @@ export function UseGridTableList({
                     toolbar: {
                         searchText,
                         onSearchChange,
+                        disableDefaultFilter,
                         openBin,
+                        additionalFilter,
                     },
                 }}
                 sx={{
@@ -140,54 +151,78 @@ export function UseGridTableList({
 
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
-        setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+        setFilterButtonEl: Dispatch<SetStateAction<HTMLButtonElement | null>>;
+        disableDefaultFilter?: boolean;
         searchText?: string;
         onSearchChange?: (value: string) => void;
         openBin?: UseBooleanReturn;
+        additionalFilter?: ReactNode;
     }
 }
 
 type CustomToolbarProps = GridToolbarProps & {
     searchText?: string;
+    disableDefaultFilter?: boolean;
     onSearchChange?: (value: string) => void;
     openBin?: UseBooleanReturn;
+    additionalFilter?: ReactNode;
 };
 
 function CustomToolbarComponent(props: CustomToolbarProps) {
-    const { searchText = '', onSearchChange = () => { }, openBin, ...rest } = props;
+    const {
+        searchText = '',
+        disableDefaultFilter = false,
+        onSearchChange = () => { },
+        openBin,
+        additionalFilter,
+        ...rest
+    } = props;
 
     return (
-        <GridToolbarContainer {...rest}>
-            <GridToolbarColumnsButton />
-            <GridToolbarFilterButton />
-            <GridToolbarDensitySelector />
+        <>
+            {!disableDefaultFilter &&
+                <GridToolbarContainer {...rest}>
+                    <GridToolbarColumnsButton />
+                    <GridToolbarFilterButton />
+                    <GridToolbarDensitySelector />
 
-            {openBin && (
-                <Button
-                    variant="text"
-                    color="error"
-                    startIcon={<Iconify icon="mdi:delete" sx={{ width: 24, height: 24 }} />}
-                    onClick={() => openBin?.onTrue?.()}
-                >
-                    Thùng rác
-                </Button>
-            )}
+                    {openBin && (
+                        <Button
+                            variant="text"
+                            color="error"
+                            startIcon={<Iconify icon="mdi:delete" sx={{ width: 24, height: 24 }} />}
+                            onClick={() => openBin?.onTrue?.()}
+                        >
+                            Thùng rác
+                        </Button>
+                    )}
 
-            <Box sx={{ flexGrow: 1 }} />
+                    <Box sx={{ flexGrow: 1 }} />
 
-            <TextField
-                size="small"
-                variant="outlined"
-                value={searchText}
-                onChange={(e) => onSearchChange?.(e.target.value)}
-                placeholder="Tìm kiếm..."
-                InputProps={{
-                    startAdornment: (
-                        <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20, mr: 1 }} />
-                    ),
-                }}
-            />
-        </GridToolbarContainer>
+                    <TextField
+                        size="small"
+                        variant="outlined"
+                        value={searchText}
+                        onChange={(e) => onSearchChange?.(e.target.value)}
+                        placeholder="Tìm kiếm..."
+                        InputProps={{
+                            startAdornment: (
+                                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20, mr: 1 }} />
+                            ),
+                        }}
+                        sx={{
+                            '& .MuiInputBase-input': {
+                                p: '8.5px 14px !important',
+                            },
+                        }}
+                    />
+
+                </GridToolbarContainer>
+            }
+            {additionalFilter &&
+                additionalFilter
+            }
+        </>
     );
 }
 

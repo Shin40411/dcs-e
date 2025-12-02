@@ -1,19 +1,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { createReceiptContract, updateReceiptContract } from "src/actions/contract";
+import { createReceiptContract, updateReceiptContract, useGetContracts, useGetReceiptContract } from "src/actions/contract";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
 import { paths } from "src/routes/paths";
-import { IReceiptContract, IReceiptContractDto } from "src/types/contract";
+import { IContractItem, IReceiptContract, IReceiptContractDto } from "src/types/contract";
 import { fDate } from "src/utils/format-time-vi";
-import { generateReceipt } from "src/utils/random-func";
-import { mutate } from "swr";
 import { CloseIcon } from "yet-another-react-lightbox";
-import { ContractReceiptSchema, ContractReceiptSchemaType } from "../contract/schema/contract-receipt-schema";
 import { useNavigate } from "react-router";
+import { useGetBankAccounts } from "src/actions/bankAccount";
+import { useDebounce } from "minimal-shared/hooks";
+import { IBankAccountItem } from "src/types/bankAccount";
+import { ReceiptSchema, ReceiptSchemaType } from "./schema/receipt-schema";
+import { generateReceipt } from "src/utils/random-func";
 
 interface FormDialogProps {
     selectedReceipt: IReceiptContract | null;
@@ -24,37 +26,73 @@ interface FormDialogProps {
 
 export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }: FormDialogProps) {
     const today = new Date();
-    const navigate = useNavigate();
+    const isEdit = Boolean(selectedReceipt);
+
+    const [bankKeyword, setbankKeyword] = useState('');
+    const debouncedbankKw = useDebounce(bankKeyword, 300);
+    const [selectedBank, setSelectedBank] = useState<IBankAccountItem | null>(null);
+
+    const [contractkeyword, setContractKeyword] = useState('');
+    const debouncedContractKw = useDebounce(contractkeyword, 300);
+    const [selectedContract, setSelectedContract] = useState<IContractItem | null>(null);
+
+    const { contracts, contractsLoading } = useGetContracts({
+        pageNumber: 1,
+        pageSize: 20,
+        enabled: true,
+        key: debouncedContractKw
+    });
+
+    const { pagination: { totalRecord } } = useGetReceiptContract({
+        pageNumber: 1,
+        pageSize: 999,
+        ContractNo: selectedContract ? selectedContract.contractNo : "",
+        enabled: open,
+        ContractType: 'Customer',
+        ReceiptType: 'Collect'
+    });
+
+    const { bankAccounts, bankAccountsLoading } = useGetBankAccounts({
+        pageNumber: 1,
+        pageSize: 10,
+        enabled: open,
+        key: debouncedbankKw
+    });
 
     const [watchTicket, setWatchTicket] = useState(true);
 
-    const defaultValues: ContractReceiptSchemaType = {
-        companyName: selectedReceipt?.companyName ?? "",
-        customerName: selectedReceipt?.customerName ?? "",
-        amount: 0,
-        receiptNo: '',
-        date: today.toISOString(),
-        address: "",
-        payer: "",
-        reason: ""
-    };
+    const defaultValues: ReceiptSchemaType = isEdit
+        ? {
+            companyName: selectedReceipt?.companyName ?? "",
+            customerName: selectedReceipt?.customerName ?? "",
+            amount: selectedReceipt?.amount ?? 0,
+            receiptNo: selectedReceipt?.receiptNo ?? "",
+            date: selectedReceipt?.date ?? today.toISOString(),
+            address: selectedReceipt?.address ?? "",
+            payer: selectedReceipt?.payer ?? "",
+            contract: selectedReceipt?.contractNo ?? "",
+            reason: selectedReceipt?.reason ?? "",
+            bankAccId: selectedReceipt?.bankAccountID ?? 0,
+            bankNo: selectedReceipt?.bankNo ?? "",
+        }
+        : {
+            companyName: "",
+            customerName: "",
+            amount: 0,
+            receiptNo: "",
+            date: today.toISOString(),
+            address: "",
+            payer: "",
+            contract: "",
+            reason: "",
+            bankAccId: 0,
+            bankNo: "",
+        };
 
-    const methods = useForm<ContractReceiptSchemaType>({
-        resolver: zodResolver(ContractReceiptSchema),
+    const methods = useForm<ReceiptSchemaType>({
+        resolver: zodResolver(ReceiptSchema),
         defaultValues
     });
-
-    useEffect(() => {
-        if (!selectedReceipt) return;
-        methods.setValue('companyName', selectedReceipt.companyName);
-        methods.setValue('customerName', selectedReceipt.customerName);
-        methods.setValue('address', selectedReceipt.address);
-        methods.setValue('amount', selectedReceipt.amount);
-        methods.setValue('date', selectedReceipt.date);
-        methods.setValue('payer', selectedReceipt.payer);
-        methods.setValue('reason', selectedReceipt.reason);
-        methods.setValue('receiptNo', selectedReceipt.receiptNo);
-    }, [selectedReceipt, methods.reset]);
 
     const {
         reset,
@@ -66,16 +104,18 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }:
 
     const onSubmit = handleSubmit(async (data) => {
         try {
-            if (!selectedReceipt) return;
-
             const payload: IReceiptContractDto = {
                 receiptNo: data.receiptNo || "",
-                contractNo: selectedReceipt?.contractNo || "",
+                contractNo:
+                    isEdit && selectedReceipt
+                        ? selectedReceipt?.contractNo
+                        : data.contract,
                 date: data.date,
                 receiptType: "Collect",
                 amount: data.amount,
                 note: data.reason || "",
                 contractType: "Customer",
+                bankAccountID: data.bankAccId || undefined,
                 companyName: data.companyName,
                 customerName: data.customerName,
                 address: data.address || "",
@@ -83,18 +123,26 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }:
                 reason: data.reason || "",
             };
 
-            await updateReceiptContract(payload, selectedReceipt.receiptId);
+            if (isEdit) {
+                if (!selectedReceipt) return;
+                await updateReceiptContract(payload, selectedReceipt.receiptId);
+                toast.success("Dữ liệu phiếu thu đã được thay đổi!");
+            } else {
+                await createReceiptContract(payload);
+                toast.success("Tạo phiếu thu thành công!");
+            }
 
-            toast.success("Dữ liệu phiếu thu đã được thay đổi!");
             reset();
             mutation();
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error("Đã có lỗi xảy ra!");
+            toast.error(error.message || "Đã có lỗi xảy ra!");
         }
     });
 
+    const bankAccId = methods.watch('bankAccId');
+    const contractNo = methods.watch('contract');
     const companyName = watch('companyName');
     const customerName = watch('customerName');
     const date = watch('date');
@@ -103,6 +151,48 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }:
     const payer = watch('payer');
     const reason = watch('reason');
     const address = watch('address');
+
+    useEffect(() => {
+        if (!isEdit) {
+            reset(defaultValues);
+            return;
+        }
+
+        reset(defaultValues);
+    }, [selectedReceipt]);
+
+    useEffect(() => {
+        if (!contractNo) {
+            setSelectedContract(null);
+            methods.setValue("contract", "");
+            methods.setValue("companyName", "");
+            methods.setValue('receiptNo', "");
+            return;
+        }
+
+        const found = contracts.find((con) => con.contractNo === contractNo);
+
+        if (found) {
+            setSelectedContract(found);
+            methods.setValue("contract", found.contractNo);
+            methods.setValue('receiptNo', generateReceipt('PT', totalRecord));
+            methods.setValue("companyName", found.companyName);
+        }
+    }, [contractNo, contracts]);
+
+    useEffect(() => {
+        if (!bankAccId) {
+            setSelectedBank(null);
+            methods.setValue("bankNo", "");
+            return;
+        }
+
+        const found = bankAccounts.find((cus) => Number(cus.id) === Number(bankAccId));
+        if (found) {
+            setSelectedBank(found);
+            methods.setValue("bankNo", found.bankNo);
+        }
+    }, [bankAccId, bankAccounts]);
 
     useEffect(() => {
         if (companyName && customerName && date && receiptNoToWatch && amount && payer) {
@@ -142,10 +232,57 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }:
                     }}
                     disabled
                 />
-                <Field.DatePicker
-                    name="date"
-                    label="Ngày lập phiếu"
-                    sx={{ flex: 1 }}
+                <Field.Autocomplete
+                    name="contract"
+                    label={`Số hợp đồng`}
+                    options={contracts}
+                    loading={contractsLoading}
+                    getOptionLabel={(opt) => opt?.contractNo ?
+                        opt.contractNo : ''}
+                    isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                    onInputChange={(_, value) => setContractKeyword(value)}
+                    value={selectedContract}
+                    fullWidth
+                    onChange={(_, newValue) => {
+                        methods.setValue('contract', newValue?.contractNo ?? "", { shouldValidate: true });
+                        setContractKeyword(newValue?.contractNo ?? '');
+                    }}
+                    noOptionsText="Không có dữ liệu"
+                    sx={{
+                        flex: 1,
+                        minWidth: 200,
+                        '& .MuiInputBase-root.Mui-disabled': {
+                            backgroundColor: '#ddd',
+                        },
+                    }}
+                    renderOption={(props, option) => (
+                        <li {...props} key={option.id}>
+                            {option.contractNo ? option.contractNo : ''}
+                        </li>
+                    )}
+                    required
+                    disabled={isEdit}
+                />
+            </Stack>
+            <Stack direction="row" spacing={3}>
+                <Field.Text
+                    name="payer"
+                    label="Tên người nộp"
+                    required
+                    helperText="Nhập tên người nộp"
+                    sx={{ flex: 1.5 }}
+                />
+                <Field.Text
+                    name="receiptNo"
+                    label="Số phiếu thu"
+                    required
+                    sx={{
+                        flex: 1,
+                        '& .MuiInputBase-root.Mui-disabled': {
+                            backgroundColor: '#ddd',
+                        },
+                    }}
+                    disabled
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
@@ -161,34 +298,78 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }:
                         },
                     }}
                 />
-                <Field.Text
-                    name="receiptNo"
-                    label="Số phiếu thu"
-                    helperText="Nhập số phiếu thu"
-                    required
+                <Field.DatePicker
+                    name="date"
+                    label="Ngày lập phiếu"
                     sx={{ flex: 1 }}
                 />
             </Stack>
-            <Stack direction="row" spacing={3}>
-                <Field.Text
-                    name="address"
-                    label="Địa chỉ"
-                    helperText="Nhập địa chỉ người nộp tiền"
-                    sx={{ flex: 1.5 }}
-                />
-                <Field.Text name="payer" label="Tên người nộp" required helperText="Nhập tên người nộp" sx={{ flex: 1 }} />
-            </Stack>
             <Field.Text
-                name="reason"
-                label="Lý do nộp"
+                name="address"
+                label="Địa chỉ"
+                helperText="Nhập địa chỉ người nộp tiền"
             />
-            <Field.VNCurrencyInput
-                name="amount"
-                label="Số tiền nộp"
-                helperText="Nhập số tiền nộp"
-                required
-                sx={{ width: 500 }}
-            />
+            <Stack direction="row" spacing={3}>
+                <Box
+                    flex={1.5}
+                    display="flex"
+                    flexDirection="column"
+                    gap={3}
+                >
+                    <Field.Text
+                        name="reason"
+                        label="Lý do nộp"
+                    />
+                    <Field.VNCurrencyInput
+                        name="amount"
+                        label="Số tiền nộp"
+                        helperText="Nhập số tiền nộp"
+                        required
+                        sx={{ width: 500 }}
+                    />
+                </Box>
+                <Box flex={1} position="relative">
+                    <Box position="absolute" top={-10} left={10} zIndex={1000} bgcolor="common.white">
+                        <Typography variant="subtitle2" color="textSecondary">Tài khoản nhận tiền</Typography>
+                    </Box>
+                    <Card
+                        sx={{
+                            px: 2,
+                            py: 3,
+                            borderRadius: 0.5,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2
+                        }}
+                    >
+                        <Field.Autocomplete
+                            name="bankAccId"
+                            label={`Tài khoản`}
+                            options={bankAccounts}
+                            loading={bankAccountsLoading}
+                            getOptionLabel={(opt) => opt?.name ?
+                                opt.name : ''}
+                            isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                            onInputChange={(_, value) => setbankKeyword(value)}
+                            value={selectedBank}
+                            fullWidth
+                            onChange={(_, newValue) => {
+                                methods.setValue('bankAccId', newValue?.id ?? 0, { shouldValidate: true });
+                                setbankKeyword(newValue?.name ?? '');
+                            }}
+                            noOptionsText="Không có dữ liệu"
+                            sx={{ flex: 1, minWidth: 200 }}
+                            renderOption={(props, option) => (
+                                <li {...props} key={option.id}>
+                                    {option.name ? option.name : ''}
+                                </li>
+                            )}
+                            required
+                        />
+                        <Field.Text name="bankNo" label="Số tài khoản" type="number" disabled />
+                    </Card>
+                </Box>
+            </Stack>
         </>
     );
 
@@ -202,18 +383,20 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }:
                     loading={isSubmitting}
                     fullWidth
                 >
-                    {'Lưu'}
+                    {isEdit ? 'Lưu' : 'Tạo mới'}
                 </Button>
-                <Button
-                    type="button"
-                    variant="contained"
-                    sx={{ ml: 1 }}
-                    disabled={watchTicket}
-                    fullWidth
-                    onClick={onPreviewReceipt}
-                >
-                    Xem phiếu
-                </Button>
+                {isEdit &&
+                    <Button
+                        type="button"
+                        variant="contained"
+                        sx={{ ml: 1 }}
+                        disabled={watchTicket}
+                        fullWidth
+                        onClick={onPreviewReceipt}
+                    >
+                        Xem phiếu
+                    </Button>
+                }
                 <Button
                     variant="outlined"
                     color="inherit"
@@ -249,12 +432,12 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation }:
             >
                 <Box display="flex" alignItems="center" gap={1}>
                     <Iconify icon="ph:file-x-bold" width={24} />
-                    <Typography fontWeight={700} textTransform="uppercase">Chỉnh sửa phiếu thu</Typography>
+                    <Typography fontWeight={700} textTransform="uppercase">{isEdit ? "Chỉnh sửa phiếu thu" : "Tạo phiếu thu mới"}</Typography>
                 </Box>
                 <TextField
                     disabled
                     id="contractNo-disabled"
-                    value={selectedReceipt?.receiptNo}
+                    value={receiptNoToWatch}
                     sx={{ width: 400 }}
                 />
                 <IconButton onClick={onClose}>

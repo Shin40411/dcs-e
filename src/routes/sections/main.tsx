@@ -12,20 +12,8 @@ import { AuthGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
 
-const FaqsPage = lazy(() => import('src/pages/faqs'));
-const AboutPage = lazy(() => import('src/pages/about-us'));
-const ContactPage = lazy(() => import('src/pages/contact-us'));
-const PricingPage = lazy(() => import('src/pages/pricing'));
-const PaymentPage = lazy(() => import('src/pages/payment'));
 const ComingSoonPage = lazy(() => import('src/pages/coming-soon'));
 const MaintenancePage = lazy(() => import('src/pages/maintenance'));
-// Product
-const ProductListPage = lazy(() => import('src/pages/product/list'));
-const ProductDetailsPage = lazy(() => import('src/pages/product/details'));
-const ProductCheckoutPage = lazy(() => import('src/pages/product/checkout'));
-// Blog
-const PostListPage = lazy(() => import('src/pages/post/list'));
-const PostDetailsPage = lazy(() => import('src/pages/post/details'));
 // Error
 const Page500 = lazy(() => import('src/pages/error/500'));
 const Page403 = lazy(() => import('src/pages/error/403'));
@@ -42,6 +30,8 @@ const ReportPreviewPage = lazy(() => import('src/pages/dashboard/report/index'))
 const LiquidationPreviewPage = lazy(() => import('src/pages/dashboard/liquidation/index'));
 //Export
 const ExportWarehousePreviewPage = lazy(() => import('src/pages/dashboard/warehouse-export/index'));
+//Import
+const ImportWarehousePreviewPage = lazy(() => import('src/pages/dashboard/warehouse-import/index'));
 // ----------------------------------------------------------------------
 
 export const mainRoutes: RouteObject[] = [
@@ -59,44 +49,8 @@ export const mainRoutes: RouteObject[] = [
           </MainLayout>
         ),
         children: [
-          { path: 'about-us', element: <AboutPage /> },
-          { path: 'contact-us', element: <ContactPage /> },
-          { path: 'faqs', element: <FaqsPage /> },
           { path: 'blank', element: <BlankPage /> },
-          {
-            path: 'product',
-            children: [
-              { index: true, element: <ProductListPage /> },
-              { path: 'list', element: <ProductListPage /> },
-              { path: ':id', element: <ProductDetailsPage /> },
-              { path: 'checkout', element: <ProductCheckoutPage /> },
-            ],
-          },
-          {
-            path: 'post',
-            children: [
-              { index: true, element: <PostListPage /> },
-              { path: 'list', element: <PostListPage /> },
-              { path: ':title', element: <PostDetailsPage /> },
-            ],
-          },
         ],
-      },
-      {
-        path: 'pricing',
-        element: (
-          <SimpleLayout>
-            <PricingPage />
-          </SimpleLayout>
-        ),
-      },
-      {
-        path: 'payment',
-        element: (
-          <SimpleLayout>
-            <PaymentPage />
-          </SimpleLayout>
-        ),
       },
       {
         path: 'coming-soon',
@@ -151,6 +105,14 @@ export const mainRoutes: RouteObject[] = [
         element: (
           <AuthGuard>
             <ExportWarehousePreviewPage />
+          </AuthGuard>
+        )
+      },
+      {
+        path: paths.warehouseImport,
+        element: (
+          <AuthGuard>
+            <ImportWarehousePreviewPage />
           </AuthGuard>
         )
       },

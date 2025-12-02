@@ -1,5 +1,6 @@
 import { Box, Card, CardContent, CardHeader, Divider, Skeleton, Stack, Typography } from "@mui/material";
 import { TopSalerStatistic } from "src/actions/statistics";
+import { EmptyContent } from "src/components/empty-content";
 import { Iconify } from "src/components/iconify";
 import { useSettingsContext } from "src/components/settings";
 import { fCurrencyNoUnit } from "src/utils/format-number";
@@ -64,9 +65,7 @@ export function DashBoardTopSaler({ filter }: DashBoardTopSalerProps) {
                     </Stack>
                 ) : topSalerEmpty ? (
                     <Stack justifyContent="center" display="flex" height="100%">
-                        <Typography textAlign="center" color="text.secondary" py={3}>
-                            Không có dữ liệu
-                        </Typography>
+                        <EmptyContent />
                     </Stack>
                 ) : (
                     <Stack spacing={1.5}>

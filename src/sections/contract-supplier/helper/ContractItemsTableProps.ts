@@ -1,9 +1,7 @@
-import { IContractDetails, IContractProduct, IContractRemainingProduct } from "src/types/contract";
 import { ContractFormValues } from "../schema/contract-schema";
 import { FieldArrayWithId, UseFieldArrayRemove, UseFormReturn } from "react-hook-form";
 import { UseBooleanReturn } from "minimal-shared/hooks";
-import { ContractWareHouseSchemaType } from "../schema/contract-warehouse";
-import { IContractSupplyForDetail } from "src/types/contractSupplier";
+import { IContractSupplyForDetail, IImportRemainingProduct } from "src/types/contractSupplier";
 
 export type ContractItemsTableProps = {
     idContract: number | undefined;
@@ -20,7 +18,9 @@ export type ContractItemsTableProps = {
 export type ContractWareHouseTableProps = {
     remainingProductEmpty: boolean;
     remainingProductLoading: boolean;
-    remainingProduct: IContractRemainingProduct[];
+    remainingProduct: IImportRemainingProduct[];
+    onQuantityChange?: (productID: number, newQuantity: number) => void;
+    onRemoveProduct?: (productID: number) => void;
 };
 
 export type ContractItemsTableContentProps = {

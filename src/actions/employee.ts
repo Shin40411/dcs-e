@@ -55,7 +55,7 @@ export function useGetDeletedEmployees({ pageNumber, pageSize, key, enabled = tr
 
     const url = enabled ? endpoints.employees.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResEmployeesList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResEmployeesList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -70,6 +70,7 @@ export function useGetDeletedEmployees({ pageNumber, pageSize, key, enabled = tr
             employeesError: error,
             employeesValidating: isValidating,
             employeesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

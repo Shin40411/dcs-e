@@ -1,5 +1,6 @@
 import { Avatar, Box, Card, CardContent, CardHeader, Divider, Skeleton, Stack, Typography } from "@mui/material";
 import { TopContractValStatistic } from "src/actions/statistics";
+import { EmptyContent } from "src/components/empty-content";
 import { Iconify } from "src/components/iconify";
 import { useSettingsContext } from "src/components/settings";
 import { fCurrency, fCurrencyNoUnit } from "src/utils/format-number";
@@ -71,9 +72,7 @@ export function DashBoardTopContractVal({ filter }: DashBoardTopContractValProps
                     </Stack>
                 ) : contractValueEmpty ? (
                     <Stack spacing={1.5} height={(contractValueEmpty) ? '100%' : 'auto'} justifyContent="center">
-                        <Typography textAlign="center" color="text.secondary" py={3}>
-                            Không có dữ liệu
-                        </Typography>
+                        <EmptyContent />
                     </Stack>
                 ) : (
                     <Stack spacing={1.5}>

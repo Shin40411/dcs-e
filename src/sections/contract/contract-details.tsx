@@ -14,6 +14,7 @@ import { ContractFollow } from "./contract-follow";
 import { ContractFollowSpend } from "./contract-follow-spend";
 import { toast } from "sonner";
 import { generateLiquidationNo } from "src/utils/random-func";
+import { ContractSpend } from "./contract-spend";
 
 type Props = {
     selectedContract: IContractItem;
@@ -32,6 +33,17 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
     });
 
     const [createReportLoad, setCreateReportLoad] = useState(false);
+    const [refetchFns, setRefetchFns] = useState<{
+        refetchNeedCollect: () => void;
+        refetchBatchCollect: () => void;
+        refetchHistoryCollect: () => void;
+    } | null>(null);
+
+    const [refetchFns2, setRefetchFns2] = useState<{
+        refetchNeedSpend: () => void;
+        refetchNeedSpendForContract: () => void;
+        refetchHistorySpend: () => void;
+    } | null>(null);
 
     const openSendMail = useBoolean();
 
@@ -47,6 +59,7 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
 
     const openFileAttach = useBoolean();
     const openReceipt = useBoolean();
+    const openSpend = useBoolean();
     const openWareHouse = useBoolean();
 
     const handleClickLP = (event: MouseEvent<HTMLButtonElement>) => {
@@ -198,6 +211,7 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                 contract={selectedContract}
                 currentStatus={statusMap[selectedContract.status]}
                 currentContract={contract}
+                openDetail={openDetail}
             />
         );
         pdfContractIdRef.current = selectedContract.id;
@@ -278,14 +292,16 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                                             >
                                                 File chứng từ
                                             </Button>
-                                            <Button
-                                                variant="contained"
-                                                startIcon={<Iconify icon="solar:document-add-bold" />}
-                                                endIcon={<Iconify icon={open ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
-                                                onClick={handleClickLP}
-                                            >
-                                                Lập phiếu
-                                            </Button>
+                                            {selectedContract.status !== 1 &&
+                                                <Button
+                                                    variant="contained"
+                                                    startIcon={<Iconify icon="solar:document-add-bold" />}
+                                                    endIcon={<Iconify icon={open ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
+                                                    onClick={handleClickLP}
+                                                >
+                                                    Lập phiếu
+                                                </Button>
+                                            }
                                             <Button
                                                 variant="contained"
                                                 startIcon={<Iconify icon="mdi:chart-line" />}
@@ -294,17 +310,28 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                                             >
                                                 Theo dõi
                                             </Button>
-                                            <Button variant="contained" startIcon={<Iconify icon="solar:copy-linear" />}>Copy hợp đồng</Button>
-                                            <Button variant="contained"
+                                            <Button
+                                                variant="contained"
+                                                startIcon={<Iconify icon="solar:copy-linear" />}
+                                                type="button"
                                                 onClick={() => {
                                                     onClose();
-                                                    createSupplierContract();
+                                                    copyContract(selectedContract);
                                                 }}
-                                                startIcon={<Iconify icon="lsicon:report-filled" />}
-                                                disabled={selectedContract.status === 1}
                                             >
-                                                Lập hợp đồng
+                                                Copy hợp đồng
                                             </Button>
+                                            {selectedContract.status !== 1 &&
+                                                <Button variant="contained"
+                                                    onClick={() => {
+                                                        onClose();
+                                                        createSupplierContract();
+                                                    }}
+                                                    startIcon={<Iconify icon="lsicon:report-filled" />}
+                                                >
+                                                    Lập hợp đồng
+                                                </Button>
+                                            }
                                             <Button
                                                 variant="contained"
                                                 startIcon={<Iconify icon="material-symbols:contract-edit-outline-sharp" />}
@@ -322,15 +349,14 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                                     onClose={handleCloseLP}
                                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                                     transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                                // PaperProps={{
-                                //     sx: {
-                                //         width: anchorEl ? anchorEl.offsetWidth : undefined,
-                                //     },
-                                // }}
                                 >
                                     <MenuItem onClick={() => { handleCloseLP(); openReceipt.onTrue(); }}>
                                         <Iconify icon="streamline-ultimate:receipt-bold" style={{ marginRight: 8 }} />
                                         Phiếu thu
+                                    </MenuItem>
+                                    <MenuItem onClick={() => { handleCloseLP(); openSpend.onTrue(); }}>
+                                        <Iconify icon="hugeicons:payment-02" style={{ marginRight: 8 }} />
+                                        Phiếu chi
                                     </MenuItem>
                                     <MenuItem onClick={() => { handleCloseLP(); openWareHouse.onTrue(); }}>
                                         <Iconify icon="lsicon:out-of-warehouse-filled" style={{ marginRight: 8 }} />
@@ -393,11 +419,22 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                             selectedContract={selectedContract}
                             open={openReceipt.value}
                             onClose={openReceipt.onFalse}
+                            refetchFns={refetchFns}
+                            refetchFns2={refetchFns2}
+                        />
+                        <ContractSpend
+                            selectedContract={selectedContract}
+                            open={openSpend.value}
+                            onClose={openSpend.onFalse}
+                            refetchFns={refetchFns}
+                            refetchFns2={refetchFns2}
                         />
                         <ContractWareHouse
                             selectedContract={selectedContract}
                             open={openWareHouse.value}
                             onClose={openWareHouse.onFalse}
+                            refetchFns={refetchFns}
+                            refetchFns2={refetchFns2}
                         />
                     </>
                 ) : null}
@@ -411,11 +448,13 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
             <ContractFollow
                 openForm={openFollow}
                 selectedContract={selectedContract}
+                onExposeRefetch={(fns) => setRefetchFns(fns)}
             />
 
             <ContractFollowSpend
                 openForm={openFollowSpend}
                 selectedContract={selectedContract}
+                onExposeRefetch={(fns) => setRefetchFns2(fns)}
             />
         </>
     );

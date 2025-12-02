@@ -152,14 +152,14 @@ export const SPEND_COLUMNS: ({
                     <RenderCellContractType params={params} />
                 ),
             },
-            {
-                field: 'note',
-                headerName: 'Ghi chú',
-                width: 300,
-                renderCell: (params) => (
-                    <RenderNote params={params} />
-                ),
-            },
+            // {
+            //     field: 'note',
+            //     headerName: 'Ghi chú',
+            //     width: 300,
+            //     renderCell: (params) => (
+            //         <RenderNote params={params} />
+            //     ),
+            // },
             {
                 type: 'actions',
                 field: 'actions',

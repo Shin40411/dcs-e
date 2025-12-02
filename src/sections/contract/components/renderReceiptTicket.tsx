@@ -20,7 +20,7 @@ interface RenderReceiptProps {
 }
 
 export const RenderReceipt = ({ data }: RenderReceiptProps) => (
-    <Document>
+    <Document title={data.receiptNo}>
         <Page size="A3" style={styles.page}>
             <View style={styles.body} wrap={false}>
                 <View>
@@ -54,7 +54,7 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         </View>
 
                         <View style={{ width: '30%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                            <Text style={styles.contractNumber}>Số HĐ: {data.contractNo}</Text>
+                            {data.contractNo && <Text style={styles.contractNumber}>Số HĐ: {data.contractNo}</Text>}
                             <Text style={styles.contractNumber}>Số PT: {data.receiptNo}</Text>
                             <Text style={styles.contractNumber}>Nợ: ............................</Text>
                             <Text style={styles.contractNumber}>Có: ............................</Text>
@@ -65,6 +65,7 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         <Text style={styles.textDefault}>Địa chỉ: {data.address ? data.address : '....................'}</Text>
                         <Text style={styles.textDefault}>Lý do nộp: {data.reason ? data.reason : '....................'}</Text>
                         <Text style={styles.textDefault}>Số tiền: {fCurrencyNoUnit(data.amount)} VNĐ (Viết bằng chữ): {data.amount ? capitalizeFirstLetter(fRenderTextNumber(data.amount)) : '....................'}</Text>
+                        <Text style={styles.textDefault}>Hình thức thu tiền: TM/CK</Text>
                         <Text style={styles.textDefault}>Kèm theo: {data.attachment}........................................Chứng từ gốc:</Text>
                     </View>
                 </View>
@@ -121,7 +122,7 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         </View>
 
                         <View style={{ width: '30%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                            <Text style={styles.contractNumber}>Số HĐ: {data.contractNo}</Text>
+                            {data.contractNo && <Text style={styles.contractNumber}>Số HĐ: {data.contractNo}</Text>}
                             <Text style={styles.contractNumber}>Số PT: {data.receiptNo}</Text>
                             <Text style={styles.contractNumber}>Nợ: ............................</Text>
                             <Text style={styles.contractNumber}>Có: ............................</Text>
@@ -132,6 +133,7 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                         <Text style={styles.textDefault}>Địa chỉ: {data.address ? data.address : '....................'}</Text>
                         <Text style={styles.textDefault}>Lý do nộp: {data.reason ? data.reason : '....................'}</Text>
                         <Text style={styles.textDefault}>Số tiền: {fCurrencyNoUnit(data.amount)} VNĐ (Viết bằng chữ): {data.amount ? capitalizeFirstLetter(fRenderTextNumber(data.amount)) : '....................'}</Text>
+                        <Text style={styles.textDefault}>Hình thức thu tiền: TM/CK</Text>
                         <Text style={styles.textDefault}>Kèm theo: {data.attachment}........................................Chứng từ gốc:</Text>
                     </View>
                 </View>

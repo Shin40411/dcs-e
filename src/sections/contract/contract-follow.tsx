@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { usefetchReceipt, useGetBatchCollect, useGetHistoryCollect, useGetNeedCollect } from "src/actions/followContract";
+import { EmptyContent } from "src/components/empty-content";
 import { Iconify } from "src/components/iconify";
 import { Label } from "src/components/label";
 import { endpoints, fetcher } from "src/lib/axios";
@@ -17,14 +18,43 @@ import { CloseIcon } from "yet-another-react-lightbox";
 type props = {
     openForm: UseBooleanReturn;
     selectedContract: IContractItem;
+    onExposeRefetch: (fns: {
+        refetchNeedCollect: () => void;
+        refetchBatchCollect: () => void;
+        refetchHistoryCollect: () => void;
+    }) => void;
 }
 
-export function ContractFollow({ openForm, selectedContract }: props) {
-    const { result, resultLoading, resultError } = useGetNeedCollect(selectedContract.contractNo, openForm.value);
+export function ContractFollow({ openForm, selectedContract, onExposeRefetch }: props) {
+    const {
+        result,
+        resultLoading,
+        resultError,
+        mutation: refetchNeedCollect
+    } = useGetNeedCollect(
+        selectedContract.contractNo,
+        openForm.value
+    );
 
-    const { result: batchResult, resultLoading: batchLoading, resultError: batchError } = useGetBatchCollect(selectedContract.contractNo, openForm.value);
+    const {
+        result: batchResult,
+        resultLoading: batchLoading,
+        resultError: batchError,
+        mutation: refetchBatchCollect
+    } = useGetBatchCollect(
+        selectedContract.contractNo,
+        openForm.value
+    );
 
-    const { result: historyCollectResult, resultLoading: historyCollectLoading, resultError: historyCollectError } = useGetHistoryCollect(selectedContract.contractNo, openForm.value);
+    const {
+        result: historyCollectResult,
+        resultLoading: historyCollectLoading,
+        resultError: historyCollectError,
+        mutation: refetchHistoryCollect
+    } = useGetHistoryCollect(
+        selectedContract.contractNo,
+        openForm.value
+    );
 
     const [needCollectData, setNeedCollectData] = useState<IFollowContractItem>();
     const [batchData, setBatchData] = useState<IBatchCollectItem[]>();
@@ -37,6 +67,18 @@ export function ContractFollow({ openForm, selectedContract }: props) {
         setBatchData(batchResult);
         setHistoryCollect(historyCollectResult);
     }, [result, batchResult, historyCollectResult]);
+
+    useEffect(() => {
+        onExposeRefetch?.({
+            refetchNeedCollect,
+            refetchBatchCollect,
+            refetchHistoryCollect,
+        });
+    }, [
+        refetchNeedCollect,
+        refetchBatchCollect,
+        refetchHistoryCollect,
+    ]);
 
     const {
         contractAmounts,
@@ -127,7 +169,8 @@ export function ContractFollow({ openForm, selectedContract }: props) {
                         bgcolor: status === "Đã hoàn thành" ?
                             'green' : status === "Đang thực hiện" ?
                                 '#B0FFD5' : 'red',
-                        color: '#000000'
+                        color: status === "Đã hoàn thành" ? '#fff'
+                            : status === "Đang thực hiện" ? '#000000' : '#fff'
                     }}
                     startIcon={<Iconify icon={
                         status === "Đã hoàn thành" ?
@@ -203,42 +246,65 @@ export function ContractFollow({ openForm, selectedContract }: props) {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {batchData?.map((b, index) => {
-                                            const soTreHan =
-                                                b.status === "Chưa đến hạn"
-                                                    ? b.upComingDate === 0
-                                                        ? `${b.upComingDate}`
-                                                        : `+ ${b.upComingDate}`
-                                                    : b.lateDate === 0
-                                                        ? `${b.lateDate}`
-                                                        : `- ${b.lateDate}`;
-                                            return (
-                                                <TableRow key={index}>
-                                                    <TableCell>Đợt {b.batch}</TableCell>
-                                                    <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.needCollect)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.collected)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.remainning)}</TableCell>
-                                                    <TableCell sx={{ display: "flex", justifyContent: "center" }}>
-                                                        <Stack width="fit-content" flexDirection="column" justifyContent="center" alignItems="center">
-                                                            <Box>
-                                                                <Iconify
-                                                                    icon={b.status === "Đã hoàn thành" ? "ei:check"
-                                                                        : b.status === "Chưa đến hạn" ? "mdi:alert-outline"
-                                                                            : "icon-park-outline:dot"}
-                                                                    color={b.status === "Đã hoàn thành" ? "green"
-                                                                        : b.status === "Chưa đến hạn" ? "orange"
-                                                                            : "red"}
-                                                                />
-                                                            </Box>
-                                                            <Box>
-                                                                <Typography variant="body2">{fDate(b.receivableDate)}</Typography>
-                                                            </Box>
-                                                        </Stack>
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{soTreHan}</TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
+                                        {(() => {
+                                            const rows = batchData || [];
+
+                                            if (rows.length === 0) {
+                                                return (
+                                                    <TableRow>
+                                                        <TableCell colSpan={6}>
+                                                            <EmptyContent />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            }
+
+                                            return rows.map((b, index) => {
+                                                const soTreHan =
+                                                    b.status === "Chưa đến hạn"
+                                                        ? b.upComingDate === 0
+                                                            ? `${b.upComingDate}`
+                                                            : `+ ${b.upComingDate}`
+                                                        : b.lateDate === 0
+                                                            ? `${b.lateDate}`
+                                                            : `- ${b.lateDate}`;
+
+                                                return (
+                                                    <TableRow key={index}>
+                                                        <TableCell>Đợt {b.batch}</TableCell>
+                                                        <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.needCollect)}</TableCell>
+                                                        <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.collected)}</TableCell>
+                                                        <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.remainning)}</TableCell>
+                                                        <TableCell sx={{ display: "flex", justifyContent: "center" }}>
+                                                            <Stack width="fit-content" flexDirection="column" justifyContent="center" alignItems="center">
+                                                                <Box>
+                                                                    <Iconify
+                                                                        icon={
+                                                                            b.status === "Đã hoàn thành"
+                                                                                ? "ei:check"
+                                                                                : b.status === "Chưa đến hạn"
+                                                                                    ? "mdi:alert-outline"
+                                                                                    : "icon-park-outline:dot"
+                                                                        }
+                                                                        color={
+                                                                            b.status === "Đã hoàn thành"
+                                                                                ? "green"
+                                                                                : b.status === "Chưa đến hạn"
+                                                                                    ? "orange"
+                                                                                    : "red"
+                                                                        }
+                                                                    />
+                                                                </Box>
+                                                                <Box>
+                                                                    <Typography variant="body2">{fDate(b.receivableDate)}</Typography>
+                                                                </Box>
+                                                            </Stack>
+                                                        </TableCell>
+                                                        <TableCell sx={{ textAlign: "center" }}>{soTreHan}</TableCell>
+                                                    </TableRow>
+                                                );
+                                            });
+                                        })()}
                                         {batchData && batchData.length > 0 && (() => {
                                             const totalNeedCollect = batchData.reduce((sum, b) => sum + (b.needCollect || 0), 0);
                                             const totalCollected = batchData.reduce((sum, b) => sum + (b.collected || 0), 0);
@@ -287,38 +353,52 @@ export function ContractFollow({ openForm, selectedContract }: props) {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {historyCollect?.map((h, index) => {
-                                            if (!h.receiptNo) return null;
-                                            return (
-                                                <TableRow key={index}>
-                                                    <TableCell>{index + 1}</TableCell>
-                                                    <TableCell>{fDate(h.date)}</TableCell>
-                                                    <TableCell>{h.payer}</TableCell>
-                                                    <TableCell sx={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                                                        <Typography variant="body2" textAlign="right">
-                                                            {`Đợt ${h.batch}/${h.totalBatch}`}
-                                                        </Typography>
-                                                        <Typography variant="body2" textAlign="right">{fCurrencyNoUnit(h.needCollect)}</Typography>
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: 'right' }}>{fCurrencyNoUnit(h.totalCollect)}</TableCell>
-                                                    <TableCell>
-                                                        <Stack flexDirection="row" alignItems="center" justifyContent="flex-end">
-                                                            <Typography variant="body2">{h.receiptNo}</Typography>
-                                                            <Box component="span" mx={1}>
-                                                                |
-                                                            </Box>
-                                                            <Button
-                                                                variant="text"
-                                                                sx={{ px: 0, minWidth: 10 }}
-                                                                onClick={() => onPreViewReceipt(h.receiptNo)}
-                                                            >
-                                                                👁️
-                                                            </Button>
-                                                        </Stack>
-                                                    </TableCell>
-                                                </TableRow>
-                                            );
-                                        })}
+                                        {(() => {
+                                            const validRows = historyCollect?.filter(h => h.receiptNo) || [];
+
+                                            if (validRows.length === 0) {
+                                                return (
+                                                    <TableRow>
+                                                        <TableCell colSpan={6}>
+                                                            <EmptyContent />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            }
+
+                                            let stt = 0;
+
+                                            return validRows.map((h, index) => {
+                                                stt++;
+                                                return (
+                                                    <TableRow key={index}>
+                                                        <TableCell>{stt}</TableCell>
+                                                        <TableCell>{fDate(h.date)}</TableCell>
+                                                        <TableCell>{h.payer}</TableCell>
+                                                        <TableCell sx={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                                                            <Typography variant="body2" textAlign="right">
+                                                                {`Đợt ${h.batch}/${h.totalBatch}`}
+                                                            </Typography>
+                                                            <Typography variant="body2" textAlign="right">{fCurrencyNoUnit(h.needCollect)}</Typography>
+                                                        </TableCell>
+                                                        <TableCell sx={{ textAlign: 'right' }}>{fCurrencyNoUnit(h.totalCollect)}</TableCell>
+                                                        <TableCell>
+                                                            <Stack flexDirection="row" alignItems="center" justifyContent="flex-end">
+                                                                <Typography variant="body2">{h.receiptNo}</Typography>
+                                                                <Box component="span" mx={1}>|</Box>
+                                                                <Button
+                                                                    variant="text"
+                                                                    sx={{ px: 0, minWidth: 10 }}
+                                                                    onClick={() => onPreViewReceipt(h.receiptNo)}
+                                                                >
+                                                                    👁️
+                                                                </Button>
+                                                            </Stack>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            });
+                                        })()}
                                     </TableBody>
                                 </Table>
                             </TableContainer>

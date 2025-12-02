@@ -1,5 +1,6 @@
 import { Box, Card, CardContent, CardHeader, Divider, ListItemText, Skeleton, Stack, Typography } from "@mui/material";
 import { StatisticForFinance } from "src/actions/statistics";
+import { EmptyContent } from "src/components/empty-content";
 import { Iconify } from "src/components/iconify";
 import { useSettingsContext } from "src/components/settings";
 import { fCurrencyNoUnit } from "src/utils/format-number";
@@ -49,7 +50,7 @@ export function DashBoardFinance({ filter }: DashBoardFinanceProps) {
                     justifyContent: 'center',
                 }}
             >
-                <Typography>Không có dữ liệu</Typography>
+                <EmptyContent />
             </Card>
         );
     }

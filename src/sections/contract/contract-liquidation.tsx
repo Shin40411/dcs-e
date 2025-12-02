@@ -1,9 +1,13 @@
-import { Box } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { Font, PDFViewer } from "@react-pdf/renderer";
 import { useSearchParams } from "react-router";
 import { useGetContract, useGetReportLiquidation } from "src/actions/contract";
 import { EmptyContent } from "src/components/empty-content";
 import { RenderLiquidation } from "./components/renderLiquidation";
+import { generatePdfBlob } from "src/utils/generateblob-func";
+import { downloadPdf, printPdf } from "src/utils/random-func";
+import { Iconify } from "src/components/iconify";
+import { useEffect } from "react";
 
 export function ContractLiquidation() {
     const [searchParams] = useSearchParams();
@@ -125,6 +129,82 @@ export function ContractLiquidation() {
         enabled: true
     });
 
+    useEffect(() => {
+        const isEmpty = contract?.totalRecord === 0;
+
+        if (isEmpty) {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        }
+
+        return () => {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        };
+    }, [contract]);
+
+    const handleDownload = async () => {
+        const blob = await generatePdfBlob(
+            <RenderLiquidation
+                contractNo={contractBody.contractNo}
+                customerName={contractBody.customerName}
+                customerAddress={contractBody.customerAddress}
+                customerPhone={contractBody.customerPhone}
+                companyName={contractBody.companyName}
+                position={contractBody.position}
+                keptNo={contractBody.keptNo}
+                copiesNo={contractBody.copiesNo}
+                downPayment={contractBody.downPayment}
+                nextPayment={contractBody.nextPayment}
+                lastPayment={contractBody.lastPayment}
+                signatureDate={contractBody.signatureDate}
+                total={contractBody.total}
+                deliveryAddress={contractBody.deliveryAddress}
+                customerTaxCode={contractBody.customerTaxCode}
+                customerBankNo={contractBody.customerBankNo}
+                customerBank={contractBody.customerBank}
+                currentContract={contract}
+                renderReportNo={contractBody.renderReportNo}
+                paid={report?.[0]?.reports?.[0]?.totalPaid ?? 0}
+                debt={report?.[0]?.reports?.[0]?.debt ?? 0}
+            />
+        );
+
+        await downloadPdf(blob, `${contractBody.renderReportNo}.pdf`);
+    };
+
+    const handlePrint = async () => {
+        const blob = await generatePdfBlob(
+            <RenderLiquidation
+                contractNo={contractBody.contractNo}
+                customerName={contractBody.customerName}
+                customerAddress={contractBody.customerAddress}
+                customerPhone={contractBody.customerPhone}
+                companyName={contractBody.companyName}
+                position={contractBody.position}
+                keptNo={contractBody.keptNo}
+                copiesNo={contractBody.copiesNo}
+                downPayment={contractBody.downPayment}
+                nextPayment={contractBody.nextPayment}
+                lastPayment={contractBody.lastPayment}
+                signatureDate={contractBody.signatureDate}
+                total={contractBody.total}
+                deliveryAddress={contractBody.deliveryAddress}
+                customerTaxCode={contractBody.customerTaxCode}
+                customerBankNo={contractBody.customerBankNo}
+                customerBank={contractBody.customerBank}
+                currentContract={contract}
+                renderReportNo={contractBody.renderReportNo}
+                paid={report?.[0]?.reports?.[0]?.totalPaid ?? 0}
+                debt={report?.[0]?.reports?.[0]?.debt ?? 0}
+            />
+        );
+
+        await printPdf(blob);
+    };
+
     return (
         <>
             {contractError || !contractBody.id
@@ -134,7 +214,20 @@ export function ContractLiquidation() {
                 </Box>
                 :
                 <Box height="100vh" overflow="hidden">
-                    <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }}>
+                    <Stack direction="row" spacing={1} padding={2} bgcolor="rgb(60,60,60)" justifyContent="space-between">
+                        <Box>
+                            <Typography variant="caption" sx={{ color: '#fff' }} fontWeight={700}>{contractBody.renderReportNo}</Typography>
+                        </Box>
+                        <Box>
+                            <Button variant="text" onClick={handleDownload} title="Tải về">
+                                <Iconify icon="material-symbols:download" color="#fff" />
+                            </Button>
+                            <Button variant="text" onClick={handlePrint} title="In">
+                                <Iconify icon="material-symbols:print-outline" color="#fff" />
+                            </Button>
+                        </Box>
+                    </Stack>
+                    <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }} showToolbar={false}>
                         <RenderLiquidation
                             contractNo={contractBody.contractNo}
                             customerName={contractBody.customerName}

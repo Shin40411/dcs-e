@@ -25,7 +25,7 @@ export function useGetCategories({ pageNumber, pageSize, key, enabled = true }: 
 
     const url = enabled ? endpoints.category.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResCategoryList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResCategoryList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -40,6 +40,7 @@ export function useGetCategories({ pageNumber, pageSize, key, enabled = true }: 
             categoriesError: error,
             categoriesValidating: isValidating,
             categoriesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );
@@ -54,7 +55,7 @@ export function useGetDeletedCategories({ pageNumber, pageSize, key, enabled = t
 
     const url = enabled ? endpoints.category.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResCategoryList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResCategoryList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -69,6 +70,7 @@ export function useGetDeletedCategories({ pageNumber, pageSize, key, enabled = t
             categoriesError: error,
             categoriesValidating: isValidating,
             categoriesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

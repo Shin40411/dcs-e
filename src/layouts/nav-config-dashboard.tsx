@@ -66,7 +66,7 @@ export const navData: NavSectionProps['data'] = [
         title: 'Nghiệp vụ khách hàng',
         path: paths.dashboard.customerServices.contract,
         icon: <Iconify icon={'lsicon:contract-filled'} />,
-        allowedRoles: ['TOANQUYEN.VIEW', 'BAOGIA.VIEW', 'HOPDONG.VIEW'],
+        allowedRoles: ['TOANQUYEN.VIEW', 'BAOGIA.VIEW', 'HOPDONG.VIEW', 'PHIEUTHU.VIEW', 'PHIEUXUATKHO.VIEW'],
         children: [
           {
             title: 'Báo giá',
@@ -80,18 +80,34 @@ export const navData: NavSectionProps['data'] = [
             icon: <Iconify icon={'streamline-cyber-color:new-document-layer'} />,
             allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
           },
+          {
+            title: 'Phiếu thu', path: paths.dashboard.customerServices.receipt,
+            icon: <Iconify icon={'streamline-cyber-color:piggy-bank'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUTHU.VIEW'],
+          },
+          // {
+          //   title: 'Phiếu chi',
+          //   path: paths.dashboard.customerServices.spend,
+          //   icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} />,
+          //   allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUCHI.VIEW'],
+          // },
+          {
+            title: 'Phiếu xuất kho', path: paths.dashboard.customerServices.warehouseExport,
+            icon: <Iconify icon={'streamline-cyber-color:delivery-package-2'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUXUATKHO.VIEW'],
+          },
         ]
       },
       {
         title: 'Nghiệp vụ nhà cung cấp',
         path: paths.dashboard.supplierServices.contractSupplier,
         icon: <Iconify icon={'lsicon:contract-outline'} />,
-        allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
+        allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW', 'PHIEUCHI.VIEW'],
         children: [
           {
             title: 'Đặt hàng',
             path: paths.dashboard.supplierServices.orderSupplier,
-            icon: <Iconify icon={'streamline-cyber-color:megaphone-1'} />,
+            icon: <Iconify icon={'streamline-cyber-color:shopping-basket-star'} />,
             allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
           },
           {
@@ -99,6 +115,18 @@ export const navData: NavSectionProps['data'] = [
             path: paths.dashboard.supplierServices.contractSupplier,
             icon: <Iconify icon={'streamline-cyber-color:new-document-layer'} />,
             allowedRoles: ['TOANQUYEN.VIEW', 'HOPDONG.VIEW'],
+          },
+          {
+            title: 'Phiếu chi',
+            path: paths.dashboard.supplierServices.spend,
+            icon: <Iconify icon={'streamline-cyber-color:bank-notes-stack'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUCHI.VIEW'],
+          },
+          {
+            title: 'Phiếu nhập kho',
+            path: paths.dashboard.supplierServices.warehouseImport,
+            icon: <Iconify icon={'streamline-cyber-color:delivery-package-open'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUNHAPKHO.VIEW'],
           },
         ]
       },
@@ -124,47 +152,30 @@ export const navData: NavSectionProps['data'] = [
         ],
         children: [
           {
-            title: 'Nhóm sản phẩm', path: paths.dashboard.category.root,
-            icon: <Iconify icon={'streamline-cyber-color:package-stack-2'} />,
-            allowedRoles: ['TOANQUYEN.VIEW', 'NHOMSANPHAM.VIEW'],
-          },
-          {
             title: 'Sản phẩm', path: paths.dashboard.product.root,
             icon: <Iconify icon={'streamline-cyber-color:shopping-product'} />,
             allowedRoles: ['TOANQUYEN.VIEW', 'SANPHAM.VIEW'],
-          },
-          {
-            title: 'Đơn vị tính',
-            path: paths.dashboard.unit,
-            icon: <Iconify icon={'streamline-cyber-color:coin-stack'} />,
-            allowedRoles: ['TOANQUYEN.VIEW', 'DONVITINH.VIEW'],
+            hiddenChild: [
+              paths.dashboard.category.root,
+              paths.dashboard.unit
+            ]
           },
           {
             title: 'Khách hàng', path: paths.dashboard.customer.root,
             icon: <Iconify icon={'streamline-cyber-color:businessman'} />,
             allowedRoles: ['TOANQUYEN.VIEW', 'KHACHHANG.VIEW'],
-          },
-          {
-            title: 'Phòng ban',
-            path: paths.dashboard.department,
-            icon: <Iconify icon={'streamline-cyber-color:hierarchy-business-2'} />,
-            allowedRoles: ['TOANQUYEN.VIEW', 'PHONGBAN.VIEW'],
-          },
-          {
-            title: 'Chức vụ',
-            path: paths.dashboard.employeeType,
-            icon: <Iconify icon={'streamline-cyber-color:business-pick-user'} />,
-            allowedRoles: ['TOANQUYEN.VIEW', 'CHUCVU.VIEW'],
+            hiddenChild: [
+              paths.dashboard.suppliers.root,
+            ]
           },
           {
             title: 'Nhân viên', path: paths.dashboard.employees.root,
             icon: <Iconify icon={'streamline-cyber-color:account-group'} />,
             allowedRoles: ['TOANQUYEN.VIEW', 'NHANVIEN.VIEW'],
-          },
-          {
-            title: 'Nhà cung cấp', path: paths.dashboard.suppliers.root,
-            icon: <Iconify icon={'streamline-cyber-color:business-handshake-deal'} />,
-            allowedRoles: ['TOANQUYEN.VIEW', 'NHACUNGCAP.VIEW'],
+            hiddenChild: [
+              paths.dashboard.employeeType,
+              paths.dashboard.department
+            ]
           },
           {
             title: 'Tài khoản ngân hàng',
@@ -197,10 +208,16 @@ export const navData: NavSectionProps['data'] = [
             allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUCHI.VIEW'],
           },
           {
-            title: 'Phiếu xuất kho', path: paths.dashboard.warehouseExport.root,
-            icon: <Iconify icon={'streamline-cyber-color:delivery-package-2'} />,
-            allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUXUATKHO.VIEW'],
+            title: 'Chuyển khoản nội bộ',
+            path: paths.dashboard.transfer.root,
+            icon: <Iconify icon={'streamline-cyber-color:credit-card-payment-machine'} />,
+            allowedRoles: ['TOANQUYEN.VIEW', 'CHUYENKHOANNOIBO.VIEW'],
           },
+          // {
+          //   title: 'Phiếu xuất kho', path: paths.dashboard.warehouseExport.root,
+          //   icon: <Iconify icon={'streamline-cyber-color:delivery-package-2'} />,
+          //   allowedRoles: ['TOANQUYEN.VIEW', 'PHIEUXUATKHO.VIEW'],
+          // },
         ],
       },
     ],

@@ -22,7 +22,9 @@ export const ContractReceiptSchema = zod.object({
         zod.string().min(2, 'Tên người nộp phải có ít nhất 2 ký tự')
     ),
     address: zod.string().optional(),
-    reason: zod.string().optional()
+    reason: zod.string().optional(),
+    bankAccId: zod.number().min(1, "Vui lòng chọn tài khoản ngân hàng"),
+    bankNo: zod.string().min(1, "Vui lòng nhập số tài khoản ngân hàng"),
 });
 
 export type ContractReceiptSchemaType = Zod.infer<typeof ContractReceiptSchema>;

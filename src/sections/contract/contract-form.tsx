@@ -3,12 +3,12 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
-import { IContractDao, IContractDetailDto, IContractDetails, IContractDto, IContractItem, IProductFormEdit } from "src/types/contract";
+import { IContractDao, IContractDetailDto, IContractDetails, IContractDto, IContractItem, IContractProduct, IProductFormEdit } from "src/types/contract";
 import { ContractFormValues, contractSchema } from "./schema/contract-schema";
 import { DetailItem } from "../quotation/helper/DetailItem";
 import { useGetCustomers } from "src/actions/customer";
 import { useDebounce } from "minimal-shared/hooks";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ICustomerItem } from "src/types/customer";
 import { ContractItemsTable } from "./contract-product-table";
 import { ContractCustomerForm } from "./contract-customer-form";
@@ -19,7 +19,6 @@ import { endpoints } from "src/lib/axios";
 import { mutate } from "swr";
 import { toast } from "sonner";
 import { editAllContractDetails } from "./helper/mapContractProducts";
-import { fCurrency, fCurrencyNoUnit } from "src/utils/format-number";
 import { renderSkeleton } from "src/components/skeleton/skeleton-quotation-contract";
 import { createSupplierContract } from "src/actions/contractSupplier";
 import { IContractSupplyDto, IContractSupplyProductDto } from "src/types/contractSupplier";
@@ -27,6 +26,8 @@ import { useGetSuppliers } from "src/actions/suppliers";
 import { ISuppliersItem } from "src/types/suppliers";
 import { useNavigate } from "react-router";
 import { paths } from "src/routes/paths";
+import { fetchProductById } from "src/actions/product";
+import { ProductItem } from "src/types/product";
 
 type ContractFormProps = {
     open: boolean;
@@ -35,6 +36,7 @@ type ContractFormProps = {
     detailsFromQuotation: any[];
     customerIdFromQuotation?: number | null;
     creatingSupplierContract: boolean;
+    CopiedContract: IContractItem | null;
 };
 
 export function ContractForm({
@@ -43,8 +45,10 @@ export function ContractForm({
     selectedContract,
     detailsFromQuotation,
     customerIdFromQuotation,
-    creatingSupplierContract
+    creatingSupplierContract,
+    CopiedContract
 }: ContractFormProps) {
+    const contractId = selectedContract?.id ?? CopiedContract?.id ?? 0;
     const navigate = useNavigate();
     const today = new Date();
     const [customerkeyword, setCustomerKeyword] = useState('');
@@ -53,7 +57,7 @@ export function ContractForm({
     const [originalItems, setOriginalItems] = useState<IContractDetailDto[]>([]);
 
     const { contract: CurrentContract, contractLoading } = useGetContract({
-        contractId: selectedContract?.id || 0,
+        contractId: contractId,
         pageNumber: 1,
         pageSize: 999,
         options: { enabled: !!selectedContract?.id }
@@ -92,20 +96,12 @@ export function ContractForm({
         downPayment: 0,
         nextPayment: 0,
         lastPayment: 0,
-        copiesNo: 1,
+        copiesNo: 2,
         keptNo: 1,
         status: 1,
         note: "",
         discount: 0,
-        products: [{
-            id: undefined,
-            product: "",
-            unit: "",
-            unitName: "",
-            qty: 1,
-            price: 0,
-            vat: 0
-        }],
+        products: [],
     };
 
     const methods = useForm<ContractFormValues>({
@@ -114,7 +110,49 @@ export function ContractForm({
         defaultValues,
     });
 
+    const {
+        reset,
+        watch,
+        setValue,
+        setError,
+        clearErrors,
+        handleSubmit,
+        control,
+        formState: { isSubmitting },
+    } = methods;
+
+    const currentLoadRef = useRef<Promise<IContractProduct[]> | null>(null);
+
     useEffect(() => {
+        if (CopiedContract) {
+            if (!CurrentContract) return;
+            const currentDetails = CurrentContract.items.find(
+                (c) => c.contractID === CopiedContract.id
+            );
+
+            setContractProductDetail(currentDetails);
+
+            const mappedItems = mapProductsToItems(currentDetails?.products || []);
+
+            methods.reset({
+                customerId: CopiedContract.customerID,
+                contractNo: generateContractNo('KH'),
+                createDate: CopiedContract.createDate,
+                signatureDate: CopiedContract.signatureDate,
+                deliveryAddress: CopiedContract.deliveryAddress,
+                deliveryTime: CopiedContract.deliveryTime,
+                downPayment: CopiedContract.downPayment,
+                nextPayment: CopiedContract.nextPayment,
+                lastPayment: CopiedContract.lastPayment,
+                copiesNo: CopiedContract.copiesNo,
+                keptNo: CopiedContract.keptNo,
+                status: CopiedContract.status,
+                note: CopiedContract.note,
+                discount: CopiedContract.discount,
+                products: mappedItems
+            });
+        }
+
         if (detailsFromQuotation?.length > 0 && customerIdFromQuotation) {
             const mapped = mapProductsToItems(detailsFromQuotation);
             methods.setValue("products", mapped);
@@ -145,8 +183,6 @@ export function ContractForm({
             setContractProductDetail(currentDetails);
         }
 
-        const mappedItems = mapProductsToItems(currentDetails?.products || []);
-
         if (creatingSupplierContract) {
             methods.setValue("customerId", defaultValues.customerId);
             methods.setValue("contractNo", defaultValues.contractNo);
@@ -156,11 +192,29 @@ export function ContractForm({
             methods.setValue("status", defaultValues.status);
             methods.setValue("note", defaultValues.note);
             methods.setValue("discount", defaultValues.discount);
+            methods.setValue("downPayment", defaultValues.downPayment);
+            methods.setValue("nextPayment", defaultValues.nextPayment);
+            methods.setValue("lastPayment", defaultValues.lastPayment);
+
+            const loadPromise = loadProductDetails(currentDetails?.products || []);
+            currentLoadRef.current = loadPromise;
+
+            loadPromise.then((dataToMap) => {
+                if (currentLoadRef.current !== loadPromise || !creatingSupplierContract) return;
+
+                const mItems = mapProductsToItems(dataToMap);
+                methods.setValue("products", mItems);
+            });
+
         } else {
+            currentLoadRef.current = null;
+
+            const dataToMap = currentDetails?.products || [];
+            const mItems = mapProductsToItems(dataToMap);
             methods.setValue("supplierId", defaultValues.supplierId);
             methods.setValue("customerId", selectedContract.customerID ?? 0);
             methods.setValue("contractNo", selectedContract.contractNo);
-            methods.setValue("products", mappedItems);
+            methods.setValue("products", mItems);
             methods.setValue("signatureDate", selectedContract.signatureDate ?? null);
             methods.setValue("createDate", selectedContract.createDate ?? null);
             methods.setValue("deliveryAddress", selectedContract.deliveryAddress ?? '');
@@ -170,18 +224,28 @@ export function ContractForm({
             methods.setValue("status", selectedContract.status ?? 1);
             methods.setValue("note", selectedContract.note ?? "");
             methods.setValue("discount", selectedContract.discount);
+            methods.setValue("downPayment", selectedContract.downPayment);
+            methods.setValue("nextPayment", selectedContract.nextPayment);
+            methods.setValue("lastPayment", selectedContract.lastPayment);
         }
 
+        const mappedProducts = mapProductsToItems(currentDetails?.products || []);
         setOriginalItems(
-            mappedItems.map((item, i) => ({
+            mappedProducts.map((item) => ({
                 productID: item.product ?? "",
                 quantity: item.qty ?? 0,
                 unit: item.unitName || "",
-                price: item.price || 0
+                price: item.price || 0,
             }))
         );
-
-    }, [detailsFromQuotation, selectedContract, CurrentContract, creatingSupplierContract, methods.reset]);
+    }, [
+        detailsFromQuotation,
+        CopiedContract,
+        selectedContract,
+        CurrentContract,
+        creatingSupplierContract,
+        methods.reset
+    ]);
 
     const customerId = methods.watch('customerId');
 
@@ -210,17 +274,6 @@ export function ContractForm({
             setSelectedSupplier(found);
         }
     }, [supplierId]);
-
-    const {
-        reset,
-        watch,
-        setValue,
-        setError,
-        clearErrors,
-        handleSubmit,
-        control,
-        formState: { isSubmitting },
-    } = methods;
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -474,6 +527,7 @@ export function ContractForm({
                 append={append}
                 remove={remove}
                 setPaid={setTotalPaid}
+                isCreateSupplierContract={creatingSupplierContract}
             />
         </Stack>
     );
@@ -758,4 +812,20 @@ export function ContractForm({
             />
         </Dialog>
     );
+}
+
+async function loadProductDetails(currentProducts: IContractProduct[]): Promise<IContractProduct[]> {
+    if (!currentProducts) return [];
+
+    const result = await Promise.all(
+        currentProducts.map(async (p) => {
+            const item = await fetchProductById(String(p.productID));
+            return {
+                ...p,
+                price: item.purchasePrice
+            };
+        })
+    );
+
+    return result;
 }

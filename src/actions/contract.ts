@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContractDto, ReportDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt, ResDetailsWarehouseExportProduct, ResRemainingProduct, ResReportLiquidation } from "src/types/contract";
+import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContractDto, ReportDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt, ResContractSuppFromCus, ResDetailsWarehouseExportProduct, ResIReceiptItem, ResRemainingProduct, ResReportLiquidation } from "src/types/contract";
 import { IContractWarehouseExportDto, ResContractWarehouseExport } from "src/types/warehouseExport";
 import useSWR, { SWRConfiguration } from "swr";
 
@@ -10,8 +10,11 @@ type contracProps = {
     pageSize: number;
     key?: string;
     enabled?: boolean;
-    fromDate: IDateValue;
-    toDate: IDateValue;
+    fromDate?: IDateValue;
+    toDate?: IDateValue;
+    Filter?: string;
+    Month?: number;
+    Status?: string;
 }
 
 const swrOptions: SWRConfiguration = {
@@ -20,7 +23,17 @@ const swrOptions: SWRConfiguration = {
     revalidateOnReconnect: false,
 };
 
-export function useGetContracts({ pageNumber, pageSize, key, enabled = true, fromDate, toDate }: contracProps) {
+export function useGetContracts({
+    pageNumber,
+    pageSize,
+    key,
+    enabled = true,
+    fromDate,
+    toDate,
+    Filter,
+    Month,
+    Status
+}: contracProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
@@ -29,9 +42,15 @@ export function useGetContracts({ pageNumber, pageSize, key, enabled = true, fro
 
     if (key) params += `&search=${key}`;
 
+    if (Status) params += `&Status=${Status}`;
+
+    if (Month) params += `&Month=${Month}`;
+
+    if (Filter) params += `&Filter=${Filter}`;
+
     const url = enabled ? endpoints.contract.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResContractList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => {
@@ -48,6 +67,7 @@ export function useGetContracts({ pageNumber, pageSize, key, enabled = true, fro
                 contractsError: error,
                 contractsValidating: isValidating,
                 contractsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutate
             }
         },
         [data, error, isLoading, isValidating]
@@ -242,9 +262,23 @@ type contractReceiptProp = {
     key?: string;
     ContractType?: string;
     ReceiptType?: string;
+    Month?: number;
+    FromDate?: IDateValue;
+    ToDate?: IDateValue;
 }
 
-export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enabled, key, ReceiptType, ContractType }: contractReceiptProp) {
+export function useGetReceiptContract({
+    ContractNo,
+    pageNumber,
+    pageSize,
+    enabled,
+    key,
+    ReceiptType,
+    ContractType,
+    FromDate,
+    ToDate,
+    Month
+}: contractReceiptProp) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?PageNumber=${pageNumber}&PageSize=${pageSize}`;
@@ -252,6 +286,8 @@ export function useGetReceiptContract({ ContractNo, pageNumber, pageSize, enable
     if (ReceiptType) params += `&ReceiptType=${ReceiptType}`;
     if (key) params += `&search=${key}`;
     if (ContractNo) params += `&ContractNo=${ContractNo}`;
+    if (FromDate || ToDate) params += `&fromDate=${FromDate}&toDate=${ToDate}`;
+    if (Month) params += `&Month=${Month}`;
 
     const url = enabled ? endpoints.contractReceipt.list(params) : null;
 
@@ -313,17 +349,33 @@ type contractWarehouseExportsProp = {
     pageSize: number,
     enabled?: boolean,
     key?: string,
+    ContractNo?: string;
+    Month?: number;
+    FromDate?: IDateValue;
+    ToDate?: IDateValue;
 }
 
-export function useGetWarehouseExports({ pageNumber, pageSize, enabled, key }: contractWarehouseExportsProp) {
+export function useGetWarehouseExports({
+    pageNumber,
+    pageSize,
+    enabled,
+    key,
+    ContractNo,
+    FromDate,
+    ToDate,
+    Month
+}: contractWarehouseExportsProp) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?PageNumber=${pageNumber}&PageSize=${pageSize}`;
     if (key) params += `&search=${key}`;
+    if (ContractNo) params += `&ContractNo=${ContractNo}`;
+    if (FromDate || ToDate) params += `&fromDate=${FromDate}&toDate=${ToDate}`;
+    if (Month) params += `&Month=${Month}`;
 
     const url = enabled ? endpoints.contractWarehouse.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResContractWarehouseExport>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractWarehouseExport>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => {
@@ -340,6 +392,7 @@ export function useGetWarehouseExports({ pageNumber, pageSize, enabled, key }: c
                 contractWarehouseExportsError: error,
                 contractWarehouseExportsValidating: isValidating,
                 contractWarehouseExportsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutation: mutate
             }
         },
         [data, error, isLoading, isValidating]
@@ -449,7 +502,62 @@ export function useGetReportLiquidation({ contractNo, pageNumber, pageSize, enab
     return memoizedValue;
 }
 
+export function useGetSupplierContractByCustomer(
+    contractNo: string,
+    enabled: boolean
+) {
+    const url = enabled ? endpoints.contract.contractSupplier(contractNo) : null;
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractSuppFromCus>(url, fetcher, swrOptions);
+    useEffect(() => {
+        if (enabled) mutate();
+    }, [enabled]);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data ?? [];
+            return {
+                supplierContract: filteredItems,
+                supplierContractLoading: isLoading,
+                supplierContractError: error,
+                supplierContractValidating: isValidating,
+                supplierContractEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
 export async function createReport(dto: ReportDto) {
     const { data } = await axiosInstance.post(endpoints.report.create, dto);
     return data;
+}
+
+export function useGetTotalSpendByCustomerContract(
+    contractNo: string,
+    enabled: boolean
+) {
+    const url = enabled ? endpoints.contractReceipt.totalSpend(contractNo) : null;
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResIReceiptItem>(url, fetcher, swrOptions);
+    useEffect(() => {
+        if (enabled) mutate();
+    }, [enabled]);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data.items ?? [];
+            return {
+                spenRecords: data?.data.totalRecord ?? 0,
+                spendRecordsLoading: isLoading,
+                spendRecordsError: error,
+                spendRecordsValidating: isValidating,
+                spendRecordsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutation: mutate
+            }
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
 }

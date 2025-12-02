@@ -1,4 +1,4 @@
-import { Box, Button, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { Iconify } from "src/components/iconify";
 import { CloseIcon } from "yet-another-react-lightbox";
 import { useForm } from "react-hook-form";
@@ -14,6 +14,9 @@ import { paths } from "src/routes/paths";
 import { fDate } from "src/utils/format-time-vi";
 import { IContractSupplyItem } from "src/types/contractSupplier";
 import { ContractSpendSchema, ContractSpendSchemaType } from "./schema/contract-spend-schema";
+import { useGetBankAccounts } from "src/actions/bankAccount";
+import { IBankAccountItem } from "src/types/bankAccount";
+import { useDebounce } from "minimal-shared/hooks";
 
 interface FileDialogProps {
     selectedContract: IContractSupplyItem;
@@ -23,13 +26,24 @@ interface FileDialogProps {
 
 export function ContractSpend({ selectedContract, open, onClose }: FileDialogProps) {
     const today = new Date();
+    const [bankKeyword, setbankKeyword] = useState('');
+    const debouncedbankKw = useDebounce(bankKeyword, 300);
+    const [selectedBank, setSelectedBank] = useState<IBankAccountItem | null>(null);
+
+    const { bankAccounts, bankAccountsLoading } = useGetBankAccounts({
+        pageNumber: 1,
+        pageSize: 10,
+        enabled: open,
+        key: debouncedbankKw
+    });
+
     const { pagination: { totalRecord } } = useGetReceiptContract({
         pageNumber: 1,
         pageSize: 999,
         ContractNo: selectedContract.contractNo,
         enabled: open,
-        ContractType: 'supplier',
-        ReceiptType: 'spend'
+        ContractType: 'Supplier',
+        ReceiptType: 'Spend'
     });
 
     const [watchTicket, setWatchTicket] = useState(true);
@@ -44,7 +58,9 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
         date: today.toISOString(),
         address: "",
         payer: "",
-        reason: ""
+        reason: "",
+        bankAccId: 0,
+        bankNo: ""
     };
 
     const methods = useForm<ContractSpendSchemaType>({
@@ -53,8 +69,8 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
     });
 
     useEffect(() => {
-        methods.setValue('receiptNo', generateReceipt('PC', selectedContract.contractNo, totalRecord));
-        setReceiptNo(generateReceipt('PC', selectedContract.contractNo, totalRecord));
+        methods.setValue('receiptNo', generateReceipt('PC', totalRecord));
+        setReceiptNo(generateReceipt('PC', totalRecord));
     }, [totalRecord, setReceiptNo]);
 
     const {
@@ -75,10 +91,11 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
                 amount: data.amount,
                 note: data.reason || "",
                 contractType: "Supplier",
+                bankAccountID: data.bankAccId || undefined,
                 companyName: data.companyName,
                 customerName: data.customerName,
                 address: data.address || "",
-                payer: data.payer,
+                payer: data.payer || "",
                 reason: data.reason || "",
             };
 
@@ -94,7 +111,7 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error("Tạo phiếu chi thất bại!");
+            toast.error(error.message || "Tạo phiếu chi thất bại!");
         }
     });
 
@@ -106,6 +123,21 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
     const payer = watch('payer');
     const reason = watch('reason');
     const address = watch('address');
+    const bankAccId = methods.watch('bankAccId');
+
+    useEffect(() => {
+        if (!bankAccId) {
+            setSelectedBank(null);
+            methods.setValue("bankNo", "");
+            return;
+        }
+
+        const found = bankAccounts.find((cus) => Number(cus.id) === Number(bankAccId));
+        if (found) {
+            setSelectedBank(found);
+            methods.setValue("bankNo", found.bankNo);
+        }
+    }, [bankAccId, bankAccounts]);
 
     useEffect(() => {
         if (companyName && customerName && date && receiptNoToWatch && amount && payer) {
@@ -176,7 +208,12 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <Field.Text name="payer" label="Người nhận tiền" required placeholder="Nhập tên người nhận tiền" sx={{ flex: 1.5 }} />
+                <Field.Text
+                    name="payer"
+                    label="Người nhận tiền"
+                    placeholder="Nhập tên người nhận tiền"
+                    sx={{ flex: 1.5 }}
+                />
                 <TextField defaultValue={selectedContract.seller} label="Tên nhân viên" disabled
                     sx={{
                         flex: 1,
@@ -190,18 +227,68 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
                 label="Địa chỉ"
                 placeholder="Nhập địa chỉ người nhận tiền"
             />
-            <Field.Text
-                name="reason"
-                label="Lý do chi"
-                placeholder="Nhập lý do chi tiền"
-            />
-            <Field.VNCurrencyInput
-                name="amount"
-                label="Số tiền chi"
-                helperText="Nhập số tiền chi"
-                required
-                sx={{ width: 500 }}
-            />
+            <Stack direction="row" spacing={3} mt={1.5}>
+                <Box
+                    flex={1.5}
+                    display="flex"
+                    flexDirection="column"
+                    gap={3}
+                >
+                    <Field.Text
+                        name="reason"
+                        label="Lý do chi"
+                        placeholder="Nhập lý do chi tiền"
+                    />
+                    <Field.VNCurrencyInput
+                        name="amount"
+                        label="Số tiền chi"
+                        helperText="Nhập số tiền chi"
+                        required
+                        sx={{ width: 500 }}
+                    />
+                </Box>
+                <Box flex={1} position="relative">
+                    <Box position="absolute" top={-10} left={10} zIndex={1000} bgcolor="common.white">
+                        <Typography variant="subtitle2" color="textSecondary">Tài khoản nhận tiền</Typography>
+                    </Box>
+                    <Card
+                        sx={{
+                            px: 2,
+                            py: 3,
+                            borderRadius: 0.5,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2
+                        }}
+                    >
+                        <Field.Autocomplete
+                            name="bankAccId"
+                            label={`Tài khoản`}
+                            options={bankAccounts}
+                            loading={bankAccountsLoading}
+                            getOptionLabel={(opt) => opt?.name ?
+                                opt.name : ''}
+                            isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
+                            onInputChange={(_, value) => setbankKeyword(value)}
+                            value={selectedBank}
+                            fullWidth
+                            onChange={(_, newValue) => {
+                                methods.setValue('bankAccId', newValue?.id ?? 0, { shouldValidate: true });
+                                setbankKeyword(newValue?.name ?? '');
+                            }}
+                            noOptionsText="Không có dữ liệu"
+                            sx={{ flex: 1, minWidth: 200 }}
+                            renderOption={(props, option) => (
+                                <li {...props} key={option.id}>
+                                    {option.name ? option.name : ''}
+                                </li>
+                            )}
+                            required
+                        />
+                        <Field.Text name="bankNo" label="Số tài khoản" type="number" disabled />
+                    </Card>
+                </Box>
+            </Stack>
         </>
     );
 

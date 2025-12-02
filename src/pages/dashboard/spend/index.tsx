@@ -2,7 +2,7 @@ import { CONFIG } from 'src/global-config';
 import { ContractSpendPdf } from 'src/sections/contract-supplier/contract-spend-pdf';
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Hợp đồng nhà cung cấp | Phiếu chi - ${CONFIG.appName}` };
+const metadata = { title: `Phiếu chi - ${CONFIG.appName}` };
 
 export default function page() {
     return (

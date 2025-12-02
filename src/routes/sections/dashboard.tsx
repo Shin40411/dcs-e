@@ -81,11 +81,21 @@ const UnitListPage = lazy(() => import('src/pages/dashboard/unit/list'));
 const EmployeeTypeListPage = lazy(() => import('src/pages/dashboard/employeeType/list'));
 const DepartmentListPage = lazy(() => import('src/pages/dashboard/department/list'));
 // Receipt page
-const ReceiptPage = lazy(() => import('src/pages/dashboard/receipt/list'));
+const ContractReceiptPage = lazy(() => import('src/pages/dashboard/receipt/list'));
 // Spend page
-const SpendPage = lazy(() => import('src/pages/dashboard/spend/list'));
+const ContractCustomerSpendPage = lazy(() => import('src/pages/dashboard/spend/list-customer'));
+const ContractSupplierSpendPage = lazy(() => import('src/pages/dashboard/spend/list-supplier'));
 // Warehouse Export page
-const WarehouseExportPage = lazy(() => import('src/pages/dashboard/warehouse-export/list'));
+const ContractWarehouseExportPage = lazy(() => import('src/pages/dashboard/warehouse-export/list'));
+// Warehouse Import page
+const ContractWarehouseImportPage = lazy(() => import('src/pages/dashboard/warehouse-import/list'));
+
+// Receipt internal page
+const ReceiptPage = lazy(() => import('src/pages/dashboard/internal/recepit/list'));
+// Spend internal page
+const SpendPage = lazy(() => import('src/pages/dashboard/internal/spend/list'));
+// Transfer internal page
+const TransferPage = lazy(() => import('src/pages/dashboard/internal/transfer/list'));
 
 // ----------------------------------------------------------------------
 
@@ -117,28 +127,28 @@ export const dashboardRoutes: RouteObject[] = [
     children: [
       { index: true, element: <IndexPage /> },
       { path: 'banking', element: <OverviewBankingPage /> },
-      // {
-      //   path: 'user',
-      //   children: [
-      //     { index: true, element: <UserProfilePage /> },
-      //     { path: 'profile', element: <UserProfilePage /> },
-      //     { path: 'cards', element: <UserCardsPage /> },
-      //     { path: 'list', element: <UserListPage /> },
-      //     { path: 'new', element: <UserCreatePage /> },
-      //     { path: ':id/edit', element: <UserEditPage /> },
-      //     {
-      //       path: 'account',
-      //       element: accountLayout(),
-      //       children: [
-      //         { index: true, element: <AccountGeneralPage /> },
-      //         { path: 'billing', element: <AccountBillingPage /> },
-      //         { path: 'notifications', element: <AccountNotificationsPage /> },
-      //         { path: 'socials', element: <AccountSocialsPage /> },
-      //         { path: 'change-password', element: <AccountChangePasswordPage /> },
-      //       ],
-      //     },
-      //   ],
-      // },
+      {
+        path: 'user',
+        children: [
+          // { index: true, element: <UserProfilePage /> },
+          // { path: 'profile', element: <UserProfilePage /> },
+          // { path: 'cards', element: <UserCardsPage /> },
+          // { path: 'list', element: <UserListPage /> },
+          // { path: 'new', element: <UserCreatePage /> },
+          // { path: ':id/edit', element: <UserEditPage /> },
+          // {
+          //   path: 'account',
+          //   element: accountLayout(),
+          //   children: [
+          //     { index: true, element: <AccountGeneralPage /> },
+          //     { path: 'billing', element: <AccountBillingPage /> },
+          //     { path: 'notifications', element: <AccountNotificationsPage /> },
+          //     { path: 'socials', element: <AccountSocialsPage /> },
+          //     { path: 'change-password', element: <AccountChangePasswordPage /> },
+          //   ],
+          // },
+        ],
+      },
       {
         path: 'product',
         children: [
@@ -154,6 +164,24 @@ export const dashboardRoutes: RouteObject[] = [
         children: [
           { index: true, element: <QuotationPage /> },
           { path: 'contract', element: <ContractPage /> },
+          {
+            path: 'receipt',
+            children: [
+              { index: true, element: <ContractReceiptPage /> },
+            ]
+          },
+          {
+            path: 'spend',
+            children: [
+              { index: true, element: <ContractCustomerSpendPage /> },
+            ]
+          },
+          {
+            path: 'warehouse-export',
+            children: [
+              { index: true, element: <ContractWarehouseExportPage /> }
+            ]
+          },
         ]
       },
       {
@@ -161,6 +189,18 @@ export const dashboardRoutes: RouteObject[] = [
         children: [
           { index: true, element: <OrderPage /> },
           { path: 'contract-supplier', element: <ContractSupplierPage /> },
+          {
+            path: 'spend',
+            children: [
+              { index: true, element: <ContractSupplierSpendPage /> },
+            ]
+          },
+          {
+            path: 'warehouse-import',
+            children: [
+              { index: true, element: <ContractWarehouseImportPage /> }
+            ]
+          },
         ]
       },
       {
@@ -182,28 +222,28 @@ export const dashboardRoutes: RouteObject[] = [
         ],
       },
       {
-        path: 'employees',
-        children: [
-          { index: true, element: <EmployeesPage /> },
-        ],
-      },
-      {
         path: 'receipt',
         children: [
           { index: true, element: <ReceiptPage /> },
-        ]
+        ],
       },
       {
         path: 'spend',
         children: [
           { index: true, element: <SpendPage /> },
-        ]
+        ],
       },
       {
-        path: 'warehouse-export',
+        path: 'transfer',
         children: [
-          { index: true, element: <WarehouseExportPage /> }
-        ]
+          { index: true, element: <TransferPage /> },
+        ],
+      },
+      {
+        path: 'employees',
+        children: [
+          { index: true, element: <EmployeesPage /> },
+        ],
       },
       {
         path: 'post',

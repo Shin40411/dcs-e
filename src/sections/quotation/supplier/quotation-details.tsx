@@ -57,6 +57,7 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
                 invoice={selectedQuotation}
                 currentStatus={statusMap[selectedQuotation.status]}
                 currentQuotation={quotation}
+                openDetail={openDetail}
             />
         );
         pdfQuotationIdRef.current = selectedQuotation.id;

@@ -17,24 +17,33 @@ import { CloseIcon } from "yet-another-react-lightbox";
 type props = {
     openForm: UseBooleanReturn;
     selectedContract: IContractItem;
+    onExposeRefetch: (fns: {
+        refetchNeedSpend: () => void;
+        refetchNeedSpendForContract: () => void;
+        refetchHistorySpend: () => void;
+    }) => void;
 }
 
-export function ContractFollowSpend({ openForm, selectedContract }: props) {
+export function ContractFollowSpend({ openForm, selectedContract, onExposeRefetch }: props) {
     const [selected, setSelected] = useState<string[]>([]);
     const isEnabled = openForm.value && selected.length > 0;
     const {
         result,
         resultLoading,
-        resultError
+        resultError,
+        mutation: refetchNeedSpend
     } = useGetNeedSpend(selectedContract.contractNo, openForm.value);
     const {
         result: needSpendResult,
         resultLoading: batchLoading,
-        resultError: batchError } = useGetNeedSpendForContract(selectedContract.contractNo, openForm.value);
+        resultError: batchError,
+        mutation: refetchNeedSpendForContract
+    } = useGetNeedSpendForContract(selectedContract.contractNo, openForm.value);
     const {
         result: historySpendResult,
         resultLoading: historySpendLoading,
-        resultError: historySpendError
+        resultError: historySpendError,
+        mutation: refetchHistorySpend
     } = useGetHistorySpend(selected, isEnabled);
 
     const headerTitle = "Theo dõi phải chi";
@@ -50,7 +59,24 @@ export function ContractFollowSpend({ openForm, selectedContract }: props) {
         } else {
             setHistorySpend([]);
         }
+
+        if (historySpendError) {
+            setHistorySpend([]);
+        }
+
     }, [result, needSpendResult, historySpendResult]);
+
+    useEffect(() => {
+        onExposeRefetch?.({
+            refetchNeedSpend,
+            refetchNeedSpendForContract,
+            refetchHistorySpend,
+        });
+    }, [
+        refetchNeedSpend,
+        refetchNeedSpendForContract,
+        refetchHistorySpend,
+    ]);
 
     const {
         totalNeedSpend,
@@ -167,7 +193,8 @@ export function ContractFollowSpend({ openForm, selectedContract }: props) {
                         bgcolor: status === "Đã hoàn thành" ?
                             'green' : status === "Đang thực hiện" ?
                                 '#B0FFD5' : 'red',
-                        color: '#000000'
+                        color: status === "Đã hoàn thành" ? '#fff'
+                            : status === "Đang thực hiện" ? '#000000' : '#fff'
                     }}
                     startIcon={<Iconify icon={
                         status === "Đã hoàn thành" ?
@@ -257,68 +284,113 @@ export function ContractFollowSpend({ openForm, selectedContract }: props) {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {needSpendForContractData?.map((b, index) => {
-                                            const selectedRow = isSelected(b.contractSupNo);
-                                            const soTreHan =
-                                                b.status === "Chưa đến hạn"
-                                                    ? b.upComingDate === 0
-                                                        ? `${b.upComingDate}`
-                                                        : `+ ${b.upComingDate}`
-                                                    : b.lateDate === 0
-                                                        ? `${b.lateDate}`
-                                                        : `- ${b.lateDate}`;
-                                            return (
-                                                <TableRow
-                                                    key={b.contractSupNo || index}
-                                                    hover
-                                                    selected={selectedRow}
-                                                    sx={{ cursor: "pointer" }}
-                                                >
-                                                    <TableCell padding="checkbox">
-                                                        <Checkbox
-                                                            checked={selectedRow}
-                                                            onChange={() => handleClick(b.contractSupNo)}
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <ListItemText
-                                                            primary={b.supplierCompany}
-                                                            secondary={b.supplierName}
-                                                            slotProps={{
-                                                                primary: {
-                                                                    variant: 'body1',
-                                                                },
-                                                                secondary: {
-                                                                    variant: 'caption',
-                                                                    color: 'textDisabled'
-                                                                }
-                                                            }}
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.contractTotalAmounts)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.spended)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "right" }}>{fCurrencyNoUnit(b.remaining)}</TableCell>
-                                                    <TableCell sx={{ display: "flex", justifyContent: "center" }}>
-                                                        <Stack width="fit-content" flexDirection="column" justifyContent="center" alignItems="center">
-                                                            <Box>
-                                                                <Iconify
-                                                                    icon={b.status === "Đã hoàn thành" ? "ei:check"
-                                                                        : b.status === "Chưa đến hạn" ? "mdi:alert-outline"
-                                                                            : "icon-park-outline:dot"}
-                                                                    color={b.status === "Đã hoàn thành" ? "green"
-                                                                        : b.status === "Chưa đến hạn" ? "orange"
-                                                                            : "red"}
-                                                                />
-                                                            </Box>
-                                                            <Box>
-                                                                <Typography variant="body2">{fDate(b.lastPaymentDate)}</Typography>
-                                                            </Box>
-                                                        </Stack>
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{soTreHan}</TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
+                                        {(() => {
+                                            const rows = needSpendForContractData || [];
+
+                                            if (rows.length === 0) {
+                                                return (
+                                                    <TableRow>
+                                                        <TableCell colSpan={7}>
+                                                            <EmptyContent />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            }
+
+                                            return rows.map((b, index) => {
+                                                const selectedRow = isSelected(b.contractSupNo);
+
+                                                const soTreHan =
+                                                    b.status === "Chưa đến hạn"
+                                                        ? b.upComingDate === 0
+                                                            ? `${b.upComingDate}`
+                                                            : `+ ${b.upComingDate}`
+                                                        : b.lateDate === 0
+                                                            ? `${b.lateDate}`
+                                                            : `- ${b.lateDate}`;
+
+                                                return (
+                                                    <TableRow
+                                                        key={b.contractSupNo || index}
+                                                        hover
+                                                        selected={selectedRow}
+                                                        sx={{ cursor: "pointer" }}
+                                                    >
+                                                        <TableCell padding="checkbox">
+                                                            <Checkbox
+                                                                checked={selectedRow}
+                                                                onChange={() => handleClick(b.contractSupNo)}
+                                                            />
+                                                        </TableCell>
+
+                                                        <TableCell>
+                                                            <ListItemText
+                                                                primary={b.supplierCompany}
+                                                                secondary={b.supplierName}
+                                                                slotProps={{
+                                                                    primary: {
+                                                                        variant: 'body1',
+                                                                    },
+                                                                    secondary: {
+                                                                        variant: 'caption',
+                                                                        color: 'textDisabled'
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </TableCell>
+
+                                                        <TableCell sx={{ textAlign: "right" }}>
+                                                            {fCurrencyNoUnit(b.contractTotalAmounts)}
+                                                        </TableCell>
+
+                                                        <TableCell sx={{ textAlign: "right" }}>
+                                                            {fCurrencyNoUnit(b.spended)}
+                                                        </TableCell>
+
+                                                        <TableCell sx={{ textAlign: "right" }}>
+                                                            {fCurrencyNoUnit(b.remaining)}
+                                                        </TableCell>
+
+                                                        <TableCell sx={{ display: "flex", justifyContent: "center" }}>
+                                                            <Stack
+                                                                width="fit-content"
+                                                                flexDirection="column"
+                                                                justifyContent="center"
+                                                                alignItems="center"
+                                                            >
+                                                                <Box>
+                                                                    <Iconify
+                                                                        icon={
+                                                                            b.status === "Đã hoàn thành"
+                                                                                ? "ei:check"
+                                                                                : b.status === "Chưa đến hạn"
+                                                                                    ? "mdi:alert-outline"
+                                                                                    : "icon-park-outline:dot"
+                                                                        }
+                                                                        color={
+                                                                            b.status === "Đã hoàn thành"
+                                                                                ? "green"
+                                                                                : b.status === "Chưa đến hạn"
+                                                                                    ? "orange"
+                                                                                    : "red"
+                                                                        }
+                                                                    />
+                                                                </Box>
+
+                                                                <Box>
+                                                                    <Typography variant="body2">
+                                                                        {fDate(b.lastPaymentDate)}
+                                                                    </Typography>
+                                                                </Box>
+                                                            </Stack>
+                                                        </TableCell>
+
+                                                        <TableCell sx={{ textAlign: "center" }}>{soTreHan}</TableCell>
+                                                    </TableRow>
+                                                );
+                                            });
+                                        })()}
+
                                         {needSpendForContractData && needSpendForContractData.length > 0 && (() => {
                                             const totalNeedCollect = needSpendForContractData.reduce((sum, b) => sum + (b.contractTotalAmounts || 0), 0);
                                             const totalCollected = needSpendForContractData.reduce((sum, b) => sum + (b.spended || 0), 0);
@@ -368,7 +440,7 @@ export function ContractFollowSpend({ openForm, selectedContract }: props) {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {historySpend && historySpend.length > 0
+                                            {historySpend.length > 0
                                                 ?
                                                 historySpend?.map((h, index) => {
                                                     if (!h.receiptNo) return null;

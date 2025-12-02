@@ -1,10 +1,13 @@
-import { Box } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { Font, PDFViewer } from "@react-pdf/renderer";
 import { RenderReport } from "./components/renderReport";
 import { useGetContract } from "src/actions/contract";
 import { useSearchParams } from "react-router";
 import { EmptyContent } from "src/components/empty-content";
 import { useEffect } from "react";
+import { Iconify } from "src/components/iconify";
+import { generatePdfBlob } from "src/utils/generateblob-func";
+import { downloadPdf, generateReportNo, printPdf } from "src/utils/random-func";
 
 export function ContractReport() {
     const [searchParams] = useSearchParams();
@@ -118,6 +121,80 @@ export function ContractReport() {
         options: { enabled: true }
     });
 
+    useEffect(() => {
+        const isEmpty = contract?.totalRecord === 0;
+
+        if (isEmpty) {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        }
+
+        return () => {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        };
+    }, [contract]);
+
+    const renderReportNo = generateReportNo();
+
+    const handleDownload = async () => {
+        const blob = await generatePdfBlob(
+            <RenderReport
+                contractNo={contractBody.contractNo}
+                customerName={contractBody.customerName}
+                customerAddress={contractBody.customerAddress}
+                customerPhone={contractBody.customerPhone}
+                companyName={contractBody.companyName}
+                position={contractBody.position}
+                keptNo={contractBody.keptNo}
+                copiesNo={contractBody.copiesNo}
+                downPayment={contractBody.downPayment}
+                nextPayment={contractBody.nextPayment}
+                lastPayment={contractBody.lastPayment}
+                signatureDate={contractBody.signatureDate}
+                total={contractBody.total}
+                deliveryAddress={contractBody.deliveryAddress}
+                customerTaxCode={contractBody.customerTaxCode}
+                customerBankNo={contractBody.customerBankNo}
+                customerBank={contractBody.customerBank}
+                currentContract={contract}
+                renderReportNo={renderReportNo}
+            />
+        );
+
+        await downloadPdf(blob, `${renderReportNo}.pdf`);
+    };
+
+    const handlePrint = async () => {
+        const blob = await generatePdfBlob(
+            <RenderReport
+                contractNo={contractBody.contractNo}
+                customerName={contractBody.customerName}
+                customerAddress={contractBody.customerAddress}
+                customerPhone={contractBody.customerPhone}
+                companyName={contractBody.companyName}
+                position={contractBody.position}
+                keptNo={contractBody.keptNo}
+                copiesNo={contractBody.copiesNo}
+                downPayment={contractBody.downPayment}
+                nextPayment={contractBody.nextPayment}
+                lastPayment={contractBody.lastPayment}
+                signatureDate={contractBody.signatureDate}
+                total={contractBody.total}
+                deliveryAddress={contractBody.deliveryAddress}
+                customerTaxCode={contractBody.customerTaxCode}
+                customerBankNo={contractBody.customerBankNo}
+                customerBank={contractBody.customerBank}
+                currentContract={contract}
+                renderReportNo={renderReportNo}
+            />
+        );
+
+        await printPdf(blob);
+    };
+
     return (
         <>
             {contractError || !contractBody.id
@@ -126,8 +203,21 @@ export function ContractReport() {
                     <EmptyContent content="Không có dữ liệu để tạo biên bản" />
                 </Box>
                 :
-                <Box height="100vh" overflow="hidden">
-                    <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }}>
+                <Box height="100vh" overflow="hidden" pb={8}>
+                    <Stack direction="row" spacing={1} padding={2} bgcolor="rgb(60,60,60)" justifyContent="space-between">
+                        <Box>
+                            <Typography variant="caption" sx={{ color: '#fff' }} fontWeight={700}>{renderReportNo}</Typography>
+                        </Box>
+                        <Box>
+                            <Button variant="text" onClick={handleDownload} title="Tải về">
+                                <Iconify icon="material-symbols:download" color="#fff" />
+                            </Button>
+                            <Button variant="text" onClick={handlePrint} title="In">
+                                <Iconify icon="material-symbols:print-outline" color="#fff" />
+                            </Button>
+                        </Box>
+                    </Stack>
+                    <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }} showToolbar={false}>
                         <RenderReport
                             contractNo={contractBody.contractNo}
                             customerName={contractBody.customerName}
@@ -147,6 +237,7 @@ export function ContractReport() {
                             customerBankNo={contractBody.customerBankNo}
                             customerBank={contractBody.customerBank}
                             currentContract={contract}
+                            renderReportNo={renderReportNo}
                         />
                     </PDFViewer>
                 </Box>

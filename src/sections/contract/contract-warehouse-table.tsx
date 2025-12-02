@@ -25,7 +25,7 @@ export function ContractWarehouseTable({
     const roundedTotal = Math.round(total);
 
     const handleQuantityChange = (productID: number, newQuantity: number) => {
-        if (newQuantity < 0) return;
+        if (newQuantity < 1) return;
         onQuantityChange?.(productID, newQuantity);
     };
 

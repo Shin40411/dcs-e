@@ -14,6 +14,8 @@ import { useLocation, useNavigate } from "react-router";
 import { useBoolean } from "minimal-shared/hooks";
 import { RoleBasedGuard } from "src/auth/guard";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
+import { CUSTOMER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 
 export function ContractMainView() {
     const location = useLocation();
@@ -22,11 +24,10 @@ export function ContractMainView() {
     const [selectedContract, setSelectedContract] = useState<IContractItem | null>(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
-    const [fromDate, setFromDate] = useState<IDateValue>();
-    const [toDate, setToDate] = useState<IDateValue>();
     const [productDetails, setProductDetails] = useState([]);
     const [inVoiceCustomerId, setInVoiceCustomerId] = useState<number | null>(null);
     const isCreatingSupplierContract = useBoolean();
+    const [copiedContract, setCopiedContract] = useState<IContractItem | null>(null);
     const navigate = useNavigate();
 
     const { permission } = useCheckPermission(['HOPDONG.VIEW']);
@@ -38,10 +39,12 @@ export function ContractMainView() {
 
     const handleEditing = (contract: IContractItem) => {
         setSelectedContract(contract);
+        setCopiedContract(null);
         setOpenForm(true);
     }
 
     const handleCopying = (obj: IContractItem) => {
+        setCopiedContract(obj);
         setSelectedContract(null);
         setOpenForm(true);
     }
@@ -82,22 +85,24 @@ export function ContractMainView() {
                 sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
             >
                 <CustomBreadcrumbs
-                    heading="Hợp đồng"
+                    heading="Nghiệp vụ khách hàng"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
                         { name: 'Nghiệp vụ khách hàng' },
                         { name: 'Hợp đồng' },
                     ]}
                     action={
                         <Button variant="contained"
                             startIcon={<Iconify icon="mingcute:add-line" />}
-                            onClick={() => { setOpenForm(true); setSelectedContract(null) }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
+                            onClick={() => { setOpenForm(true); setSelectedContract(null); setCopiedContract(null); }}
                         >
                             Tạo hợp đồng
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={CUSTOMER_SERVICE_TAB_DATA} activePath={location.pathname} />
                 <ContractCardList
                     onViewDetails={handleViewDetails}
                     onEditing={handleEditing}
@@ -105,8 +110,6 @@ export function ContractMainView() {
                     setPage={setPage}
                     rowsPerPage={rowsPerPage}
                     setRowsPerPage={setRowsPerPage}
-                    setFromDate={setFromDate}
-                    setToDate={setToDate}
                 />
 
                 <ContractForm
@@ -116,11 +119,13 @@ export function ContractMainView() {
                         setSelectedContract(null);
                         setProductDetails([]);
                         isCreatingSupplierContract.onFalse();
+                        setCopiedContract(null);
                     }}
                     selectedContract={selectedContract}
                     detailsFromQuotation={productDetails}
                     customerIdFromQuotation={inVoiceCustomerId}
                     creatingSupplierContract={isCreatingSupplierContract.value}
+                    CopiedContract={copiedContract}
                 />
                 {selectedContract && (
                     <ContractDetails

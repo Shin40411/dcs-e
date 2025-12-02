@@ -19,10 +19,12 @@ export const ContractSpendSchema = zod.object({
     ),
     payer: zod.preprocess(
         (val) => (typeof val === 'string' ? val.trim() : val),
-        zod.string().min(2, 'Tên người nhận phải có ít nhất 2 ký tự')
+        zod.string().optional()
     ),
     address: zod.string().optional(),
-    reason: zod.string().optional()
+    reason: zod.string().optional(),
+    bankAccId: zod.number().min(1, "Vui lòng chọn tài khoản ngân hàng"),
+    bankNo: zod.string().min(1, "Vui lòng nhập số tài khoản ngân hàng"),
 });
 
 export type ContractSpendSchemaType = Zod.infer<typeof ContractSpendSchema>;

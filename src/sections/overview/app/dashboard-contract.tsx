@@ -1,5 +1,6 @@
 import { Box, Card, CardContent, CardHeader, Divider, Skeleton, Stack, Typography } from "@mui/material";
 import { StatisticForContract } from "src/actions/statistics";
+import { EmptyContent } from "src/components/empty-content";
 import { Iconify } from "src/components/iconify";
 import { useSettingsContext } from "src/components/settings";
 import { fCurrencyNoUnit } from "src/utils/format-number";
@@ -27,7 +28,7 @@ export function DashBoardContract({ filter }: DashBoardContractProps) {
     if (contractResultEmpty) {
         return (
             <Card sx={{ borderRadius: 3, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography>Không có dữ liệu</Typography>
+                <EmptyContent />
             </Card>
         );
     }

@@ -30,6 +30,7 @@ type RenderProps = {
     customerBank?: string;
     customerBankNo?: string;
     currentContract?: IContractData;
+    renderReportNo: string;
 };
 
 export const RenderReport = ({
@@ -51,6 +52,7 @@ export const RenderReport = ({
     customerBank,
     customerBankNo,
     currentContract,
+    renderReportNo
 }: RenderProps) => {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
@@ -95,8 +97,6 @@ export const RenderReport = ({
         'GIÁM ĐỐC',
         'Nguyễn Chí Nhân Nghĩa'
     ];
-
-    const renderReportNo = generateReportNo();
 
     let displayIndex = 0;
     const text = sideA[2] ?? '';

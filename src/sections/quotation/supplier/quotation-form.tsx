@@ -7,24 +7,20 @@ import {
     Button,
     Stack,
     Typography,
-    IconButton,
     Box,
     MenuItem,
     Divider,
-    Tooltip,
     InputAdornment,
     Slider,
 } from "@mui/material";
 import { Iconify } from "src/components/iconify";
 import { Field, Form } from "src/components/hook-form";
-import { useGetCustomers } from "src/actions/customer";
 import { useDebounce } from "minimal-shared/hooks";
 import { useEffect, useState } from "react";
-import { ICustomerItem } from "src/types/customer";
 import { IProductFormEdit, IQuotationDao, IQuotationDetailDto, IQuotationDetails, IQuotationDto, IQuotationItem } from "src/types/quotation";
 import { addMoreProducts, createOrUpdateQuotation, editProductForm, useGetQuotation } from "src/actions/quotation";
 import { toast } from "sonner";
-import { generateQuotationNo } from "src/utils/random-func";
+import { generateOrderNo, generateQuotationNo } from "src/utils/random-func";
 import { mutate } from "swr";
 import { endpoints } from "src/lib/axios";
 import { useAuthContext } from "src/auth/hooks";
@@ -34,8 +30,9 @@ import { mapProductsToItems } from "../helper/mapProductsToItems";
 import { editAllQuotationDetails } from "../helper/mapQuotationProduct";
 import { DetailItem } from "../helper/DetailItem";
 import { QuotationItemsTable } from "../quotation-product-table";
-import { QuotationCustomerForm } from "../quotation-customer-form";
 import { fDate } from "src/utils/format-time-vi";
+import { useGetSuppliers } from "src/actions/suppliers";
+import { ISuppliersItem } from "src/types/suppliers";
 
 export type QuotationFormProps = {
     selectedQuotation: IQuotationItem | null;
@@ -78,18 +75,18 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         options: { enabled: !!selectedQuotation?.id }
     });
 
-    const { customers, customersLoading, pagination: CustomerRecords } = useGetCustomers({
+    const { suppliers, suppliersLoading, pagination: CustomerRecords } = useGetSuppliers({
         pageNumber: 1,
         pageSize: 999,
         key: debouncedCustomerKw,
         enabled: true
     });
 
-    const [selectedCustomer, setSelectedCustomer] = useState<ICustomerItem | null>(null);
+    const [selectedCustomer, setSelectedCustomer] = useState<ISuppliersItem | null>(null);
 
     const defaultValues: QuotationFormValues = {
         customer: 0,
-        quotationNo: generateQuotationNo(),
+        quotationNo: generateOrderNo(),
         date: today.toISOString(),
         validUntil: nextMonth.toISOString(),
         status: 1,
@@ -127,7 +124,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
 
             methods.reset({
                 customer: CopiedQuotation.customerId ?? 0,
-                quotationNo: generateQuotationNo(),
+                quotationNo: generateOrderNo(),
                 date: today.toISOString(),
                 validUntil: nextMonth.toISOString(),
                 status: 1,
@@ -180,7 +177,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
 
         const mappedItems = mapProductsToItems(currentDetails?.products || []);
 
-        methods.setValue("customer", selectedQuotation.customerId ?? 0);
+        methods.setValue("customer", selectedQuotation.supplierID ?? 0);
         methods.setValue("quotationNo", selectedQuotation.quotationNo);
         methods.setValue("date", selectedQuotation.createdDate ?? null);
         methods.setValue("validUntil", selectedQuotation.expiryDate ?? null);
@@ -211,7 +208,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
             return;
         }
 
-        const found = customers.find((cus) => Number(cus.id) === Number(customerId));
+        const found = suppliers.find((cus) => Number(cus.id) === Number(customerId));
         if (found) {
             setSelectedCustomer(found);
         }
@@ -235,7 +232,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         try {
             const basePayload = {
                 quotationNo: data.quotationNo,
-                customerID: data.customer,
+                SupplierID: data.customer,
                 expiryDate: data.validUntil,
                 discount: data.discount || 0,
                 note: data.notes || '',
@@ -334,9 +331,9 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                     <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
                         <Field.Autocomplete
                             name="customer"
-                            label="Chọn khách hàng có sẵn"
-                            options={customers}
-                            loading={customersLoading}
+                            label="Chọn nhà cung cấp"
+                            options={suppliers}
+                            loading={suppliersLoading}
                             getOptionLabel={(opt) => opt?.name ?
                                 opt.name :
                                 opt?.companyName ?
@@ -357,23 +354,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                                 </li>
                             )}
                         />
-                        <Stack direction="row">
-                            <Tooltip title="Tạo khách hàng mới">
-                                <IconButton
-                                    color="inherit"
-                                    sx={{
-                                        '&:hover': {
-                                            backgroundColor: 'transparent'
-                                        },
-                                    }}
-                                    onClick={() => setIsCreatingCustomer(true)}
-                                >
-                                    <Iconify
-                                        icon="line-md:person-add"
-                                    />
-                                </IconButton>
-                            </Tooltip>
-                        </Stack>
                     </Stack>
                 </Stack>
                 <Stack spacing={2} sx={{ mt: 2 }}>
@@ -579,13 +559,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                     {quotationLoading ? renderSkeleton() : renderDetails()}
                 </DialogContent>
             </Form>
-            <QuotationCustomerForm
-                openChild={isCreatingCustomer}
-                setOpenChild={setIsCreatingCustomer}
-                methodsQuotation={methods}
-                setCustomerKeyword={setCustomerKeyword}
-                setSelectedCustomer={setSelectedCustomer}
-            />
         </Dialog>
     );
 }

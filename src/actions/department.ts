@@ -25,7 +25,7 @@ export function useGetDepartments({ pageNumber, pageSize, key, enabled = true }:
 
     const url = enabled ? endpoints.department.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResDepartmentList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResDepartmentList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -40,6 +40,7 @@ export function useGetDepartments({ pageNumber, pageSize, key, enabled = true }:
             departmentsError: error,
             departmentsValidating: isValidating,
             departmentsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );
@@ -54,7 +55,7 @@ export function useGetDeletedDepartments({ pageNumber, pageSize, key, enabled = 
 
     const url = enabled ? endpoints.department.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResDepartmentList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResDepartmentList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -69,6 +70,7 @@ export function useGetDeletedDepartments({ pageNumber, pageSize, key, enabled = 
             departmentsError: error,
             departmentsValidating: isValidating,
             departmentsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

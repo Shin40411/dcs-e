@@ -6,6 +6,8 @@ import { IContractItem } from "src/types/contract";
 import { ContractPreview } from "./contract-preview";
 import { fCurrency } from "src/utils/format-number";
 import { useSettingsContext } from "src/components/settings";
+import { isToday } from "date-fns";
+import NewSticker from "src/components/label/news";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
@@ -18,7 +20,7 @@ type Props = CardProps & {
 const statusMap: { [key: number]: [string, string] } = {
     0: ["Hủy bỏ", "fluent-color:dismiss-circle-16"],
     1: ["Nháp", "material-symbols:draft"],
-    2: ["Chờ duyệt", "streamline-pixel:interface-essential-waiting-hourglass-loading"],
+    2: ["Chờ phê duyệt", "streamline-pixel:interface-essential-waiting-hourglass-loading"],
     3: ["Đang thực hiện", "line-md:uploading-loop"],
     4: ["Đã hoàn thành", "fluent-color:checkmark-circle-16"],
 };
@@ -112,6 +114,11 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                         </Box>
                     </Tooltip>
                 </Box>
+                {contract.createDate && isToday(contract.createDate) && (
+                    <Box sx={{ position: "absolute", top: 8, left: 8, zIndex: 9 }}>
+                        <NewSticker />
+                    </Box>
+                )}
                 <ContractPreview contract={contract} />
                 <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>

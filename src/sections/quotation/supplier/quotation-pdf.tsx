@@ -9,7 +9,7 @@ import {
 } from '@react-pdf/renderer';
 
 import { IQuotationData, IQuotationItem } from 'src/types/quotation';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { useStyles } from '../components/useStyle';
 import { renderHeader } from '../components/renderHeader';
 import { renderDates } from '../components/renderDates';
@@ -19,6 +19,9 @@ import { renderTable } from '../components/renderTable';
 import { renderByTextTotal } from '../components/renderByTextTotal';
 import { renderNotes } from '../components/renderNotes';
 import { renderFooter } from '../components/renderFooter';
+import { generatePdfBlob } from 'src/utils/generateblob-func';
+import { downloadPdf, printPdf } from 'src/utils/random-func';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -26,10 +29,11 @@ type QuotationPDFProps = {
     invoice: IQuotationItem;
     currentStatus: string;
     currentQuotation?: IQuotationData;
+    openDetail: boolean;
 };
 // ----------------------------------------------------------------------
 
-export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }: QuotationPDFProps) {
+export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation, openDetail }: QuotationPDFProps) {
 
     const [loading, setLoading] = useState(true);
 
@@ -37,6 +41,44 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }:
         const timer = setTimeout(() => setLoading(false), 1000);
         return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        if (openDetail) {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        }
+
+        return () => {
+            document.querySelectorAll('iframe[data-print="1"]').forEach((iframe) => {
+                iframe.remove();
+            });
+        };
+    }, [openDetail]);
+
+    const handleDownload = async () => {
+        const blob = await generatePdfBlob(
+            <QuotationPdfDocument
+                invoice={invoice}
+                currentStatus={currentStatus}
+                currentQuotation={currentQuotation}
+            />
+        );
+
+        await downloadPdf(blob, `${invoice.quotationNo}.pdf`);
+    };
+
+    const handlePrint = async () => {
+        const blob = await generatePdfBlob(
+            <QuotationPdfDocument
+                invoice={invoice}
+                currentStatus={currentStatus}
+                currentQuotation={currentQuotation}
+            />
+        );
+
+        await printPdf(blob);
+    };
 
     const memoizedDoc = useMemo(() => (
         <QuotationPdfDocument
@@ -47,7 +89,7 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }:
     ), [invoice, currentStatus, currentQuotation]);
 
     return (
-        <>
+        <Box height="100%" overflow="hidden" pb={8}>
             {loading && (
                 <Box
                     sx={{
@@ -67,10 +109,23 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation }:
                     </Typography>
                 </Box>
             )}
-            <PDFViewer width="100%" height="100%" style={{ border: "none" }}>
+            <Stack direction="row" spacing={1} padding={2} bgcolor="rgb(60,60,60)" justifyContent="space-between">
+                <Box>
+                    <Typography variant="caption" sx={{ color: '#fff' }} fontWeight={700}>{invoice.quotationNo}</Typography>
+                </Box>
+                <Box>
+                    <Button variant="text" onClick={handleDownload} title="Tải về">
+                        <Iconify icon="material-symbols:download" color="#fff" />
+                    </Button>
+                    <Button variant="text" onClick={handlePrint} title="In">
+                        <Iconify icon="material-symbols:print-outline" color="#fff" />
+                    </Button>
+                </Box>
+            </Stack>
+            <PDFViewer width="100%" height="100%" style={{ border: "none" }} showToolbar={false}>
                 {memoizedDoc}
             </PDFViewer>
-        </>
+        </Box>
     );
 }
 

@@ -1,13 +1,14 @@
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
 import { useStylesExport as styles } from "./useStylesExport";
-import { IContractRemainingProduct } from "src/types/contract";
+import { IImportRemainingProduct } from "src/types/contractSupplier";
+import { IWarehouseImportProduct } from "src/types/warehouse-import";
 
 type RenderProps = {
     contractBody: Record<string, string>;
-    productsUnExported: IContractRemainingProduct[];
+    productsUnExported: IImportRemainingProduct[];
 };
 
-export const RenderWarehouseExport = ({ contractBody, productsUnExported }: RenderProps) => {
+export const RenderWarehouseImport = ({ contractBody, productsUnExported }: RenderProps) => {
     return (
         <Document title={contractBody.warehouseExportNo}>
             <Page size="A4" style={styles.page}>
@@ -54,12 +55,12 @@ function Title({ contractBody }: { contractBody: Record<string, string> }) {
     return (
         <View style={{ width: '100%', display: 'flex', flexDirection: 'row', gap: 10, marginTop: 20 }}>
             <View style={{ width: '55%', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Text style={{ fontFamily: 'Montserrat-bold', fontSize: 16 }}>PHIẾU XUẤT KHO/ GIAO HÀNG</Text>
+                <Text style={{ fontFamily: 'Montserrat-bold', fontSize: 16 }}>PHIẾU NHẬP KHO/ GIAO HÀNG</Text>
                 <Text style={{ fontFamily: 'Niramit-LightItalic', fontSize: 13 }}>{contractBody.exportDate ? `ngày ${contractBody.exportDate}` : ''}</Text>
             </View>
             <View style={{ width: '45%', display: 'flex', paddingLeft: 20 }}>
                 <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Số HĐ: {contractBody.contractNo}</Text>
-                <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Số PX: {warehouseNo}</Text>
+                <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Số PN: {warehouseNo}</Text>
                 <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Nợ: .......................</Text>
                 <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Có: .......................</Text>
             </View>
@@ -71,14 +72,15 @@ function Info({ contractBody }: { contractBody: Record<string, string> }) {
     return (
         <View style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 10 }}>
             <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Người nhận hàng: {contractBody.receiverName}</Text>
-            <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Địa chỉ (bộ phận): {contractBody.position}</Text>
-            <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Lý do xuất kho: {contractBody.note}</Text>
+            {/* {contractBody.position && <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Địa chỉ (bộ phận): {contractBody.position}</Text>} */}
+            <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Lý do nhập kho: {contractBody.note}</Text>
             <Text style={{ fontFamily: 'Niramit-Medium', fontSize: 13 }}>Địa chỉ giao hàng: {contractBody.receiverAddress}</Text>
         </View>
     );
 }
 
-function Table({ productsUnExported }: { productsUnExported: IContractRemainingProduct[] }) {
+type AnyWarehouseProduct = IImportRemainingProduct | IWarehouseImportProduct;
+function Table({ productsUnExported }: { productsUnExported: AnyWarehouseProduct[]; }) {
     return (
         <View style={styles.table}>
             <View>
@@ -105,10 +107,10 @@ function Table({ productsUnExported }: { productsUnExported: IContractRemainingP
                                 <Text>{index + 1}</Text>
                             </View>
                             <View style={styles.cell_2}>
-                                <Text style={[styles.text2Semi, { fontSize: 10 }]}>{p.name}</Text>
+                                <Text style={[styles.text2Semi, { fontSize: 10 }]}>{p.productName}</Text>
                             </View>
                             <View style={[styles.cell_3, { textAlign: 'center' }]}>
-                                <Text style={[styles.text2, { fontSize: 10 }]}>{p.productUnitName}</Text>
+                                <Text style={[styles.text2, { fontSize: 10 }]}>{"unit" in p ? p.unit : p.unitProductName}</Text>
                             </View>
                             <View style={[styles.cell_4, { textAlign: 'center' }]}>
                                 <Text style={[styles.text2, { fontSize: 10 }]}>{p.quantity}</Text>

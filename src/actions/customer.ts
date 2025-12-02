@@ -25,7 +25,7 @@ export function useGetCustomers({ pageNumber, pageSize, key, enabled = true }: c
 
     const url = enabled ? endpoints.customer.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResCustomerList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResCustomerList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -40,6 +40,7 @@ export function useGetCustomers({ pageNumber, pageSize, key, enabled = true }: c
             customersError: error,
             customersValidating: isValidating,
             customersEmpty: !isLoading && !isValidating && !data?.data?.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );
@@ -54,7 +55,7 @@ export function useGetDeletedCustomers({ pageNumber, pageSize, key, enabled = tr
 
     const url = enabled ? endpoints.customer.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResCustomerList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResCustomerList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -69,6 +70,7 @@ export function useGetDeletedCustomers({ pageNumber, pageSize, key, enabled = tr
             customersError: error,
             customersValidating: isValidating,
             customersEmpty: !isLoading && !isValidating && !data?.data?.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

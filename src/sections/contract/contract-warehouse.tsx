@@ -21,19 +21,35 @@ interface FileDialogProps {
     selectedContract: IContractItem;
     open: boolean;
     onClose: () => void;
+    refetchFns: {
+        refetchNeedCollect: () => void;
+        refetchBatchCollect: () => void;
+        refetchHistoryCollect: () => void;
+    } | null;
+    refetchFns2: {
+        refetchNeedSpend: () => void;
+        refetchNeedSpendForContract: () => void;
+        refetchHistorySpend: () => void;
+    } | null;
 }
 
-export function ContractWareHouse({ selectedContract, open, onClose }: FileDialogProps) {
+export function ContractWareHouse({ selectedContract, open, onClose, refetchFns, refetchFns2 }: FileDialogProps) {
     const { user } = useAuthContext();
     const today = new Date();
 
     const { pagination: { totalRecord } } = useGetWarehouseExports({
         pageNumber: 1,
         pageSize: 999,
-        enabled: open,
+        ContractNo: selectedContract.contractNo,
+        enabled: open
     });
 
-    const { remainingProduct: initialProducts, remainingProductEmpty, remainingProductLoading } = useGetUnExportProduct(selectedContract.id, open);
+    const {
+        remainingProduct: initialProducts,
+        remainingProductEmpty,
+        remainingProductLoading
+    }
+        = useGetUnExportProduct(selectedContract.id, open);
     const [products, setProducts] = useState<IContractRemainingProduct[]>([]);
 
     useEffect(() => {
@@ -41,7 +57,6 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
             setProducts([...initialProducts]);
         }
     }, [initialProducts]);
-
 
     const [watchTicket, setWatchTicket] = useState(true);
     const [warehouseExportNumber, setWarehouseExportNumber] = useState<string>('');
@@ -118,13 +133,18 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
 
     const onSubmit = handleSubmit(async (data) => {
         try {
+            const formattedDate =
+                data.exportDate != null
+                    ? new Date(data.exportDate).toISOString().split('T')[0]
+                    : null;
+
             const payload: IContractWarehouseExportDto = {
                 warehouseExportNo: data.wareHouseNo,
                 customerID: selectedContract.customerID,
                 contractID: selectedContract.id,
                 employeeID: user?.accessToken || null,
-                exportDate: data.exportDate,
-                receiverName: data.receiverName,
+                exportDate: formattedDate,
+                receiverName: data.receiverName || "",
                 receiverPhone: "",
                 receiverAddress: data.receiverAddress,
                 note: data.note || "",
@@ -147,6 +167,14 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 undefined,
                 { revalidate: true }
             );
+            refetchFns?.refetchBatchCollect();
+            refetchFns?.refetchHistoryCollect();
+            refetchFns?.refetchNeedCollect();
+
+            refetchFns2?.refetchHistorySpend();
+            refetchFns2?.refetchNeedSpend();
+            refetchFns2?.refetchNeedSpendForContract();
+
             onClose();
         } catch (error: any) {
             console.error(error);
@@ -169,7 +197,6 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 <Field.Text
                     name="receiverName"
                     label="Người nhận hàng"
-                    required
                     sx={{
                         flex: 1.5,
                     }}

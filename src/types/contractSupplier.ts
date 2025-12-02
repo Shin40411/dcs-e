@@ -12,6 +12,12 @@ export type ResponseContractSupplier<T = any> = {
     };
 }
 
+export type ResRemainingProduct = {
+    statusCode: number;
+    message: string;
+    data: IImportRemainingProduct[];
+}
+
 export type IContractSupplyItem = {
     id: number;
     contractNo: string;
@@ -78,6 +84,16 @@ export type IProductContractSupEdit = {
     unit: string;
     price: number;
 }
+
+export type IImportRemainingProduct = {
+    productID: number;
+    productName: string;
+    unit: string;
+    quantity: number;
+    price: number;
+    vat: number;
+    amounts: number;
+};
 
 //DTO........................................
 

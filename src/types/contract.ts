@@ -103,11 +103,6 @@ export type ResContractItem = {
     data: IContractData;
 }
 
-export type FilterValues = {
-    fromDate: IDateValue;
-    toDate: IDateValue;
-};
-
 export type IContractDto = {
     ContractNo: string;
     customerId: number;
@@ -216,6 +211,7 @@ export type IReceiptContract = {
     note: string,
     contractType: string,
     bankAccountID: number,
+    bankNo: string;
     companyName: string,
     customerName: string,
     address: string,
@@ -311,6 +307,16 @@ export type ResReportLiquidation = {
     };
 }
 
+export type ResContractSuppFromCus = {
+    statusCode: number;
+    message: string;
+    data: {
+        contractNo: string;
+        supplierName: string;
+        supplierAddress: string;
+    }[];
+}
+
 export type ReportDto = {
     reportNo: string;
     type: "Acceptance" | "HandOver" | "Liquidation" | "Commissioning";
@@ -318,4 +324,33 @@ export type ReportDto = {
     contractType: "Customer" | "Supplier";
     date: IDateValue;
     status: number;
+}
+
+export type ResIReceiptItem = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: {
+            id: number,
+            receiptNo: string,
+            contractNo: string,
+            date: IDateValue,
+            receiptType: string,
+            amount: number,
+            note: string,
+            contractType: string,
+            bankAccountID: number,
+            bankNo: string;
+            companyName: string,
+            customerName: string,
+            address: string,
+            payer: string,
+            reason?: string,
+            createdBy: string,
+        }[];
+    };
 }

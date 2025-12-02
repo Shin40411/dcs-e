@@ -1,4 +1,4 @@
-import { Box, Button, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Menu, MenuItem, Skeleton, Stack } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, Menu, MenuItem, Skeleton, Stack } from "@mui/material";
 import { JSX, MouseEvent, useEffect, useRef, useState } from "react";
 import { Iconify } from "src/components/iconify";
 import { useBoolean } from "minimal-shared/hooks";
@@ -8,15 +8,16 @@ import { ContractPDFViewer } from "./contract-pdf";
 import ContractSendMail from "./contract-sendmail";
 import { ContractSpend } from "./contract-spend";
 import { toast } from "sonner";
+import { ContractWareHouse } from "./contract-warehouse";
 
 type Props = {
     selectedContract: IContractSupplyItem;
     openDetail: boolean;
-    openForm: (obj: IContractSupplyItem) => void;
+    copyContract: (obj: IContractSupplyItem) => void;
     onClose: () => void;
 }
 
-export function ContractDetails({ selectedContract, openDetail, openForm, onClose }: Props) {
+export function ContractDetails({ selectedContract, openDetail, copyContract, onClose }: Props) {
     const { contractRes: contract, contractLoading, contractError } = useGetSupplierContract({
         contractId: selectedContract?.id,
         pageNumber: 1,
@@ -117,6 +118,7 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                 contract={selectedContract}
                 currentStatus={statusMap[selectedContract.status]}
                 currentContract={contract}
+                openDetail={openDetail}
             />
         );
         pdfContractIdRef.current = selectedContract.id;
@@ -190,21 +192,23 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                                             >
                                                 Gửi hợp đồng
                                             </Button>
-                                            <Button
+                                            {/* <Button
                                                 variant="contained"
                                                 startIcon={<Iconify icon="streamline-plump:email-attachment-document" />}
                                                 onClick={openFileAttach.onTrue}
                                             >
                                                 File chứng từ
-                                            </Button>
-                                            <Button
-                                                variant="contained"
-                                                startIcon={<Iconify icon="solar:document-add-bold" />}
-                                                endIcon={<Iconify icon={open ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
-                                                onClick={handleClickLP}
-                                            >
-                                                Lập phiếu
-                                            </Button>
+                                            </Button> */}
+                                            {selectedContract.status !== 1 &&
+                                                <Button
+                                                    variant="contained"
+                                                    startIcon={<Iconify icon="solar:document-add-bold" />}
+                                                    endIcon={<Iconify icon={open ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
+                                                    onClick={handleClickLP}
+                                                >
+                                                    Lập phiếu
+                                                </Button>
+                                            }
                                             {/* <Button
                                         variant="contained"
                                         startIcon={<Iconify icon="mdi:chart-line" />}
@@ -213,15 +217,25 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                                     >
                                         Theo dõi
                                     </Button> */}
-                                            <Button variant="contained" startIcon={<Iconify icon="solar:copy-linear" />}>Copy hợp đồng</Button>
                                             <Button
+                                                variant="contained"
+                                                startIcon={<Iconify icon="solar:copy-linear" />}
+                                                type="button"
+                                                onClick={() => {
+                                                    onClose();
+                                                    copyContract(selectedContract);
+                                                }}
+                                            >
+                                                Copy hợp đồng
+                                            </Button>
+                                            {/* <Button
                                                 variant="contained"
                                                 startIcon={<Iconify icon="material-symbols:contract-edit-outline-sharp" />}
                                                 endIcon={<Iconify icon={openBB ? 'solar:double-alt-arrow-up-bold-duotone' : 'solar:double-alt-arrow-down-bold-duotone'} />}
                                                 onClick={handleClickBB}
                                             >
                                                 Tạo biên bản
-                                            </Button>
+                                            </Button> */}
                                         </Stack>
                                     </Box>
                                     <Box>
@@ -245,23 +259,20 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                                 </Button> */}
                                     </Box>
                                 </Stack>
-                                {/* <Collapse sx={{ width: '100%' }} in={showActions} timeout="auto" unmountOnExit>
-                        </Collapse> */}
                                 <Menu
                                     anchorEl={anchorEl}
                                     open={open}
                                     onClose={handleCloseLP}
                                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                                     transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                                    PaperProps={{
-                                        sx: {
-                                            width: anchorEl ? anchorEl.offsetWidth : undefined,
-                                        },
-                                    }}
                                 >
                                     <MenuItem onClick={() => { handleCloseLP(); openReceipt.onTrue(); }}>
                                         <Iconify icon="hugeicons:payment-02" style={{ marginRight: 8 }} />
                                         Phiếu chi
+                                    </MenuItem>
+                                    <MenuItem onClick={() => { handleCloseLP(); openWareHouse.onTrue(); }}>
+                                        <Iconify icon="lsicon:warehouse-into-outline" style={{ marginRight: 8 }} />
+                                        Phiếu nhập kho
                                     </MenuItem>
                                 </Menu>
                                 <Menu
@@ -316,12 +327,13 @@ export function ContractDetails({ selectedContract, openDetail, openForm, onClos
                     selectedContract={selectedContract}
                     open={openFileAttach.value}
                     onClose={openFileAttach.onFalse}
-                />
-                <ContractWareHouse
-                    selectedContract={selectedContract}
-                    open={openWareHouse.value}
-                    onClose={openWareHouse.onFalse}
-                /> */}
+                        />
+                        */}
+                        <ContractWareHouse
+                            selectedContract={selectedContract}
+                            open={openWareHouse.value}
+                            onClose={openWareHouse.onFalse}
+                        />
                     </>
                 ) : null}
             </Dialog>

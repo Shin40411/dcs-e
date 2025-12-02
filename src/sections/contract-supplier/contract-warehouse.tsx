@@ -1,7 +1,6 @@
 import { Box, Button, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Iconify } from "src/components/iconify";
-import { IContractItem } from "src/types/contract";
 import { generateWarehouseExport } from "src/utils/random-func";
 import { CloseIcon } from "yet-another-react-lightbox";
 import { ContractWareHouseSchema, ContractWareHouseSchemaType } from "./schema/contract-warehouse";
@@ -9,16 +8,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, Form } from "src/components/hook-form";
 import { ContractWarehouseTable } from "./contract-warehouse-table";
 import { useEffect, useState } from "react";
-import { createWarehouseExport, useGetUnExportProduct, useGetWarehouseExports } from "src/actions/contract";
+import { createWarehouseExport } from "src/actions/contract";
 import { IContractWarehouseExportDto } from "src/types/warehouseExport";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import { useAuthContext } from "src/auth/hooks";
 import { paths } from "src/routes/paths";
 import { fDate } from "src/utils/format-time-vi";
+import { IContractSupplyItem, IImportRemainingProduct } from "src/types/contractSupplier";
+import { createWarehouseImport, useGetUnImportProduct, useGetWarehouseImports } from "src/actions/contractSupplier";
+import { IContractWarehouseImportDto } from "src/types/warehouse-import";
+import dayjs from "dayjs";
 
 interface FileDialogProps {
-    selectedContract: IContractItem;
+    selectedContract: IContractSupplyItem;
     open: boolean;
     onClose: () => void;
 }
@@ -27,13 +30,23 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     const { user } = useAuthContext();
     const today = new Date();
 
-    const { pagination: { totalRecord } } = useGetWarehouseExports({
+    const { pagination: { totalRecord }, mutation } = useGetWarehouseImports({
         pageNumber: 1,
         pageSize: 999,
         enabled: open,
     });
+    const [products, setProducts] = useState<IImportRemainingProduct[]>([]);
 
-    const { remainingProduct, remainingProductEmpty, remainingProductLoading } = useGetUnExportProduct(selectedContract.id, open);
+    const {
+        remainingProduct: initialProducts,
+        remainingProductEmpty, remainingProductLoading
+    } = useGetUnImportProduct(selectedContract.id, open);
+
+    useEffect(() => {
+        if (initialProducts && initialProducts.length > 0) {
+            setProducts([...initialProducts]);
+        }
+    }, [initialProducts]);
 
     const [watchTicket, setWatchTicket] = useState(true);
     const [warehouseExportNumber, setWarehouseExportNumber] = useState<string>('');
@@ -52,8 +65,8 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     });
 
     useEffect(() => {
-        methods.setValue('wareHouseNo', generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
-        setWarehouseExportNumber(generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
+        methods.setValue('wareHouseNo', generateWarehouseExport('PN', selectedContract.contractNo, totalRecord));
+        setWarehouseExportNumber(generateWarehouseExport('PN', selectedContract.contractNo, totalRecord));
     }, [totalRecord, setWarehouseExportNumber]);
 
     const {
@@ -70,6 +83,24 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     const receiverAddress = watch('receiverAddress');
     const receiverName = watch('receiverName');
 
+    const handleQuantityChange = (productID: number, newQuantity: number) => {
+        setProducts(prev =>
+            prev.map(p =>
+                p.productID === productID
+                    ? { ...p, quantity: newQuantity }
+                    : p
+            )
+        );
+    };
+
+    const handleRemoveProduct = (productID: number) => {
+        if (products.length <= 1) {
+            toast.warning("Không thể xóa! Phải có ít nhất 1 sản phẩm trong phiếu xuất kho");
+            return;
+        }
+        setProducts(prev => prev.filter(p => p.productID !== productID));
+    };
+
     const onPreviewWarehouseExport = () => {
         const params = new URLSearchParams({
             isCreating: 'true',
@@ -84,43 +115,40 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
             seller: selectedContract.seller
         } as Record<string, string>);
         const queryString = params.toString();
-        window.open(`${paths.warehouseExport}?${queryString}`, '_blank');
+        window.open(`${paths.warehouseImport}?${queryString}`, '_blank');
     }
 
     const onSubmit = handleSubmit(async (data) => {
         try {
-            const payload: IContractWarehouseExportDto = {
-                warehouseExportNo: data.wareHouseNo,
-                customerID: selectedContract.customerID,
+            const payload: IContractWarehouseImportDto = {
+                supplierID: selectedContract.supplierId,
                 contractID: selectedContract.id,
-                employeeID: user?.accessToken || null,
-                exportDate: data.exportDate,
-                receiverName: data.receiverName,
-                receiverPhone: "",
+                employeeID: user?.employeeId || 0,
+                importDate: data.exportDate ? dayjs(data.exportDate).format("YYYY-MM-DD") : null,
+                reciverName: data.receiverName,
+                reciverPhone: selectedContract.supplierPhone || '',
                 receiverAddress: data.receiverAddress,
-                note: data.note || "",
-                discount: selectedContract.discount,
                 paid: selectedContract.total,
-                products:
-                    remainingProduct.map((p) => ({
-                        productID: p.productID,
-                        quantity: p.quantity,
-                    })),
+                note: data.note || "",
+                discount: 0,
+                products: products.map((item) => ({
+                    productID: item.productID,
+                    price: item.price,
+                    quantity: item.quantity,
+                    vat: item.vat,
+                    openingStock: 0,
+                })),
             };
 
-            await createWarehouseExport(payload);
+            await createWarehouseImport(payload);
 
-            toast.success("Tạo phiếu xuất kho thành công!");
+            toast.success("Tạo phiếu nhập kho thành công!");
             reset();
-            mutate(
-                (k) => typeof k === "string" && k.startsWith("/api/v1/warehouse-exports/get-exports"),
-                undefined,
-                { revalidate: true }
-            );
+            mutation();
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error("Tạo phiếu xuất kho thất bại!");
+            toast.error(error.message || "Tạo phiếu nhập kho thất bại!");
         }
     });
 
@@ -137,7 +165,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
             <Stack direction="row" spacing={3} pt={1}>
                 <Field.Text
                     name="receiverName"
-                    label="Người nhận hàng"
+                    label="Người giao hàng"
                     required
                     sx={{
                         flex: 1.5,
@@ -150,7 +178,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <TextField value={selectedContract.companyName} label="Đơn vị nhận hàng" disabled
+                <TextField value={selectedContract.companyName} label="Đơn vị giao hàng" disabled
                     sx={{
                         flex: 1.5,
                         '& .MuiInputBase-root.Mui-disabled': {
@@ -159,7 +187,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                     }} />
                 <Field.Text
                     name="wareHouseNo"
-                    label="Số phiếu xuất kho"
+                    label="Số phiếu nhập kho"
                     required
                     sx={{ flex: 1 }}
                 />
@@ -167,8 +195,9 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
             <Stack direction="row" spacing={3}>
                 <Field.Text
                     name="note"
-                    label="Lý do xuất kho"
+                    label="Lý do nhập kho"
                     sx={{ flex: 1.5 }}
+                    placeholder="Nhập lý do nhập kho"
                 />
                 <TextField value={selectedContract.seller} label="Tên nhân viên" disabled
                     sx={{
@@ -182,6 +211,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 name="receiverAddress"
                 label="Địa điểm"
                 required
+                placeholder="Nhập địa điểm nhận hàng"
             />
         </>
     );
@@ -243,7 +273,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
             >
                 <Box display="flex" alignItems="center" gap={1}>
                     <Iconify icon="ph:file-x-bold" width={24} />
-                    <Typography fontWeight={700} textTransform="uppercase">Phiếu xuất kho</Typography>
+                    <Typography fontWeight={700} textTransform="uppercase">Phiếu nhập kho</Typography>
                 </Box>
                 <TextField
                     disabled
@@ -269,9 +299,11 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                         <Stack spacing={{ xs: 3, md: 2 }} direction="column">
                             {renderDetails()}
                             <ContractWarehouseTable
-                                remainingProduct={remainingProduct}
-                                remainingProductEmpty={remainingProductEmpty}
+                                remainingProduct={products}
+                                remainingProductEmpty={products.length === 0}
                                 remainingProductLoading={remainingProductLoading}
+                                onQuantityChange={handleQuantityChange}
+                                onRemoveProduct={handleRemoveProduct}
                             />
                         </Stack>
                     </CardContent>

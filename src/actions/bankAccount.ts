@@ -25,7 +25,7 @@ export function useGetBankAccounts({ pageNumber, pageSize, key, enabled = true }
 
     const url = enabled ? endpoints.bankAccount.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResBankAccountList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResBankAccountList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -40,6 +40,7 @@ export function useGetBankAccounts({ pageNumber, pageSize, key, enabled = true }
             bankAccountsError: error,
             bankAccountsValidating: isValidating,
             bankAccountsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );
@@ -54,7 +55,7 @@ export function useGetDeletedBankAccounts({ pageNumber, pageSize, key, enabled =
 
     const url = enabled ? endpoints.bankAccount.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResBankAccountList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResBankAccountList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -69,6 +70,7 @@ export function useGetDeletedBankAccounts({ pageNumber, pageSize, key, enabled =
             bankAccountsError: error,
             bankAccountsValidating: isValidating,
             bankAccountsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

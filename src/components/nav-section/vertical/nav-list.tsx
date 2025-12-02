@@ -131,8 +131,14 @@ function checkActive(pathname: string, item: NavItemDataProps): boolean {
     return true;
   }
 
-  if (item.children?.length) {
-    return item.children.some((child) => checkActive(pathname, child));
+  if (item.hiddenChild && item.hiddenChild)
+
+    if (item.children?.length) {
+      return item.children.some((child) => checkActive(pathname, child));
+    }
+
+  if (item.hiddenChild && item.hiddenChild.length > 0) {
+    return item.hiddenChild.some(childPath => pathname.startsWith(childPath));
   }
 
   return false;

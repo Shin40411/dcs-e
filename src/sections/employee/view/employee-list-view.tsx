@@ -25,6 +25,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { useLocation } from "react-router";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { EMPLOYEE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
 
 export const ChangePassWordAccSchema = zod
     .object({
@@ -39,6 +42,7 @@ export const ChangePassWordAccSchema = zod
 export type ChangePassWordAccSchemaType = zod.infer<typeof ChangePassWordAccSchema>;
 
 export function EmployeeListView() {
+    const location = useLocation();
     const confirmChangePass = useBoolean();
     const showPassword = useBoolean();
 
@@ -274,6 +278,7 @@ export function EmployeeListView() {
         <EmployeeBin
             open={openBin.value}
             onClose={openBin.onFalse}
+            listMutation={mutation}
         />
     );
 
@@ -288,8 +293,7 @@ export function EmployeeListView() {
                 <CustomBreadcrumbs
                     heading="Nhân viên"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Cấu hình' },
+                        { name: 'Quản lý danh mục' },
                         { name: 'Nhân viên' },
                     ]}
                     action={
@@ -300,12 +304,15 @@ export function EmployeeListView() {
                                 openCrudForm.onTrue();
                                 setTableRowSelected(null);
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo nhân viên
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={EMPLOYEE_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={employeesLoading}

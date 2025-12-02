@@ -25,7 +25,7 @@ export function useGetUnits({ pageNumber, pageSize, key, enabled = true }: units
 
     const url = enabled ? endpoints.unit.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResUnitList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResUnitList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -40,6 +40,7 @@ export function useGetUnits({ pageNumber, pageSize, key, enabled = true }: units
             unitsError: error,
             unitsValidating: isValidating,
             unitsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );
@@ -54,7 +55,7 @@ export function useGetDeletedUnits({ pageNumber, pageSize, key, enabled = true }
 
     const url = enabled ? endpoints.unit.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResUnitList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResUnitList>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => ({
@@ -69,6 +70,7 @@ export function useGetDeletedUnits({ pageNumber, pageSize, key, enabled = true }
             unitsError: error,
             unitsValidating: isValidating,
             unitsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            mutation: mutate
         }),
         [data, error, isLoading, isValidating]
     );

@@ -28,10 +28,15 @@ import { CONFIG } from 'src/global-config';
 import { ProductBin } from '../product-bin';
 import { RoleBasedGuard } from 'src/auth/guard';
 import { useCheckPermission } from 'src/auth/hooks/use-check-permission';
+import ServiceNavTabs from 'src/components/tabs/service-nav-tabs';
+import { PRODUCT_TAB_DATA } from 'src/components/tabs/components/service-nav-tabs-data';
+import { useLocation } from 'react-router';
 
 // ----------------------------------------------------------------------
 
 export function ProductListView() {
+  const location = useLocation();
+
   const openCrudForm = useBoolean();
   const openDetailsForm = useBoolean();
   const openBin = useBoolean();
@@ -40,7 +45,7 @@ export function ProductListView() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
   const [searchText, setSearchText] = useState('');
-  const { products, pagination, productsLoading, productsEmpty } = useGetProducts({
+  const { products, pagination, productsLoading, productsEmpty, mutation } = useGetProducts({
     pageNumber: page + 1,
     pageSize: rowsPerPage,
     key: searchText,
@@ -164,6 +169,7 @@ export function ProductListView() {
     <ProductBin
       open={openBin.value}
       onClose={openBin.onFalse}
+      listMutation={mutation}
     />
   );
 
@@ -178,8 +184,7 @@ export function ProductListView() {
         <CustomBreadcrumbs
           heading="Sản phẩm"
           links={[
-            { name: 'Tổng quan', href: paths.dashboard.root },
-            { name: 'Danh mục', href: paths.dashboard.product.root },
+            { name: 'Quản lý danh mục', href: paths.dashboard.product.root },
             { name: 'Sản phẩm' },
           ]}
           action={
@@ -190,6 +195,7 @@ export function ProductListView() {
                 openCrudForm.onTrue();
                 setRowIdSelected('');
               }}
+              sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
             >
               Tạo sản phẩm
             </Button>
@@ -197,6 +203,7 @@ export function ProductListView() {
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
+        <ServiceNavTabs tabs={PRODUCT_TAB_DATA} activePath={location.pathname} />
         <UseGridTableList
           dataFiltered={dataFiltered}
           loading={productsLoading}

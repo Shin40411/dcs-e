@@ -20,8 +20,13 @@ import { CONFIG } from "src/global-config";
 import { CustomerBin } from "../customer-bin";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import { useLocation } from "react-router";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { CUSTOMER_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
 
 export function CustomerListView() {
+    const location = useLocation();
+
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDialog = useBoolean();
@@ -32,7 +37,7 @@ export function CustomerListView() {
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['KHACHHANG.VIEW']);
 
-    const { customers, pagination, customersLoading } = useGetCustomers({
+    const { customers, pagination, customersLoading, mutation } = useGetCustomers({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
@@ -117,6 +122,7 @@ export function CustomerListView() {
         <CustomerBin
             open={openBin.value}
             onClose={openBin.onFalse}
+            listMutation={mutation}
         />
     );
 
@@ -131,8 +137,7 @@ export function CustomerListView() {
                 <CustomBreadcrumbs
                     heading="Khách hàng"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
-                        { name: 'Danh mục' },
+                        { name: 'Quản lý danh mục' },
                         { name: 'Khách hàng' },
                     ]}
                     action={
@@ -143,12 +148,15 @@ export function CustomerListView() {
                                 openCrudForm.onTrue();
                                 setTableRowSelected(null);
                             }}
+                            sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
                         >
                             Tạo khách hàng
                         </Button>
                     }
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={CUSTOMER_TAB_DATA} activePath={location.pathname} />
                 <UseGridTableList
                     dataFiltered={dataFiltered}
                     loading={customersLoading}

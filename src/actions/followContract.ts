@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IReceiptContract } from "src/types/contract";
 import { IBatchCollectItem, IFollowContractItem, IFollowNeedSpendItem, IHistoryCollect, IHistorySpend, INeedSpendBySupContract, ResponseFollowData, ResponseFollowList } from "src/types/followContract";
@@ -80,6 +80,10 @@ export function useGetNeedSpend(contractNo: string, enabled: boolean) {
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResponseFollowList<IFollowNeedSpendItem>>(url, fetcher, swrOptions);
 
+    useEffect(() => {
+        if (enabled) mutate();
+    }, [enabled]);
+
     const memoizedValue = useMemo(
         () => ({
             result: data?.data,
@@ -100,6 +104,10 @@ export function useGetNeedSpendForContract(contractNo: string, enabled: boolean)
     const url = enabled && contractNo ? endpoints.followContract.needSpendForContract(params) : null;
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResponseFollowList<ResponseFollowData<INeedSpendBySupContract>>>(url, fetcher, swrOptions);
+
+    useEffect(() => {
+        if (enabled) mutate();
+    }, [enabled]);
 
     const memoizedValue = useMemo(
         () => ({
@@ -127,6 +135,10 @@ export function useGetHistorySpend(contractNos: string[], enabled: boolean) {
             : null;
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResponseFollowList<IHistorySpend[]>>(url, fetcher, swrOptions);
+
+    useEffect(() => {
+        if (enabled) mutate();
+    }, [enabled]);
 
     const memoizedValue = useMemo(
         () => ({

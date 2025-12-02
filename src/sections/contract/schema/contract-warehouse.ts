@@ -9,7 +9,7 @@ export const ContractWareHouseSchema = zod.object({
 
     wareHouseNo: zod.string({ required_error: 'Số phiếu xuất kho là trường bắt buộc' }),
 
-    receiverName: zod.string().min(1, 'Tên người nhận là trường bắt buộc'),
+    receiverName: zod.string().optional(),
     receiverAddress: zod.string().min(4, 'Vui lòng nhập địa điểm đầy đủ'),
 
     note: zod.string().optional(),

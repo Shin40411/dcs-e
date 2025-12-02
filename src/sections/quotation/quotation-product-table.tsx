@@ -178,8 +178,7 @@ export function QuotationItemsTable({
                                                 <Field.NumberInput name={`items.${index}.qty`} sx={{ width: 100 }} />
                                             </TableCell>
                                             <TableCell sx={{ whiteSpace: "nowrap" }}>
-                                                <Field.VNCurrencyInput name={`items.${index}.price`}
-                                                    // label="Đơn giá"
+                                                <Field.VNCUrrenInputResizable name={`items.${index}.price`}
                                                     sx={{ width: 100 }} />
                                             </TableCell>
                                             <TableCell sx={{ whiteSpace: "nowrap" }}>

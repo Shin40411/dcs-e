@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { DashboardContent } from "src/layouts/dashboard";
 import { paths } from "src/routes/paths";
-import { FilterValues, IContractItem } from "src/types/contract";
+import { IContractItem } from "src/types/contract";
 import { ContractCardList } from "../contract-card-list";
 import { IDateValue } from "src/types/common";
 import { CONFIG } from "src/global-config";
@@ -15,6 +15,9 @@ import { IContractSupplyItem } from "src/types/contractSupplier";
 import { useGetSupplierContracts } from "src/actions/contractSupplier";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { RoleBasedGuard } from "src/auth/guard";
+import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
+import { SUPPLIER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import { FilterValues } from "src/types/filter-values";
 
 export function ContractMainView() {
     const location = useLocation();
@@ -23,10 +26,9 @@ export function ContractMainView() {
     const [selectedContract, setSelectedContract] = useState<IContractSupplyItem | null>(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
-    const [fromDate, setFromDate] = useState<IDateValue>();
-    const [toDate, setToDate] = useState<IDateValue>();
     const [productDetails, setProductDetails] = useState([]);
     const [inVoiceCustomerId, setInVoiceCustomerId] = useState<number | null>(null);
+    const [copiedContract, setCopiedContract] = useState<IContractSupplyItem | null>(null);
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
 
@@ -39,9 +41,12 @@ export function ContractMainView() {
     const { contracts, contractsLoading, pagination, contractsEmpty, mutation } = useGetSupplierContracts({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
-        key: searchText,
+        key: searchText.trim(),
         fromDate: filters.fromDate,
         toDate: filters.toDate,
+        Filter: filters.customer,
+        Month: filters.month,
+        Status: filters.status
     });
 
     const handleViewDetails = (contract: IContractSupplyItem) => {
@@ -55,6 +60,7 @@ export function ContractMainView() {
     }
 
     const handleCopying = (obj: IContractSupplyItem) => {
+        setCopiedContract(obj);
         setSelectedContract(null);
         setOpenForm(true);
     }
@@ -85,14 +91,15 @@ export function ContractMainView() {
                 sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
             >
                 <CustomBreadcrumbs
-                    heading="Hợp đồng nhà cung cấp"
+                    heading="Nghiệp vụ nhà cung cấp"
                     links={[
-                        { name: 'Tổng quan', href: paths.dashboard.root },
                         { name: 'Nghiệp vụ nhà cung cấp' },
-                        { name: 'Hợp đồng nhà cung cấp' },
+                        { name: 'Hợp đồng' },
                     ]}
                     sx={{ mb: { xs: 3, md: 5 } }}
                 />
+
+                <ServiceNavTabs tabs={SUPPLIER_SERVICE_TAB_DATA} activePath={location.pathname} />
                 <ContractCardList
                     onViewDetails={handleViewDetails}
                     onEditing={handleEditing}
@@ -100,8 +107,6 @@ export function ContractMainView() {
                     setPage={setPage}
                     rowsPerPage={rowsPerPage}
                     setRowsPerPage={setRowsPerPage}
-                    setFromDate={setFromDate}
-                    setToDate={setToDate}
                     contracts={contracts}
                     contractsEmpty={contractsEmpty}
                     contractsLoading={contractsLoading}
@@ -113,6 +118,7 @@ export function ContractMainView() {
                 <ContractForm
                     open={openForm}
                     onClose={() => {
+                        setCopiedContract(null);
                         setOpenForm(false);
                         setSelectedContract(null);
                         setProductDetails([]);
@@ -120,11 +126,12 @@ export function ContractMainView() {
                     selectedContract={selectedContract}
                     detailsFromQuotation={productDetails}
                     mutation={mutation}
+                    CopiedContract={copiedContract}
                 />
                 {selectedContract && (
                     <ContractDetails
                         selectedContract={selectedContract}
-                        openForm={handleCopying}
+                        copyContract={handleCopying}
                         openDetail={openDetail}
                         onClose={() => setOpenDetail(false)}
                     />
