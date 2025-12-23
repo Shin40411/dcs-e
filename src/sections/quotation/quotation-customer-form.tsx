@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ICustomerDto, ICustomerItem } from "src/types/customer";
 import { createOrUpdateCustomer } from "src/actions/customer";
-import { mutate } from "swr";
 import { QuotationFormValues } from "./schema/quotation-schema";
 
 type props = {
@@ -15,9 +14,16 @@ type props = {
     setCustomerKeyword: (c: string) => void;
     methodsQuotation: UseFormReturn<QuotationFormValues>;
     setSelectedCustomer: (c: ICustomerItem | null) => void;
+    refetchCustomers: () => void;
 }
 
-export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyword, methodsQuotation, setSelectedCustomer }: props) {
+export function QuotationCustomerForm({
+    openChild,
+    setOpenChild,
+    setCustomerKeyword,
+    methodsQuotation,
+    setSelectedCustomer,
+    refetchCustomers }: props) {
     const defaultValues: CustomerFormValues =
     {
         customerType: "",
@@ -25,6 +31,7 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
         phone: "",
         taxCode: "",
         companyName: "",
+        address: ""
     };
 
     const methods = useForm<CustomerFormValues>({
@@ -45,14 +52,14 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
     const onSubmit = handleSubmit(async (data: CustomerFormValues) => {
         try {
             const payloadData: ICustomerDto = {
-                phone: data.phone.replace(/\s+/g, ""),
+                phone: data.phone ? data.phone.replace(/\s+/g, "") : '',
                 name: data.name ?? '',
                 taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
                 email: '',
                 bankAccount: '',
                 bankName: '',
-                address: '',
+                address: data.address ?? '',
                 isPartner: false,
                 rewardPoint: 0,
                 balance: 0,
@@ -62,11 +69,6 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
             const { data: dataCreated } = await createOrUpdateCustomer(undefined, payloadData);
             reset();
             setOpenChild(false);
-            mutate(
-                (k) => typeof k === "string" && k.startsWith("/api/v1/customers/customers"),
-                undefined,
-                { revalidate: true }
-            );
             const createdCustomer: ICustomerItem = {
                 id: String(dataCreated.id),
                 phone: dataCreated.phone ?? '',
@@ -78,6 +80,7 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
                 bankName: dataCreated.bankName ?? '',
                 address: dataCreated.address ?? '',
                 isPartner: dataCreated.isPartner ?? false,
+                isBusiness: dataCreated.isBusiness ?? false,
                 rewardPoint: dataCreated.rewardPoint ?? 0,
                 createDate: dataCreated.createDate ?? null,
                 createBy: dataCreated.createBy ?? '',
@@ -87,10 +90,14 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
                 balance: dataCreated.balance ?? 0,
                 position: ''
             };
+            refetchCustomers();
 
-            methodsQuotation.setValue('customer', Number(createdCustomer.id), { shouldValidate: true });
+            methodsQuotation.setValue('customer', Number(createdCustomer.id), {
+                shouldValidate: true
+            });
             setCustomerKeyword(createdCustomer.name || createdCustomer.companyName || '');
             setSelectedCustomer(createdCustomer);
+
             toast.success('Tạo mới dữ liệu khách hàng thành công!');
 
         } catch (error: any) {
@@ -124,7 +131,12 @@ export function QuotationCustomerForm({ openChild, setOpenChild, setCustomerKeyw
                     )}
                     <Stack direction="row" gap={2}>
                         <Field.Text name="name" label="Tên khách hàng" required={customerType === "KHCN"} />
-                        <Field.PhoneField name="phone" label="Số điện thoại" required />
+                        {customerType === "KHDN"
+                            ?
+                            <Field.Text name="address" label="Địa chỉ" required />
+                            :
+                            <Field.PhoneField name="phone" label="Số điện thoại" required />
+                        }
                     </Stack>
                 </DialogContent>
                 <DialogActions>

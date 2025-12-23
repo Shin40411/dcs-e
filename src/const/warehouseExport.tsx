@@ -4,6 +4,7 @@ import { UseBooleanReturn } from "minimal-shared/hooks";
 import { useState } from "react";
 import { Iconify } from "src/components/iconify";
 import { RenderCellCompanyName, RenderCellContractExport, RenderCellWarehouseExport, RenderCreatedBy, RenderReason, RenderReciverAddress, RenderReciverName, RenderReciverPhone } from "src/sections/warehouse-export/warehouse-export-table-row";
+import { fDate } from "src/utils/format-time-vi";
 
 type ColumnProps = {
     openDetailsForm?: UseBooleanReturn;
@@ -13,6 +14,7 @@ type ColumnProps = {
     setTableRowSelected: (obj: any) => void;
     page: number;
     rowsPerPage: number;
+    onPreviewWarehouseExport: (params: URLSearchParams) => void;
 }
 
 export const WAREHOUSE_EXPORT_COLUMNS: ({
@@ -22,7 +24,8 @@ export const WAREHOUSE_EXPORT_COLUMNS: ({
     setRowIdSelected,
     setTableRowSelected,
     page,
-    rowsPerPage
+    rowsPerPage,
+    onPreviewWarehouseExport
 }: ColumnProps) => GridColDef[] = ({
     openDetailsForm,
     openCrudForm,
@@ -30,7 +33,8 @@ export const WAREHOUSE_EXPORT_COLUMNS: ({
     setRowIdSelected,
     setTableRowSelected,
     page,
-    rowsPerPage
+    rowsPerPage,
+    onPreviewWarehouseExport
 }) => [
             {
                 field: 'stt',
@@ -56,6 +60,20 @@ export const WAREHOUSE_EXPORT_COLUMNS: ({
                         setAnchorEl(event.currentTarget);
                     };
 
+                    const paramsPreview = new URLSearchParams({
+                        isCreating: 'false',
+                        exportId: String(params?.row.id),
+                        contractId: String(params?.row.contractID),
+                        exportDate: String(fDate(params?.row.createdDate)),
+                        contractNo: params?.row.contractNo,
+                        warehouseExportNo: params?.row.warehouseExportNo,
+                        receiverName: params?.row.reciverName,
+                        position: "",
+                        note: params?.row.note || "",
+                        receiverAddress: params?.row.reciverAddress,
+                        seller: params?.row.employerName
+                    } as Record<string, string>);
+
                     const handleClose = () => setAnchorEl(null);
                     return (
                         <Box sx={{ display: 'flex', alignItems: 'center', width: 1 }}>
@@ -64,6 +82,16 @@ export const WAREHOUSE_EXPORT_COLUMNS: ({
                             </Box>
 
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                                <MenuItem
+                                    onClick={() => {
+                                        onPreviewWarehouseExport(paramsPreview);
+                                    }}
+                                >
+                                    <Iconify icon="solar:eye-bold" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Xem phiếu xuất kho
+                                    </Box>
+                                </MenuItem>
                                 <MenuItem
                                     onClick={() => {
                                         openCrudForm.onTrue();
@@ -155,13 +183,29 @@ export const WAREHOUSE_EXPORT_COLUMNS: ({
                 filterable: false,
                 editable: false,
                 getActions: (params) => [
-                    // <GridActionsCellItem
-                    //     showInMenu
-                    //     icon={<Iconify icon="solar:eye-bold" />}
-                    //     sx={{ display: { xs: 'none', md: 'block' } }}
-                    //     label="Chi tiết"
-                    //     onClick={() => { openDetailsForm?.onTrue(), setTableRowSelected(params.row); }}
-                    // />,
+                    <GridActionsCellItem
+                        showInMenu
+                        icon={<Iconify icon="solar:eye-bold" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
+                        label="Xem phiếu xuất kho"
+                        onClick={() => {
+                            const paramsPreview = new URLSearchParams({
+                                isCreating: 'false',
+                                exportId: String(params?.row.id),
+                                contractId: String(params?.row.contractID),
+                                exportDate: String(fDate(params?.row.createdDate)),
+                                contractNo: params?.row.contractNo,
+                                warehouseExportNo: params?.row.warehouseExportNo,
+                                receiverName: params?.row.reciverName,
+                                position: "",
+                                note: params?.row.note || "",
+                                receiverAddress: params?.row.address,
+                                seller: params?.row.employerName
+                            } as Record<string, string>);
+
+                            onPreviewWarehouseExport(paramsPreview);
+                        }}
+                    />,
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:pen-bold" />}

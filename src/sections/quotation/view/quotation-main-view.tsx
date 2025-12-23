@@ -83,6 +83,7 @@ export function QuotationMainView() {
                     setPage={setPage}
                     rowsPerPage={rowsPerPage}
                     setRowsPerPage={setRowsPerPage}
+                    location={location}
                 />
                 <QuotationForm
                     selectedQuotation={selectedQuotation}

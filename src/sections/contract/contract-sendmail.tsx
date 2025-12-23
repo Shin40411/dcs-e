@@ -9,12 +9,14 @@ import { Field, Form } from 'src/components/hook-form';
 import { IContractData, IContractItem } from 'src/types/contract';
 import { sendEmailContract } from 'src/utils/send-mail';
 import { UseBooleanReturn } from 'minimal-shared/hooks';
+import { ICompanyInfoItem } from 'src/types/companyInfo';
 
 type Props = {
     openSendMail: UseBooleanReturn;
     email?: string;
     contract?: IContractItem;
     currentContract?: IContractData;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
 const schema = z.object({
@@ -23,7 +25,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function ContractSendMail({ email, contract, currentContract, openSendMail }: Props) {
+export default function ContractSendMail({ email, contract, currentContract, openSendMail, companyInfoData }: Props) {
     const methods = useForm<FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -35,8 +37,13 @@ export default function ContractSendMail({ email, contract, currentContract, ope
 
     const onSubmit = async (data: FormValues) => {
         try {
-            if (contract?.status !== 4) return toast.warning("Hợp đồng chưa được hoàn thành.");
-            await sendEmailContract({ email: data.email, contract, currentContract });
+            if (contract?.status !== 4 &&
+                contract?.status !== 3 &&
+                contract?.status !== 2) {
+                return toast.warning("Hợp đồng chưa được hoàn thành.");
+            }
+
+            await sendEmailContract({ email: data.email, contract, currentContract, companyInfoData: companyInfoData });
             toast.success("Gửi hợp đồng thành công!");
             reset();
             openSendMail.onFalse();

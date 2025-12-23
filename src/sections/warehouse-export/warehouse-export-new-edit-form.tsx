@@ -3,16 +3,15 @@ import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
 import { IContractWarehouseExportDto, IContractWarehouseExportItem } from "src/types/warehouseExport";
 import { CloseIcon } from "yet-another-react-lightbox";
-import { IContractItem, IContractRemainingProduct } from "src/types/contract";
+import { IContractItem, IContractRemainingProduct, VoucherItem } from "src/types/contract";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fDate } from "src/utils/format-time-vi";
 import { paths } from "src/routes/paths";
 import { useEffect, useState } from "react";
 import { useAuthContext } from "src/auth/hooks";
-import { createWarehouseExport, updateWarehouseExport, useGetContracts, useGetDetailWarehouseExportProduct, useGetUnExportProduct, useGetWarehouseExports } from "src/actions/contract";
+import { createWarehouseExport, updateWarehouseExport, useGetContracts, useGetDetailWarehouseExportProduct, useGetUnExportProduct, useGetVoucherCode, useGetWarehouseExports } from "src/actions/contract";
 import { toast } from "sonner";
-import { mutate } from "swr";
 import { WarehouseExportTable } from "./components/warehouse-export-table";
 import { useDebounce } from "minimal-shared/hooks";
 import { WareHouseSchema, WareHouseSchemaType } from "./schema/warehouse-export-schema";
@@ -24,30 +23,31 @@ interface FormDialogProps {
     open: boolean;
     onClose: () => void;
     refetchList: () => void;
+    onPreviewWarehouseExport: (params: URLSearchParams) => void;
 }
 
-export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchList, open, onClose }: FormDialogProps) {
-    const { user } = useAuthContext();
+export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchList, open, onClose, onPreviewWarehouseExport }: FormDialogProps) {
     const today = new Date();
     const isEdit = Boolean(selectedWarehouseExport);
 
     const [contractkeyword, setContractKeyword] = useState('');
     const debouncedContractKw = useDebounce(contractkeyword, 300);
-    const [selectedContract, setSelectedContract] = useState<IContractItem | null>(null);
+    const [selectedVoucher, setSelectedVoucher] = useState<VoucherItem | null>(null);
     const [products, setProducts] = useState<IContractRemainingProduct[]>([]);
     const [watchTicket, setWatchTicket] = useState(true);
 
-    const { contracts, contractsLoading } = useGetContracts({
+    const { vouchers, vouchersLoading, mutate: refetchVoucher } = useGetVoucherCode({
         pageNumber: 1,
         pageSize: 20,
-        enabled: open,
-        key: debouncedContractKw
+        key: debouncedContractKw,
+        enabled: open
     });
 
     const { pagination: { totalRecord } } = useGetWarehouseExports({
         pageNumber: 1,
         pageSize: 999,
-        ContractNo: selectedContract?.contractNo,
+        ContractNo: selectedWarehouseExport ? selectedWarehouseExport.contractNo
+            : selectedVoucher ? selectedVoucher.contractNo : "",
         enabled: open,
     });
 
@@ -56,8 +56,8 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
         remainingProductEmpty,
         remainingProductLoading
     } = useGetUnExportProduct(
-        selectedContract?.id ?? 0,
-        open && Boolean(selectedContract)
+        selectedVoucher?.contractId ?? 0,
+        open && Boolean(selectedVoucher)
     );
 
     const {
@@ -73,8 +73,8 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
         wareHouseNo: "",
         contract: "",
         exportDate: today.toISOString(),
-        receiverAddress: "",
-        receiverName: "",
+        receiverAddress: "Văn phòng công ty",
+        receiverName: "Nhân viên",
         note: "",
     };
 
@@ -92,6 +92,7 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
     } = methods;
 
     const warehouseExportNo = watch('wareHouseNo');
+    const contractNo = methods.watch('contract');
     const exportDate = watch('exportDate');
     const note = watch('note');
     const receiverAddress = watch('receiverAddress');
@@ -106,13 +107,15 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
     useEffect(() => {
         if (open) {
             if (!selectedWarehouseExport) {
-                setSelectedContract(null);
                 setContractKeyword('');
                 methods.reset({
                     ...defaultValues,
                     wareHouseNo: '',
                 });
             } else {
+                methods.setValue('contract', selectedWarehouseExport.contractNo ?? "");
+                const found = vouchers.find(v => v.contractNo === selectedWarehouseExport.contractNo);
+                setSelectedVoucher(found || null);
                 methods.setValue('wareHouseNo', selectedWarehouseExport.warehouseExportNo);
                 methods.setValue('exportDate', selectedWarehouseExport.createdDate);
                 methods.setValue('receiverAddress', selectedWarehouseExport.reciverAddress);
@@ -125,47 +128,35 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
     useEffect(() => {
         if (selectedWarehouseExport) {
             setContractKeyword('');
-            setSelectedContract(null);
-        } else {
-            setSelectedContract(null);
         }
     }, [selectedWarehouseExport?.id]);
 
     useEffect(() => {
-        if (!selectedWarehouseExport) return;
-        if (!contracts || contracts.length === 0) return;
+        if (isEdit) return;
+        if (!contractNo) {
+            setSelectedVoucher(null);
+            methods.setValue('wareHouseNo', defaultValues.wareHouseNo);
+            methods.setValue("receiverName", defaultValues.receiverName);
+            return;
+        }
 
-        const found = contracts.find(
-            (c) => c.contractNo === selectedWarehouseExport.contractNo
+        const found = vouchers.find(
+            (vou) => vou.contractNo === contractNo
         );
 
         if (found) {
-            setSelectedContract(found);
-            methods.setValue("contract", found.contractNo);
+            setSelectedVoucher(found);
+            methods.setValue('wareHouseNo', generateWarehouseExport('PX', found.contractNo, totalRecord));
             methods.setValue("receiverName", found.customerName);
-        } else {
-            setSelectedContract(null);
-            methods.setValue("contract", "");
-            methods.setValue("receiverName", "");
         }
-    }, [contracts, selectedWarehouseExport]);
+    }, [vouchers, contractNo]);
 
     useEffect(() => {
-        if (!selectedContract) {
-            methods.setValue('wareHouseNo', '');
+        if (!selectedVoucher) {
             setProducts([]);
             return;
         }
-        if (totalRecord === undefined) return;
-
-        const newWareHouseNo = generateWarehouseExport(
-            'PX',
-            selectedContract.contractNo,
-            totalRecord
-        );
-
-        methods.setValue('wareHouseNo', newWareHouseNo);
-    }, [selectedContract, totalRecord]);
+    }, [selectedVoucher, totalRecord]);
 
     useEffect(() => {
         if (warehouseExportNo && exportDate && receiverAddress && receiverName) {
@@ -174,6 +165,11 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
             setWatchTicket(true);
         }
     }, [warehouseExportNo, exportDate, receiverAddress, receiverName]);
+
+    useEffect(() => {
+        if (!open) return;
+        refetchVoucher();
+    }, [open]);
 
     const handleQuantityChange = (productID: number, newQuantity: number) => {
         setProducts(prev =>
@@ -193,23 +189,19 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
         setProducts(prev => prev.filter(p => p.productID !== productID));
     };
 
-    const onPreviewWarehouseExport = () => {
-        const params = new URLSearchParams({
-            isCreating: 'false',
-            exportId: String(selectedWarehouseExport?.id),
-            contractId: String(selectedWarehouseExport?.contractID || 0),
-            exportDate: String(fDate(exportDate)),
-            contractNo: selectedWarehouseExport?.contractNo,
-            warehouseExportNo: warehouseExportNo,
-            receiverName: receiverName,
-            position: "",
-            note: note,
-            receiverAddress: receiverAddress,
-            seller: selectedWarehouseExport?.employerName
-        } as Record<string, string>);
-        const queryString = params.toString();
-        window.open(`${paths.warehouseExport}?${queryString}`, '_blank');
-    }
+    const params = new URLSearchParams({
+        isCreating: 'false',
+        exportId: String(selectedWarehouseExport?.id),
+        contractId: String(selectedWarehouseExport?.contractID || 0),
+        exportDate: String(fDate(exportDate)),
+        contractNo: selectedWarehouseExport?.contractNo,
+        warehouseExportNo: warehouseExportNo,
+        receiverName: receiverName,
+        position: "",
+        note: note,
+        receiverAddress: receiverAddress,
+        seller: selectedWarehouseExport?.employerName
+    } as Record<string, string>);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -221,11 +213,11 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
             const initialPayload: IContractWarehouseExportDto = {
                 customerID: isEdit
                     ? selectedWarehouseExport?.customerID || 0
-                    : selectedContract?.customerID || 0,
+                    : selectedVoucher?.customerId || 0,
                 contractID: isEdit
                     ? selectedWarehouseExport?.contractID || 0
-                    : selectedContract?.id || 0,
-                employeeID: selectedWarehouseExport?.employeeID || user?.accessToken,
+                    : selectedVoucher?.contractId || 0,
+                employeeID: selectedWarehouseExport?.employeeID || selectedVoucher?.employeeId,
                 exportDate: formattedDate,
                 receiverName: data.receiverName || "",
                 receiverPhone: selectedWarehouseExport?.reciverPhone || "",
@@ -273,43 +265,56 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
                         flex: 1.5,
                     }}
                 />
-                <Field.Autocomplete
-                    name="contract"
-                    label={`Số hợp đồng`}
-                    options={contracts}
-                    loading={contractsLoading}
-                    getOptionLabel={(opt) => opt?.contractNo ?
-                        opt.contractNo : ''}
-                    isOptionEqualToValue={(opt, val) =>
-                        opt?.contractNo === val?.contractNo
-                    }
-                    onInputChange={(_, value) => setContractKeyword(value)}
-                    value={selectedContract}
-                    fullWidth
-                    onChange={(_, newValue) => {
-                        setSelectedContract(newValue);
-                        methods.setValue('contract', newValue?.contractNo ?? "", { shouldValidate: true });
-                    }}
-                    noOptionsText="Không có dữ liệu"
-                    sx={{
-                        flex: 1,
-                        minWidth: 200,
-                        '& .MuiInputBase-root.Mui-disabled': {
-                            backgroundColor: '#ddd',
-                        },
-                    }}
-                    renderOption={(props, option) => (
-                        <li {...props} key={option.id}>
-                            {option.contractNo ? option.contractNo : ''}
-                        </li>
-                    )}
-                    required
-                    disabled={isEdit}
-                />
+                {isEdit ?
+                    <TextField
+                        value={selectedWarehouseExport?.contractNo || ""}
+                        label="Số hợp đồng"
+                        disabled
+                        sx={{
+                            flex: 1,
+                            '& .MuiInputBase-root.Mui-disabled': {
+                                backgroundColor: '#ddd',
+                            },
+                        }}
+                    />
+                    :
+                    <Field.Autocomplete
+                        name="contract"
+                        label={`Số hợp đồng`}
+                        options={vouchers}
+                        loading={vouchersLoading}
+                        onInputChange={(_, value) => setContractKeyword(value)}
+                        getOptionLabel={(opt) => opt?.fullContractInfo ?? ''}
+                        isOptionEqualToValue={(opt, val) =>
+                            opt?.contractNo === val?.contractNo
+                        }
+                        value={selectedVoucher}
+                        fullWidth
+                        onChange={(_, newValue) => {
+                            methods.setValue('contract', newValue?.contractNo ?? "", { shouldValidate: true });
+                            setContractKeyword(newValue.contractNo);
+                        }}
+                        noOptionsText="Không có dữ liệu"
+                        sx={{
+                            flex: 1,
+                            minWidth: 200,
+                            '& .MuiInputBase-root.Mui-disabled': {
+                                backgroundColor: '#ddd',
+                            },
+                        }}
+                        renderOption={(props, option) => (
+                            <li {...props} key={option.contractNo}>
+                                {option.fullContractInfo ? option.fullContractInfo : ''}
+                            </li>
+                        )}
+                        required
+                        disabled={isEdit}
+                    />
+                }
             </Stack>
             <Stack direction="row" spacing={3}>
                 <TextField
-                    value={isEdit ? selectedWarehouseExport?.companyName : selectedContract?.companyName || ""}
+                    value={isEdit ? selectedWarehouseExport?.companyName : selectedVoucher?.companyName || ""}
                     label="Đơn vị nhận hàng"
                     placeholder="Đơn vị nhận hàng từ hợp đồng"
                     disabled
@@ -335,7 +340,7 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
             </Stack>
             <Stack direction="row" spacing={3}>
                 <TextField
-                    value={isEdit ? selectedWarehouseExport?.employerName : selectedContract?.seller || ""}
+                    value={isEdit ? selectedWarehouseExport?.employerName : selectedVoucher?.employeeName || ""}
                     label="Tên nhân viên"
                     disabled
                     sx={{
@@ -382,7 +387,7 @@ export function WarehouseExportNewEditForm({ selectedWarehouseExport, refetchLis
                         sx={{ ml: 1 }}
                         disabled={watchTicket}
                         fullWidth
-                        onClick={onPreviewWarehouseExport}
+                        onClick={() => onPreviewWarehouseExport(params)}
                     >
                         {'Xem phiếu'}
                     </Button>

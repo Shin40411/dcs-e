@@ -68,7 +68,7 @@ export function WarehouseImportFilterBar({ onFilterChange, onSearching, onReset 
             direction={{ xs: "column", sm: "row", md: "row" }}
             gap={2}
             alignItems="center"
-            sx={{ p: 3, overflowX: 'auto' }}
+            sx={{ p: 1.5, overflowX: 'auto', overflowY: 'hidden' }}
             justifyContent="space-between"
         >
             <Stack

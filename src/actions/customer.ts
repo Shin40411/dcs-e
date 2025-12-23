@@ -7,7 +7,9 @@ type customerProps = {
     pageNumber: number,
     pageSize: number,
     key?: string,
-    enabled?: boolean
+    enabled?: boolean,
+    IsBusiness?: boolean | null,
+    IsPartner?: boolean | null,
 }
 
 const swrOptions: SWRConfiguration = {
@@ -16,12 +18,28 @@ const swrOptions: SWRConfiguration = {
     revalidateOnReconnect: false,
 };
 
-export function useGetCustomers({ pageNumber, pageSize, key, enabled = true }: customerProps) {
+export function useGetCustomers({ pageNumber, pageSize, key, IsBusiness, IsPartner, enabled = true }: customerProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
     if (key) params += `&search=${key}`;
+
+    if (IsBusiness !== null) {
+        if (IsBusiness === true) {
+            params += `&IsBusiness=true`;
+        } else if (IsBusiness === false) {
+            params += `&IsBusiness=false`;
+        }
+    }
+
+    if (IsPartner !== null) {
+        if (IsPartner === true) {
+            params += `&IsPartner=true`;
+        } else if (IsPartner === false) {
+            params += `&IsPartner=false`;
+        }
+    }
 
     const url = enabled ? endpoints.customer.list(params) : null;
 

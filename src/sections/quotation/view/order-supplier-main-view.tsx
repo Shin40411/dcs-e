@@ -2,11 +2,9 @@ import { Button } from "@mui/material";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { Iconify } from "src/components/iconify";
 import { DashboardContent } from "src/layouts/dashboard";
-import { paths } from "src/routes/paths";
 import { useState } from "react";
 import { IQuotationItem } from "src/types/quotation";
 import { CONFIG } from "src/global-config";
-import { IDateValue } from "src/types/common";
 import { RoleBasedGuard } from "src/auth/guard";
 import { useCheckPermission } from "src/auth/hooks/use-check-permission";
 import { QuotationCardList } from "../supplier/quotation-card-list";
@@ -18,7 +16,6 @@ import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 
 export function OrderSupplierMainView() {
     const location = useLocation();
-
     const [openForm, setOpenForm] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<IQuotationItem | null>(null);
@@ -84,6 +81,7 @@ export function OrderSupplierMainView() {
                     setPage={setPage}
                     rowsPerPage={rowsPerPage}
                     setRowsPerPage={setRowsPerPage}
+                    location={location}
                 />
                 <QuotationForm
                     selectedQuotation={selectedQuotation}

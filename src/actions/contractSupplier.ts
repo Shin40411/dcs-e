@@ -1,9 +1,27 @@
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IContractSupDetailDto, IContractSupplyDto, IContractSupplyForDetail, IContractSupplyItem, IContractSupplyProductDto, IContractSupplyUpdateDto, IContractSupProductToDelete, IProductContractSupEdit, IProductFromSup, ResponseContractSupplier, ResRemainingProduct } from "src/types/contractSupplier";
+import {
+    IContractSupDetailDto,
+    IContractSupplyDto,
+    IContractSupplyForDetail,
+    IContractSupplyItem,
+    IContractSupplyUpdateDto,
+    IContractSupProductToDelete,
+    IProductContractSupEdit,
+    IProductFromSup,
+    ResponseContractSupplier,
+    ResRemainingProduct,
+    ResVoucherSupItem
+} from "src/types/contractSupplier";
 import { IContractWarehouseImportDto, ResContractWarehouseImport, ResDetailsWarehouseImportProduct } from "src/types/warehouse-import";
 import useSWR, { SWRConfiguration } from "swr";
+
+const swrOptions: SWRConfiguration = {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+};
 
 type contracProps = {
     pageNumber: number,
@@ -17,11 +35,30 @@ type contracProps = {
     Status?: string;
 }
 
-const swrOptions: SWRConfiguration = {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-};
+type voucherProps = {
+    pageNumber: number;
+    pageSize: number;
+    key?: string;
+    enabled?: boolean;
+}
+
+type contractProp = {
+    contractId: number,
+    pageNumber: number,
+    pageSize: number,
+    options?: { enabled?: boolean }
+}
+
+type contractWarehouseImportsProp = {
+    pageNumber: number,
+    pageSize: number,
+    enabled?: boolean,
+    key?: string,
+    ContractNo?: string;
+    Month?: number;
+    FromDate?: IDateValue;
+    ToDate?: IDateValue;
+}
 
 export function useGetSupplierContracts({
     pageNumber,
@@ -52,35 +89,26 @@ export function useGetSupplierContracts({
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResponseContractSupplier<IContractSupplyItem>>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items?.filter((q) => q.status !== 0) ?? [];
-            return {
-                contracts: filteredItems,
-                pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
-                },
-                contractsLoading: isLoading,
-                contractsError: error,
-                contractsValidating: isValidating,
-                contractsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-                mutation: mutate
-            }
-        },
-        [data, error, isLoading, isValidating]
-    );
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items?.filter((q) => q.status !== 0) ?? [];
+
+        return {
+            contracts: filteredItems,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            contractsLoading: isLoading,
+            contractsError: error,
+            contractsValidating: isValidating,
+            contractsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            mutation: mutate
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
-}
-
-type contractProp = {
-    contractId: number,
-    pageNumber: number,
-    pageSize: number,
-    options?: { enabled?: boolean }
 }
 
 export function useGetSupplierContract({ contractId, pageNumber, pageSize, options }: contractProp) {
@@ -175,17 +203,6 @@ export async function deleteSupProductSelected(bodyPayload: IContractSupProductT
     }
 }
 
-type contractWarehouseImportsProp = {
-    pageNumber: number,
-    pageSize: number,
-    enabled?: boolean,
-    key?: string,
-    ContractNo?: string;
-    Month?: number;
-    FromDate?: IDateValue;
-    ToDate?: IDateValue;
-}
-
 export function useGetWarehouseImports({
     pageNumber,
     pageSize,
@@ -208,26 +225,24 @@ export function useGetWarehouseImports({
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractWarehouseImport>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items ?? [];
-            return {
-                contractWarehouseImports: filteredItems,
-                pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
-                },
-                contractWarehouseImportsLoading: isLoading,
-                contractWarehouseImportsError: error,
-                contractWarehouseImportsValidating: isValidating,
-                contractWarehouseImportsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-                mutation: mutate
-            }
-        },
-        [data, error, isLoading, isValidating]
-    );
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items ?? [];
+
+        return {
+            contractWarehouseImports: filteredItems,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            contractWarehouseImportsLoading: isLoading,
+            contractWarehouseImportsError: error,
+            contractWarehouseImportsValidating: isValidating,
+            contractWarehouseImportsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            mutation: mutate
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }
@@ -235,7 +250,7 @@ export function useGetWarehouseImports({
 export function useGetUnImportProduct(contractId: number, enabled: boolean) {
     const url = (enabled && contractId) ? endpoints.contractWarehouseImport.remaining(contractId) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResRemainingProduct>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResRemainingProduct>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => {
@@ -246,6 +261,7 @@ export function useGetUnImportProduct(contractId: number, enabled: boolean) {
                 remainingProductError: error,
                 remainingProductValidating: isValidating,
                 remainingProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutate
             }
         },
         [data, error, isLoading, isValidating]
@@ -279,15 +295,48 @@ export function useGetDetailWarehouseImportProduct(ImportId: number, enabled: bo
 
     const { data, isLoading, error, isValidating } = useSWR<ResDetailsWarehouseImportProduct>(url, fetcher, swrOptions);
 
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items ?? [];
+
+        return {
+            detailsProduct: filteredItems,
+            detailsProductLoading: isLoading,
+            detailsProductError: error,
+            detailsProductValidating: isValidating,
+            detailsProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+        };
+    }, [data, error, isLoading, isValidating]);
+
+    return memoizedValue;
+}
+
+export function useGetVoucherCode({ pageNumber, pageSize, key, enabled }: voucherProps) {
+    let params = '';
+
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+
+    if (key) params += `&search=${key}`;
+
+    const url = enabled ? endpoints.contractSupplier.getVouchers(params) : null;
+
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResVoucherSupItem>(url, fetcher, swrOptions);
+
     const memoizedValue = useMemo(
         () => {
-            const filteredItems = data?.data.items ?? [];
+            const filteredItems = data?.data?.items ?? [];
             return {
-                detailsProduct: filteredItems,
-                detailsProductLoading: isLoading,
-                detailsProductError: error,
-                detailsProductValidating: isValidating,
-                detailsProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                vouchers: filteredItems,
+                pagination: {
+                    pageNumber: data?.data?.pageNumber ?? 1,
+                    pageSize: data?.data?.pageSize ?? pageSize,
+                    totalPages: data?.data?.totalPages ?? 0,
+                    totalRecord: data?.data?.totalRecord ?? 0,
+                },
+                vouchersLoading: isLoading,
+                vouchersError: error,
+                vouchersValidating: isValidating,
+                vouchersEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutate
             }
         },
         [data, error, isLoading, isValidating]

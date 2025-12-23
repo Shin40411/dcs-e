@@ -29,17 +29,20 @@ export function useGetDepartments({ pageNumber, pageSize, key, enabled = true }:
 
     const memoizedValue = useMemo(
         () => ({
-            departments: data?.data.items || [],
+            departments: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             departmentsLoading: isLoading,
             departmentsError: error,
             departmentsValidating: isValidating,
-            departmentsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            departmentsEmpty:
+                !isLoading &&
+                !isValidating &&
+                !((data?.data?.items?.length ?? 0) > 0),
             mutation: mutate
         }),
         [data, error, isLoading, isValidating]
@@ -59,17 +62,20 @@ export function useGetDeletedDepartments({ pageNumber, pageSize, key, enabled = 
 
     const memoizedValue = useMemo(
         () => ({
-            departments: data?.data.items || [],
+            departments: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             departmentsLoading: isLoading,
             departmentsError: error,
             departmentsValidating: isValidating,
-            departmentsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            departmentsEmpty:
+                !isLoading &&
+                !isValidating &&
+                !((data?.data?.items?.length ?? 0) > 0),
             mutation: mutate
         }),
         [data, error, isLoading, isValidating]

@@ -15,6 +15,7 @@ import { ContractFollowSpend } from "./contract-follow-spend";
 import { toast } from "sonner";
 import { generateLiquidationNo } from "src/utils/random-func";
 import { ContractSpend } from "./contract-spend";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 type Props = {
     selectedContract: IContractItem;
@@ -32,7 +33,10 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
         options: { enabled: !!selectedContract?.id }
     });
 
+    const { companyInfoData, mutation: refetchCompanyInfo } = useGetCompanyInfo();
+
     const [createReportLoad, setCreateReportLoad] = useState(false);
+
     const [refetchFns, setRefetchFns] = useState<{
         refetchNeedCollect: () => void;
         refetchBatchCollect: () => void;
@@ -212,6 +216,7 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                 currentStatus={statusMap[selectedContract.status]}
                 currentContract={contract}
                 openDetail={openDetail}
+                companyInfoData={companyInfoData}
             />
         );
         pdfContractIdRef.current = selectedContract.id;
@@ -222,6 +227,10 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
             toast.error("Không thể xem! Hợp đồng này đang thiếu dữ liệu chi tiết");
         }
     }, [contractError]);
+
+    useEffect(() => {
+        refetchCompanyInfo();
+    }, [openDetail]);
 
     return (
         <>
@@ -444,6 +453,7 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                 email={selectedContract.customerEmail}
                 contract={selectedContract}
                 currentContract={contract}
+                companyInfoData={companyInfoData}
             />
             <ContractFollow
                 openForm={openFollow}

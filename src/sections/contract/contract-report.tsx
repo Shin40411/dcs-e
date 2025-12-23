@@ -8,8 +8,10 @@ import { useEffect } from "react";
 import { Iconify } from "src/components/iconify";
 import { generatePdfBlob } from "src/utils/generateblob-func";
 import { downloadPdf, generateReportNo, printPdf } from "src/utils/random-func";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 export function ContractReport() {
+    const { companyInfoData } = useGetCompanyInfo();
     const [searchParams] = useSearchParams();
     const contractBody = {
         id: searchParams.get('id') || 0,
@@ -161,6 +163,7 @@ export function ContractReport() {
                 customerBank={contractBody.customerBank}
                 currentContract={contract}
                 renderReportNo={renderReportNo}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -189,6 +192,7 @@ export function ContractReport() {
                 customerBank={contractBody.customerBank}
                 currentContract={contract}
                 renderReportNo={renderReportNo}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -238,6 +242,7 @@ export function ContractReport() {
                             customerBank={contractBody.customerBank}
                             currentContract={contract}
                             renderReportNo={renderReportNo}
+                            companyInfoData={companyInfoData}
                         />
                     </PDFViewer>
                 </Box>

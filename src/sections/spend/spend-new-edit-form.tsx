@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { IReceiptContract, IReceiptContractDto } from "src/types/contract";
-import { ContractSpendSchema, ContractSpendSchemaType } from "../contract-supplier/schema/contract-spend-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createReceiptContract, updateReceiptContract, useGetTotalSpendByCustomerContract } from "src/actions/contract";
 import { toast } from "sonner";
 import { fDate } from "src/utils/format-time-vi";
-import { paths } from "src/routes/paths";
 import { Box, Button, Card, CardActions, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
@@ -15,8 +12,8 @@ import { CloseIcon } from "yet-another-react-lightbox";
 import { useDebounce } from "minimal-shared/hooks";
 import { useGetBankAccounts } from "src/actions/bankAccount";
 import { IBankAccountItem } from "src/types/bankAccount";
-import { IContractSupplyItem } from "src/types/contractSupplier";
-import { useGetSupplierContracts } from "src/actions/contractSupplier";
+import { VoucherSupItem } from "src/types/contractSupplier";
+import { useGetVoucherCode } from "src/actions/contractSupplier";
 import { SpendSchema, SpendSchemaType } from "./schema/spend-schema";
 import { generateReceipt } from "src/utils/random-func";
 
@@ -25,10 +22,11 @@ interface FormDialogProps {
     contractType: string;
     open: boolean;
     onClose: () => void;
+    onPreviewReceipt: (params: URLSearchParams) => void;
     mutation: () => void;
 }
 
-export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose, mutation }: FormDialogProps) {
+export function SpendNewEditForm({ selectedReceipt, contractType, open, onPreviewReceipt, onClose, mutation }: FormDialogProps) {
     const today = new Date();
     const [bankKeyword, setbankKeyword] = useState('');
     const debouncedbankKw = useDebounce(bankKeyword, 300);
@@ -37,7 +35,7 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
 
     const [contractkeyword, setContractKeyword] = useState('');
     const debouncedContractKw = useDebounce(contractkeyword, 300);
-    const [selectedContract, setSelectedContract] = useState<IContractSupplyItem | null>(null);
+    const [selectedVoucher, setSelectedVoucher] = useState<VoucherSupItem | null>(null);
 
     const { bankAccounts, bankAccountsLoading } = useGetBankAccounts({
         pageNumber: 1,
@@ -46,17 +44,18 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
         key: debouncedbankKw
     });
 
-    const { contracts, contractsLoading } = useGetSupplierContracts({
+    const { vouchers, vouchersLoading, mutate: refetchVoucher } = useGetVoucherCode({
         pageNumber: 1,
         pageSize: 20,
         key: debouncedContractKw,
-        enabled: contractType === "Supplier"
+        enabled: open
     });
 
     const {
         spenRecords: totalRecord,
     } = useGetTotalSpendByCustomerContract(
-        selectedContract ? selectedContract.contractNo : "",
+        selectedReceipt ? selectedReceipt.contractNo
+            : selectedVoucher ? selectedVoucher.contractNo : "",
         open
     );
 
@@ -82,7 +81,7 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
     const {
         reset,
         watch,
-        control,
+        setValue,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
@@ -122,7 +121,7 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error("Đã có lỗi xảy ra!");
+            toast.error(error.message || "Đã có lỗi xảy ra!");
         }
     });
 
@@ -156,31 +155,41 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
             });
         } else {
             methods.reset(defaultValues);
-            setSelectedBank(null);
             setbankKeyword("");
+            setSelectedBank(null);
+
+            if (bankAccounts.length > 0) {
+                const first = bankAccounts[0];
+                setValue("bankAccId", Number(first.id), { shouldValidate: true });
+                setValue("bankNo", first.bankNo);
+                setSelectedBank(first);
+            }
         }
     }, [open, selectedReceipt]);
 
     useEffect(() => {
+        if (selectedReceipt) return;
         if (!contractNo) {
-            setSelectedContract(null);
-            methods.setValue("supplierContract", "");
-            methods.setValue("customerName", "");
-            methods.setValue("companyName", "");
-            methods.setValue('receiptNo', "");
+            setSelectedVoucher(null);
+            methods.setValue("customerName", defaultValues.customerName);
+            methods.setValue("companyName", defaultValues.companyName);
+            methods.setValue("payer", defaultValues.payer);
+            methods.setValue('receiptNo', defaultValues.receiptNo);
+            methods.setValue('amount', defaultValues.amount);
             return;
         }
 
-        const found = contracts.find((con) => con.contractNo === contractNo);
+        const found = vouchers.find((vou) => vou.contractNo === contractNo);
 
         if (found) {
-            setSelectedContract(found);
-            methods.setValue("supplierContract", found.contractNo);
+            setSelectedVoucher(found);
             methods.setValue('receiptNo', generateReceipt('PC', totalRecord));
             methods.setValue("customerName", found.supplierName);
             methods.setValue("companyName", found.companyName);
+            methods.setValue("payer", found.companyName);
+            methods.setValue('amount', found.remainingAmount);
         }
-    }, [contractNo, contracts]);
+    }, [contractNo, vouchers]);
 
     useEffect(() => {
         if (!bankAccId) {
@@ -202,22 +211,23 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
         }
     }, [companyName, customerName, date, receiptNoToWatch, amount]);
 
-    const onPreviewReceipt = () => {
-        const params = new URLSearchParams({
-            companyName,
-            customerName,
-            date: String(fDate(date)),
-            receiptNoToWatch,
-            amount: String(amount),
-            payer,
-            contractNo: selectedReceipt?.contractNo || "",
-            reason,
-            address,
-            createdBy: selectedReceipt?.createdBy
-        } as Record<string, string>);
-        const queryString = params.toString();
-        window.open(`${paths.spend}?${queryString}`, '_blank');
-    }
+    useEffect(() => {
+        if (!open) return;
+        refetchVoucher();
+    }, [open]);
+
+    const paramsPreview = new URLSearchParams({
+        companyName,
+        customerName,
+        date: String(fDate(date)),
+        receiptNoToWatch,
+        amount: String(amount),
+        payer,
+        contractNo: selectedReceipt?.contractNo || "",
+        reason,
+        address,
+        createdBy: selectedReceipt?.createdBy
+    } as Record<string, string>);
 
     const handleCancel = () => {
         onClose();
@@ -241,37 +251,50 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
                     }}
                     disabled
                 />
-                <Field.Autocomplete
-                    name="supplierContract"
-                    label={`Số hợp đồng`}
-                    options={contracts}
-                    loading={contractsLoading}
-                    getOptionLabel={(opt) => opt?.contractNo ?
-                        opt.contractNo : ''}
-                    isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
-                    onInputChange={(_, value) => setContractKeyword(value)}
-                    value={selectedContract}
-                    fullWidth
-                    onChange={(_, newValue) => {
-                        methods.setValue('supplierContract', newValue?.contractNo ?? "", { shouldValidate: true });
-                        setContractKeyword(newValue?.contractNo ?? '');
-                    }}
-                    noOptionsText="Không có dữ liệu"
-                    sx={{
-                        flex: 1,
-                        minWidth: 200,
-                        '& .MuiInputBase-root.Mui-disabled': {
-                            backgroundColor: '#ddd',
-                        },
-                    }}
-                    renderOption={(props, option) => (
-                        <li {...props} key={option.id}>
-                            {option.contractNo ? option.contractNo : ''}
-                        </li>
-                    )}
-                    required
-                    disabled={!!selectedReceipt}
-                />
+                {selectedReceipt ?
+                    <TextField
+                        value={selectedReceipt?.contractNo || ""}
+                        label="Số hợp đồng"
+                        disabled
+                        sx={{
+                            flex: 1,
+                            '& .MuiInputBase-root.Mui-disabled': {
+                                backgroundColor: '#ddd',
+                            },
+                        }}
+                    />
+                    :
+                    <Field.Autocomplete
+                        name="supplierContract"
+                        label={`Số hợp đồng`}
+                        options={vouchers}
+                        loading={vouchersLoading}
+                        getOptionLabel={(opt) => opt?.fullContractNoInfo ?? ''}
+                        isOptionEqualToValue={(opt, val) => opt?.contractNo === val?.contractNo}
+                        onInputChange={(_, value) => setContractKeyword(value)}
+                        value={selectedVoucher}
+                        fullWidth
+                        onChange={(_, newValue) => {
+                            methods.setValue('supplierContract', newValue?.contractNo ?? "", { shouldValidate: true });
+                            setContractKeyword(newValue?.contractNo ?? '');
+                        }}
+                        noOptionsText="Không có dữ liệu"
+                        sx={{
+                            flex: 1,
+                            minWidth: 200,
+                            '& .MuiInputBase-root.Mui-disabled': {
+                                backgroundColor: '#ddd',
+                            },
+                        }}
+                        renderOption={(props, option) => (
+                            <li {...props} key={option.id}>
+                                {option.fullContractNoInfo ? option.fullContractNoInfo : ''}
+                            </li>
+                        )}
+                        required
+                        disabled={!!selectedReceipt}
+                    />
+                }
             </Stack>
             <Stack direction="row" spacing={3}>
                 <Field.Text
@@ -397,7 +420,7 @@ export function SpendNewEditForm({ selectedReceipt, contractType, open, onClose,
                         sx={{ ml: 1 }}
                         disabled={watchTicket}
                         fullWidth
-                        onClick={onPreviewReceipt}
+                        onClick={() => { onPreviewReceipt(paramsPreview); }}
                     >
                         Xem phiếu
                     </Button>

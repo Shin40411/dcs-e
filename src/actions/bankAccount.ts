@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IBankAccountDto, ResBankAccountList, ResBankQrList } from "src/types/bankAccount";
+import { IEmployeeDto } from "src/types/employee";
 import useSWR, { SWRConfiguration } from "swr";
 
 type bankAccountProps = {
@@ -27,23 +28,24 @@ export function useGetBankAccounts({ pageNumber, pageSize, key, enabled = true }
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResBankAccountList>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => ({
-            bankAccounts: data?.data.items || [],
+    const memoizedValue = useMemo(() => {
+        const items = data?.data?.items ?? [];
+
+        return {
+            bankAccounts: items,
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             bankAccountsLoading: isLoading,
             bankAccountsError: error,
             bankAccountsValidating: isValidating,
-            bankAccountsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            bankAccountsEmpty: !isLoading && !isValidating && items.length === 0,
             mutation: mutate
-        }),
-        [data, error, isLoading, isValidating]
-    );
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }
@@ -57,23 +59,24 @@ export function useGetDeletedBankAccounts({ pageNumber, pageSize, key, enabled =
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResBankAccountList>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => ({
-            bankAccounts: data?.data.items || [],
+    const memoizedValue = useMemo(() => {
+        const items = data?.data?.items ?? [];
+
+        return {
+            bankAccounts: items,
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             bankAccountsLoading: isLoading,
             bankAccountsError: error,
             bankAccountsValidating: isValidating,
-            bankAccountsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            bankAccountsEmpty: !isLoading && !isValidating && items.length === 0,
             mutation: mutate
-        }),
-        [data, error, isLoading, isValidating]
-    );
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }
@@ -99,22 +102,34 @@ export function useGetCallVietQrData({ pageNumber, pageSize, key, enabled }: ban
 
     const { data, isLoading, error, isValidating } = useSWR<ResBankQrList>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => ({
-            vietQrItem: data?.data.items || [],
+    const memoizedValue = useMemo(() => {
+        const items = data?.data?.items ?? [];
+
+        return {
+            vietQrItem: items,
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             vietQrItemLoading: isLoading,
             vietQrItemError: error,
             vietQrItemValidating: isValidating,
-            vietQrItemEmpty: !isLoading && !isValidating && !data?.data.items.length,
-        }),
-        [data, error, isLoading, isValidating]
-    );
+            vietQrItemEmpty: !isLoading && !isValidating && items.length === 0,
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
+}
+
+export async function updateProfileInfo(
+    payload: IEmployeeDto
+) {
+    try {
+        const { data } = await axiosInstance.patch(endpoints.employees.updateMe, payload);
+        return data;
+    } catch (error) {
+        throw error;
+    }
 }

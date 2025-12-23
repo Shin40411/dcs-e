@@ -2,17 +2,19 @@ import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
 import { useStylesExport as styles } from "./useStylesExport";
 import { IImportRemainingProduct } from "src/types/contractSupplier";
 import { IWarehouseImportProduct } from "src/types/warehouse-import";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type RenderProps = {
     contractBody: Record<string, string>;
     productsUnExported: IImportRemainingProduct[];
+    companyInfoData: ICompanyInfoItem | null;
 };
 
-export const RenderWarehouseImport = ({ contractBody, productsUnExported }: RenderProps) => {
+export const RenderWarehouseImport = ({ contractBody, productsUnExported, companyInfoData }: RenderProps) => {
     return (
         <Document title={contractBody.warehouseExportNo}>
             <Page size="A4" style={styles.page}>
-                <Header />
+                <Header companyInfoData={companyInfoData} />
                 <Title contractBody={contractBody} />
                 <View style={styles.body}>
                     <View style={{ paddingHorizontal: 28 }}>
@@ -22,22 +24,22 @@ export const RenderWarehouseImport = ({ contractBody, productsUnExported }: Rend
                     </View>
                     <Signer contractBody={contractBody} />
                 </View>
-                <Footer />
+                <Footer companyInfoData={companyInfoData} />
             </Page>
         </Document>
     )
 };
 
-function Header() {
+function Header({ companyInfoData }: { companyInfoData: ICompanyInfoItem | null }) {
     return (
         <View style={styles.header} fixed>
             <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <Image source="/logo/DCS9.png" style={{ width: 70, height: 40 }} />
+                    <Image source={companyInfoData?.logoBase64 || "/logo/DCS9.png"} style={{ width: 70, height: 40 }} />
                     <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <Text style={{ fontFamily: 'Niramit-Bold', fontSize: 10 }}>CÔNG TY TNHH GIẢI PHÁP DCS</Text>
-                        <Text style={{ fontFamily: 'Niramit', fontSize: 7 }}>Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Text>
-                        <Text style={{ fontFamily: 'Niramit', fontSize: 7 }}>MST.0318436084 | E. lienhe@dcse.vn | W.  http://dcse.vn</Text>
+                        <Text style={{ fontFamily: 'Niramit-Bold', fontSize: 10 }}>{companyInfoData?.name}</Text>
+                        <Text style={{ fontFamily: 'Niramit', fontSize: 7 }}>{companyInfoData?.address}</Text>
+                        <Text style={{ fontFamily: 'Niramit', fontSize: 7 }}>{`MST.${companyInfoData?.taxCode} | E. ${companyInfoData?.email} | W.  ${companyInfoData?.link}`}</Text>
                     </View>
                 </View>
                 <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -146,7 +148,7 @@ function Signer({ contractBody }: { contractBody: Record<string, string> }) {
                 <View key={title} style={styles.signatureBox}>
                     <View>
                         <Text style={styles.signatureLabel}>{title}</Text>
-                        <Text style={styles.signAndPrint} wrap={false}>{index === 0 ? '(Ký, họ tên, đóng dấu)' : '(Ký, họ tên)'}</Text>
+                        <Text style={styles.signAndPrint} wrap={false}>{index === 3 ? '(Ký, họ tên, đóng dấu)' : '(Ký, họ tên)'}</Text>
                     </View>
                     {index === 3 ?
                         <Text style={styles.signatureLabel}>Nguyễn Chí Nhân Nghĩa</Text>
@@ -165,7 +167,7 @@ function Signer({ contractBody }: { contractBody: Record<string, string> }) {
     );
 }
 
-function Footer() {
+function Footer({ companyInfoData }: { companyInfoData: ICompanyInfoItem | null }) {
     return (
         <View style={[styles.container, styles.footer]} fixed>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -176,7 +178,7 @@ function Footer() {
                             fontSize: 8
                         }}
                         >
-                            W.  http://dcse.vn   |   E.  lienhe@dcse.vn
+                            W.  {companyInfoData?.link}   |   E.  {companyInfoData?.email}
                         </Text>
                         <View style={{ width: 1, height: '100%', backgroundColor: '#ddd', marginLeft: 4, marginRight: 4 }} />
                         <Text

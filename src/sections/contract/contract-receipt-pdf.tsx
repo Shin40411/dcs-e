@@ -6,6 +6,7 @@ import { generatePdfBlob } from "src/utils/generateblob-func";
 import { downloadPdf, printPdf } from "src/utils/random-func";
 import { useEffect } from "react";
 import { Iconify } from "src/components/iconify";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 export function ContractReceiptPdf() {
     const [searchParams] = useSearchParams();
@@ -85,6 +86,8 @@ export function ContractReceiptPdf() {
         ],
     });
 
+    const { companyInfoData } = useGetCompanyInfo();
+
     const receiptBody = {
         companyName: searchParams.get("companyName") || "",
         customerName: searchParams.get("customerName") || "",
@@ -131,6 +134,7 @@ export function ContractReceiptPdf() {
                     attachment: "",
                     createdBy: receiptBody.createdBy
                 }}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -151,6 +155,7 @@ export function ContractReceiptPdf() {
                     attachment: "",
                     createdBy: receiptBody.createdBy
                 }}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -185,6 +190,7 @@ export function ContractReceiptPdf() {
                         attachment: "",
                         createdBy: receiptBody.createdBy
                     }}
+                    companyInfoData={companyInfoData}
                 />
             </PDFViewer>
         </Box>

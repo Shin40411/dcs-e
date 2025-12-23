@@ -24,7 +24,7 @@ type props = {
     }) => void;
 }
 
-export function ContractFollowSpend({ openForm, selectedContract, onExposeRefetch }: props) {
+export function ContractFollowSpend({ openForm, selectedContract }: props) {
     const [selected, setSelected] = useState<string[]>([]);
     const isEnabled = openForm.value && selected.length > 0;
     const {
@@ -67,16 +67,10 @@ export function ContractFollowSpend({ openForm, selectedContract, onExposeRefetc
     }, [result, needSpendResult, historySpendResult]);
 
     useEffect(() => {
-        onExposeRefetch?.({
-            refetchNeedSpend,
-            refetchNeedSpendForContract,
-            refetchHistorySpend,
-        });
-    }, [
-        refetchNeedSpend,
-        refetchNeedSpendForContract,
-        refetchHistorySpend,
-    ]);
+        refetchNeedSpend();
+        refetchNeedSpendForContract();
+        refetchHistorySpend();
+    }, [openForm]);
 
     const {
         totalNeedSpend,

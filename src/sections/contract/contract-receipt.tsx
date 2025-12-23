@@ -59,13 +59,13 @@ export function ContractReceipt({ selectedContract, open, onClose, refetchFns, r
     });
 
     const defaultValues: ContractReceiptSchemaType = {
-        companyName: selectedContract.companyName ?? "",
-        customerName: selectedContract.customerName ?? "",
+        companyName: selectedContract.companyName || "Chưa cập nhật",
+        customerName: selectedContract.customerName || "",
         amount: 0,
         receiptNo: receiptNo,
         date: today.toISOString(),
         address: "",
-        payer: "",
+        payer: "Nhân viên",
         reason: "",
         bankAccId: 0,
         bankNo: ""
@@ -78,15 +78,10 @@ export function ContractReceipt({ selectedContract, open, onClose, refetchFns, r
         defaultValues
     });
 
-    useEffect(() => {
-        methods.setValue('receiptNo', generateReceipt('PT', totalRecord));
-        setReceiptNo(generateReceipt('PT', totalRecord));
-    }, [totalRecord, setReceiptNo]);
-
     const {
         reset,
         watch,
-        control,
+        setValue,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
@@ -142,6 +137,21 @@ export function ContractReceipt({ selectedContract, open, onClose, refetchFns, r
     const reason = watch('reason');
     const address = watch('address');
     const bankAccId = methods.watch('bankAccId');
+
+    useEffect(() => {
+        if (!open) return;
+        if (bankAccounts.length > 0) {
+            const first = bankAccounts[0];
+            setValue("bankAccId", Number(first.id), { shouldValidate: true });
+            setValue("bankNo", first.bankNo);
+            setSelectedBank(first);
+        }
+    }, [open, selectedContract, bankAccounts]);
+
+    useEffect(() => {
+        methods.setValue('receiptNo', generateReceipt('PT', totalRecord));
+        setReceiptNo(generateReceipt('PT', totalRecord));
+    }, [totalRecord, setReceiptNo]);
 
     useEffect(() => {
         if (!bankAccId) {
@@ -305,6 +315,13 @@ export function ContractReceipt({ selectedContract, open, onClose, refetchFns, r
         </>
     );
 
+    const handleCancel = () => {
+        onClose();
+        reset();
+        setSelectedBank(null);
+        setbankKeyword('');
+    }
+
     const renderActions = () => (
         <Box sx={{ width: '100%' }}>
             <Stack direction="row" spacing={2} width="100%">
@@ -330,7 +347,7 @@ export function ContractReceipt({ selectedContract, open, onClose, refetchFns, r
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={() => { onClose(); }}
+                    onClick={handleCancel}
                     fullWidth
                     disabled={isSubmitting}
                 >
@@ -348,7 +365,7 @@ export function ContractReceipt({ selectedContract, open, onClose, refetchFns, r
                 },
             }}
             open={open}
-            onClose={() => { onClose(); }}
+            onClose={handleCancel}
             fullWidth
             maxWidth="md"
         >

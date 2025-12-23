@@ -57,7 +57,7 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
         receiptNo: '',
         date: today.toISOString(),
         address: "",
-        payer: "",
+        payer: selectedContract.companyName ?? "",
         reason: "",
         bankAccId: 0,
         bankNo: ""
@@ -68,15 +68,10 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
         defaultValues
     });
 
-    useEffect(() => {
-        methods.setValue('receiptNo', generateReceipt('PC', totalRecord));
-        setReceiptNo(generateReceipt('PC', totalRecord));
-    }, [totalRecord, setReceiptNo]);
-
     const {
         reset,
         watch,
-        control,
+        setValue,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
@@ -124,6 +119,21 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
     const reason = watch('reason');
     const address = watch('address');
     const bankAccId = methods.watch('bankAccId');
+
+    useEffect(() => {
+        methods.setValue('receiptNo', generateReceipt('PC', totalRecord));
+        setReceiptNo(generateReceipt('PC', totalRecord));
+    }, [totalRecord, setReceiptNo]);
+
+    useEffect(() => {
+        if (!open) return;
+        if (bankAccounts.length > 0) {
+            const first = bankAccounts[0];
+            setValue("bankAccId", Number(first.id), { shouldValidate: true });
+            setValue("bankNo", first.bankNo);
+            setSelectedBank(first);
+        }
+    }, [open, selectedContract, bankAccounts]);
 
     useEffect(() => {
         if (!bankAccId) {
@@ -292,6 +302,13 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
         </>
     );
 
+    const handleCancel = () => {
+        onClose();
+        reset();
+        setSelectedBank(null);
+        setbankKeyword('');
+    }
+
     const renderActions = () => (
         <Box sx={{ width: '100%' }}>
             <Stack direction="row" spacing={2} width="100%">
@@ -317,7 +334,7 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={() => { onClose(); reset(); }}
+                    onClick={handleCancel}
                     fullWidth
                     disabled={isSubmitting}
                 >
@@ -335,7 +352,7 @@ export function ContractSpend({ selectedContract, open, onClose }: FileDialogPro
                 },
             }}
             open={open}
-            onClose={() => { onClose(); reset(); }}
+            onClose={handleCancel}
             fullWidth
             maxWidth="md"
         >

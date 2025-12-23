@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Iconify } from "src/components/iconify";
 import { generatePdfBlob } from "src/utils/generateblob-func";
 import { downloadPdf, printPdf } from "src/utils/random-func";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 export function ContractSpendPdf() {
     const [searchParams] = useSearchParams();
@@ -98,6 +99,8 @@ export function ContractSpendPdf() {
         createdBy: searchParams.get("createdBy") || ""
     };
 
+    const { companyInfoData } = useGetCompanyInfo();
+
     useEffect(() => {
         const isEmpty =
             !receiptBody.receiptNoToWatch ||
@@ -131,6 +134,7 @@ export function ContractSpendPdf() {
                     attachment: "",
                     createdBy: receiptBody.createdBy
                 }}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -151,6 +155,7 @@ export function ContractSpendPdf() {
                     attachment: "",
                     createdBy: receiptBody.createdBy
                 }}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -185,6 +190,7 @@ export function ContractSpendPdf() {
                         attachment: "",
                         createdBy: receiptBody.createdBy
                     }}
+                    companyInfoData={companyInfoData}
                 />
             </PDFViewer>
         </Box>

@@ -47,14 +47,14 @@ export function ContractCustomerForm({ openChild, setOpenChild, setCustomerKeywo
     const onSubmit = handleSubmit(async (data: CustomerFormValues) => {
         try {
             const payloadData: ICustomerDto = {
-                phone: data.phone.replace(/\s+/g, ""),
+                phone: data.phone ? data.phone.replace(/\s+/g, "") : '',
                 name: data.name ?? '',
                 taxCode: data.taxCode ?? '',
                 companyName: data.companyName ?? '',
                 email: '',
                 bankAccount: '',
                 bankName: '',
-                address: '',
+                address: data.address ?? '',
                 isPartner: false,
                 rewardPoint: 0,
                 balance: 0,
@@ -80,6 +80,7 @@ export function ContractCustomerForm({ openChild, setOpenChild, setCustomerKeywo
                 bankName: dataCreated.bankName ?? '',
                 address: dataCreated.address ?? '',
                 isPartner: dataCreated.isPartner ?? false,
+                isBusiness: dataCreated.isBusiness ?? false,
                 rewardPoint: dataCreated.rewardPoint ?? 0,
                 createDate: dataCreated.createDate ?? null,
                 createBy: dataCreated.createBy ?? '',
@@ -126,7 +127,12 @@ export function ContractCustomerForm({ openChild, setOpenChild, setCustomerKeywo
                     )}
                     <Stack direction="row" gap={2}>
                         <Field.Text name="name" label="Tên khách hàng" required={customerType === "KHCN"} />
-                        <Field.PhoneField name="phone" label="Số điện thoại" required />
+                        {customerType === "KHDN"
+                            ?
+                            <Field.Text name="address" label="Địa chỉ" required />
+                            :
+                            <Field.PhoneField name="phone" label="Số điện thoại" required />
+                        }
                     </Stack>
                 </DialogContent>
                 <DialogActions>

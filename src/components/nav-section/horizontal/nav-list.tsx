@@ -137,11 +137,6 @@ export function NavList({
   return (
     <NavLi disabled={data.disabled}>
       {renderNavItem()}
-      {/*
-       * TODO: Should be removed in MUI next.
-       * Add `open` condition to disable transition effect on close.
-       * https://github.com/mui/material-ui/issues/43106
-       */}
       {open && renderDropdown()}
     </NavLi>
   );

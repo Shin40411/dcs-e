@@ -22,6 +22,7 @@ import { renderFooter } from '../components/renderFooter';
 import { generatePdfBlob } from 'src/utils/generateblob-func';
 import { downloadPdf, printPdf } from 'src/utils/random-func';
 import { Iconify } from 'src/components/iconify';
+import { ICompanyInfoItem } from 'src/types/companyInfo';
 
 // ----------------------------------------------------------------------
 
@@ -30,10 +31,11 @@ type QuotationPDFProps = {
     currentStatus: string;
     currentQuotation?: IQuotationData;
     openDetail: boolean;
+    companyInfoData: ICompanyInfoItem | null;
 };
 // ----------------------------------------------------------------------
 
-export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation, openDetail }: QuotationPDFProps) {
+export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation, companyInfoData, openDetail }: QuotationPDFProps) {
 
     const [loading, setLoading] = useState(true);
 
@@ -62,6 +64,7 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation, o
                 invoice={invoice}
                 currentStatus={currentStatus}
                 currentQuotation={currentQuotation}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -74,6 +77,7 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation, o
                 invoice={invoice}
                 currentStatus={currentStatus}
                 currentQuotation={currentQuotation}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -85,6 +89,7 @@ export function QuotationPDFViewer({ invoice, currentStatus, currentQuotation, o
             invoice={invoice}
             currentStatus={currentStatus}
             currentQuotation={currentQuotation}
+            companyInfoData={companyInfoData}
         />
     ), [invoice, currentStatus, currentQuotation]);
 
@@ -217,9 +222,10 @@ type InvoicePdfDocumentProps = {
     invoice?: IQuotationItem;
     currentStatus: string;
     currentQuotation?: IQuotationData;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
-export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation }: InvoicePdfDocumentProps) {
+export function QuotationPdfDocument({ invoice, currentStatus, companyInfoData, currentQuotation }: InvoicePdfDocumentProps) {
     const {
         customerName,
         address,
@@ -272,7 +278,7 @@ export function QuotationPdfDocument({ invoice, currentStatus, currentQuotation 
                         marginBottom: 8,
                     }}
                 >
-                    {renderHeader()}
+                    {renderHeader({ companyInfoData })}
                 </View>
                 <View
                     style={styles.body}

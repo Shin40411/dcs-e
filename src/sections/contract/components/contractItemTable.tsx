@@ -5,7 +5,6 @@ import { fCurrency } from "src/utils/format-number";
 import { ContractItemsTableContentProps, ContractItemsTableProps } from "../helper/ContractItemsTableProps";
 import { ProductAutocomplete } from "./productAutoComplete";
 import { UnitSelection } from "./unitSelection";
-import { useEffect } from "react";
 
 export default function ContractItemsTableContent({
     fields,
@@ -21,12 +20,20 @@ export default function ContractItemsTableContent({
     setIndexField,
     isCreateSupplierContract
 }: ContractItemsTableContentProps) {
-    const total = fields.reduce((sum, item, index) => {
-        const qty = Number(methods.getValues(`products.${index}.qty`) || 0);
-        const price = Number(methods.getValues(`products.${index}.price`) || 0);
-        const vat = Number(methods.getValues(`products.${index}.vat`) || 0);
-        return sum + calcAmount({ qty, price, vat });
-    }, 0);
+    // const total = fields.reduce((sum, item, index) => {
+    //     const qty = Number(methods.getValues(`products.${index}.qty`) || 0);
+    //     const price = Number(methods.getValues(`products.${index}.price`) || 0);
+    //     const vat = Number(methods.getValues(`products.${index}.vat`) || 0);
+    //     return sum + calcAmount({ qty, price, vat });
+    // }, 0);
+    const stickyRightCell = {
+        position: 'sticky',
+        right: 0,
+        backgroundColor: 'background.paper',
+        '@media (max-width:1848px)': {
+            boxShadow: '-6px 0 8px -4px rgba(0,0,0,0.15)',
+        },
+    };
 
     return (
         <TableContainer component={Paper} sx={{
@@ -89,20 +96,23 @@ export default function ContractItemsTableContent({
                                 </Typography>
                             </TableCell>
 
-                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                            <TableCell sx={{ ...stickyRightCell }}>
                                 <Stack direction="row">
                                     <Tooltip title="Xóa sản phẩm" placement="top" arrow>
                                         <IconButton onClick={() => {
-                                            if (idContract) {
-                                                const idPro = methods.getValues(`products.${index}.product`);
-                                                const exists = contractProductDetail?.products?.some(p => String(p.productID) === idPro);
-                                                if (exists) {
-                                                    openDel.onTrue();
-                                                    setProductIDSelected(idPro);
-                                                    setIndexField(index);
-                                                } else {
-                                                    remove(index);
-                                                }
+                                            if (isCreateSupplierContract || !idContract) {
+                                                return remove(index);
+                                            }
+
+                                            const idPro = methods.getValues(`products.${index}.product`);
+                                            const exists = contractProductDetail?.products?.some(
+                                                (p) => String(p.productID) === idPro
+                                            );
+
+                                            if (exists) {
+                                                openDel.onTrue();
+                                                setProductIDSelected(idPro);
+                                                setIndexField(index);
                                             } else {
                                                 remove(index);
                                             }

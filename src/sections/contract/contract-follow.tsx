@@ -25,7 +25,7 @@ type props = {
     }) => void;
 }
 
-export function ContractFollow({ openForm, selectedContract, onExposeRefetch }: props) {
+export function ContractFollow({ openForm, selectedContract }: props) {
     const {
         result,
         resultLoading,
@@ -68,17 +68,23 @@ export function ContractFollow({ openForm, selectedContract, onExposeRefetch }: 
         setHistoryCollect(historyCollectResult);
     }, [result, batchResult, historyCollectResult]);
 
+    // useEffect(() => {
+    //     onExposeRefetch?.({
+    //         refetchNeedCollect,
+    //         refetchBatchCollect,
+    //         refetchHistoryCollect,
+    //     });
+    // }, [
+    //     refetchNeedCollect,
+    //     refetchBatchCollect,
+    //     refetchHistoryCollect,
+    // ]);
+
     useEffect(() => {
-        onExposeRefetch?.({
-            refetchNeedCollect,
-            refetchBatchCollect,
-            refetchHistoryCollect,
-        });
-    }, [
-        refetchNeedCollect,
-        refetchBatchCollect,
-        refetchHistoryCollect,
-    ]);
+        refetchNeedCollect();
+        refetchBatchCollect();
+        refetchHistoryCollect();
+    }, [openForm]);
 
     const {
         contractAmounts,

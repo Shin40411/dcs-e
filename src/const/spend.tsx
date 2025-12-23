@@ -4,10 +4,12 @@ import { UseBooleanReturn } from "minimal-shared/hooks";
 import { useState } from "react";
 import { Iconify } from "src/components/iconify";
 import { RenderCellAmount, RenderCellCompanyName, RenderCellContractNo, RenderCellContractType, RenderCellCreateDate, RenderCellReceipt, RenderNote, RenderPayer, RenderReason } from "src/sections/receipt/receipt-table-row";
+import { fDate } from "src/utils/format-time-vi";
 
 type ColumnProps = {
     openDetailsForm?: UseBooleanReturn;
     openCrudForm: UseBooleanReturn;
+    onPreviewReceipt: (params: URLSearchParams) => void;
     confirmDelRowDialog: UseBooleanReturn;
     setRowIdSelected: (id: any) => void;
     setTableRowSelected: (obj: any) => void;
@@ -18,6 +20,7 @@ type ColumnProps = {
 export const SPEND_COLUMNS: ({
     openDetailsForm,
     openCrudForm,
+    onPreviewReceipt,
     confirmDelRowDialog,
     setRowIdSelected,
     setTableRowSelected,
@@ -27,6 +30,7 @@ export const SPEND_COLUMNS: ({
     openDetailsForm,
     openCrudForm,
     confirmDelRowDialog,
+    onPreviewReceipt,
     setRowIdSelected,
     setTableRowSelected,
     page,
@@ -56,6 +60,19 @@ export const SPEND_COLUMNS: ({
                         setAnchorEl(event.currentTarget);
                     };
 
+                    const paramsPreview = new URLSearchParams({
+                        companyName: params?.row.companyName,
+                        customerName: params?.row.customerName,
+                        date: String(fDate(params?.row.date)),
+                        receiptNoToWatch: params?.row.receiptNo,
+                        amount: String(params?.row.amount),
+                        payer: params?.row.payer,
+                        contractNo: params?.row.contractNo || "",
+                        reason: params?.row.reason || "",
+                        address: params?.row.address,
+                        createdBy: params?.row.createdBy
+                    } as Record<string, string>);
+
                     const handleClose = () => setAnchorEl(null);
                     return (
                         <Box sx={{ display: 'flex', alignItems: 'center', width: 1 }}>
@@ -64,6 +81,16 @@ export const SPEND_COLUMNS: ({
                             </Box>
 
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                                <MenuItem
+                                    onClick={() => {
+                                        onPreviewReceipt(paramsPreview);
+                                    }}
+                                >
+                                    <Iconify icon="solar:eye-bold" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Xem phiếu chi
+                                    </Box>
+                                </MenuItem>
                                 <MenuItem
                                     onClick={() => {
                                         openCrudForm.onTrue();
@@ -121,11 +148,11 @@ export const SPEND_COLUMNS: ({
                 ),
             },
             {
-                field: 'date',
-                headerName: 'Ngày chi',
+                field: 'amount',
+                headerName: 'Số tiền chi',
                 width: 200,
                 renderCell: (params) => (
-                    <RenderCellCreateDate params={params} />
+                    <RenderCellAmount params={params} />
                 ),
             },
             {
@@ -137,11 +164,11 @@ export const SPEND_COLUMNS: ({
                 ),
             },
             {
-                field: 'amount',
-                headerName: 'Số tiền chi',
+                field: 'date',
+                headerName: 'Ngày chi',
                 width: 200,
                 renderCell: (params) => (
-                    <RenderCellAmount params={params} />
+                    <RenderCellCreateDate params={params} />
                 ),
             },
             {
@@ -152,14 +179,14 @@ export const SPEND_COLUMNS: ({
                     <RenderCellContractType params={params} />
                 ),
             },
-            // {
-            //     field: 'note',
-            //     headerName: 'Ghi chú',
-            //     width: 300,
-            //     renderCell: (params) => (
-            //         <RenderNote params={params} />
-            //     ),
-            // },
+            {
+                field: 'note',
+                headerName: 'Ghi chú',
+                width: 300,
+                renderCell: (params) => (
+                    <RenderNote params={params} />
+                ),
+            },
             {
                 type: 'actions',
                 field: 'actions',
@@ -172,13 +199,28 @@ export const SPEND_COLUMNS: ({
                 filterable: false,
                 editable: false,
                 getActions: (params) => [
-                    // <GridActionsCellItem
-                    //     showInMenu
-                    //     icon={<Iconify icon="solar:eye-bold" />}
-                    //     sx={{ display: { xs: 'none', md: 'block' } }}
-                    //     label="Chi tiết"
-                    //     onClick={() => { openDetailsForm?.onTrue(), setTableRowSelected(params.row); }}
-                    // />,
+                    <GridActionsCellItem
+                        showInMenu
+                        icon={<Iconify icon="solar:eye-bold" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
+                        label="Xem phiếu chi"
+                        onClick={() => {
+                            const paramsPreview = new URLSearchParams({
+                                companyName: params?.row.companyName,
+                                customerName: params?.row.customerName,
+                                date: String(fDate(params?.row.date)),
+                                receiptNoToWatch: params?.row.receiptNo,
+                                amount: String(params?.row.amount),
+                                payer: params?.row.payer,
+                                contractNo: params?.row.contractNo || "",
+                                reason: params?.row.reason || "",
+                                address: params?.row.address,
+                                createdBy: params?.row.createdBy
+                            } as Record<string, string>);
+
+                            onPreviewReceipt(paramsPreview);
+                        }}
+                    />,
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:pen-bold" />}

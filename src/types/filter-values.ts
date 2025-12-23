@@ -6,5 +6,7 @@ export type FilterValues = {
     status?: string;
     customer?: string;
     contract?: string;
+    payer?: string;
     month?: number;
+    receiverName?: string;
 };

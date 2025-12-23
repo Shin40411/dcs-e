@@ -4,6 +4,7 @@ import { UseBooleanReturn } from "minimal-shared/hooks";
 import { useState } from "react";
 import { Iconify } from "src/components/iconify";
 import { RenderCellAmount, RenderCellCompanyName, RenderCellContractNo, RenderCellContractType, RenderCellCreateDate, RenderCellReceipt, RenderNote, RenderPayer, RenderReason } from "src/sections/receipt/receipt-table-row";
+import { fDate } from "src/utils/format-time-vi";
 
 type ColumnProps = {
     openDetailsForm?: UseBooleanReturn;
@@ -13,6 +14,7 @@ type ColumnProps = {
     setTableRowSelected: (obj: any) => void;
     page: number;
     rowsPerPage: number;
+    onPreviewReceipt: (params: URLSearchParams) => void;
 }
 
 export const RECEIPT_COLUMNS: ({
@@ -22,7 +24,8 @@ export const RECEIPT_COLUMNS: ({
     setRowIdSelected,
     setTableRowSelected,
     page,
-    rowsPerPage
+    rowsPerPage,
+    onPreviewReceipt
 }: ColumnProps) => GridColDef[] = ({
     openDetailsForm,
     openCrudForm,
@@ -30,7 +33,8 @@ export const RECEIPT_COLUMNS: ({
     setRowIdSelected,
     setTableRowSelected,
     page,
-    rowsPerPage
+    rowsPerPage,
+    onPreviewReceipt
 }) => [
             {
                 field: 'stt',
@@ -56,6 +60,19 @@ export const RECEIPT_COLUMNS: ({
                         setAnchorEl(event.currentTarget);
                     };
 
+                    const paramsPreview = new URLSearchParams({
+                        companyName: params?.row.companyName,
+                        customerName: params?.row.customerName,
+                        date: String(fDate(params?.row.date)),
+                        receiptNoToWatch: params?.row.receiptNo,
+                        amount: String(params?.row.amount),
+                        payer: params?.row.payer,
+                        contractNo: params?.row.contractNo || "",
+                        reason: params?.row.reason || "",
+                        address: params?.row.address,
+                        createdBy: params?.row.createdBy
+                    } as Record<string, string>);
+
                     const handleClose = () => setAnchorEl(null);
                     return (
                         <Box sx={{ display: 'flex', alignItems: 'center', width: 1 }}>
@@ -64,6 +81,16 @@ export const RECEIPT_COLUMNS: ({
                             </Box>
 
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                                <MenuItem
+                                    onClick={() => {
+                                        onPreviewReceipt(paramsPreview);
+                                    }}
+                                >
+                                    <Iconify icon="solar:eye-bold" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Xem phiếu thu
+                                    </Box>
+                                </MenuItem>
                                 <MenuItem
                                     onClick={() => {
                                         openCrudForm.onTrue();
@@ -121,11 +148,11 @@ export const RECEIPT_COLUMNS: ({
                 ),
             },
             {
-                field: 'date',
-                headerName: 'Ngày nộp',
+                field: 'amount',
+                headerName: 'Số tiền nộp',
                 width: 200,
                 renderCell: (params) => (
-                    <RenderCellCreateDate params={params} />
+                    <RenderCellAmount params={params} />
                 ),
             },
             {
@@ -137,11 +164,11 @@ export const RECEIPT_COLUMNS: ({
                 ),
             },
             {
-                field: 'amount',
-                headerName: 'Số tiền nộp',
+                field: 'date',
+                headerName: 'Ngày nộp',
                 width: 200,
                 renderCell: (params) => (
-                    <RenderCellAmount params={params} />
+                    <RenderCellCreateDate params={params} />
                 ),
             },
             {
@@ -172,13 +199,28 @@ export const RECEIPT_COLUMNS: ({
                 filterable: false,
                 editable: false,
                 getActions: (params) => [
-                    // <GridActionsCellItem
-                    //     showInMenu
-                    //     icon={<Iconify icon="solar:eye-bold" />}
-                    //     sx={{ display: { xs: 'none', md: 'block' } }}
-                    //     label="Chi tiết"
-                    //     onClick={() => { openDetailsForm?.onTrue(), setTableRowSelected(params.row); }}
-                    // />,
+                    <GridActionsCellItem
+                        showInMenu
+                        icon={<Iconify icon="solar:eye-bold" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
+                        label="Xem phiếu thu"
+                        onClick={() => {
+                            const paramsPreview = new URLSearchParams({
+                                companyName: params?.row.companyName,
+                                customerName: params?.row.customerName,
+                                date: String(fDate(params?.row.date)),
+                                receiptNoToWatch: params?.row.receiptNo,
+                                amount: String(params?.row.amount),
+                                payer: params?.row.payer,
+                                contractNo: params?.row.contractNo || "",
+                                reason: params?.row.reason || "",
+                                address: params?.row.address,
+                                createdBy: params?.row.createdBy
+                            } as Record<string, string>);
+
+                            onPreviewReceipt(paramsPreview);
+                        }}
+                    />,
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:pen-bold" />}

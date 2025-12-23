@@ -94,3 +94,11 @@ export type TransferCreateDto = {
     sendAmount: number;
     note?: string;
 };
+
+export type IPayerInternal = {
+    payer: string;
+}
+
+export type IReceiverInternal = {
+    receiverName: string;
+}

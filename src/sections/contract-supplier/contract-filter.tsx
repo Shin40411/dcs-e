@@ -84,7 +84,7 @@ export function ContractFilterBar({ onFilterChange, onReset, onSearching }: Prop
         <Stack
             direction={{ xs: "column", sm: "column", md: "row" }}
             gap={2}
-            sx={{ m: 3, overflowX: 'auto' }}
+            sx={{ m: 1.5, overflowX: 'auto', overflowY: 'hidden' }}
             alignItems="center"
             justifyContent="space-between"
         >

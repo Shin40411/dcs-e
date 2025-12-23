@@ -10,8 +10,9 @@ import { capitalizeFirstLetter } from "src/utils/format-string";
 import { PAPER_W, useScaleToFit } from "src/utils/scale-pdf";
 import { CONFIG } from "src/global-config";
 import { IDateValue } from "src/types/common";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
-export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) => {
+export const QuotationPreview = ({ quotation, companyInfo }: { quotation: IQuotationItem; companyInfo: ICompanyInfoItem | null; }) => {
     const { quotation: SelectedQuotation } = useGetQuotation({
         quotationId: quotation?.id,
         pageNumber: 1,
@@ -57,7 +58,7 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
                     bgcolor: 'common.white',
                     boxShadow: '0px 0px 0px 1px rgba(64,87,109,.04),0px 2px 4px -1px rgba(64,87,109,.3),inset 0 0 0 1px rgba(0,0,0,.1)'
                 }}>
-                    <Header />
+                    <Header companyInfoData={companyInfo} />
 
                     <Dates createdDate={quotation.createdDate} quotationNo={quotation.quotationNo} />
 
@@ -83,7 +84,7 @@ export const QuotationPreview = ({ quotation }: { quotation: IQuotationItem }) =
     );
 };
 
-function Header() {
+function Header({ companyInfoData }: { companyInfoData: ICompanyInfoItem | null }) {
     return (
         <Stack
             direction="row"
@@ -97,24 +98,26 @@ function Header() {
                 backgroundSize: 'cover'
             }}
         >
-            <Logo disabled sx={{ width: '20%', height: '0%' }} />
+            <Logo disabled sx={{ width: '20%', height: '0%' }} src={companyInfoData?.logo} />
             <Box>
                 <List disablePadding>
                     <ListItem disableGutters sx={{ py: 0 }}>
                         <Typography variant="subtitle1" fontWeight="bold" color="#1C252E">
-                            CÔNG TY TNHH GIẢI PHÁP DCS
+                            {companyInfoData?.name || 'CÔNG TY TNHH GIẢI PHÁP DCS'}
                         </Typography>
                     </ListItem>
                     <ListItem disableGutters sx={{ py: 0 }}>
-                        <Typography variant="body2" color="#1C252E" fontSize={12}>Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Typography>
+                        <Typography variant="body2" color="#1C252E" fontSize={12}>
+                            {companyInfoData?.address || 'Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh'}
+                        </Typography>
                     </ListItem>
                     <ListItem disableGutters sx={{ py: 0 }}>
                         <Stack direction="row" gap={1}>
                             <Typography variant="body2" fontSize={12} color="#1C252E">
-                                0932090207
+                                MST {companyInfoData?.taxCode || "0318436084"}
                             </Typography>
                             <Typography variant="body2" fontSize={12} color="#1C252E">
-                                {`W.  http://dcse.vn   |   E.  lienhe@dcse.vn`}
+                                {`W. ${companyInfoData?.link || "http://dcse.vn"}   |   E.  ${companyInfoData?.email || "lienhe@dcse.vn"}`}
                             </Typography>
                         </Stack>
                     </ListItem>
@@ -155,6 +158,7 @@ function Introduction({ quotation }: { quotation: IQuotationItem }) {
                         width: 60,
                         backgroundColor: 'rgba(0, 137, 0, 1)',
                         alignSelf: 'center',
+                        mb: '0.35em'
                     }}
                 />
             </Box>

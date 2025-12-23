@@ -7,6 +7,7 @@ type employeeProps = {
     pageNumber: number,
     pageSize: number,
     key?: string,
+    filter?: string,
     enabled?: boolean
 }
 
@@ -16,12 +17,14 @@ const swrOptions: SWRConfiguration = {
     revalidateOnReconnect: false,
 };
 
-export function useGetEmployees({ pageNumber, pageSize, key, enabled = true }: employeeProps) {
+export function useGetEmployees({ pageNumber, pageSize, key, filter, enabled = true }: employeeProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
     if (key) params += `&search=${key}`;
+
+    if (filter) params += `&Filter=${filter}`;
 
     const url = enabled ? endpoints.employees.list(params) : null;
 
@@ -29,18 +32,21 @@ export function useGetEmployees({ pageNumber, pageSize, key, enabled = true }: e
 
     const memoizedValue = useMemo(
         () => ({
-            employees: data?.data.items || [],
+            employees: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             employeesLoading: isLoading,
             employeesError: error,
             employeesValidating: isValidating,
-            employeesEmpty: !isLoading && !isValidating && !data?.data.items.length,
-            mutation: mutate
+            employeesEmpty:
+                !isLoading &&
+                !isValidating &&
+                !((data?.data?.items?.length ?? 0) > 0),
+            mutation: mutate,
         }),
         [data, error, isLoading, isValidating]
     );
@@ -59,18 +65,21 @@ export function useGetDeletedEmployees({ pageNumber, pageSize, key, enabled = tr
 
     const memoizedValue = useMemo(
         () => ({
-            employees: data?.data.items || [],
+            employees: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             employeesLoading: isLoading,
             employeesError: error,
             employeesValidating: isValidating,
-            employeesEmpty: !isLoading && !isValidating && !data?.data.items.length,
-            mutation: mutate
+            employeesEmpty:
+                !isLoading &&
+                !isValidating &&
+                !((data?.data?.items?.length ?? 0) > 0),
+            mutation: mutate,
         }),
         [data, error, isLoading, isValidating]
     );
@@ -89,17 +98,20 @@ export function useGetUserTypes({ pageNumber, pageSize, enabled = true }: employ
 
     const memoizedValue = useMemo(
         () => ({
-            userTypes: data?.data.items || [],
+            userTypes: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             userTypesLoading: isLoading,
             userTypesError: error,
             userTypesValidating: isValidating,
-            userTypesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            userTypesEmpty:
+                !isLoading &&
+                !isValidating &&
+                !((data?.data?.items?.length ?? 0) > 0),
         }),
         [data, error, isLoading, isValidating]
     );

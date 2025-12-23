@@ -12,6 +12,7 @@ import {
     RenderReceiverPhone,
     RenderReciverAddress
 } from "src/sections/ware-house-import/warehouse-import-table-row";
+import { fDate } from "src/utils/format-time-vi";
 
 type ColumnProps = {
     openDetailsForm?: UseBooleanReturn;
@@ -21,6 +22,7 @@ type ColumnProps = {
     setTableRowSelected: (obj: any) => void;
     page: number;
     rowsPerPage: number;
+    onPreviewWarehouseImport: (params: URLSearchParams) => void;
 }
 
 export const WAREHOUSE_IMPORT_COLUMNS: ({
@@ -30,7 +32,8 @@ export const WAREHOUSE_IMPORT_COLUMNS: ({
     setRowIdSelected,
     setTableRowSelected,
     page,
-    rowsPerPage
+    rowsPerPage,
+    onPreviewWarehouseImport
 }: ColumnProps) => GridColDef[] = ({
     openDetailsForm,
     openCrudForm,
@@ -38,7 +41,8 @@ export const WAREHOUSE_IMPORT_COLUMNS: ({
     setRowIdSelected,
     setTableRowSelected,
     page,
-    rowsPerPage
+    rowsPerPage,
+    onPreviewWarehouseImport
 }) => [
             {
                 field: 'stt',
@@ -64,6 +68,20 @@ export const WAREHOUSE_IMPORT_COLUMNS: ({
                         setAnchorEl(event.currentTarget);
                     };
 
+                    const paramsPreview = new URLSearchParams({
+                        isCreating: 'false',
+                        exportId: String(params?.row.id),
+                        contractId: String(params?.row.contractID),
+                        exportDate: String(fDate(params?.row.importDate)),
+                        contractNo: params?.row.conntractSupNo,
+                        warehouseExportNo: params?.row.warehouseImportNo,
+                        receiverName: params?.row.receiverName,
+                        position: "",
+                        note: params?.row.note || "",
+                        receiverAddress: params?.row.reciverAddress,
+                        seller: params?.row.employeeName
+                    } as Record<string, string>);
+
                     const handleClose = () => setAnchorEl(null);
                     return (
                         <Box sx={{ display: 'flex', alignItems: 'center', width: 1 }}>
@@ -72,6 +90,16 @@ export const WAREHOUSE_IMPORT_COLUMNS: ({
                             </Box>
 
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                                <MenuItem
+                                    onClick={() => {
+                                        onPreviewWarehouseImport(paramsPreview);
+                                    }}
+                                >
+                                    <Iconify icon="solar:eye-bold" />
+                                    <Box component="span" sx={{ ml: 1 }}>
+                                        Xem phiếu nhập kho
+                                    </Box>
+                                </MenuItem>
                                 <MenuItem
                                     onClick={() => {
                                         openCrudForm.onTrue();
@@ -163,13 +191,29 @@ export const WAREHOUSE_IMPORT_COLUMNS: ({
                 filterable: false,
                 editable: false,
                 getActions: (params) => [
-                    // <GridActionsCellItem
-                    //     showInMenu
-                    //     icon={<Iconify icon="solar:eye-bold" />}
-                    //     sx={{ display: { xs: 'none', md: 'block' } }}
-                    //     label="Chi tiết"
-                    //     onClick={() => { openDetailsForm?.onTrue(), setTableRowSelected(params.row); }}
-                    // />,
+                    <GridActionsCellItem
+                        showInMenu
+                        icon={<Iconify icon="solar:eye-bold" />}
+                        sx={{ display: { xs: 'none', md: 'block' } }}
+                        label="Xem phiếu nhập kho"
+                        onClick={() => {
+                            const paramsPreview = new URLSearchParams({
+                                isCreating: 'false',
+                                exportId: String(params?.row.id),
+                                contractId: String(params?.row.contractID),
+                                exportDate: String(fDate(params?.row.importDate)),
+                                contractNo: params?.row.conntractSupNo,
+                                warehouseExportNo: params?.row.warehouseImportNo,
+                                receiverName: params?.row.receiverName,
+                                position: "",
+                                note: params?.row.note || "",
+                                receiverAddress: params?.row.reciverAddress,
+                                seller: params?.row.employeeName
+                            } as Record<string, string>);
+
+                            onPreviewWarehouseImport(paramsPreview);
+                        }}
+                    />,
                     <GridActionsCellItem
                         showInMenu
                         icon={<Iconify icon="solar:pen-bold" />}

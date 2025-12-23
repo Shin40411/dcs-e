@@ -9,6 +9,7 @@ import { useNavigate } from "react-router";
 import { paths } from "src/routes/paths";
 import { useBoolean } from "minimal-shared/hooks";
 import { toast } from "sonner";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 type Props = {
     selectedQuotation: IQuotationItem;
@@ -26,6 +27,8 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
         pageSize: 999,
         options: { enabled: !!selectedQuotation?.id }
     });
+
+    const { companyInfoData, mutation: refetchCompanyInfo } = useGetCompanyInfo();
 
     const handleCreateContract = () => {
         navigate(paths.dashboard.customerServices.contract, {
@@ -58,6 +61,7 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
                 currentStatus={statusMap[selectedQuotation.status]}
                 currentQuotation={quotation}
                 openDetail={openDetail}
+                companyInfoData={companyInfoData}
             />
         );
         pdfQuotationIdRef.current = selectedQuotation.id;
@@ -68,6 +72,10 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
             toast.error("Không thể xem! Báo giá này đang thiếu dữ liệu chi tiết");
         }
     }, [quotationError]);
+
+    useEffect(() => {
+        refetchCompanyInfo();
+    }, [openDetail]);
 
     return (
         <>

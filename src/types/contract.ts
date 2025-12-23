@@ -312,8 +312,12 @@ export type ResContractSuppFromCus = {
     message: string;
     data: {
         contractNo: string;
+        companyName: string;
         supplierName: string;
         supplierAddress: string;
+        remainingAmount: number;
+        note: string;
+        fullContractInfo: string;
     }[];
 }
 
@@ -353,4 +357,29 @@ export type ResIReceiptItem = {
             createdBy: string,
         }[];
     };
+}
+
+export type ResVoucherItem = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: VoucherItem[];
+    };
+}
+
+export type VoucherItem = {
+    contractId: number;
+    contractNo: string;
+    customerId: number;
+    customerName: string;
+    companyName: string;
+    employeeId: number;
+    employeeName: string;
+    note: string;
+    fullContractInfo: string;
+    remainingAmount: number;
 }

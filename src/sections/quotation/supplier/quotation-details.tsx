@@ -9,6 +9,7 @@ import { paths } from "src/routes/paths";
 import { useBoolean } from "minimal-shared/hooks";
 import { toast } from "sonner";
 import QuotationSendMail from "../quotation-sendmail";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 type Props = {
     selectedQuotation: IQuotationItem;
@@ -20,6 +21,8 @@ type Props = {
 export function QuotationDetails({ selectedQuotation, openForm, openDetail = false, onClose }: Props) {
     const navigate = useNavigate();
 
+    const { companyInfoData, mutation: refetchCompanyInfo } = useGetCompanyInfo();
+
     const { quotation, quotationLoading, quotationError } = useGetQuotation({
         quotationId: selectedQuotation?.id,
         pageNumber: 1,
@@ -28,11 +31,11 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
     });
 
     const handleCreateContract = () => {
-        navigate(paths.dashboard.customerServices.contract, {
+        navigate(paths.dashboard.supplierServices.contractSupplier, {
             state: {
                 openForm: true,
                 details: quotation,
-                customer: selectedQuotation.customerId
+                customer: selectedQuotation.supplierID
             }
         });
     };
@@ -58,6 +61,7 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
                 currentStatus={statusMap[selectedQuotation.status]}
                 currentQuotation={quotation}
                 openDetail={openDetail}
+                companyInfoData={companyInfoData}
             />
         );
         pdfQuotationIdRef.current = selectedQuotation.id;
@@ -68,6 +72,10 @@ export function QuotationDetails({ selectedQuotation, openForm, openDetail = fal
             toast.error("Không thể xem! Đơn đặt hàng này đang thiếu dữ liệu chi tiết");
         }
     }, [quotationError]);
+
+    useEffect(() => {
+        refetchCompanyInfo();
+    }, [openDetail]);
 
     return (
         <>

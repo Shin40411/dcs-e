@@ -46,7 +46,7 @@ export type IContractWarehouseExportDto = {
     warehouseExportNo?: string;
     customerID: number;
     contractID: number;
-    employeeID: number;
+    employeeID?: number;
     exportDate: IDateValue;
     receiverName: string;
     receiverPhone: string;

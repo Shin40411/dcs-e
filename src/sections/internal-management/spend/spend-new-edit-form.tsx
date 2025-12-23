@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Card, CardActions, CardContent, Dialog, DialogContent, DialogTitle, FormControlLabel, IconButton, Radio, RadioGroup, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { memo, useEffect, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
@@ -41,7 +41,7 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
 
     const { bankAccounts, bankAccountsLoading } = useGetBankAccounts({
         pageNumber: 1,
-        pageSize: 10,
+        pageSize: 20,
         enabled: open,
         key: debouncedbankKw
     });
@@ -68,36 +68,19 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
         defaultValues: getDefaultValues(),
     });
 
-    useEffect(() => {
-        if (open) {
-            if (selectedReceipt) {
-                methods.reset({
-                    spendType: selectedReceipt.targetType === "Salary" ? "salary" : "other",
-                    name: selectedReceipt.name,
-                    cost: selectedReceipt.cost,
-                    receiptDate: selectedReceipt.receiptDate,
-                    receiptNo: selectedReceipt.receiptNo,
-                    address: selectedReceipt.address,
-                    reason: selectedReceipt.reason,
-                    bankAccId: selectedReceipt.bankAccountID,
-                    bankNo: selectedReceipt.bankNo,
-                    employeeId: selectedReceipt.targetCode,
-                });
-            } else {
-                methods.reset(getDefaultValues());
-            }
-        }
-    }, [open, selectedReceipt, totalRecord]);
-
     const {
         reset,
         watch,
         control,
+        setValue,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
 
-    const spendType = watch("spendType");
+    const spendType = useWatch({
+        control,
+        name: "spendType",
+    });
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -142,25 +125,41 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
         }
     });
 
-    const onChangeType = (newType: "salary" | "other") => {
-        methods.reset({
-            ...methods.getValues(),
-            spendType: newType,
-            name: "",
-            cost: 0,
-            receiptDate: today.toISOString(),
-            receiptNo: generateInternalReceipt('PC', totalRecord),
-            address: "",
-            reason: "",
-            bankAccId: 0,
-            bankNo: "",
-            department: "",
-            employeeId: "",
-        });
-    };
-
     const bankAccId = watch('bankAccId');
     const employeeId = watch('employeeId');
+
+    useEffect(() => {
+        if (!open) return;
+        if (selectedReceipt) {
+            methods.reset({
+                spendType: selectedReceipt.targetType === "Salary" ? "salary" : "other",
+                name: selectedReceipt.name,
+                cost: selectedReceipt.cost,
+                receiptDate: selectedReceipt.receiptDate,
+                receiptNo: selectedReceipt.receiptNo,
+                address: selectedReceipt.address,
+                reason: selectedReceipt.reason,
+                bankAccId: selectedReceipt.bankAccountID,
+                bankNo: selectedReceipt.bankNo,
+                employeeId: selectedReceipt.targetCode,
+            });
+
+            if (selectedReceipt.bankAccountName) {
+                setbankKeyword(selectedReceipt.bankAccountName);
+                const found = bankAccounts.find((acc) => Number(acc.id) === Number(selectedReceipt.bankAccountID));
+                if (found) {
+                    setSelectedBank(found);
+                }
+            }
+        } else {
+            if (bankAccounts.length > 0) {
+                const first = bankAccounts[0];
+                setValue("bankAccId", Number(first.id), { shouldValidate: true });
+                setValue("bankNo", first.bankNo);
+                setSelectedBank(first);
+            }
+        }
+    }, [open, selectedReceipt, bankAccounts]);
 
     useEffect(() => {
         if (!bankAccId) {
@@ -170,6 +169,7 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
         }
 
         const found = bankAccounts.find((cus) => Number(cus.id) === Number(bankAccId));
+
         if (found) {
             setSelectedBank(found);
             methods.setValue("bankNo", found.bankNo);
@@ -189,6 +189,33 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
             methods.setValue("department", found.department);
         }
     }, [spendType, employeeId, employees]);
+
+    const AddressField = memo(() => {
+        return (
+            <Field.Text
+                name="address"
+                label="Địa chỉ"
+                required
+                sx={{ flex: 1.5 }}
+            />
+        );
+    });
+
+    const DepartmentField = memo(() => {
+        return (
+            <Field.Text
+                name="department"
+                label="Phòng ban"
+                sx={{
+                    flex: 1.5,
+                    '& .MuiInputBase-root.Mui-disabled': {
+                        backgroundColor: '#ddd',
+                    },
+                }}
+                disabled
+            />
+        );
+    });
 
     const renderDetails = () => (
         <>
@@ -236,26 +263,9 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
             </Stack>
             <Stack direction="row" spacing={3} mb={2}>
                 {spendType === "other"
-                    ? <Field.Text
-                        name="address"
-                        label="Địa chỉ"
-                        required
-                        sx={{
-                            flex: 1.5,
-                        }}
-                    />
+                    ? <AddressField />
                     :
-                    <Field.Text
-                        name="department"
-                        label="Phòng ban"
-                        sx={{
-                            flex: 1.5,
-                            '& .MuiInputBase-root.Mui-disabled': {
-                                backgroundColor: '#ddd',
-                            },
-                        }}
-                        disabled
-                    />
+                    <DepartmentField />
                 }
                 <Field.Text
                     name="receiptNo"
@@ -327,6 +337,13 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
         </>
     );
 
+    const handleCancel = () => {
+        onClose();
+        methods.reset(getDefaultValues());
+        setSelectedBank(null);
+        setbankKeyword('');
+    }
+
     const renderActions = () => (
         <Box sx={{ width: '100%' }}>
             <Stack direction="row" spacing={2} width="100%">
@@ -342,7 +359,7 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={() => { onClose(); reset(); }}
+                    onClick={handleCancel}
                     fullWidth
                     disabled={isSubmitting}
                 >
@@ -360,7 +377,7 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
                 },
             }}
             open={open}
-            onClose={() => { onClose(); reset(); }}
+            onClose={handleCancel}
             fullWidth
             maxWidth="md"
         >
@@ -388,11 +405,18 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
                     render={({ field }) => (
                         <RadioGroup
                             row
-                            {...field}
+                            // {...field}
+                            value={field.value}
                             onChange={(e) => {
                                 const newType = e.target.value as "salary" | "other";
                                 field.onChange(newType);
-                                onChangeType(newType);
+
+                                if (newType === "salary") {
+                                    methods.setValue("address", "");
+                                } else {
+                                    methods.setValue("department", "");
+                                    methods.setValue("employeeId", "");
+                                }
                             }}
                         >
                             <FormControlLabel value="salary" control={<Radio />} label="Chi lương" />

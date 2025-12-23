@@ -1,7 +1,8 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 import { useStyles } from "./useStyle";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
-export const renderFooter = () => {
+export const renderFooter = ({ companyInfoData }: { companyInfoData: ICompanyInfoItem | null; }) => {
     const styles = useStyles();
 
     return (
@@ -14,7 +15,7 @@ export const renderFooter = () => {
                             fontSize: 8
                         }}
                         >
-                            W.  http://dcse.vn   |   E.  lienhe@dcse.vn
+                            W.  {companyInfoData?.link || `http://dcse.vn `}  |   E.  {companyInfoData?.email || `lienhe@dcse.vn`}
                         </Text>
                         <View style={{ width: 1, height: '100%', backgroundColor: '#ddd', marginLeft: 4, marginRight: 4 }} />
                         <Text

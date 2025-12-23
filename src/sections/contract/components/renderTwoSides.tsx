@@ -1,7 +1,5 @@
-import {
-    Fragment,
-} from "react";
 import { Text, View } from "@react-pdf/renderer";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 import { formatPhoneNumber } from "src/utils/format-string";
 
 type props = {
@@ -13,6 +11,7 @@ type props = {
     position?: string;
     companyName?: string;
     customerTaxCode?: string;
+    companyInfoData: ICompanyInfoItem | null;
 }
 
 export const renderTwoSides = ({
@@ -23,7 +22,8 @@ export const renderTwoSides = ({
     customerBank,
     companyName,
     position,
-    customerTaxCode
+    customerTaxCode,
+    companyInfoData
 }: props) => {
     const SideLeft = [
         "- Địa chỉ:",
@@ -32,6 +32,10 @@ export const renderTwoSides = ({
         "- Mã số thuế:",
         "- Tài khoản số:"
     ];
+
+    const companyAddress = companyInfoData?.address || "Số 1/50/5/16, Thanh Đa, P. Bình Quới, TP. Hồ Chí Minh";
+
+    const companyTaxcode = companyInfoData?.taxCode || "0318436084";
 
     const ASideRight = [
         customerAddress ? customerAddress : '',
@@ -42,12 +46,13 @@ export const renderTwoSides = ({
     ];
 
     const BSideRight = [
-        "Số 1/50/5/16, Thanh Đa, P. Bình Quới, TP. Hồ Chí Minh",
+        companyAddress,
         "0932 090207",
         "Nguyễn Chí Nhân Nghĩa",
-        "0318436084",
+        companyTaxcode,
         "8100868, tại Ngân Hàng ACB - Phòng GD Thảo Điền - TP.HCM"
     ];
+
     return (
         <View
             style={{
@@ -63,6 +68,7 @@ export const renderTwoSides = ({
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
+                        flexWrap: 'wrap',
                         marginBottom: 4,
                     }}
                 >
@@ -79,7 +85,9 @@ export const renderTwoSides = ({
                         style={{
                             fontSize: 13,
                             fontFamily: 'Niramit-Bold',
-                            marginLeft: 8,
+                            marginLeft: 10,
+                            flex: 1,
+                            flexShrink: 1,
                         }}
                     >
                         {companyName ? companyName : customerName}
@@ -191,6 +199,7 @@ export const renderTwoSides = ({
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
+                        flexWrap: 'wrap',
                         marginBottom: 4,
                     }}
                 >
@@ -207,10 +216,12 @@ export const renderTwoSides = ({
                         style={{
                             fontSize: 13,
                             fontFamily: 'Niramit-Bold',
-                            marginLeft: 8,
+                            marginLeft: 10,
+                            flex: 1,
+                            flexShrink: 1,
                         }}
                     >
-                        CÔNG TY TNHH GIẢI PHÁP DCS
+                        {companyInfoData?.name || "CÔNG TY TNHH GIẢI PHÁP DCS"}
                     </Text>
                 </View>
 

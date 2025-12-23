@@ -22,7 +22,8 @@ export type ICustomerItem = {
     bankAccount: string;
     bankName: string;
     address: string;
-    isPartner: false;
+    isPartner: boolean;
+    isBusiness: boolean;
     position: string;
     rewardPoint: number;
     createDate: IDateValue;

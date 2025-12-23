@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CardHeader, Divider, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Card, CardContent, CardHeader, Divider, Skeleton, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { StatisticForContract } from "src/actions/statistics";
 import { EmptyContent } from "src/components/empty-content";
 import { Iconify } from "src/components/iconify";
@@ -10,6 +10,9 @@ type DashBoardContractProps = {
 };
 
 export function DashBoardContract({ filter }: DashBoardContractProps) {
+    const theme = useTheme();
+    const isBelow1600 = useMediaQuery('(max-width:1600px)');
+
     const { contractResult, contractResultLoading, contractResultError, contractResultEmpty } = StatisticForContract(filter);
     const settings = useSettingsContext();
     const darkMode = settings.state.colorScheme;
@@ -64,7 +67,7 @@ export function DashBoardContract({ filter }: DashBoardContractProps) {
             />
             <Divider />
             <CardContent>
-                <Stack direction={{ xs: 'column', sm: 'column', md: 'column', lg: 'column', xl: 'row' }} spacing={2}>
+                <Stack direction={isBelow1600 ? 'column' : 'row'} spacing={2}>
                     <Box
                         flex={1}
                         display="flex"

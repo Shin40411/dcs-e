@@ -39,8 +39,8 @@ export function WarehouseExportMainView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const [filters, setFilters] = useState<FilterValues>({
-        fromDate: null,
-        toDate: null,
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
     });
 
     const {
@@ -95,12 +95,22 @@ export function WarehouseExportMainView() {
         setTableData(contractWarehouseExports);
     }, [contractWarehouseExports]);
 
+    useEffect(() => {
+        mutation();
+    }, [location.pathname]);
+
+    const onPreviewWarehouseExport = (params: URLSearchParams) => {
+        const queryString = params.toString();
+        window.open(`${paths.warehouseExport}?${queryString}`, '_blank');
+    }
+
     const renderForm = () => (
         <WarehouseExportNewEditForm
             open={openCrudForm.value}
             onClose={openCrudForm.onFalse}
             selectedWarehouseExport={tableRowSelected}
             refetchList={mutation}
+            onPreviewWarehouseExport={onPreviewWarehouseExport}
         />
     )
 
@@ -183,7 +193,8 @@ export function WarehouseExportMainView() {
                             setRowIdSelected,
                             setTableRowSelected,
                             page,
-                            rowsPerPage
+                            rowsPerPage,
+                            onPreviewWarehouseExport
                         })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}

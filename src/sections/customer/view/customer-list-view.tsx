@@ -8,7 +8,6 @@ import { UseGridTableList } from "src/components/data-grid-table/data-grid-table
 import { Iconify } from "src/components/iconify";
 import { CUSTOMER_COLUMNS } from "src/const/customer";
 import { DashboardContent } from "src/layouts/dashboard";
-import { paths } from "src/routes/paths";
 import { ICustomerItem } from "src/types/customer";
 import { CustomerNewEditForm } from "../customer-new-edit-form";
 import { CustomerDetails } from "../customer-details";
@@ -23,6 +22,7 @@ import { RoleBasedGuard } from "src/auth/guard";
 import { useLocation } from "react-router";
 import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 import { CUSTOMER_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import { CustomerFilter } from "../customer-filter";
 
 export function CustomerListView() {
     const location = useLocation();
@@ -36,12 +36,55 @@ export function CustomerListView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['KHACHHANG.VIEW']);
+    const [isBusiness, setIsBusiness] = useState<boolean | null>(null);
+    const [isPartner, setIsPartner] = useState<boolean | null>(null);
 
     const { customers, pagination, customersLoading, mutation } = useGetCustomers({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
+        IsBusiness: isBusiness !== null && isBusiness === true
+            ? true
+            : isBusiness !== null && isBusiness === false
+                ? false
+                : null,
+        IsPartner: isPartner !== null && isPartner === true
+            ? true
+            : isPartner !== null && isPartner === false
+                ? false
+                : null,
     });
+
+    const { pagination: { totalRecord: allRecord } } = useGetCustomers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsBusiness: null
+    });
+
+    const { pagination: { totalRecord: businessRecord } } = useGetCustomers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsBusiness: true
+    });
+
+    const { pagination: { totalRecord: unBusinessRecord } } = useGetCustomers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsBusiness: false
+    });
+
+    const { pagination: { totalRecord: partnerRecord } } = useGetCustomers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsPartner: true
+    });
+
+    const { pagination: { totalRecord: retailRecord } } = useGetCustomers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsPartner: false
+    });
+
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
     }
@@ -179,6 +222,19 @@ export function CustomerListView() {
                     searchText={searchText}
                     onSearchChange={setSearchText}
                     openBin={openBin}
+                    additionDefaultFilter={
+                        <CustomerFilter
+                            allRecord={allRecord}
+                            filterState={isBusiness}
+                            onChangeState={setIsBusiness}
+                            isPartner={isPartner}
+                            onCheck={setIsPartner}
+                            businessRecord={businessRecord}
+                            unBusinessRecord={unBusinessRecord}
+                            partnerRecord={partnerRecord}
+                            retailRecord={retailRecord}
+                        />
+                    }
                 />
                 {renderCRUDForm()}
                 {renderConfirmDeleteRow()}

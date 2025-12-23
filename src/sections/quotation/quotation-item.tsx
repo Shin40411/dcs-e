@@ -14,13 +14,12 @@ import { Iconify } from "src/components/iconify";
 import { IQuotationData, IQuotationItem } from "src/types/quotation";
 import { fCurrency } from "src/utils/format-number";
 import { QuotationPreview } from "./quotation-preview";
-import { QuotationPdfDocument } from "./quotation-pdf";
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useGetQuotation } from "src/actions/quotation";
 import { useEffect, useState } from "react";
 import { useSettingsContext } from "src/components/settings";
 import NewSticker from "src/components/label/news";
 import { isToday } from "date-fns";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
@@ -28,6 +27,7 @@ type Props = CardProps & {
     quotate: IQuotationItem;
     onViewDetails: () => void;
     onEditing: () => void;
+    companyInfo: ICompanyInfoItem | null;
 };
 
 const statusMap: { [key: number]: [string, string] } = {
@@ -37,7 +37,7 @@ const statusMap: { [key: number]: [string, string] } = {
     3: ["Đã hoàn thành", "fluent-color:checkmark-circle-16"],
 }
 
-export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails, onEditing, sx, ...other }: Props) {
+export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails, onEditing, sx, companyInfo, ...other }: Props) {
     const menuActions = usePopover();
     const settings = useSettingsContext();
     const statusValue = quotate.status;
@@ -50,6 +50,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
     });
 
     const [currentQuotation, setSelectQuotation] = useState<IQuotationData>();
+
     useEffect(() => {
         if (quotation) {
             setSelectQuotation(quotation);
@@ -147,7 +148,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                         <NewSticker />
                     </Box>
                 )}
-                <QuotationPreview quotation={quotate} />
+                <QuotationPreview quotation={quotate} companyInfo={companyInfo} />
                 <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
                         <Box

@@ -7,7 +7,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { paths } from 'src/routes/paths';
 import { Button } from '@mui/material';
 import { UseGridTableList } from 'src/components/data-grid-table/data-grid-table';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { IBankAccountItem } from 'src/types/bankAccount';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
 import { useGetBankAccounts } from 'src/actions/bankAccount';
@@ -48,7 +48,7 @@ export function OverviewBankingView() {
   };
 
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);

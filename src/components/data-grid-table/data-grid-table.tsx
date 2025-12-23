@@ -19,6 +19,8 @@ type GridProps = {
     searchText?: string;
     onSearchChange?: (value: string) => void;
     disableDefaultFilter?: boolean;
+    additionDefaultFilter?: ReactNode;
+    additionDefaultFilterSub?: ReactNode;
     openBin?: UseBooleanReturn;
     additionalFilter?: ReactNode;
 };
@@ -36,6 +38,8 @@ export function UseGridTableList({
     searchText = '',
     onSearchChange = () => { },
     disableDefaultFilter = false,
+    additionDefaultFilter,
+    additionDefaultFilterSub,
     openBin,
     additionalFilter
 }: GridProps) {
@@ -121,6 +125,8 @@ export function UseGridTableList({
                         searchText,
                         onSearchChange,
                         disableDefaultFilter,
+                        additionDefaultFilter,
+                        additionDefaultFilterSub,
                         openBin,
                         additionalFilter,
                     },
@@ -153,6 +159,8 @@ declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
         setFilterButtonEl: Dispatch<SetStateAction<HTMLButtonElement | null>>;
         disableDefaultFilter?: boolean;
+        additionDefaultFilter?: ReactNode;
+        additionDefaultFilterSub?: ReactNode;
         searchText?: string;
         onSearchChange?: (value: string) => void;
         openBin?: UseBooleanReturn;
@@ -163,6 +171,8 @@ declare module '@mui/x-data-grid' {
 type CustomToolbarProps = GridToolbarProps & {
     searchText?: string;
     disableDefaultFilter?: boolean;
+    additionDefaultFilter?: ReactNode;
+    additionDefaultFilterSub?: ReactNode;
     onSearchChange?: (value: string) => void;
     openBin?: UseBooleanReturn;
     additionalFilter?: ReactNode;
@@ -172,6 +182,8 @@ function CustomToolbarComponent(props: CustomToolbarProps) {
     const {
         searchText = '',
         disableDefaultFilter = false,
+        additionDefaultFilter,
+        additionDefaultFilterSub,
         onSearchChange = () => { },
         openBin,
         additionalFilter,
@@ -182,6 +194,12 @@ function CustomToolbarComponent(props: CustomToolbarProps) {
         <>
             {!disableDefaultFilter &&
                 <GridToolbarContainer {...rest}>
+                    {additionDefaultFilter &&
+                        <>
+                            {additionDefaultFilter}
+                            <Box sx={{ flexGrow: 1 }} />
+                        </>
+                    }
                     <GridToolbarColumnsButton />
                     <GridToolbarFilterButton />
                     <GridToolbarDensitySelector />
@@ -197,7 +215,12 @@ function CustomToolbarComponent(props: CustomToolbarProps) {
                         </Button>
                     )}
 
-                    <Box sx={{ flexGrow: 1 }} />
+                    {!additionDefaultFilterSub &&
+                        <Box sx={{ flexGrow: 1 }} />
+                    }
+
+                    {additionDefaultFilterSub &&
+                        additionDefaultFilterSub}
 
                     <TextField
                         size="small"
@@ -219,9 +242,7 @@ function CustomToolbarComponent(props: CustomToolbarProps) {
 
                 </GridToolbarContainer>
             }
-            {additionalFilter &&
-                additionalFilter
-            }
+            {additionalFilter && additionalFilter}
         </>
     );
 }

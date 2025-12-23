@@ -24,7 +24,7 @@ export function AuthSplitContent({
       className={mergeClasses([layoutClasses.content, className])}
       sx={[
         (theme) => ({
-          backgroundImage: `url(${CONFIG.assetsDir}/assets/background/balloon.jpg)`,
+          backgroundImage: `url(${CONFIG.assetsDir}/assets/background/dcs_bg_green.png)`,
           backgroundPosition: 'center',
           backgroundSize: 'cover',
           display: 'flex',
@@ -50,8 +50,8 @@ export function AuthSplitContent({
           maxWidth: 'var(--layout-auth-content-width)',
           padding: 4,
           boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
-          bgcolor: 'background.paper',
-          borderRadius: 2
+          bgcolor: '#DCFCE7',
+          borderRadius: 0.5
         }}
       >
         {children}

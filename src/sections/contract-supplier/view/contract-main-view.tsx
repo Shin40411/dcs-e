@@ -1,13 +1,8 @@
-import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { DashboardContent } from "src/layouts/dashboard";
-import { paths } from "src/routes/paths";
-import { IContractItem } from "src/types/contract";
 import { ContractCardList } from "../contract-card-list";
-import { IDateValue } from "src/types/common";
 import { CONFIG } from "src/global-config";
-import { Iconify } from "src/components/iconify";
 import { ContractForm } from "../contract-form";
 import { ContractDetails } from "../contract-details";
 import { useLocation, useNavigate } from "react-router";
@@ -18,6 +13,8 @@ import { RoleBasedGuard } from "src/auth/guard";
 import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 import { SUPPLIER_SERVICE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
 import { FilterValues } from "src/types/filter-values";
+import { formatDate } from "src/utils/format-time-vi";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 export function ContractMainView() {
     const location = useLocation();
@@ -31,12 +28,15 @@ export function ContractMainView() {
     const [copiedContract, setCopiedContract] = useState<IContractSupplyItem | null>(null);
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
+    const today = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(today.getMonth() - 1);
 
     const { permission } = useCheckPermission(['HOPDONG.VIEW']);
 
     const [filters, setFilters] = useState<FilterValues>({
-        fromDate: null,
-        toDate: null,
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
     });
     const { contracts, contractsLoading, pagination, contractsEmpty, mutation } = useGetSupplierContracts({
         pageNumber: page + 1,
@@ -48,6 +48,8 @@ export function ContractMainView() {
         Month: filters.month,
         Status: filters.status
     });
+
+    const { companyInfoData, mutation: refetchCompanyInfo } = useGetCompanyInfo();
 
     const handleViewDetails = (contract: IContractSupplyItem) => {
         setSelectedContract(contract);
@@ -64,6 +66,10 @@ export function ContractMainView() {
         setSelectedContract(null);
         setOpenForm(true);
     }
+    useEffect(() => {
+        mutation();
+        refetchCompanyInfo();
+    }, [location.pathname]);
 
     useEffect(() => {
         if (location.state?.openForm) {
@@ -113,6 +119,7 @@ export function ContractMainView() {
                     pagination={pagination}
                     setFilters={setFilters}
                     setSearchText={setSearchText}
+                    companyInfoData={companyInfoData}
                 />
 
                 <ContractForm
@@ -127,6 +134,7 @@ export function ContractMainView() {
                     detailsFromQuotation={productDetails}
                     mutation={mutation}
                     CopiedContract={copiedContract}
+                    customerIdFromQuotation={inVoiceCustomerId}
                 />
                 {selectedContract && (
                     <ContractDetails

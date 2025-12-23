@@ -47,16 +47,11 @@ export function ContractWareHouse({ selectedContract, open, onClose, refetchFns,
     const {
         remainingProduct: initialProducts,
         remainingProductEmpty,
-        remainingProductLoading
+        remainingProductLoading,
+        mutate: refetchRemainProduct
     }
         = useGetUnExportProduct(selectedContract.id, open);
     const [products, setProducts] = useState<IContractRemainingProduct[]>([]);
-
-    useEffect(() => {
-        if (initialProducts && initialProducts.length > 0) {
-            setProducts([...initialProducts]);
-        }
-    }, [initialProducts]);
 
     const [watchTicket, setWatchTicket] = useState(true);
     const [warehouseExportNumber, setWarehouseExportNumber] = useState<string>('');
@@ -64,7 +59,7 @@ export function ContractWareHouse({ selectedContract, open, onClose, refetchFns,
     const defaultValues: ContractWareHouseSchemaType = {
         wareHouseNo: warehouseExportNumber,
         exportDate: today.toISOString(),
-        receiverAddress: "",
+        receiverAddress: "Văn phòng công ty",
         receiverName: "",
         note: "",
     };
@@ -73,11 +68,6 @@ export function ContractWareHouse({ selectedContract, open, onClose, refetchFns,
         resolver: zodResolver(ContractWareHouseSchema),
         defaultValues
     });
-
-    useEffect(() => {
-        methods.setValue('wareHouseNo', generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
-        setWarehouseExportNumber(generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
-    }, [totalRecord, setWarehouseExportNumber]);
 
     const {
         reset,
@@ -184,6 +174,21 @@ export function ContractWareHouse({ selectedContract, open, onClose, refetchFns,
     });
 
     useEffect(() => {
+        if (initialProducts && initialProducts.length > 0) {
+            setProducts([...initialProducts]);
+        }
+    }, [initialProducts]);
+
+    useEffect(() => {
+        refetchRemainProduct();
+    }, [open]);
+
+    useEffect(() => {
+        methods.setValue('wareHouseNo', generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
+        setWarehouseExportNumber(generateWarehouseExport('PX', selectedContract.contractNo, totalRecord));
+    }, [totalRecord, setWarehouseExportNumber]);
+
+    useEffect(() => {
         if (warehouseExportNo && exportDate && receiverAddress && receiverName) {
             setWatchTicket(false);
         } else {
@@ -208,7 +213,10 @@ export function ContractWareHouse({ selectedContract, open, onClose, refetchFns,
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <TextField value={selectedContract.companyName} label="Đơn vị nhận hàng" disabled
+                <TextField
+                    value={selectedContract.companyName || "Phòng kinh doanh"}
+                    label="Đơn vị nhận hàng"
+                    disabled
                     sx={{
                         flex: 1.5,
                         '& .MuiInputBase-root.Mui-disabled': {

@@ -30,17 +30,20 @@ export function useGetEmployeeTypes({ pageNumber, pageSize, key, enabled = true 
 
     const memoizedValue = useMemo(
         () => ({
-            employeeTypes: data?.data.items || [],
+            employeeTypes: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             employeeTypesLoading: isLoading,
             employeeTypesError: error,
             employeeTypesValidating: isValidating,
-            employeeTypesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            employeeTypesEmpty:
+                !isLoading &&
+                !isValidating &&
+                !((data?.data?.items?.length ?? 0) > 0),
             mutation: mutate
         }),
         [data, error, isLoading, isValidating]
@@ -60,17 +63,20 @@ export function useGetDeletedEmployeeTypes({ pageNumber, pageSize, key, enabled 
 
     const memoizedValue = useMemo(
         () => ({
-            employeeTypes: data?.data.items || [],
+            employeeTypes: data?.data?.items || [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             employeeTypesLoading: isLoading,
             employeeTypesError: error,
             employeeTypesValidating: isValidating,
-            employeeTypesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            employeeTypesEmpty:
+                !isLoading &&
+                !isValidating &&
+                !(data?.data?.items?.length ?? 0),
             mutation: mutate
         }),
         [data, error, isLoading, isValidating]

@@ -1,9 +1,15 @@
 import { useEffect, useMemo } from "react";
 import axiosInstance, { endpoints, fetcher } from "src/lib/axios";
 import { IDateValue } from "src/types/common";
-import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContractDto, ReportDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt, ResContractSuppFromCus, ResDetailsWarehouseExportProduct, ResIReceiptItem, ResRemainingProduct, ResReportLiquidation } from "src/types/contract";
+import { IContractDao, IContractDetailDto, IContractDto, IContractProductToDelete, IProductContractEdit, IProductFormEdit, IReceiptContractDto, ReportDto, ResContractFile, ResContractItem, ResContractList, ResContractReceipt, ResContractSuppFromCus, ResDetailsWarehouseExportProduct, ResIReceiptItem, ResRemainingProduct, ResReportLiquidation, ResVoucherItem } from "src/types/contract";
 import { IContractWarehouseExportDto, ResContractWarehouseExport } from "src/types/warehouseExport";
 import useSWR, { SWRConfiguration } from "swr";
+
+const swrOptions: SWRConfiguration = {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+};
 
 type contracProps = {
     pageNumber: number;
@@ -17,11 +23,64 @@ type contracProps = {
     Status?: string;
 }
 
-const swrOptions: SWRConfiguration = {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-};
+type contractProp = {
+    contractId: number,
+    pageNumber: number,
+    pageSize: number,
+    options?: { enabled?: boolean }
+}
+
+type contractUploadProp = {
+    File: File;
+    contractNo: string;
+    ContractType: string;
+    FileType: string;
+}
+
+type contractAttachProp = {
+    contractNo: string,
+    pageNumber: number,
+    pageSize: number,
+    filter?: number
+}
+
+type contractReceiptProp = {
+    ContractNo?: string;
+    pageNumber: number;
+    pageSize: number;
+    enabled?: boolean;
+    key?: string;
+    ContractType?: string;
+    ReceiptType?: string;
+    Month?: number;
+    FromDate?: IDateValue;
+    ToDate?: IDateValue;
+}
+
+type contractWarehouseExportsProp = {
+    pageNumber: number,
+    pageSize: number,
+    enabled?: boolean,
+    key?: string,
+    ContractNo?: string;
+    Month?: number;
+    FromDate?: IDateValue;
+    ToDate?: IDateValue;
+}
+
+type reportProps = {
+    pageNumber: number;
+    pageSize: number;
+    enabled?: boolean;
+    contractNo: string;
+}
+
+type voucherProps = {
+    pageNumber: number;
+    pageSize: number;
+    key?: string;
+    enabled?: boolean;
+}
 
 export function useGetContracts({
     pageNumber,
@@ -52,35 +111,27 @@ export function useGetContracts({
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractList>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items?.filter((q) => q.status !== 0) ?? [];
-            return {
-                contracts: filteredItems,
-                pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
-                },
-                contractsLoading: isLoading,
-                contractsError: error,
-                contractsValidating: isValidating,
-                contractsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-                mutate
-            }
-        },
-        [data, error, isLoading, isValidating]
-    );
+    const memoizedValue = useMemo(() => {
+        const filteredItems =
+            data?.data?.items?.filter((q) => q.status !== 0) ?? [];
+
+        return {
+            contracts: filteredItems,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            contractsLoading: isLoading,
+            contractsError: error,
+            contractsValidating: isValidating,
+            contractsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            mutate
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
-}
-
-type contractProp = {
-    contractId: number,
-    pageNumber: number,
-    pageSize: number,
-    options?: { enabled?: boolean }
 }
 
 export function useGetContract({ contractId, pageNumber, pageSize, options }: contractProp) {
@@ -165,13 +216,6 @@ export async function deleteProductSelected(bodyPayload: IContractProductToDelet
     }
 }
 
-type contractUploadProp = {
-    File: File;
-    contractNo: string;
-    ContractType: string;
-    FileType: string;
-}
-
 export async function uploadAttachmentContract({ File, contractNo, ContractType, FileType }: contractUploadProp) {
     try {
         const formData = new FormData();
@@ -191,13 +235,6 @@ export async function uploadAttachmentContract({ File, contractNo, ContractType,
     }
 }
 
-type contractAttachProp = {
-    contractNo: string,
-    pageNumber: number,
-    pageSize: number,
-    filter?: number
-}
-
 export function useGetAttachmentContract({
     contractNo,
     pageNumber,
@@ -213,22 +250,24 @@ export function useGetAttachmentContract({
 
     const url = enabled ? endpoints.contractAttachment.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResContractFile>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractFile>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(() => {
-        const filteredItems = data?.data.items ?? [];
+        const filteredItems = data?.data?.items ?? [];
+
         return {
             contractFile: filteredItems,
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             contractFileLoading: isLoading,
             contractFileError: error,
             contractFileValidating: isValidating,
             contractFileEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            mutation: mutate
         };
     }, [data, error, isLoading, isValidating]);
 
@@ -252,19 +291,6 @@ export async function downloadAttachmentContract(fileId: number) {
     return axiosInstance.get(endpoints.contractAttachment.download(fileId), {
         responseType: 'blob',
     });
-}
-
-type contractReceiptProp = {
-    ContractNo?: string;
-    pageNumber: number;
-    pageSize: number;
-    enabled?: boolean;
-    key?: string;
-    ContractType?: string;
-    ReceiptType?: string;
-    Month?: number;
-    FromDate?: IDateValue;
-    ToDate?: IDateValue;
 }
 
 export function useGetReceiptContract({
@@ -293,33 +319,32 @@ export function useGetReceiptContract({
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractReceipt>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items ?? [];
-            const contractReceiptItem = filteredItems.flatMap((i) =>
-                i.receipts.map((receipt) => ({
-                    ...receipt,
-                    id: receipt.receiptId,
-                }))
-            );
-            return {
-                contractReceipt: filteredItems,
-                contractReceiptItem,
-                pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
-                },
-                contractReceiptLoading: isLoading,
-                contractReceiptError: error,
-                contractReceiptValidating: isValidating,
-                contractReceiptEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-                mutation: mutate
-            }
-        },
-        [data, error, isLoading, isValidating]
-    );
+    const memoizedValue = useMemo(() => {
+        const items = data?.data?.items ?? [];
+
+        const contractReceiptItem = items.flatMap((i) =>
+            i.receipts.map((receipt) => ({
+                ...receipt,
+                id: receipt.receiptId,
+            }))
+        );
+
+        return {
+            contractReceipt: items,
+            contractReceiptItem,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            contractReceiptLoading: isLoading,
+            contractReceiptError: error,
+            contractReceiptValidating: isValidating,
+            contractReceiptEmpty: !isLoading && !isValidating && items.length === 0,
+            mutation: mutate
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }
@@ -344,17 +369,6 @@ export async function updateReceiptContract(dto: IReceiptContractDto, id: number
     }
 }
 
-type contractWarehouseExportsProp = {
-    pageNumber: number,
-    pageSize: number,
-    enabled?: boolean,
-    key?: string,
-    ContractNo?: string;
-    Month?: number;
-    FromDate?: IDateValue;
-    ToDate?: IDateValue;
-}
-
 export function useGetWarehouseExports({
     pageNumber,
     pageSize,
@@ -377,26 +391,24 @@ export function useGetWarehouseExports({
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResContractWarehouseExport>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items ?? [];
-            return {
-                contractWarehouseExports: filteredItems,
-                pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
-                },
-                contractWarehouseExportsLoading: isLoading,
-                contractWarehouseExportsError: error,
-                contractWarehouseExportsValidating: isValidating,
-                contractWarehouseExportsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-                mutation: mutate
-            }
-        },
-        [data, error, isLoading, isValidating]
-    );
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items ?? [];
+
+        return {
+            contractWarehouseExports: filteredItems,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            contractWarehouseExportsLoading: isLoading,
+            contractWarehouseExportsError: error,
+            contractWarehouseExportsValidating: isValidating,
+            contractWarehouseExportsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            mutation: mutate
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }
@@ -404,17 +416,18 @@ export function useGetWarehouseExports({
 export function useGetUnExportProduct(contractId: number, enabled: boolean) {
     const url = (enabled && contractId) ? endpoints.contractWarehouse.remaining(contractId) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResRemainingProduct>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResRemainingProduct>(url, fetcher, swrOptions);
 
     const memoizedValue = useMemo(
         () => {
-            const filteredItems = data?.data.items ?? [];
+            const filteredItems = data?.data?.items ?? [];
             return {
                 remainingProduct: filteredItems,
                 remainingProductLoading: isLoading,
                 remainingProductError: error,
                 remainingProductValidating: isValidating,
                 remainingProductEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+                mutate
             }
         },
         [data, error, isLoading, isValidating]
@@ -430,7 +443,7 @@ export function useGetDetailWarehouseExportProduct(ExportID: number, enabled: bo
 
     const memoizedValue = useMemo(
         () => {
-            const filteredItems = data?.data.items ?? [];
+            const filteredItems = data?.data?.items ?? [];
             return {
                 detailsProduct: filteredItems,
                 detailsProductLoading: isLoading,
@@ -465,13 +478,6 @@ export async function updateWarehouseExport(id: string, dto: IContractWarehouseE
     }
 }
 
-type reportProps = {
-    pageNumber: number;
-    pageSize: number;
-    enabled?: boolean;
-    contractNo: string;
-}
-
 export function useGetReportLiquidation({ contractNo, pageNumber, pageSize, enabled }: reportProps) {
     let params = '';
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
@@ -479,25 +485,23 @@ export function useGetReportLiquidation({ contractNo, pageNumber, pageSize, enab
     const url = enabled ? endpoints.report.root(params) : null;
     const { data, isLoading, error, isValidating } = useSWR<ResReportLiquidation>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items ?? [];
-            return {
-                report: filteredItems,
-                pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
-                },
-                reportLoading: isLoading,
-                reportError: error,
-                reportValidating: isValidating,
-                reportEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-            }
-        },
-        [data, error, isLoading, isValidating]
-    );
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items ?? [];
+
+        return {
+            report: filteredItems,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            reportLoading: isLoading,
+            reportError: error,
+            reportValidating: isValidating,
+            reportEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }
@@ -544,20 +548,51 @@ export function useGetTotalSpendByCustomerContract(
         if (enabled) mutate();
     }, [enabled]);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items ?? [];
-            return {
-                spenRecords: data?.data.totalRecord ?? 0,
-                spendRecordsLoading: isLoading,
-                spendRecordsError: error,
-                spendRecordsValidating: isValidating,
-                spendRecordsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-                mutation: mutate
-            }
-        },
-        [data, error, isLoading, isValidating]
-    );
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items ?? [];
+
+        return {
+            spenRecords: data?.data?.totalRecord ?? 0,
+            spendRecordsLoading: isLoading,
+            spendRecordsError: error,
+            spendRecordsValidating: isValidating,
+            spendRecordsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            mutation: mutate
+        };
+    }, [data, error, isLoading, isValidating]);
+
+    return memoizedValue;
+}
+
+export function useGetVoucherCode({ pageNumber, pageSize, key, enabled }: voucherProps) {
+    let params = '';
+
+    if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+
+    if (key) params += `&search=${key}`;
+
+    const url = enabled ? endpoints.contract.getVouchers(params) : null;
+
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResVoucherItem>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items ?? [];
+
+        return {
+            vouchers: filteredItems,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            vouchersLoading: isLoading,
+            vouchersError: error,
+            vouchersValidating: isValidating,
+            vouchersEmpty: !isLoading && !isValidating && filteredItems.length === 0,
+            mutate
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }

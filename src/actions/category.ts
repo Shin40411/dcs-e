@@ -27,23 +27,24 @@ export function useGetCategories({ pageNumber, pageSize, key, enabled = true }: 
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResCategoryList>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => ({
-            categories: data?.data.items || [],
+    const memoizedValue = useMemo(() => {
+        const items = data?.data?.items ?? [];
+
+        return {
+            categories: items,
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             categoriesLoading: isLoading,
             categoriesError: error,
             categoriesValidating: isValidating,
-            categoriesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            categoriesEmpty: !isLoading && !isValidating && items.length === 0,
             mutation: mutate
-        }),
-        [data, error, isLoading, isValidating]
-    );
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }
@@ -57,23 +58,24 @@ export function useGetDeletedCategories({ pageNumber, pageSize, key, enabled = t
 
     const { data, isLoading, error, isValidating, mutate } = useSWR<ResCategoryList>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => ({
-            categories: data?.data.items || [],
+    const memoizedValue = useMemo(() => {
+        const items = data?.data?.items ?? [];
+
+        return {
+            categories: items,
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             categoriesLoading: isLoading,
             categoriesError: error,
             categoriesValidating: isValidating,
-            categoriesEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            categoriesEmpty: !isLoading && !isValidating && items.length === 0,
             mutation: mutate
-        }),
-        [data, error, isLoading, isValidating]
-    );
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }

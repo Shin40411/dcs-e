@@ -134,6 +134,14 @@ export const INTERNAL_RECEIPT_COLUMNS: ({
                 ),
             },
             {
+                field: 'cost',
+                headerName: 'Số tiền nộp',
+                width: 200,
+                renderCell: (params) => (
+                    <RenderCellAmount params={params} />
+                ),
+            },
+            {
                 field: 'receiptDate',
                 headerName: 'Ngày nộp',
                 width: 200,
@@ -147,14 +155,6 @@ export const INTERNAL_RECEIPT_COLUMNS: ({
                 width: 300,
                 renderCell: (params) => (
                     <RenderReason params={params} />
-                ),
-            },
-            {
-                field: 'cost',
-                headerName: 'Số tiền nộp',
-                width: 200,
-                renderCell: (params) => (
-                    <RenderCellAmount params={params} />
                 ),
             },
             {

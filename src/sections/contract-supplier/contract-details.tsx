@@ -9,6 +9,8 @@ import ContractSendMail from "./contract-sendmail";
 import { ContractSpend } from "./contract-spend";
 import { toast } from "sonner";
 import { ContractWareHouse } from "./contract-warehouse";
+import ContractAttachMent from "./contract-attachment";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 type Props = {
     selectedContract: IContractSupplyItem;
@@ -24,6 +26,8 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
         pageSize: 999,
         options: { enabled: !!selectedContract?.id }
     });
+
+    const { companyInfoData, mutation: refetchCompanyInfo } = useGetCompanyInfo();
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [anchorTD, setAnchorTD] = useState<null | HTMLElement>(null);
@@ -119,6 +123,7 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                 currentStatus={statusMap[selectedContract.status]}
                 currentContract={contract}
                 openDetail={openDetail}
+                companyInfoData={companyInfoData}
             />
         );
         pdfContractIdRef.current = selectedContract.id;
@@ -129,6 +134,10 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
             toast.error("Không thể xem! Hợp đồng này đang thiếu dữ liệu chi tiết");
         }
     }, [contractError]);
+
+    useEffect(() => {
+        refetchCompanyInfo();
+    }, [openDetail]);
 
     return (
         <>
@@ -192,13 +201,13 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                                             >
                                                 Gửi hợp đồng
                                             </Button>
-                                            {/* <Button
+                                            <Button
                                                 variant="contained"
                                                 startIcon={<Iconify icon="streamline-plump:email-attachment-document" />}
                                                 onClick={openFileAttach.onTrue}
                                             >
                                                 File chứng từ
-                                            </Button> */}
+                                            </Button>
                                             {selectedContract.status !== 1 &&
                                                 <Button
                                                     variant="contained"
@@ -323,12 +332,11 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                             open={openReceipt.value}
                             onClose={openReceipt.onFalse}
                         />
-                        {/* <ContractAttachMent
-                    selectedContract={selectedContract}
-                    open={openFileAttach.value}
-                    onClose={openFileAttach.onFalse}
+                        <ContractAttachMent
+                            selectedContract={selectedContract}
+                            open={openFileAttach.value}
+                            onClose={openFileAttach.onFalse}
                         />
-                        */}
                         <ContractWareHouse
                             selectedContract={selectedContract}
                             open={openWareHouse.value}
@@ -343,6 +351,7 @@ export function ContractDetails({ selectedContract, openDetail, copyContract, on
                 email={selectedContract.supplierEmail}
                 contract={selectedContract}
                 currentContract={contract}
+                companyInfoData={companyInfoData}
             />
 
         </>

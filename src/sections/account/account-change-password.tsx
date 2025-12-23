@@ -12,6 +12,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { changeProfilePassword } from 'src/actions/account';
 
 // ----------------------------------------------------------------------
 
@@ -21,17 +22,17 @@ export const ChangePassWordSchema = zod
   .object({
     oldPassword: zod
       .string()
-      .min(1, { message: 'Password is required!' })
-      .min(6, { message: 'Password must be at least 6 characters!' }),
-    newPassword: zod.string().min(1, { message: 'New password is required!' }),
-    confirmNewPassword: zod.string().min(1, { message: 'Confirm password is required!' }),
+      .min(1, { message: 'Vui lòng nhập mật khẩu hiện tại!' })
+      .min(5, { message: 'Mật khẩu hiện tại tối đa 5+ ký tự!' }),
+    newPassword: zod.string().min(1, { message: 'Vui lòng nhập mật khẩu mới!' }),
+    confirmNewPassword: zod.string().min(1, { message: 'Vui lòng xác nhận mật khẩu mới!' }),
   })
   .refine((data) => data.oldPassword !== data.newPassword, {
-    message: 'New password must be different than old password',
+    message: 'Mật khẩu mới phải khác mật khẩu hiện tại!',
     path: ['newPassword'],
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
-    message: 'Passwords do not match!',
+    message: 'Mật khẩu mới chưa chính xác!',
     path: ['confirmNewPassword'],
   });
 
@@ -60,12 +61,12 @@ export function AccountChangePassword() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await changeProfilePassword(data);
       reset();
-      toast.success('Update success!');
-      console.info('DATA', data);
-    } catch (error) {
+      toast.success('Mật khẩu của bạn đã được thay đổi!');
+    } catch (error: any) {
       console.error(error);
+      toast.error(error.message || 'Đã có lỗi xảy ra, vui lòng thử lại!');
     }
   });
 
@@ -82,7 +83,7 @@ export function AccountChangePassword() {
         <Field.Text
           name="oldPassword"
           type={showPassword.value ? 'text' : 'password'}
-          label="Old password"
+          label="Mật khẩu hiện tại"
           slotProps={{
             input: {
               endAdornment: (
@@ -100,7 +101,7 @@ export function AccountChangePassword() {
 
         <Field.Text
           name="newPassword"
-          label="New password"
+          label="Mât khẩu mới"
           type={showPassword.value ? 'text' : 'password'}
           slotProps={{
             input: {
@@ -117,7 +118,7 @@ export function AccountChangePassword() {
           }}
           helperText={
             <Box component="span" sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-              <Iconify icon="solar:info-circle-bold" width={16} /> Password must be minimum 6+
+              <Iconify icon="solar:info-circle-bold" width={16} /> Mật khẩu tối đa 5+ ký tự
             </Box>
           }
         />
@@ -125,7 +126,7 @@ export function AccountChangePassword() {
         <Field.Text
           name="confirmNewPassword"
           type={showPassword.value ? 'text' : 'password'}
-          label="Confirm new password"
+          label="Xác nhận mật khẩu mới"
           slotProps={{
             input: {
               endAdornment: (
@@ -141,8 +142,13 @@ export function AccountChangePassword() {
           }}
         />
 
-        <Button type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
-          Save changes
+        <Button
+          type="submit"
+          variant="contained"
+          loading={isSubmitting}
+          sx={{ ml: 'auto' }}
+          startIcon={<Iconify icon="material-symbols:lock-reset" />}>
+          Đổi mật khẩu
         </Button>
       </Card>
     </Form>

@@ -12,6 +12,12 @@ export type ResEmployeesList = {
     };
 };
 
+export type ResPersonalAccount = {
+    statusCode: number;
+    message: string;
+    data: IEmployeeItem;
+};
+
 export type IEmployeeItem = {
     id: number;
     code: string;
@@ -39,10 +45,10 @@ export type IEmployeeItem = {
 
 export type IEmployeeDto = {
     name: string;
-    typeId: number;
+    typeId?: number;
     gender: string;
     email: string;
-    rightId: number;
+    rightId?: number;
     departmentId: number;
     image: string | null;
     birthday: IDateValue;
@@ -51,7 +57,7 @@ export type IEmployeeDto = {
     bankAccount: string;
     bankName: string;
     balance: number;
-    employeeTypeId: number;
+    employeeTypeId?: number;
 }
 
 export type IUserDto = {

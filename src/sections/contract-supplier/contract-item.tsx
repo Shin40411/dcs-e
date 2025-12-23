@@ -8,6 +8,7 @@ import { useSettingsContext } from "src/components/settings";
 import { IContractSupplyItem } from "src/types/contractSupplier";
 import { isToday } from "date-fns";
 import NewSticker from "src/components/label/news";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
@@ -15,6 +16,7 @@ type Props = CardProps & {
     contract: IContractSupplyItem;
     onViewDetails: () => void;
     onEditing: () => void;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
 const statusMap: { [key: number]: [string, string] } = {
@@ -25,7 +27,7 @@ const statusMap: { [key: number]: [string, string] } = {
     4: ["Đã hoàn thành", "fluent-color:checkmark-circle-16"],
 };
 
-export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails, onEditing, sx, ...other }: Props) {
+export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails, onEditing, companyInfoData, sx, ...other }: Props) {
     const menuActions = usePopover();
     const settings = useSettingsContext();
     const darkMode = settings.state.colorScheme;
@@ -119,7 +121,7 @@ export function ContractItem({ openDeleteDialog, setId, contract, onViewDetails,
                         <NewSticker />
                     </Box>
                 )}
-                <ContractPreview contract={contract} />
+                <ContractPreview contract={contract} companyInfo={companyInfoData} />
                 <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
                         <Box

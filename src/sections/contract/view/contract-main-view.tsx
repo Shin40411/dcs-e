@@ -2,10 +2,8 @@ import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CustomBreadcrumbs } from "src/components/custom-breadcrumbs";
 import { DashboardContent } from "src/layouts/dashboard";
-import { paths } from "src/routes/paths";
 import { IContractItem } from "src/types/contract";
 import { ContractCardList } from "../contract-card-list";
-import { IDateValue } from "src/types/common";
 import { CONFIG } from "src/global-config";
 import { Iconify } from "src/components/iconify";
 import { ContractForm } from "../contract-form";
@@ -110,6 +108,7 @@ export function ContractMainView() {
                     setPage={setPage}
                     rowsPerPage={rowsPerPage}
                     setRowsPerPage={setRowsPerPage}
+                    location={location}
                 />
 
                 <ContractForm
@@ -136,8 +135,6 @@ export function ContractMainView() {
                         createSupplierContract={handleCreateSupplierContract}
                     />
                 )}
-
-
             </DashboardContent>
         </RoleBasedGuard>
     );

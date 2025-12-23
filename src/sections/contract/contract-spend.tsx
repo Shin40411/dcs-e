@@ -37,6 +37,9 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
     const today = new Date();
     const [bankKeyword, setbankKeyword] = useState('');
     const debouncedbankKw = useDebounce(bankKeyword, 300);
+    const [watchTicket, setWatchTicket] = useState(true);
+    const [selectedBank, setSelectedBank] = useState<IBankAccountItem | null>(null);
+    const [receiptNo, setReceiptNo] = useState<string>('');
 
     const { supplierContract, supplierContractEmpty } = useGetSupplierContractByCustomer(selectedContract.contractNo, open);
 
@@ -49,19 +52,15 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
         key: debouncedbankKw
     });
 
-    const [watchTicket, setWatchTicket] = useState(true);
-    const [selectedBank, setSelectedBank] = useState<IBankAccountItem | null>(null);
-    const [receiptNo, setReceiptNo] = useState<string>('');
-
     const defaultValues: ContractSpendSchemaType = {
-        companyName: selectedContract.companyName ?? "",
-        customerName: selectedContract.customerName ?? "",
+        companyName: selectedContract.companyName || "Chưa cập nhật",
+        customerName: selectedContract.customerName || "",
         amount: 0,
         receiptNo: receiptNo,
         date: today.toISOString(),
         supplierContract: "",
         address: "",
-        payer: "",
+        payer: "Nhân viên",
         reason: "",
         bankAccId: 0,
         bankNo: ""
@@ -72,15 +71,10 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
         defaultValues
     });
 
-    useEffect(() => {
-        methods.setValue('receiptNo', generateReceipt('PC', totalRecord));
-        setReceiptNo(generateReceipt('PC', totalRecord));
-    }, [open]);
-
     const {
         reset,
         watch,
-        control,
+        setValue,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
@@ -127,6 +121,7 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
         }
     });
 
+    const contractNo = watch('supplierContract');
     const companyName = watch('companyName');
     const customerName = watch('customerName');
     const date = watch('date');
@@ -136,6 +131,21 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
     const reason = watch('reason');
     const address = watch('address');
     const bankAccId = methods.watch('bankAccId');
+
+    useEffect(() => {
+        methods.setValue('receiptNo', generateReceipt('PC', totalRecord));
+        setReceiptNo(generateReceipt('PC', totalRecord));
+    }, [open]);
+
+    useEffect(() => {
+        if (!open) return;
+        if (bankAccounts.length > 0) {
+            const first = bankAccounts[0];
+            setValue("bankAccId", Number(first.id), { shouldValidate: true });
+            setValue("bankNo", first.bankNo);
+            setSelectedBank(first);
+        }
+    }, [open, selectedContract, bankAccounts]);
 
     useEffect(() => {
         if (!bankAccId) {
@@ -150,6 +160,26 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
             methods.setValue("bankNo", found.bankNo);
         }
     }, [bankAccId, bankAccounts]);
+
+    useEffect(() => {
+        if (!contractNo) {
+            methods.setValue("amount", defaultValues.amount);
+            methods.setValue("companyName", defaultValues.companyName);
+        };
+
+        const found = supplierContract.find(con => con.contractNo === contractNo);
+
+        if (found) {
+            methods.setValue("amount", found.remainingAmount, {
+                shouldValidate: true,
+            });
+            methods.setValue("companyName", found.companyName)
+        }
+    }, [
+        contractNo,
+        supplierContract,
+        methods
+    ]);
 
     useEffect(() => {
         if (companyName && customerName && date && receiptNoToWatch && amount && payer) {
@@ -192,10 +222,15 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
                     }}
                     disabled
                 />
-                <Field.Select name="supplierContract" label="Số hợp đồng nhà cung cấp" sx={{ flex: 1 }} required>
+                <Field.Select
+                    name="supplierContract"
+                    label="Số hợp đồng nhà cung cấp"
+                    sx={{ flex: 1 }}
+                    required
+                >
                     {supplierContract.map((con) => (
                         <MenuItem key={con.contractNo} value={con.contractNo}>
-                            {con.contractNo}
+                            {con.fullContractInfo}
                         </MenuItem>
                     ))}
 
@@ -320,6 +355,13 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
         </>
     );
 
+    const handleCancel = () => {
+        onClose();
+        reset();
+        setSelectedBank(null);
+        setbankKeyword('');
+    }
+
     const renderActions = () => (
         <Box sx={{ width: '100%' }}>
             <Stack direction="row" spacing={2} width="100%">
@@ -345,7 +387,7 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={() => { onClose(); }}
+                    onClick={handleCancel}
                     fullWidth
                     disabled={isSubmitting}
                 >
@@ -363,7 +405,7 @@ export function ContractSpend({ selectedContract, open, onClose, refetchFns, ref
                 },
             }}
             open={open}
-            onClose={() => { onClose(); }}
+            onClose={handleCancel}
             fullWidth
             maxWidth="md"
         >

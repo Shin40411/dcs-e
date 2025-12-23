@@ -89,8 +89,6 @@ export function AuthSplitLayout({
     );
   };
 
-  const renderFooter = () => null;
-
   const renderMain = () => (
     <MainSection
       {...slotProps?.main}

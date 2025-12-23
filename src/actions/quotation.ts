@@ -53,28 +53,29 @@ export function useGetQuotations({
 
     const url = enabled ? endpoints.quotation.list(params) : null;
 
-    const { data, isLoading, error, isValidating } = useSWR<ResQuotationList>(url, fetcher, swrOptions);
+    const { data, isLoading, error, isValidating, mutate } = useSWR<ResQuotationList>(url, fetcher, swrOptions);
 
-    const memoizedValue = useMemo(
-        () => {
-            const filteredItems = data?.data.items?.filter((q) => q.status !== 0) ?? [];
+    const memoizedValue = useMemo(() => {
+        const filteredItems = data?.data?.items?.filter((q) => q.status !== 0) ?? [];
 
-            return {
-                quotations: filteredItems,
-                pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
-                },
-                quotationsLoading: isLoading,
-                quotationsError: error,
-                quotationsValidating: isValidating,
-                quotationsEmpty: !isLoading && !isValidating && filteredItems.length === 0,
-            };
-        },
-        [data, error, isLoading, isValidating]
-    );
+        return {
+            quotations: filteredItems,
+            pagination: {
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
+            },
+            quotationsLoading: isLoading,
+            quotationsError: error,
+            quotationsValidating: isValidating,
+            quotationsEmpty:
+                !isLoading &&
+                !isValidating &&
+                filteredItems.length === 0,
+            mutation: mutate
+        };
+    }, [data, error, isLoading, isValidating]);
 
     return memoizedValue;
 }

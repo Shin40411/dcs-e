@@ -39,8 +39,8 @@ export function ReceiptMainView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const [filters, setFilters] = useState<FilterValues>({
-        fromDate: null,
-        toDate: null,
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
     });
 
     const {
@@ -96,6 +96,10 @@ export function ReceiptMainView() {
         setTableData(contractReceiptItem);
     }, [contractReceiptItem]);
 
+    useEffect(() => {
+        mutation();
+    }, [location.pathname]);
+
     const handleDeleteRow = async () => {
         const success = await deleteOne({
             apiEndpoint: endpoints.contractReceipt.delete,
@@ -111,6 +115,12 @@ export function ReceiptMainView() {
             toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
         }
     }
+
+    const onPreviewReceipt = (params: URLSearchParams) => {
+        const queryString = params.toString();
+        window.open(`${paths.receipt}?${queryString}`, '_blank');
+    }
+
     const renderConfirmDeleteRow = () => (
         <ConfirmDialog
             open={confirmDelRowDialog.value}
@@ -142,6 +152,7 @@ export function ReceiptMainView() {
             onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); }}
             selectedReceipt={tableRowSelected}
             mutation={mutation}
+            onPreviewReceipt={onPreviewReceipt}
         />
     );
 
@@ -187,7 +198,8 @@ export function ReceiptMainView() {
                             setRowIdSelected,
                             setTableRowSelected,
                             page,
-                            rowsPerPage
+                            rowsPerPage,
+                            onPreviewReceipt
                         })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}

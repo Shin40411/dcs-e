@@ -18,6 +18,8 @@ import { endpoints } from 'src/lib/axios';
 import { deleteOne } from 'src/actions/delete';
 import { toast } from 'sonner';
 import { FilterValues } from 'src/types/filter-values';
+import { useGetCompanyInfo } from 'src/actions/companyInfo';
+import { ICompanyInfoItem } from 'src/types/companyInfo';
 
 type Props = {
     contracts: IContractSupplyItem[];
@@ -37,6 +39,7 @@ type Props = {
     setPage: (value: any) => void;
     setRowsPerPage: (value: any) => void;
     setSearchText: (value: any) => void;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
 export function ContractCardList({
@@ -52,6 +55,7 @@ export function ContractCardList({
     setFilters,
     setRowsPerPage,
     setSearchText,
+    companyInfoData
 }: Props) {
     const today = new Date();
     const lastMonth = new Date();
@@ -189,6 +193,7 @@ export function ContractCardList({
                                     contract={q}
                                     onViewDetails={() => onViewDetails(q)}
                                     onEditing={() => onEditing(q)}
+                                    companyInfoData={companyInfoData}
                                 />
                             ))}
                     </Box>

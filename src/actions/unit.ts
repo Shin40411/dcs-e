@@ -29,17 +29,20 @@ export function useGetUnits({ pageNumber, pageSize, key, enabled = true }: units
 
     const memoizedValue = useMemo(
         () => ({
-            units: data?.data.items || [],
+            units: data?.data?.items ?? [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             unitsLoading: isLoading,
             unitsError: error,
             unitsValidating: isValidating,
-            unitsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            unitsEmpty:
+                !isLoading &&
+                !isValidating &&
+                !(data?.data?.items?.length ?? 0),
             mutation: mutate
         }),
         [data, error, isLoading, isValidating]
@@ -59,17 +62,20 @@ export function useGetDeletedUnits({ pageNumber, pageSize, key, enabled = true }
 
     const memoizedValue = useMemo(
         () => ({
-            units: data?.data.items || [],
+            units: data?.data?.items ?? [],
             pagination: {
-                pageNumber: data?.data.pageNumber ?? 1,
-                pageSize: data?.data.pageSize ?? pageSize,
-                totalPages: data?.data.totalPages ?? 0,
-                totalRecord: data?.data.totalRecord ?? 0,
+                pageNumber: data?.data?.pageNumber ?? 1,
+                pageSize: data?.data?.pageSize ?? pageSize,
+                totalPages: data?.data?.totalPages ?? 0,
+                totalRecord: data?.data?.totalRecord ?? 0,
             },
             unitsLoading: isLoading,
             unitsError: error,
             unitsValidating: isValidating,
-            unitsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+            unitsEmpty:
+                !isLoading &&
+                !isValidating &&
+                !(data?.data?.items?.length ?? 0),
             mutation: mutate
         }),
         [data, error, isLoading, isValidating]

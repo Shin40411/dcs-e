@@ -41,7 +41,8 @@ export const endpoints = {
     me: '/api/auth/me',
     signIn: '/api/v1/auth/auth/login',
     signUp: '/api/auth/sign-up',
-    changePassword: '/api/v1/auth/auth/change-password'
+    changePassword: '/api/v1/auth/auth/change-password',
+    changeProfilePassword: '/api/v1/auth/auth/change-my-password'
   },
   mail: {
     list: '/api/mail/list',
@@ -106,12 +107,14 @@ export const endpoints = {
     delete: (id: number) => `/api/v1/suppliers/delete/${id}`
   },
   employees: {
+    me: '/api/v1/employees/get-me',
     list: (params: string) => `/api/v1/employees/employees${params}`,
     getUserType: (params: string) => `/api/v1/users/get-user-types${params}`,
     create: `/api/v1/employees/create`,
     createUser: `/api/v1/users/create`,
     lockUnlock: (id: number) => `/api/v1/users/lock-or-unlock/${id}`,
     update: (id: string) => `/api/v1/employees/update${id}`,
+    updateMe: `api/v1/employees`,
     delete: (id: number) => `/api/v1/employees/delete/${id}`
   },
   quotation: {
@@ -142,6 +145,7 @@ export const endpoints = {
     },
     sendMail: '/api/v1/contracts/send-email',
     delete: (id: number) => `/api/v1/contracts/delete-contract/${id}`,
+    getVouchers: (params: string) => `/api/v1/contracts/contractnos${params}`
   },
   contractSupplier: {
     list: (params: string) => `/api/v1/contract-suppliers/supplier-contracts${params}`,
@@ -155,6 +159,7 @@ export const endpoints = {
       deleteProduct: `/api/v1/contract-suppliers/delete-product-from-contract`
     },
     delete: (id: number) => `/api/v1/contract-suppliers/delete-supcontract/${id}`,
+    getVouchers: (params: string) => `/api/v1/contract-suppliers/contractnos${params}`
   },
   contractAttachment: {
     list: (params: string) => `/api/v1/contract-storages/get-file-by-contract${params}`,
@@ -196,6 +201,7 @@ export const endpoints = {
     },
     contract: (filter: string) => `/api/v1/statictis/sumary-on-and-over-time-amount-contract?TimeFilter=${filter}`,
     finance: (filter: string) => `/api/v1/statictis/collect-spend-from-contracts?TimeFilter=${filter}`,
+    internalReceipt: (params: string) => `/api/v1/statictis/statictis-local-receipts${params}`,
     productsInStock: (filter: string) => `/api/v1/statictis/products-in-stock?timeFilter=${filter}`,
     contractValue: (params: string) => `/api/v1/statictis/top-contracts?${params}`,
     bestSeller: (params: string) => `/api/v1/statictis/get-best-selling-product${params}`,
@@ -223,10 +229,15 @@ export const endpoints = {
   internal: {
     root: (params: string) => `/api/v1/receipts/get-receipts${params}`,
     transfer: (params: string) => `/api/v1/transfer/get-transfer${params}`,
+    receivers: (params: string) => `/api/v1/receipts/receivers${params}`,
+    payers: (params: string) => `/api/v1/receipts/payers${params}`,
     createTransfer: '/api/v1/transfer/internal-transfer',
     create: '/api/v1/receipts/create',
     update: (id: number) => `/api/v1/receipts/edit-receipt/${id}`,
     delete: (id: number) => `/api/v1/receipts/delete-receipt/${id}`,
     deleteTransfer: (id: number) => `/api/v1/transfer/delete/${id}`
+  },
+  companyInfo: {
+    root: '/api/v1/company-info',
   }
 };

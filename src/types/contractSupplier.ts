@@ -67,6 +67,19 @@ export type IContractSupplyForDetail = {
     imported: number;
 }
 
+export type IContractSupplyDetailFromOrder = {
+    id: number;
+    price: number;
+    productID: number;
+    productName: string;
+    quantity: number;
+    total: number;
+    unit: string;
+    unitProductID: number;
+    unitProductName: string;
+    vat: number;
+}
+
 export type IProductFromSup = {
     rowId?: number;
     productId: number;
@@ -146,4 +159,29 @@ export type IContractSupplyUpdateDto = {
 export type IContractSupProductToDelete = {
     supplierContactId: number;
     productId: number;
+}
+
+export type ResVoucherSupItem = {
+    statusCode: number;
+    message: string;
+    data: {
+        pageNumber: number;
+        pageSize: number;
+        totalRecord: number;
+        totalPages: number;
+        items: VoucherSupItem[];
+    };
+}
+
+export type VoucherSupItem = {
+    contractId: number;
+    contractNo: string;
+    supplierId: number;
+    supplierName: string;
+    companyName: string;
+    employeeID: number;
+    employeeName: string;
+    note: string;
+    fullContractNoInfo: string;
+    remainingAmount: number;
 }

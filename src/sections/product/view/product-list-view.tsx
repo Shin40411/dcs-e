@@ -31,6 +31,7 @@ import { useCheckPermission } from 'src/auth/hooks/use-check-permission';
 import ServiceNavTabs from 'src/components/tabs/service-nav-tabs';
 import { PRODUCT_TAB_DATA } from 'src/components/tabs/components/service-nav-tabs-data';
 import { useLocation } from 'react-router';
+import { ProductFilterAddition } from '../product-filter-addition';
 
 // ----------------------------------------------------------------------
 
@@ -45,10 +46,18 @@ export function ProductListView() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
   const [searchText, setSearchText] = useState('');
+  const [filterState, setFilterState] = useState('all');
+
   const { products, pagination, productsLoading, productsEmpty, mutation } = useGetProducts({
     pageNumber: page + 1,
     pageSize: rowsPerPage,
+    StockFilter: filterState !== 'all' ? filterState : '',
     key: searchText,
+  });
+
+  const { pagination: filterCounter } = useGetProducts({
+    pageNumber: page + 1,
+    pageSize: rowsPerPage,
   });
 
   const handleChangePage = (_: unknown, newPage: number) => {
@@ -225,6 +234,9 @@ export function ProductListView() {
           searchText={searchText}
           onSearchChange={setSearchText}
           openBin={openBin}
+          additionDefaultFilter={
+            <ProductFilterAddition filterProps={filterCounter} onChangeState={setFilterState} />
+          }
         />
       </DashboardContent>
 

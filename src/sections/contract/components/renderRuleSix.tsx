@@ -71,8 +71,10 @@ export const renderRules = ({
 
     const formattedPhaseCount = String(activePhaseCount).padStart(2, '0');
 
+    const formattedText = fRenderTextNumberNoUnit(Number(formattedPhaseCount));
+
     const phaseTexts = [
-        `- Bên A thanh toán cho Bên B bằng hình thức chuyển khoản thành ba (${formattedPhaseCount}) đợt, cụ thể:`,
+        `- Bên A thanh toán cho Bên B bằng hình thức chuyển khoản thành ${formattedText} (${formattedPhaseCount}) đợt, cụ thể:`,
         `Ngay sau khi ký hợp đồng, Bên A thanh toán cho Bên B số tiền ${fCurrencyNoUnit(downPayment)} (${capitalizeFirstLetter(fRenderTextNumber(downPayment || 0))}).`,
         `Trước ngày ${fDate(signatureDate)}, Bên A thanh toán cho Bên B số tiền ${fCurrencyNoUnit(nextPayment)} (${capitalizeFirstLetter(fRenderTextNumber(nextPayment || 0))}).`,
         `Trong vòng 15 (mười lăm) ngày kể từ ngày Bên B bàn giao thiết bị cho Bên A, tương đương ${fCurrencyNoUnit(lastPayment)} (${capitalizeFirstLetter(fRenderTextNumber(lastPayment || 0))}).`

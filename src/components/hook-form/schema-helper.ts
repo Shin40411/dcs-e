@@ -101,14 +101,42 @@ export const schemaHelper = {
    * File
    * Apply for upload single file.
    */
-  file: (props?: { message: string }) =>
+  file: (props?: { message: string; allowedTypes?: string[]; maxSize?: number; invalid_file_type?: string; }) =>
     zod.custom<File | string | null>().transform((data, ctx) => {
-      const hasFile = data instanceof File || (typeof data === 'string' && !!data.length);
+      if (typeof data === 'string' && data.length > 0) {
+        return data;
+      }
 
-      if (!hasFile) {
+      if (!(data instanceof File)) {
         ctx.addIssue({
           code: zod.ZodIssueCode.custom,
           message: props?.message ?? 'File is required!',
+        });
+        return null;
+      }
+
+      const allowedTypes = props?.allowedTypes ?? [
+        'image/png',
+        'image/jpg',
+        'image/jpeg'
+      ];
+
+      if (!allowedTypes.includes(data.type)) {
+        const allowedExtensions = allowedTypes
+          .map(type => type.split('/')[1].toUpperCase())
+          .join(', ');
+
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: props?.invalid_file_type ?? `Chỉ chấp nhận file ${allowedExtensions}!`,
+        });
+        return null;
+      }
+
+      if (props?.maxSize && data.size > props.maxSize) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: `File không được vượt quá ${props.maxSize / 1024 / 1024}MB!`,
         });
         return null;
       }

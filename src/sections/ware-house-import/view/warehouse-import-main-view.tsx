@@ -23,6 +23,7 @@ import { FilterValues } from "src/types/filter-values";
 import { formatDate } from "src/utils/format-time-vi";
 import { WarehouseImportFilterBar } from "../components/warehouse-import-filter";
 import { Iconify } from "src/components/iconify";
+import { paths } from "src/routes/paths";
 
 export function WarehouseImportMainView() {
     const location = useLocation();
@@ -38,8 +39,8 @@ export function WarehouseImportMainView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const [filters, setFilters] = useState<FilterValues>({
-        fromDate: null,
-        toDate: null,
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
     });
 
     const {
@@ -98,6 +99,11 @@ export function WarehouseImportMainView() {
         }
     }
 
+    const onPreviewWarehouseImport = (params: URLSearchParams) => {
+        const queryString = params.toString();
+        window.open(`${paths.warehouseImport}?${queryString}`, '_blank');
+    }
+
     const [tableData, setTableData] = useState<IContractWarehouseImportItem[]>(contractWarehouseImports);
     const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
     const [tableRowSelected, setTableRowSelected] = useState<IContractWarehouseImportItem | null>(null);
@@ -106,6 +112,10 @@ export function WarehouseImportMainView() {
     useEffect(() => {
         setTableData(contractWarehouseImports);
     }, [contractWarehouseImports]);
+
+    useEffect(() => {
+        mutation();
+    }, [location.pathname]);
 
     return (
         <RoleBasedGuard
@@ -149,7 +159,8 @@ export function WarehouseImportMainView() {
                             setRowIdSelected,
                             setTableRowSelected,
                             page,
-                            rowsPerPage
+                            rowsPerPage,
+                            onPreviewWarehouseImport
                         })}
                     rowSelectionModel={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
                     paginationCount={pagination?.totalRecord ?? 0}
@@ -173,6 +184,7 @@ export function WarehouseImportMainView() {
                     onClose={() => { openCrudForm.onFalse(); setTableRowSelected(null); }}
                     selectedWarehouseImport={tableRowSelected}
                     mutation={mutation}
+                    onPreviewWarehouseImport={onPreviewWarehouseImport}
                 />
                 <ConfirmDialog
                     open={confirmDelRowDialog.value}

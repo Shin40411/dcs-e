@@ -1,16 +1,14 @@
 import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { deleteAttachmentContract, downloadAttachmentContract, uploadAttachmentContract, useGetAttachmentContract } from "src/actions/contract";
+import { deleteAttachmentContract, uploadAttachmentContract, useGetAttachmentContract } from "src/actions/contract";
 import { Iconify } from "src/components/iconify";
 import { CONFIG } from "src/global-config";
-import { endpoints } from "src/lib/axios";
-import { IContractFileItem, IContractItem } from "src/types/contract";
-import { useSWRConfig } from "swr";
+import { IContractSupplyItem } from "src/types/contractSupplier";
 import { CloseIcon } from "yet-another-react-lightbox";
 
 interface FileDialogProps {
-    selectedContract: IContractItem;
+    selectedContract: IContractSupplyItem;
     open: boolean;
     onClose: () => void;
 }
@@ -19,6 +17,7 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
     const MAX_FILE_SIZE_MB = 10;
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
     const {
         contractFile,
         pagination,
@@ -26,6 +25,7 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
         contractFileError,
         contractFileValidating,
         contractFileEmpty,
+        mutation
     } = useGetAttachmentContract({
         contractNo: selectedContract.contractNo,
         pageNumber: 1,
@@ -42,12 +42,9 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
             }))
         ) || [];
 
-    const { mutate } = useSWRConfig();
-
     useEffect(() => {
         if (open && selectedContract?.contractNo) {
-            const key = endpoints.contractAttachment.list(`?contractNo=${selectedContract.contractNo}&pageNumber=1&pageSize=1000`);
-            mutate(key);
+            mutation();
         }
     }, [open, selectedContract?.contractNo]);
 
@@ -99,8 +96,7 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
                 FileType: 'Master',
             });
 
-            const key = `/api/v1/contract-storages/get-file-by-contract?contractNo=${selectedContract.contractNo}&pageNumber=1&pageSize=1000`;
-            mutate(key);
+            mutation();
             toast.success('Tải file thành công');
 
         } catch (err) {
@@ -157,18 +153,15 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
     const handleDeleteFile = async (fileId: number) => {
         if (!selectedContract) return;
 
-        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa file này không?');
-        if (!confirmDelete) return;
-
         try {
             await deleteAttachmentContract(fileId);
-
-            const key = `/api/v1/contract-storages/get-file-by-contract?contractNo=${selectedContract.contractNo}&pageNumber=1&pageSize=1000`;
-            mutate(key);
+            mutation();
             toast.success('Xóa file thành công');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Lỗi khi xóa file:', error);
-            toast.error('Xóa file thất bại');
+            toast.error(error.message || 'Xóa file thất bại');
+        } finally {
+            setConfirmDeleteId(null);
         }
     };
 
@@ -215,11 +208,12 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
                     </Box>
                 )} */}
 
-                {contractFileEmpty && !contractFileLoading && (
+                {contractFileError && !contractFileLoading && (
                     <Box p={3} textAlign="center">
                         <Typography>Không có file nào được đính kèm</Typography>
                     </Box>
                 )}
+
                 {!contractFileLoading && !contractFileEmpty && !contractFileError && (
                     <Table size="small">
                         <TableHead>
@@ -267,9 +261,33 @@ export default function ContractAttachMent({ selectedContract, open, onClose }: 
                                         >
                                             <Iconify icon={'material-symbols:cloud-download-rounded'} width={20} />
                                         </IconButton>
-                                        <IconButton size="small" color="error" onClick={() => handleDeleteFile(file.fileID)}>
-                                            <Iconify icon={'material-symbols:delete-outline-rounded'} width={20} />
-                                        </IconButton>
+                                        {confirmDeleteId === file.fileID ? (
+                                            <>
+                                                <IconButton
+                                                    size="small"
+                                                    color="success"
+                                                    onClick={() => handleDeleteFile(file.fileID)}
+                                                >
+                                                    <Iconify icon="solar:check-circle-bold" width={20} />
+                                                </IconButton>
+
+                                                <IconButton
+                                                    size="small"
+                                                    color="default"
+                                                    onClick={() => setConfirmDeleteId(null)}
+                                                >
+                                                    <Iconify icon="solar:close-circle-bold" width={20} />
+                                                </IconButton>
+                                            </>
+                                        ) : (
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => setConfirmDeleteId(file.fileID)}
+                                            >
+                                                <Iconify icon="material-symbols:delete-outline-rounded" width={20} />
+                                            </IconButton>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}

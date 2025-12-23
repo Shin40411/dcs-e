@@ -61,7 +61,7 @@ export function useGetHistoryCollect(contractNo: string, enabled: boolean) {
 
     const memoizedValue = useMemo(
         () => ({
-            result: data?.data.items,
+            result: data?.data?.items,
             resultLoading: isLoading,
             resultError: error,
             resultValidating: isValidating,
@@ -111,7 +111,7 @@ export function useGetNeedSpendForContract(contractNo: string, enabled: boolean)
 
     const memoizedValue = useMemo(
         () => ({
-            result: data?.data.items,
+            result: data?.data?.items,
             resultLoading: isLoading,
             resultError: error,
             resultValidating: isValidating,

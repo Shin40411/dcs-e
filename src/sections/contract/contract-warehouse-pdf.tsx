@@ -9,6 +9,7 @@ import { IContractRemainingProduct } from "src/types/contract";
 import { Iconify } from "src/components/iconify";
 import { downloadPdf, printPdf } from "src/utils/random-func";
 import { generatePdfBlob } from "src/utils/generateblob-func";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 export function ContractWarehousePdf() {
     Font.register({
@@ -102,6 +103,8 @@ export function ContractWarehousePdf() {
         isCreating
     }), [contractId, exportId, isCreating]);
 
+    const { companyInfoData } = useGetCompanyInfo();
+
     const { remainingProduct, remainingProductEmpty } = useGetUnExportProduct(
         hookParams.contractId,
         hookParams.isCreating
@@ -177,7 +180,11 @@ export function ContractWarehousePdf() {
 
     const handleDownload = async () => {
         const blob = await generatePdfBlob(
-            <RenderWarehouseExport contractBody={contractBody} productsUnExported={mappedProducts} />
+            <RenderWarehouseExport
+                contractBody={contractBody}
+                productsUnExported={mappedProducts}
+                companyInfoData={companyInfoData}
+            />
         );
 
         await downloadPdf(blob, `${contractBody.warehouseExportNo}.pdf`);
@@ -185,7 +192,11 @@ export function ContractWarehousePdf() {
 
     const handlePrint = async () => {
         const blob = await generatePdfBlob(
-            <RenderWarehouseExport contractBody={contractBody} productsUnExported={mappedProducts} />
+            <RenderWarehouseExport
+                contractBody={contractBody}
+                productsUnExported={mappedProducts}
+                companyInfoData={companyInfoData}
+            />
         );
 
         await printPdf(blob);
@@ -207,7 +218,11 @@ export function ContractWarehousePdf() {
                 </Box>
             </Stack>
             <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }} showToolbar={false}>
-                <RenderWarehouseExport contractBody={contractBody} productsUnExported={mappedProducts} />
+                <RenderWarehouseExport
+                    contractBody={contractBody}
+                    productsUnExported={mappedProducts}
+                    companyInfoData={companyInfoData}
+                />
             </PDFViewer>
         </Box>
     );

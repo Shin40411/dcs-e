@@ -7,27 +7,23 @@ import { renderHeader } from "./components/renderHeader";
 import { renderLaw } from "./components/renderLaw";
 import { renderTwoSides } from "./components/renderTwoSides";
 import { renderRuleOne } from "./components/renderRuleOne";
-import { renderTable } from "./components/renderTable";
-import { renderRuleTwo } from "./components/renderRuleTwo";
 import { renderFooter } from "./components/renderFooter";
 import { useStyles } from "./components/useStyle";
-import { renderRuleThree } from "./components/renderRuleThree";
-import { renderRuleFour } from "./components/renderRuleFour";
-import { renderRuleFive } from "./components/renderRuleFive";
 import { renderRules } from "./components/renderRuleSix";
-import { renderSigner } from "./components/renderSigner";
 import { Iconify } from "src/components/iconify";
 import { generatePdfBlob } from "src/utils/generateblob-func";
 import { downloadPdf, printPdf } from "src/utils/random-func";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type ContractPDFProps = {
     contract: IContractItem;
     currentStatus: string;
     currentContract?: IContractData;
     openDetail: boolean;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
-export function ContractPDFViewer({ contract, currentStatus, currentContract, openDetail }: ContractPDFProps) {
+export function ContractPDFViewer({ contract, currentStatus, currentContract, openDetail, companyInfoData }: ContractPDFProps) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -54,6 +50,7 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract, op
             <ContractPdfDocument
                 contract={contract}
                 currentContract={currentContract}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -65,6 +62,7 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract, op
             <ContractPdfDocument
                 contract={contract}
                 currentContract={currentContract}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -75,6 +73,7 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract, op
         <ContractPdfDocument
             contract={contract}
             currentContract={currentContract}
+            companyInfoData={companyInfoData}
         />
     ), [contract, currentStatus, currentContract]);
 
@@ -184,9 +183,10 @@ Font.register({
 type ContractPdfDocumentProps = {
     contract?: IContractItem;
     currentContract?: IContractData;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
-export function ContractPdfDocument({ contract, currentContract }: ContractPdfDocumentProps) {
+export function ContractPdfDocument({ contract, currentContract, companyInfoData }: ContractPdfDocumentProps) {
     const styles = useStyles();
 
     const {
@@ -225,7 +225,7 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
             title={`Hợp đồng số ${contractNo}`}
         >
             <Page size="A4" style={styles.page}>
-                {renderHeader()}
+                {renderHeader({ companyInfoData })}
                 <View style={styles.body}>
                     {renderTitle(contractNo)}
                     {renderLaw()}
@@ -237,7 +237,8 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
                         position,
                         customerName,
                         customerPhone,
-                        customerTaxCode
+                        customerTaxCode,
+                        companyInfoData
                     })}
                     {renderRuleOne()}
                     {renderRules({
@@ -256,7 +257,7 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
                         deliveryAddress
                     })}
                 </View>
-                {renderFooter()}
+                {renderFooter({ companyInfoData })}
             </Page>
         </Document>
     );

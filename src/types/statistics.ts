@@ -63,6 +63,12 @@ export type IProductStatisticRes = {
     data: IProductStatistic;
 }
 
+export type ILocalReceiptRes = {
+    statusCode: number;
+    message: string;
+    data: ILocalReceipt;
+}
+
 export type IchartsData = {
     year: number;
     total: number;
@@ -89,6 +95,12 @@ export type IFinanceData = {
     totalSpended: number;
     needSpend: number;
     needCollect: number;
+}
+
+export type ILocalReceipt = {
+    totalSpendAmounts: number;
+    totalCollectAmounts: number;
+    type: string;
 }
 
 export type IProductStatistic = {
@@ -135,3 +147,4 @@ export type ITopSaler = {
     percentOfTotal: number;
     quantityContract: number;
 }
+

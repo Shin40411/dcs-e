@@ -7,6 +7,7 @@ import { IContractData } from "src/types/contract";
 import { fCurrency, fCurrencyNoUnit, fRenderTextNumberNoUnit } from "src/utils/format-number";
 import { capitalizeFirstLetter, capitalizeWords, formatPhoneNumber } from "src/utils/format-string";
 import { fDate } from "src/utils/format-time-vi";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type RenderProps = {
     contractNo?: string;
@@ -30,6 +31,7 @@ type RenderProps = {
     currentContract?: IContractData;
     paid?: number;
     debt?: number;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
 export const RenderLiquidation = ({
@@ -53,7 +55,8 @@ export const RenderLiquidation = ({
     currentContract,
     renderReportNo,
     paid,
-    debt
+    debt,
+    companyInfoData
 }: RenderProps) => {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
@@ -61,8 +64,8 @@ export const RenderLiquidation = ({
     const yyyy = today.getFullYear();
 
     const lawTexts = [
-        `Căn cứ vào hợp đồng số: ${contractNo} giữa ${companyName} và CÔNG TY TNHH GIẢI PHÁP DCS.`,
-        `Căn cứ vào Biên bản nghiệm thu số: ${renderReportNo} giữa ${companyName} và CÔNG TY TNHH GIẢI PHÁP DCS.`,
+        `Căn cứ vào hợp đồng số: ${contractNo} giữa ${companyName} và ${companyInfoData?.name}.`,
+        `Căn cứ vào Biên bản nghiệm thu số: ${renderReportNo} giữa ${companyName} và ${companyInfoData?.name}.`,
         `Hôm nay, ngày ${fDate(signatureDate)}, hai bên gồm:`,
     ];
     const SideLeft = [
@@ -73,6 +76,10 @@ export const RenderLiquidation = ({
         "- Tài khoản số:"
     ];
 
+    const companyAddress = companyInfoData?.address || "Số 1/50/5/16, Thanh Đa, P. Bình Quới, TP. Hồ Chí Minh";
+
+    const companyTaxcode = companyInfoData?.taxCode || "0318436084";
+
     const ASideRight = [
         customerAddress,
         formatPhoneNumber(customerPhone || ''),
@@ -82,10 +89,10 @@ export const RenderLiquidation = ({
     ];
 
     const BSideRight = [
-        "Số 1/50/5/16, Thanh Đa, P. Bình Quới, TP. Hồ Chí Minh",
+        companyAddress,
         "0932 090207",
         "Nguyễn Chí Nhân Nghĩa",
-        "0318436084",
+        companyTaxcode,
         "8100868, tại Ngân Hàng ACB - Phòng GD Thảo Điền - TP.HCM"
     ];
 
@@ -96,7 +103,7 @@ export const RenderLiquidation = ({
     ];
 
     const sideB = [
-        'CÔNG TY TNHH GIẢI PHÁP DCS',
+        `${companyInfoData?.name || "CÔNG TY TNHH GIẢI PHÁP DCS"}`,
         'GIÁM ĐỐC',
         'Nguyễn Chí Nhân Nghĩa'
     ];
@@ -107,7 +114,7 @@ export const RenderLiquidation = ({
     return (
         <Document title={renderReportNo}>
             <Page size="A4" style={styles.page}>
-                {renderHeader()}
+                {renderHeader({ companyInfoData })}
                 <View style={styles.body}>
                     {/* tiêu đề .... */}
                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 5 }}>
@@ -340,7 +347,7 @@ export const RenderLiquidation = ({
                                         marginLeft: 8,
                                     }}
                                 >
-                                    CÔNG TY TNHH GIẢI PHÁP DCS
+                                    {companyInfoData?.name}
                                 </Text>
                             </View>
 
@@ -673,7 +680,7 @@ export const RenderLiquidation = ({
                                     fontSize: 8
                                 }}
                                 >
-                                    W.  http://dcse.vn   |   E.  lienhe@dcse.vn
+                                    {`W.  ${companyInfoData?.link}   |   E.  ${companyInfoData?.email}`}
                                 </Text>
                                 <View style={{ width: 1, height: '100%', backgroundColor: '#ddd', marginLeft: 4, marginRight: 4 }} />
                                 <Text

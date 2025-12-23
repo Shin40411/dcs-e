@@ -48,7 +48,7 @@ export function QuotationItemsTable({
         const qty = Number(item?.qty) || 0;
         const price = Number(item?.price) || 0;
         const vat = Number(item?.vat) || 0;
-        return qty * price * (1 + vat / 100);
+        return Math.round(qty * price * (1 + vat / 100));
     };
 
     const total = (items || []).reduce((acc, i) => acc + calcAmount(i), 0);
@@ -137,6 +137,15 @@ export function QuotationItemsTable({
 
     // const fixedTotal = Number(total.toFixed(2));
 
+    const stickyRightCell = {
+        position: 'sticky',
+        right: 0,
+        backgroundColor: 'background.paper',
+        '@media (max-width:1848px)': {
+            boxShadow: '-6px 0 8px -4px rgba(0,0,0,0.15)',
+        },
+    };
+
     useEffect(() => {
         setPaid(roundedTotal);
     }, [roundedTotal]);
@@ -194,7 +203,7 @@ export function QuotationItemsTable({
                                                     {fCurrency(calcAmount(items[index]))}
                                                 </Typography>
                                             </TableCell>
-                                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                                            <TableCell sx={{ ...stickyRightCell }}>
                                                 <Stack direction="row">
                                                     <Tooltip title="Xóa sản phẩm" placement="top" arrow>
                                                         <IconButton onClick={() => {
@@ -268,15 +277,15 @@ export function QuotationItemsTable({
                             }}
                         >
                             <Stack direction="column" justifyContent="flex-start" textAlign={'start'}>
-                                <Typography fontWeight={600}>Tổng cộng</Typography>
-                                <Typography fontWeight="bold" whiteSpace="nowrap">
-                                    {fCurrency(roundedTotal)}
-                                </Typography>
-                            </Stack>
-                            <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
                                 <Typography fontWeight={600}>Bằng chữ</Typography>
                                 <Typography fontSize={15}>
                                     {capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}
+                                </Typography>
+                            </Stack>
+                            <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
+                                <Typography fontWeight={600}>Tổng cộng</Typography>
+                                <Typography fontWeight="bold" whiteSpace="nowrap">
+                                    {fCurrency(roundedTotal)}
                                 </Typography>
                             </Stack>
                         </Box>
@@ -299,11 +308,6 @@ function ProductAutocomplete({
 }) {
     const [keyword, setKeyword] = useState("");
     const [debouncedKeyword, setDebouncedKeyword] = useState("");
-
-    // useEffect(() => {
-    //     const handler = setTimeout(() => setDebouncedKeyword(keyword), 500);
-    //     return () => clearTimeout(handler);
-    // }, [keyword]);
 
     const { products = [], productsLoading } = useGetProducts({
         pageNumber: 1,
@@ -376,11 +380,6 @@ function UnitSelection({
         pageNumber: 1,
         pageSize: 999
     });
-
-    // useEffect(() => {
-    //     console.log("unitValue:", methods.watch(`items.${index}.unit`));
-    //     console.log("units:", units);
-    // }, [methods.watch(`items.${index}.unit`), units]);
 
     return (
         <Field.Select

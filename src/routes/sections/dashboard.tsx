@@ -45,17 +45,8 @@ const ContractSupplierPage = lazy(() => import('src/pages/dashboard/contractSupp
 // Invoice
 // User
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
-const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
-const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
-const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
-const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
 // Account
 const AccountGeneralPage = lazy(() => import('src/pages/dashboard/user/account/general'));
-const AccountBillingPage = lazy(() => import('src/pages/dashboard/user/account/billing'));
-const AccountSocialsPage = lazy(() => import('src/pages/dashboard/user/account/socials'));
-const AccountNotificationsPage = lazy(
-  () => import('src/pages/dashboard/user/account/notifications')
-);
 const AccountChangePasswordPage = lazy(
   () => import('src/pages/dashboard/user/account/change-password')
 );
@@ -130,23 +121,20 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: 'user',
         children: [
-          // { index: true, element: <UserProfilePage /> },
+          { index: true, element: <UserProfilePage /> },
           // { path: 'profile', element: <UserProfilePage /> },
           // { path: 'cards', element: <UserCardsPage /> },
           // { path: 'list', element: <UserListPage /> },
           // { path: 'new', element: <UserCreatePage /> },
           // { path: ':id/edit', element: <UserEditPage /> },
-          // {
-          //   path: 'account',
-          //   element: accountLayout(),
-          //   children: [
-          //     { index: true, element: <AccountGeneralPage /> },
-          //     { path: 'billing', element: <AccountBillingPage /> },
-          //     { path: 'notifications', element: <AccountNotificationsPage /> },
-          //     { path: 'socials', element: <AccountSocialsPage /> },
-          //     { path: 'change-password', element: <AccountChangePasswordPage /> },
-          //   ],
-          // },
+        ],
+      },
+      {
+        path: 'account',
+        element: accountLayout(),
+        children: [
+          { index: true, element: <AccountGeneralPage /> },
+          { path: 'change-password', element: <AccountChangePasswordPage /> },
         ],
       },
       {

@@ -2,6 +2,7 @@ import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
 import { useStylesTicket as styles } from "./useStyleTicket";
 import { fCurrencyNoUnit, fRenderTextNumber, fRenderTextNumberNoUnit } from "src/utils/format-number";
 import { capitalizeFirstLetter } from "src/utils/format-string";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 interface ReceiptData {
     date: string;
@@ -17,20 +18,21 @@ interface ReceiptData {
 
 interface RenderReceiptProps {
     data: ReceiptData;
+    companyInfoData: ICompanyInfoItem | null;
 }
 
-export const RenderReceipt = ({ data }: RenderReceiptProps) => (
+export const RenderReceipt = ({ data, companyInfoData }: RenderReceiptProps) => (
     <Document title={data.receiptNo}>
         <Page size="A3" style={styles.page}>
             <View style={styles.body} wrap={false}>
                 <View>
                     <View style={styles.header}>
                         <View style={styles.leftHeader}>
-                            <Image source="/logo/DCS9.png" style={{ width: 100, height: 55 }} />
+                            <Image source={companyInfoData?.logoBase64 || "/logo/DCS9.png"} style={{ width: 100, height: 55 }} />
                             <View>
-                                <Text style={styles.companyName}>CÔNG TY TNHH GIẢI PHÁP DCS</Text>
-                                <Text style={styles.companyInfo}>Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Text>
-                                <Text style={styles.companyInfo}>MST.0318436084 | E. lienhe@dcse.vn  |  W.  http://dcse.vn</Text>
+                                <Text style={styles.companyName}>{companyInfoData?.name}</Text>
+                                <Text style={styles.companyInfo}>{companyInfoData?.address}</Text>
+                                <Text style={styles.companyInfo}>{`MST.${companyInfoData?.taxCode} | E. ${companyInfoData?.email}  |  W.  ${companyInfoData?.link}`}</Text>
                             </View>
                         </View>
                         <View style={styles.rightHeader}>
@@ -94,11 +96,11 @@ export const RenderReceipt = ({ data }: RenderReceiptProps) => (
                 <View>
                     <View style={styles.header}>
                         <View style={styles.leftHeader}>
-                            <Image source="/logo/DCS9.png" style={{ width: 100, height: 55 }} />
+                            <Image source={companyInfoData?.logoBase64 || "/logo/DCS9.png"} style={{ width: 100, height: 55 }} />
                             <View>
-                                <Text style={styles.companyName}>CÔNG TY TNHH GIẢI PHÁP DCS</Text>
-                                <Text style={styles.companyInfo}>Số 1/50/5/16, Thanh Đa, Phường Bình Quới, TP.Hồ Chí Minh</Text>
-                                <Text style={styles.companyInfo}>MST.0318436084 | E. lienhe@dcse.vn  |  W.  http://dcse.vn</Text>
+                                <Text style={styles.companyName}>{companyInfoData?.name}</Text>
+                                <Text style={styles.companyInfo}>{companyInfoData?.address}</Text>
+                                <Text style={styles.companyInfo}>{`MST.${companyInfoData?.taxCode} | E. ${companyInfoData?.email}  |  W.  ${companyInfoData?.link}`}</Text>
                             </View>
                         </View>
                         <View style={styles.rightHeader}>

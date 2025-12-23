@@ -27,12 +27,14 @@ import { useGetSuppliers } from "src/actions/suppliers";
 import { ISuppliersItem } from "src/types/suppliers";
 import { editAllContractDetails } from "./helper/mapContractProducts";
 import { useAuthContext } from "src/auth/hooks";
+import { mapProductFromOrderToItems } from "./helper/mapProductFromOrderToItems";
 
 type ContractFormProps = {
     open: boolean;
     onClose: () => void;
     selectedContract: IContractSupplyItem | null;
     CopiedContract: IContractSupplyItem | null;
+    customerIdFromQuotation?: number | null;
     detailsFromQuotation: any[];
     mutation: () => void;
 };
@@ -43,6 +45,7 @@ export function ContractForm({
     selectedContract,
     CopiedContract,
     detailsFromQuotation,
+    customerIdFromQuotation,
     mutation: listMutate }: ContractFormProps) {
     const contractId = selectedContract?.id ?? CopiedContract?.id ?? 0;
     const today = new Date();
@@ -63,7 +66,7 @@ export function ContractForm({
         pageNumber: 1,
         pageSize: 999,
         key: debouncedCustomerKw,
-        enabled: !!selectedContract?.id
+        enabled: !!selectedContract?.id || !!customerIdFromQuotation
     });
 
     const [isCreatingSupplier, setIsCreatingSupplier] = useState(false);
@@ -104,104 +107,8 @@ export function ContractForm({
         defaultValues,
     });
 
-    useEffect(() => {
-        if (CopiedContract) {
-            if (!CurrentContract) return;
-            const currentDetails = CurrentContract.items.filter(
-                (c) => c.contractSupID === CopiedContract.id
-            );
-
-            setContractProductDetail(currentDetails);
-
-            const mappedItems = mapProductsToItems(currentDetails || []);
-
-            methods.reset({
-                supplierId: CopiedContract.supplierId,
-                contractNo: generateContractNo('KH'),
-                createDate: CopiedContract.createDate,
-                signatureDate: CopiedContract.signatureDate,
-                deliveryAddress: CopiedContract.deliveryAddress,
-                deliveryTime: CopiedContract.deliveryTime,
-                downPayment: CopiedContract.downPayment,
-                nextPayment: CopiedContract.nextPayment,
-                lastPayment: CopiedContract.lastPayment,
-                copiesNo: CopiedContract.copiesNo,
-                keptNo: CopiedContract.keptNo,
-                status: CopiedContract.status,
-                note: CopiedContract.note,
-                discount: CopiedContract.discount,
-                products: mappedItems
-            });
-        }
-
-        if (!selectedContract) {
-            methods.reset(defaultValues);
-            setOriginalItems(
-                defaultValues.products.map((item, i) => ({
-                    productID: item.product ?? "",
-                    quantity: item.qty ?? 0,
-                    unit: item.unitName || "",
-                    price: item.price || 0
-                }))
-            );
-            return;
-        }
-
-        if (!CurrentContract) return;
-
-        const currentDetails = CurrentContract.items.filter(
-            (q) => q.contractSupID === selectedContract.id
-        );
-
-        if (currentDetails) {
-            setContractProductDetail(currentDetails);
-        }
-
-        const mappedItems = mapProductsToItems(CurrentContract.items || []);
-        methods.setValue("supplierId", selectedContract.supplierId ?? 0);
-        methods.setValue("contractNo", selectedContract.contractNo);
-        methods.setValue("signatureDate", selectedContract.signatureDate ?? null);
-        methods.setValue("createDate", selectedContract.createDate ?? null);
-        methods.setValue("deliveryAddress", selectedContract.deliveryAddress ?? '');
-        methods.setValue("deliveryTime", selectedContract.deliveryTime ?? null);
-        methods.setValue("downPayment", selectedContract.downPayment);
-        methods.setValue("nextPayment", selectedContract.nextPayment);
-        methods.setValue("lastPayment", selectedContract.lastPayment);
-        methods.setValue("copiesNo", selectedContract.copiesNo);
-        methods.setValue("keptNo", selectedContract.keptNo);
-        methods.setValue("status", selectedContract.status ?? 1);
-        methods.setValue("products", mappedItems);
-        methods.setValue("note", selectedContract.note ?? "");
-        methods.setValue("discount", selectedContract.discount);
-
-        setOriginalItems(
-            mappedItems.map((item, i) => ({
-                productID: item.product ?? "",
-                quantity: item.qty ?? 0,
-                unit: item.unitName || "",
-                price: item.price || 0
-            }))
-        );
-
-    }, [detailsFromQuotation, selectedContract, CurrentContract, methods.reset]);
-
-    const supplierId = methods.watch('supplierId');
-
-    useEffect(() => {
-        if (!supplierId || supplierId === 0) {
-            setSelectedSupplier(null);
-            return;
-        }
-        const found = suppliers.find((cus) => Number(cus.id) === Number(supplierId));
-        console.log(found);
-        if (found) {
-            setSelectedSupplier(found);
-        }
-    }, [supplierId, suppliers]);
-
     const {
         reset,
-        watch,
         setValue,
         setError,
         clearErrors,
@@ -316,6 +223,237 @@ export function ContractForm({
         }
     });
 
+    const products = useWatch({
+        control,
+        name: "products",
+    }) || [];
+
+    const downPayment = useWatch({
+        control,
+        name: "downPayment"
+    });
+
+    const nextPayment = useWatch({
+        control,
+        name: "nextPayment"
+    });
+
+    const supplierId = methods.watch('supplierId');
+
+    const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
+        const qty = item?.qty || 0;
+        const price = item?.price || 0;
+        const vat = item?.vat || 0;
+        return qty * price * (1 + vat / 100);
+    };
+
+    const total = Math.round((products || []).reduce((acc, i) => acc + calcAmount(i), 0));
+
+    // useEffect(() => {
+    //     if (total > 0) {
+    //         const down = downPayment || 0;
+    //         const next = nextPayment || 0;
+
+    //         // Nếu cả 2 ô đều đang rỗng -> tính mặc định theo % 30/40/30
+    //         if (!down && !next) {
+    //             const downDefault = Math.round(total * 0.3);
+    //             const nextDefault = Math.round(total * 0.4);
+    //             const lastDefault = Math.max(total - downDefault - nextDefault, 0);
+
+    //             setValue("downPayment", downDefault, { shouldValidate: true });
+    //             setValue("nextPayment", nextDefault, { shouldValidate: true });
+    //             setValue("lastPayment", lastDefault, { shouldValidate: true });
+    //             clearErrors(["downPayment", "nextPayment"]);
+    //             return;
+    //         }
+
+    //         // Nếu người dùng đã nhập (khác mặc định) cộng lại lớn hơn total thì auto tính lại theo % 30/40/30
+    //         if (down + next > total) {
+    //             setError("downPayment", {
+    //                 type: "manual",
+    //                 message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+    //             });
+    //             setError("nextPayment", {
+    //                 type: "manual",
+    //                 message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+    //             });
+    //         } else {
+    //             clearErrors(["downPayment", "nextPayment"]);
+    //             const last = Math.max(total - down - next, 0);
+    //             const formattedLast = last;
+    //             const formattedTotal = total;
+    //             if (formattedLast < formattedTotal) {
+    //                 setValue("lastPayment", formattedLast, { shouldValidate: true });
+    //             }
+    //         }
+    //     }
+    // }, [total, downPayment, nextPayment, setError, clearErrors, setValue]);
+
+    useEffect(() => {
+        if (total > 0) {
+            const down = Number(downPayment) || 0;
+            const next = Number(nextPayment) || 0;
+
+            if (!down && !next) {
+                const downDefault = Math.floor(total / 2);
+                const nextDefault = total - downDefault; // Đảm bảo tổng chính xác
+                const lastDefault = Math.max(total - downDefault - nextDefault, 0);
+
+                setValue("downPayment", downDefault, { shouldValidate: true });
+                setValue("nextPayment", nextDefault, { shouldValidate: true });
+                setValue("lastPayment", lastDefault, { shouldValidate: true });
+                clearErrors(["downPayment", "nextPayment"]);
+                return;
+            }
+
+            const currentTotal = down + next;
+            const isEvenSplit = Math.abs(down - next) <= 1 && currentTotal > 0;
+
+            if (isEvenSplit && currentTotal !== total) {
+                const downDefault = Math.floor(total / 2);
+                const nextDefault = total - downDefault;
+
+                const isStillEven = Math.abs(downDefault - nextDefault) <= 1;
+
+                if (isStillEven) {
+                    const lastDefault = Math.max(total - downDefault - nextDefault, 0);
+
+                    setValue("downPayment", downDefault, { shouldValidate: true });
+                    setValue("nextPayment", nextDefault, { shouldValidate: true });
+                    setValue("lastPayment", lastDefault, { shouldValidate: true });
+                } else {
+                    // Chia không đều -> dùng tỷ lệ 30/40/30
+                    const downDefault30 = Math.round(total * 0.3);
+                    const nextDefault40 = Math.round(total * 0.4);
+                    const lastDefault30 = Math.max(total - downDefault30 - nextDefault40, 0);
+
+                    setValue("downPayment", downDefault30, { shouldValidate: true });
+                    setValue("nextPayment", nextDefault40, { shouldValidate: true });
+                    setValue("lastPayment", lastDefault30, { shouldValidate: true });
+                }
+
+                clearErrors(["downPayment", "nextPayment"]);
+                return;
+            }
+
+            if (down + next > total) {
+                setError("downPayment", {
+                    type: "manual",
+                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+                });
+                setError("nextPayment", {
+                    type: "manual",
+                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+                });
+                setValue("lastPayment", 0, { shouldValidate: true });
+            } else {
+                clearErrors(["downPayment", "nextPayment"]);
+
+                const lastDefault = Math.max(total - down - next, 0);
+                setValue("lastPayment", lastDefault, { shouldValidate: true });
+            }
+        }
+    }, [total, downPayment, nextPayment, setError, clearErrors, setValue]);
+
+    useEffect(() => {
+        if (CopiedContract) {
+            if (!CurrentContract) return;
+            const currentDetails = CurrentContract.items.filter(
+                (c) => c.contractSupID === CopiedContract.id
+            );
+
+            setContractProductDetail(currentDetails);
+
+            const mappedItems = mapProductsToItems(currentDetails || []);
+
+            methods.reset({
+                supplierId: CopiedContract.supplierId,
+                contractNo: generateContractNo('KH'),
+                createDate: CopiedContract.createDate,
+                signatureDate: CopiedContract.signatureDate,
+                deliveryAddress: CopiedContract.deliveryAddress,
+                deliveryTime: CopiedContract.deliveryTime,
+                downPayment: CopiedContract.downPayment,
+                nextPayment: CopiedContract.nextPayment,
+                lastPayment: CopiedContract.lastPayment,
+                copiesNo: CopiedContract.copiesNo,
+                keptNo: CopiedContract.keptNo,
+                status: CopiedContract.status,
+                note: CopiedContract.note,
+                discount: CopiedContract.discount,
+                products: mappedItems
+            });
+        }
+
+        if (detailsFromQuotation?.length > 0 && customerIdFromQuotation) {
+            const mapped = mapProductFromOrderToItems(detailsFromQuotation);
+            methods.setValue("products", mapped);
+            methods.setValue("supplierId", customerIdFromQuotation);
+            return;
+        }
+
+        if (!selectedContract) {
+            methods.reset(defaultValues);
+            setOriginalItems(
+                defaultValues.products.map((item, i) => ({
+                    productID: item.product ?? "",
+                    quantity: item.qty ?? 0,
+                    unit: item.unitName || "",
+                    price: item.price || 0
+                }))
+            );
+            return;
+        }
+
+        if (!CurrentContract) return;
+
+        const currentDetails = CurrentContract.items.filter(
+            (q) => q.contractSupID === selectedContract.id
+        );
+
+        if (currentDetails) {
+            setContractProductDetail(currentDetails);
+        }
+
+        const mappedItems = mapProductsToItems(CurrentContract.items || []);
+        methods.setValue("supplierId", selectedContract.supplierId ?? 0);
+        methods.setValue("contractNo", selectedContract.contractNo);
+        methods.setValue("signatureDate", selectedContract.signatureDate ?? null);
+        methods.setValue("createDate", selectedContract.createDate ?? null);
+        methods.setValue("deliveryAddress", selectedContract.deliveryAddress ?? '');
+        methods.setValue("deliveryTime", selectedContract.deliveryTime ?? null);
+        methods.setValue("downPayment", selectedContract.downPayment);
+        methods.setValue("nextPayment", selectedContract.nextPayment);
+        methods.setValue("lastPayment", selectedContract.lastPayment);
+        methods.setValue("copiesNo", selectedContract.copiesNo);
+        methods.setValue("keptNo", selectedContract.keptNo);
+        methods.setValue("status", selectedContract.status ?? 1);
+        methods.setValue("products", mappedItems);
+        methods.setValue("note", selectedContract.note ?? "");
+        methods.setValue("discount", selectedContract.discount);
+
+        setOriginalItems(
+            mappedItems.map((item, i) => ({
+                productID: item.product ?? "",
+                quantity: item.qty ?? 0,
+                unit: item.unitName || "",
+                price: item.price || 0
+            }))
+        );
+
+    }, [detailsFromQuotation, selectedContract, CurrentContract, methods.reset]);
+
+    useEffect(() => {
+        if (!supplierId || supplierId === 0) {
+            setSelectedSupplier(null);
+            return;
+        }
+        const found = suppliers.find((cus) => Number(cus.id) === Number(supplierId));
+        if (found) {
+            setSelectedSupplier(found);
+        }
+    }, [supplierId, suppliers]);
+
     const renderActions = () => (
         <Box display="flex" flexDirection="row" gap={2}>
             <Button
@@ -343,70 +481,6 @@ export function ContractForm({
             </Button>
         </Box>
     );
-
-    const products = useWatch({
-        control,
-        name: "products",
-    }) || [];
-
-    const downPayment = useWatch({
-        control,
-        name: "downPayment"
-    });
-
-    const nextPayment = useWatch({
-        control,
-        name: "nextPayment"
-    });
-
-    const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
-        const qty = Number(item?.qty) || 0;
-        const price = Number(item?.price) || 0;
-        const vat = Number(item?.vat) || 0;
-        return qty * price * (1 + vat / 100);
-    };
-
-    const total = (products || []).reduce((acc, i) => acc + calcAmount(i), 0);
-
-    useEffect(() => {
-        if (total > 0) {
-            const down = Number(downPayment) || 0;
-            const next = Number(nextPayment) || 0;
-
-            // Nếu cả 2 ô đều đang rỗng -> tính mặc định theo % 30/40/30
-            if (!down && !next) {
-                const downDefault = Math.round(total * 0.3);
-                const nextDefault = Math.round(total * 0.4);
-                const lastDefault = Math.max(total - downDefault - nextDefault, 0);
-
-                setValue("downPayment", downDefault, { shouldValidate: true });
-                setValue("nextPayment", nextDefault, { shouldValidate: true });
-                setValue("lastPayment", lastDefault, { shouldValidate: true });
-                clearErrors(["downPayment", "nextPayment"]);
-                return;
-            }
-
-            // Nếu người dùng đã nhập (khác mặc định) thì không auto tính lại nữa
-            if (down + next > total) {
-                setError("downPayment", {
-                    type: "manual",
-                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
-                });
-                setError("nextPayment", {
-                    type: "manual",
-                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
-                });
-            } else {
-                clearErrors(["downPayment", "nextPayment"]);
-                const last = Math.max(total - down - next, 0);
-                const formattedLast = last;
-                const formattedTotal = total;
-                if (formattedLast < formattedTotal) {
-                    setValue("lastPayment", formattedLast, { shouldValidate: true });
-                }
-            }
-        }
-    }, [total, downPayment, nextPayment, setError, clearErrors, setValue]);
 
     const renderDetails = () => (
         <Stack direction={{ xs: "column", sm: "column", md: "column", lg: "row", xl: "row" }} height="100%" spacing={3} sx={{ mt: 1 }}>
@@ -452,8 +526,7 @@ export function ContractForm({
                             label={`Chọn nhà cung cấp`}
                             options={suppliers}
                             loading={suppliersLoading}
-                            getOptionLabel={(opt) => opt?.name ?
-                                opt.name :
+                            getOptionLabel={(opt) =>
                                 opt?.companyName ?
                                     opt.companyName : ''}
                             isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
@@ -462,13 +535,13 @@ export function ContractForm({
                             fullWidth
                             onChange={(_, newValue) => {
                                 methods.setValue('supplierId', newValue?.id ?? 0, { shouldValidate: true });
-                                setCustomerKeyword(newValue?.name ?? '');
+                                setCustomerKeyword(newValue?.companyName ?? '');
                             }}
                             noOptionsText="Không có dữ liệu"
                             sx={{ flex: 1, minWidth: 200 }}
                             renderOption={(props, option) => (
                                 <li {...props} key={option.id}>
-                                    {option.name ? option.name : option.companyName}
+                                    {option.companyName ? option.companyName : ""}
                                 </li>
                             )}
                         />
@@ -589,7 +662,10 @@ export function ContractForm({
                         <Field.VNCurrencyInput
                             label="Còn lại"
                             name="lastPayment"
-                            sx={{ maxWidth: 150 }}
+                            sx={{
+                                maxWidth: 150,
+                                display: 'none'
+                            }}
                             disabled
                         />
                     </Stack>
@@ -641,13 +717,6 @@ export function ContractForm({
                     {contractLoading ? renderSkeleton() : renderDetails()}
                 </DialogContent>
             </Form>
-            {/* <ContractCustomerForm
-                openChild={isCreatingSupplier}
-                setOpenChild={setIsCreatingSupplier}
-                methodsContract={methods}
-                setCustomerKeyword={setCustomerKeyword}
-                setSelectedSupplier={setSelectedSupplier}
-            /> */}
         </Dialog>
     );
 }

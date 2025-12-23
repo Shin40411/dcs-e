@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { endpoints, fetcher } from "src/lib/axios";
-import { IBestSellerRes, IchartResponse, IContractAmountRes, IContractValRes, IFinanceRes, IProductStatisticRes, ITopSalerRes } from "src/types/statistics";
+import { IBestSellerRes, IchartResponse, IContractAmountRes, IContractValRes, IFinanceRes, ILocalReceiptRes, IProductStatisticRes, ITopSalerRes } from "src/types/statistics";
 import useSWR, { SWRConfiguration } from "swr";
 
 const swrOptions: SWRConfiguration = {
@@ -147,15 +147,15 @@ export function TopSalerStatistic({ pageNumber, pageSize, filter }: contractValP
 
     const memoizedValue = useMemo(
         () => {
-            const filteredItems = data?.data.items;
+            const filteredItems = data?.data?.items;
 
             return {
                 topSaler: filteredItems,
                 pagination: {
-                    pageNumber: data?.data.pageNumber ?? 1,
-                    pageSize: data?.data.pageSize ?? pageSize,
-                    totalPages: data?.data.totalPages ?? 0,
-                    totalRecord: data?.data.totalRecord ?? 0,
+                    pageNumber: data?.data?.pageNumber ?? 1,
+                    pageSize: data?.data?.pageSize ?? pageSize,
+                    totalPages: data?.data?.totalPages ?? 0,
+                    totalRecord: data?.data?.totalRecord ?? 0,
                 },
                 topSalerLoading: isLoading,
                 topSalerError: error,
@@ -207,6 +207,34 @@ export function StatisticForFinance(filter: string) {
                 financeResultError: error,
                 financeResultValidating: isValidating,
                 financeResultEmpty: !isLoading && !isValidating && !filteredItems,
+            };
+        },
+        [data, error, isLoading, isValidating]
+    );
+
+    return memoizedValue;
+}
+
+export function StatisticLocalReceipt(IsReceive: boolean, type: string) {
+    let param = "";
+    param += `?IsReceive=${IsReceive}`;
+    if (type) {
+        param += `&type=${type}`;
+    }
+    let url = endpoints.statistic.internalReceipt(param);
+
+    const { data, isLoading, error, isValidating } = useSWR<ILocalReceiptRes>(url, fetcher, swrOptions);
+
+    const memoizedValue = useMemo(
+        () => {
+            const filteredItems = data?.data;
+
+            return {
+                internalReceipt: filteredItems,
+                internalReceiptLoading: isLoading,
+                internalReceiptError: error,
+                internalReceiptValidating: isValidating,
+                internalReceiptEmpty: !isLoading && !isValidating && !filteredItems,
             };
         },
         [data, error, isLoading, isValidating]

@@ -34,7 +34,7 @@ export function AuthSplitSection({
   methods,
   layoutQuery = 'md',
   title = 'Manage the job',
-  imgUrl = `${CONFIG.assetsDir}/assets/illustrations/illustration-dashboard.webp`,
+  imgUrl = `${CONFIG.assetsDir}/assets/background/dcs_welcome.png`,
   subtitle = 'Giải pháp chuyển đổi số hiệu quả cho doanh nghiệp',
   ...other
 }: AuthSplitSectionProps) {
@@ -50,8 +50,11 @@ export function AuthSplitSection({
           }),
           px: 3,
           pb: 3,
-          width: 1,
-          maxWidth: 480,
+          // width: 1,
+          maxWidth: 'none',
+          '@media (max-width:1500px)': {
+            maxWidth: 500,
+          },
           display: 'none',
           position: 'relative',
           pt: 'var(--layout-header-desktop-height)',
@@ -77,14 +80,14 @@ export function AuthSplitSection({
             {subtitle}
           </Typography>
         )} */}
-        <Logo sx={{ pointerEvents: 'none', userSelect: 'none', width: '100%', height: '100%' }} />
+        <Logo sx={{ pointerEvents: 'none', userSelect: 'none', width: 300, height: '100%' }} />
       </div>
 
       <Box
         component="img"
         alt="Dashboard illustration"
         src={imgUrl}
-        sx={{ pointerEvents: 'none', userSelect: 'none', width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
+        sx={{ pointerEvents: 'none', userSelect: 'none', width: 1, aspectRatio: '4/3', objectFit: 'contain' }}
       />
 
       {!!methods?.length && method && (

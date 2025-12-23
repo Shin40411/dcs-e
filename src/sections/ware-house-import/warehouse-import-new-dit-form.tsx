@@ -1,4 +1,4 @@
-import { createWarehouseImport, updateWarehouseImport, useGetDetailWarehouseImportProduct, useGetSupplierContracts, useGetUnImportProduct, useGetWarehouseImports } from "src/actions/contractSupplier";
+import { createWarehouseImport, updateWarehouseImport, useGetDetailWarehouseImportProduct, useGetSupplierContracts, useGetUnImportProduct, useGetVoucherCode, useGetWarehouseImports } from "src/actions/contractSupplier";
 import { useAuthContext } from "src/auth/hooks";
 import { IContractWarehouseImportDto, IContractWarehouseImportItem } from "src/types/warehouse-import";
 import { ContractWareHouseSchema, ContractWareHouseSchemaType } from "../contract-supplier/schema/contract-warehouse";
@@ -14,7 +14,7 @@ import { Iconify } from "src/components/iconify";
 import { CloseIcon } from "yet-another-react-lightbox";
 import { WarehouseImportTable } from "./components/warehouse-import-table";
 import dayjs from "dayjs";
-import { IContractSupplyItem, IImportRemainingProduct } from "src/types/contractSupplier";
+import { IContractSupplyItem, IImportRemainingProduct, VoucherSupItem } from "src/types/contractSupplier";
 import { useDebounce } from "minimal-shared/hooks";
 import { WareHouseImportSchema, WareHouseImportSchemaType } from "./schema/warehouse-import-schema";
 import { generateWarehouseExport } from "src/utils/random-func";
@@ -25,19 +25,20 @@ interface FormDialogProps {
     open: boolean;
     onClose: () => void;
     mutation: () => void;
+    onPreviewWarehouseImport: (params: URLSearchParams) => void;
 }
 
-export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onClose, mutation }: FormDialogProps) {
+export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onClose, onPreviewWarehouseImport, mutation }: FormDialogProps) {
     const { user } = useAuthContext();
     const today = new Date();
     const isEdit = Boolean(selectedWarehouseImport);
 
     const [contractkeyword, setContractKeyword] = useState('');
     const debouncedContractKw = useDebounce(contractkeyword, 300);
-    const [selectedContract, setSelectedContract] = useState<IContractSupplyItem | null>(null);
+    const [selectedVoucher, setSelectedVoucher] = useState<VoucherSupItem | null>(null);
     const [products, setProducts] = useState<IImportRemainingProduct[]>([]);
 
-    const { contracts, contractsLoading } = useGetSupplierContracts({
+    const { vouchers, vouchersLoading, mutate: refetchVoucher } = useGetVoucherCode({
         pageNumber: 1,
         pageSize: 20,
         key: debouncedContractKw,
@@ -46,16 +47,20 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
 
     const { pagination: { totalRecord } } = useGetWarehouseImports({
         pageNumber: 1,
+        ContractNo: selectedWarehouseImport ? (selectedWarehouseImport.conntractSupNo || "")
+            : selectedVoucher ? selectedVoucher.contractNo
+                : "",
         pageSize: 999,
         enabled: open,
     });
 
     const {
         remainingProduct: initialProducts,
-        remainingProductEmpty, remainingProductLoading
+        remainingProductEmpty,
+        remainingProductLoading
     } = useGetUnImportProduct(
-        selectedContract?.id ?? 0,
-        open && Boolean(selectedContract)
+        selectedVoucher?.contractId ?? 0,
+        open && Boolean(selectedVoucher)
     );
 
     const {
@@ -71,8 +76,8 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
         wareHouseNo: "",
         contract: "",
         exportDate: today.toISOString(),
-        receiverAddress: "",
-        receiverName: "",
+        receiverAddress: "Văn phòng công ty",
+        receiverName: "Nhân viên",
         note: "",
     };
 
@@ -91,39 +96,37 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
         formState: { isSubmitting },
     } = methods;
 
+    const contractNo = methods.watch('contract');
     const warehouseExportNo = watch('wareHouseNo');
     const exportDate = watch('exportDate');
     const note = watch('note');
     const receiverAddress = watch('receiverAddress');
     const receiverName = watch('receiverName');
 
-    const onPreviewWarehouseImport = () => {
-        const params = new URLSearchParams({
-            isCreating: 'false',
-            exportId: String(selectedWarehouseImport?.id),
-            contractId: String(selectedWarehouseImport?.contractSupID),
-            exportDate: String(fDate(exportDate)),
-            contractNo: selectedWarehouseImport?.conntractSupNo,
-            warehouseExportNo: warehouseExportNo,
-            receiverName: receiverName,
-            note: note,
-            receiverAddress: receiverAddress,
-            seller: selectedWarehouseImport?.employeeName || '',
-        } as Record<string, string>);
-        const queryString = params.toString();
-        window.open(`${paths.warehouseImport}?${queryString}`, '_blank');
-    }
+    const params = new URLSearchParams({
+        isCreating: 'false',
+        exportId: String(selectedWarehouseImport?.id),
+        contractId: String(selectedWarehouseImport?.contractSupID),
+        exportDate: String(fDate(exportDate)),
+        contractNo: selectedWarehouseImport?.conntractSupNo,
+        warehouseExportNo: warehouseExportNo,
+        receiverName: receiverName,
+        note: note,
+        receiverAddress: receiverAddress,
+        seller: selectedWarehouseImport?.employeeName || '',
+    } as Record<string, string>);
 
     const onSubmit = handleSubmit(async (data) => {
         try {
             const initialPayload: IContractWarehouseImportDto = {
                 supplierID: isEdit
                     ? selectedWarehouseImport?.supplierID || 0
-                    : selectedContract?.supplierId || 0,
+                    : selectedVoucher?.supplierId || 0,
                 contractID: isEdit
                     ? selectedWarehouseImport?.contractSupID || 0
-                    : selectedContract?.id || 0,
-                employeeID: selectedWarehouseImport?.employerID || user?.employeeId,
+                    : selectedVoucher?.contractId || 0,
+                employeeID: isEdit ? selectedWarehouseImport?.employerID || 0 :
+                    selectedVoucher?.employeeID || 0,
                 importDate: data.exportDate ? dayjs(data.exportDate).format("YYYY-MM-DD") : null,
                 reciverName: data.receiverName,
                 reciverPhone: selectedWarehouseImport?.receiverPhone || "",
@@ -187,22 +190,24 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
     }, [initialProducts]);
 
     useEffect(() => {
-        if (!selectedWarehouseImport) {
-            setSelectedContract(null);
-            setContractKeyword('');
-            methods.reset({
-                ...defaultValues,
-                wareHouseNo: '',
-            });
-        } else {
-            methods.setValue('contract', selectedWarehouseImport.conntractSupNo || "");
-            methods.setValue('wareHouseNo', selectedWarehouseImport.warehouseImportNo);
-            methods.setValue('exportDate', selectedWarehouseImport.createdDate);
-            methods.setValue('receiverAddress', selectedWarehouseImport.reciverAddress || "");
-            methods.setValue('receiverName', selectedWarehouseImport.receiverName);
-            methods.setValue('note', selectedWarehouseImport.note || "");
+        if (open) {
+            if (!selectedWarehouseImport) {
+                setContractKeyword('');
+                methods.reset({
+                    ...defaultValues,
+                    wareHouseNo: '',
+                });
+            } else {
+                methods.setValue('contract', selectedWarehouseImport.conntractSupNo ?? "");
+                const found = vouchers.find(v => v.contractNo === selectedWarehouseImport.conntractSupNo);
+                setSelectedVoucher(found || null);
+                methods.setValue('wareHouseNo', selectedWarehouseImport.warehouseImportNo);
+                methods.setValue('exportDate', selectedWarehouseImport.createdDate);
+                methods.setValue('receiverAddress', selectedWarehouseImport.reciverAddress || "");
+                methods.setValue('receiverName', selectedWarehouseImport.receiverName);
+                methods.setValue('note', selectedWarehouseImport.note || "");
+            }
         }
-
     }, [open, selectedWarehouseImport]);
 
     useEffect(() => {
@@ -213,33 +218,31 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
     }, [selectedWarehouseImport?.id]);
 
     useEffect(() => {
-        if (!selectedWarehouseImport) return;
-        if (!contracts || contracts.length === 0) return;
+        if (isEdit) return;
+        if (!contractNo) {
+            setSelectedVoucher(null);
+            methods.setValue('wareHouseNo', defaultValues.wareHouseNo);
+            methods.setValue("receiverName", defaultValues.receiverName);
+            return;
+        }
 
-        const found = contracts.find(
-            (c) => c.contractNo === selectedWarehouseImport.conntractSupNo
+        const found = vouchers.find(
+            vou => vou.contractNo === contractNo
         );
 
-        setSelectedContract(found ?? null);
-        methods.setValue("receiverName", found?.supplierName ?? "");
-    }, [selectedWarehouseImport?.id, contracts]);
+        if (found) {
+            setSelectedVoucher(found);
+            methods.setValue('wareHouseNo', generateWarehouseExport('PN', found.contractNo, totalRecord));
+            methods.setValue("receiverName", found.supplierName);
+        }
+    }, [vouchers, contractNo]);
 
     useEffect(() => {
-        if (!selectedContract) {
-            methods.setValue('wareHouseNo', '');
+        if (!selectedVoucher) {
             setProducts([]);
             return;
         }
-        if (totalRecord === undefined) return;
-
-        const newWareHouseNo = generateWarehouseExport(
-            'PN',
-            selectedContract.contractNo,
-            totalRecord
-        );
-
-        methods.setValue('wareHouseNo', newWareHouseNo);
-    }, [selectedContract, totalRecord]);
+    }, [selectedVoucher, totalRecord]);
 
     useEffect(() => {
         if (warehouseExportNo && exportDate && receiverAddress && receiverName) {
@@ -248,6 +251,11 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
             setWatchTicket(true);
         }
     }, [warehouseExportNo, exportDate, receiverAddress, receiverName]);
+
+    useEffect(() => {
+        if (!open) return;
+        refetchVoucher();
+    }, [open]);
 
     const renderDetails = () => (
         <>
@@ -260,43 +268,56 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
                         flex: 1.5,
                     }}
                 />
-                <Field.Autocomplete
-                    name="contract"
-                    label={`Số hợp đồng`}
-                    options={contracts}
-                    loading={contractsLoading}
-                    getOptionLabel={(opt) => opt?.contractNo ?
-                        opt.contractNo : ''}
-                    isOptionEqualToValue={(opt, val) =>
-                        opt?.contractNo === val?.contractNo
-                    }
-                    onInputChange={(_, value) => setContractKeyword(value)}
-                    value={selectedContract}
-                    fullWidth
-                    onChange={(_, newValue) => {
-                        setSelectedContract(newValue);
-                        methods.setValue('contract', newValue?.contractNo ?? "", { shouldValidate: true });
-                    }}
-                    noOptionsText="Không có dữ liệu"
-                    sx={{
-                        flex: 1,
-                        minWidth: 200,
-                        '& .MuiInputBase-root.Mui-disabled': {
-                            backgroundColor: '#ddd',
-                        },
-                    }}
-                    renderOption={(props, option) => (
-                        <li {...props} key={option.id}>
-                            {option.contractNo ? option.contractNo : ''}
-                        </li>
-                    )}
-                    required
-                    disabled={isEdit}
-                />
+                {isEdit ?
+                    <TextField
+                        value={selectedWarehouseImport?.conntractSupNo || ""}
+                        label="Số hợp đồng"
+                        disabled
+                        sx={{
+                            flex: 1,
+                            '& .MuiInputBase-root.Mui-disabled': {
+                                backgroundColor: '#ddd',
+                            },
+                        }}
+                    />
+                    :
+                    <Field.Autocomplete
+                        name="contract"
+                        label={`Số hợp đồng`}
+                        options={vouchers}
+                        loading={vouchersLoading}
+                        onInputChange={(_, value) => setContractKeyword(value)}
+                        getOptionLabel={(opt) => opt?.fullContractNoInfo ?? ''}
+                        isOptionEqualToValue={(opt, val) =>
+                            opt?.contractNo === val?.contractNo
+                        }
+                        value={selectedVoucher}
+                        fullWidth
+                        onChange={(_, newValue) => {
+                            methods.setValue('contract', newValue?.contractNo ?? "", { shouldValidate: true });
+                            setContractKeyword(newValue.contractNo);
+                        }}
+                        noOptionsText="Không có dữ liệu"
+                        sx={{
+                            flex: 1,
+                            minWidth: 200,
+                            '& .MuiInputBase-root.Mui-disabled': {
+                                backgroundColor: '#ddd',
+                            },
+                        }}
+                        renderOption={(props, option) => (
+                            <li {...props} key={option.contractNo}>
+                                {option.fullContractNoInfo ? option.fullContractNoInfo : ''}
+                            </li>
+                        )}
+                        required
+                        disabled={isEdit}
+                    />
+                }
             </Stack>
             <Stack direction="row" spacing={3}>
                 <TextField
-                    value={isEdit ? selectedWarehouseImport?.compnayName : selectedContract?.companyName || ""}
+                    value={isEdit ? selectedWarehouseImport?.compnayName : selectedVoucher?.companyName || ""}
                     label="Đơn vị nhận hàng"
                     placeholder="Đơn vị nhận hàng từ hợp đồng"
                     disabled
@@ -316,7 +337,10 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
             </Stack>
             <Stack direction="row" spacing={3}>
                 <TextField
-                    value={isEdit ? selectedWarehouseImport?.employeeName : selectedContract?.seller || ""}
+                    value={isEdit ?
+                        selectedWarehouseImport?.employeeName :
+                        selectedVoucher?.employeeName || ""
+                    }
                     label="Tên nhân viên"
                     disabled
                     sx={{
@@ -363,7 +387,7 @@ export function WarehouseImportNewEditForm({ selectedWarehouseImport, open, onCl
                         sx={{ ml: 1 }}
                         disabled={watchTicket}
                         fullWidth
-                        onClick={onPreviewWarehouseImport}
+                        onClick={() => onPreviewWarehouseImport(params)}
                     >
                         {'Xem phiếu'}
                     </Button>

@@ -23,6 +23,7 @@ import { SpendFilterBar } from "../components/spend-filter";
 import { FilterValues } from "src/types/filter-values";
 import { formatDate } from "src/utils/format-time-vi";
 import { Iconify } from "src/components/iconify";
+import { paths } from "src/routes/paths";
 
 export function SpendMainView({ contractType }: { contractType: string }) {
     const location = useLocation();
@@ -38,8 +39,8 @@ export function SpendMainView({ contractType }: { contractType: string }) {
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['PHIEUCHI.VIEW']);
     const [filters, setFilters] = useState<FilterValues>({
-        fromDate: null,
-        toDate: null,
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
     });
 
     const {
@@ -96,6 +97,10 @@ export function SpendMainView({ contractType }: { contractType: string }) {
         setTableData(contractReceiptItem);
     }, [contractReceiptItem]);
 
+    useEffect(() => {
+        mutation();
+    }, [location.pathname]);
+
     const handleDeleteRow = async () => {
         const success = await deleteOne({
             apiEndpoint: endpoints.contractReceipt.delete,
@@ -110,6 +115,11 @@ export function SpendMainView({ contractType }: { contractType: string }) {
         } else {
             toast.error("Xóa thất bại, vui lòng kiểm tra lại!");
         }
+    }
+
+    const onPreviewReceipt = (params: URLSearchParams) => {
+        const queryString = params.toString();
+        window.open(`${paths.spend}?${queryString}`, '_blank');
     }
 
     const titleBreadcrumb = contractType === 'Customer' ? 'Nghiệp vụ khách hàng' : 'Nghiệp vụ nhà cung cấp';
@@ -159,6 +169,7 @@ export function SpendMainView({ contractType }: { contractType: string }) {
                             openDetailsForm,
                             openCrudForm,
                             confirmDelRowDialog,
+                            onPreviewReceipt,
                             setRowIdSelected,
                             setTableRowSelected,
                             page,
@@ -188,6 +199,7 @@ export function SpendMainView({ contractType }: { contractType: string }) {
                     selectedReceipt={tableRowSelected}
                     contractType={contractType}
                     mutation={mutation}
+                    onPreviewReceipt={onPreviewReceipt}
                 />
                 <ConfirmDialog
                     open={confirmDelRowDialog.value}

@@ -20,16 +20,19 @@ type productsProps = {
   pageNumber: number,
   pageSize: number,
   key?: string,
+  StockFilter?: string,
   enabled?: boolean
 }
 
-export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
+export function useGetProducts({ pageNumber, key, StockFilter, pageSize }: productsProps) {
   let params = '';
 
   if (pageNumber || pageSize)
     params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
   if (key) params += `&search=${key}`;
+
+  if (StockFilter) params += `&StockFilter=${StockFilter}`;
 
   const url = endpoints.product.list(params);
 
@@ -41,17 +44,24 @@ export function useGetProducts({ pageNumber, key, pageSize }: productsProps) {
 
   const memoizedValue = useMemo(
     () => ({
-      products: data?.data.items || [],
+      products: data?.data?.items ?? [],
       pagination: {
-        pageNumber: data?.data.pageNumber ?? 1,
-        pageSize: data?.data.pageSize ?? pageSize,
-        totalPages: data?.data.totalPages ?? 0,
-        totalRecord: data?.data.totalRecord ?? 0,
+        pageNumber: data?.data?.pageNumber ?? 1,
+        pageSize: data?.data?.pageSize ?? pageSize,
+        totalPages: data?.data?.totalPages ?? 0,
+        totalRecord: data?.data?.totalRecord ?? 0,
+        allProduct: data?.data?.allProduct ?? 0,
+        alMostOutOfStock: data?.data?.alMostOutOfStock ?? 0,
+        outOfStock: data?.data?.outOfStock ?? 0,
+        longTermInventory: data?.data?.longTermInventory ?? 0
       },
       productsLoading: isLoading,
       productsError: error,
       productsValidating: isValidating,
-      productsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+      productsEmpty:
+        !isLoading &&
+        !isValidating &&
+        !(data?.data?.items?.length ?? 0),
       mutation: mutate
     }),
     [data, error, isLoading, isValidating, pageNumber, pageSize]
@@ -77,17 +87,20 @@ export function useGetDeletedProducts({ pageNumber, key, pageSize, enabled = tru
 
   const memoizedValue = useMemo(
     () => ({
-      products: data?.data.items || [],
+      products: data?.data?.items ?? [],
       pagination: {
-        pageNumber: data?.data.pageNumber ?? 1,
-        pageSize: data?.data.pageSize ?? pageSize,
-        totalPages: data?.data.totalPages ?? 0,
-        totalRecord: data?.data.totalRecord ?? 0,
+        pageNumber: data?.data?.pageNumber ?? 1,
+        pageSize: data?.data?.pageSize ?? pageSize,
+        totalPages: data?.data?.totalPages ?? 0,
+        totalRecord: data?.data?.totalRecord ?? 0,
       },
       productsLoading: isLoading,
       productsError: error,
       productsValidating: isValidating,
-      productsEmpty: !isLoading && !isValidating && !data?.data.items.length,
+      productsEmpty:
+        !isLoading &&
+        !isValidating &&
+        !(data?.data?.items?.length ?? 0),
       mutation: mutate
     }),
     [data, error, isLoading, isValidating, pageNumber, pageSize]

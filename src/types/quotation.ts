@@ -95,6 +95,7 @@ export type IQuotationDto = {
     quotationNo: string;
     customerID?: number;
     SupplierID?: number;
+    createDate: IDateValue;
     expiryDate: IDateValue;
     note: string;
     discount: number;

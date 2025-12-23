@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { Field, Form } from "src/components/hook-form";
 import { Iconify } from "src/components/iconify";
 import { CloseIcon } from "yet-another-react-lightbox";
-import { useNavigate } from "react-router";
 import { InternalReceiptSchema, InternalReceiptSchemaType } from "./schema/receipt-schema";
 import { ReceiptAndSpendCreateDto, ReceiptAndSpendData, ReceiptAndSpendUpdateDto } from "src/types/internal";
 import { useGetBankAccounts } from "src/actions/bankAccount";
@@ -36,7 +35,6 @@ interface FormDialogProps {
 
 export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation, totalRecord }: FormDialogProps) {
     const today = new Date();
-    const navigate = useNavigate();
     const [bankKeyword, setbankKeyword] = useState('');
     const debouncedbankKw = useDebounce(bankKeyword, 300);
 
@@ -65,29 +63,11 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation, t
         defaultValues: getDefaultValues(),
     });
 
-    useEffect(() => {
-        if (open) {
-            if (selectedReceipt) {
-                methods.reset({
-                    name: selectedReceipt.name,
-                    cost: selectedReceipt.cost,
-                    receiptDate: selectedReceipt.receiptDate,
-                    receiptNo: selectedReceipt.receiptNo,
-                    address: selectedReceipt.address,
-                    reason: selectedReceipt.reason,
-                    bankAccId: selectedReceipt.bankAccountID,
-                    bankNo: selectedReceipt.bankNo,
-                });
-            } else {
-                methods.reset(getDefaultValues());
-            }
-        }
-    }, [open, selectedReceipt, totalRecord]);
-
     const {
         reset,
         watch,
         control,
+        setValue,
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
@@ -135,21 +115,41 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation, t
         }
     });
 
-    const bankAccId = methods.watch('bankAccId');
-
     useEffect(() => {
-        if (!bankAccId) {
-            setSelectedBank(null);
-            methods.setValue("bankNo", "");
-            return;
-        }
+        if (!open) return;
 
-        const found = bankAccounts.find((cus) => Number(cus.id) === Number(bankAccId));
-        if (found) {
-            setSelectedBank(found);
-            methods.setValue("bankNo", found.bankNo);
+        if (selectedReceipt) {
+            reset({
+                name: selectedReceipt.name,
+                cost: selectedReceipt.cost,
+                receiptDate: selectedReceipt.receiptDate,
+                receiptNo: selectedReceipt.receiptNo,
+                address: selectedReceipt.address,
+                reason: selectedReceipt.reason,
+                bankAccId: selectedReceipt.bankAccountID,
+                bankNo: selectedReceipt.bankNo,
+            });
+
+            setbankKeyword(selectedReceipt.bankAccountName ?? "");
+
+            const found = bankAccounts.find(
+                x => Number(x.id) === Number(selectedReceipt.bankAccountID)
+            );
+            setSelectedBank(found ?? null);
+
+        } else {
+            reset(getDefaultValues());
+            setbankKeyword("");
+            setSelectedBank(null);
+
+            if (bankAccounts.length > 0) {
+                const first = bankAccounts[0];
+                setValue("bankAccId", Number(first.id), { shouldValidate: true });
+                setValue("bankNo", first.bankNo);
+                setSelectedBank(first);
+            }
         }
-    }, [bankAccId, bankAccounts]);
+    }, [open, selectedReceipt, bankAccounts]);
 
     const renderDetails = () => (
         <>
@@ -250,6 +250,13 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation, t
         </>
     );
 
+    const handleCancel = () => {
+        onClose();
+        reset();
+        setSelectedBank(null);
+        setbankKeyword('');
+    }
+
     const renderActions = () => (
         <Box sx={{ width: '100%' }}>
             <Stack direction="row" spacing={2} width="100%">
@@ -265,7 +272,7 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation, t
                 <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={() => { onClose(); reset(); }}
+                    onClick={handleCancel}
                     fullWidth
                     disabled={isSubmitting}
                 >
@@ -283,7 +290,7 @@ export function ReceiptNewEditForm({ selectedReceipt, open, onClose, mutation, t
                 },
             }}
             open={open}
-            onClose={() => { onClose(); reset(); }}
+            onClose={handleCancel}
             fullWidth
             maxWidth="md"
         >

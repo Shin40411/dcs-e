@@ -1,10 +1,11 @@
 import { Box, Typography, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Stack, List, ListItem, ListItemText } from "@mui/material";
 import { useRef } from "react";
 import { Logo } from "src/components/logo";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 import { IContractSupplyItem } from "src/types/contractSupplier";
 import { PAPER_W, useScaleToFit } from "src/utils/scale-pdf";
 
-export const ContractPreview = ({ contract }: { contract: IContractSupplyItem }) => {
+export const ContractPreview = ({ contract, companyInfo }: { contract: IContractSupplyItem; companyInfo: ICompanyInfoItem | null; }) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const scale = useScaleToFit(containerRef);
@@ -187,7 +188,7 @@ export const ContractPreview = ({ contract }: { contract: IContractSupplyItem })
                         flexDirection: 'row',
                         alignItems: 'flex-start'
                     }}>
-                        <Logo sx={{ height: '35px !important' }} width={70} />
+                        <Logo sx={{ height: '35px !important' }} src={companyInfo?.logo} width={70} />
                     </Box>
                     {pageOne()}
 

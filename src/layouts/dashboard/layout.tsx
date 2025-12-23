@@ -36,6 +36,7 @@ import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
 import type { LayoutSectionProps } from '../core/layout-section';
 import { usePermission } from 'src/auth/context/jwt/permission-provider';
+import { useGetCompanyInfo } from 'src/actions/companyInfo';
 
 // ----------------------------------------------------------------------
 
@@ -62,6 +63,8 @@ export function DashboardLayout({
   const theme = useTheme();
 
   const { permissions } = usePermission();
+
+  const { companyInfoData } = useGetCompanyInfo();
 
   const settings = useSettingsContext();
 
@@ -134,6 +137,7 @@ export function DashboardLayout({
           {/** @slot Logo */}
           {isNavHorizontal && (
             <Logo
+              src={companyInfoData?.logo}
               sx={{
                 display: 'none',
                 [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },

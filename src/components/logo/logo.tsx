@@ -16,6 +16,7 @@ import { CONFIG } from 'src/global-config';
 export type LogoProps = LinkProps & {
   isSingle?: boolean;
   disabled?: boolean;
+  src?: string;
 };
 
 export function Logo({
@@ -23,10 +24,13 @@ export function Logo({
   disabled,
   className,
   href = '/',
+  src,
   isSingle = true,
   ...other
 }: LogoProps) {
   const theme = useTheme();
+
+  const defaultSrc = `${CONFIG.assetsDir}/logo/DCS9.png`;
 
   const gradientId = useId();
 
@@ -38,7 +42,7 @@ export function Logo({
   const singleLogo = (
     <img
       alt="Single logo"
-      src={`${CONFIG.assetsDir}/logo/DCS9.png`}
+      src={src || defaultSrc}
       width="100%"
       height="100%"
     />
@@ -47,7 +51,7 @@ export function Logo({
   const fullLogo = (
     <img
       alt="Full logo"
-      src={`${CONFIG.assetsDir}/logo/DCS9.png`}
+      src={src || defaultSrc}
       width="100%"
       height="100%"
     />

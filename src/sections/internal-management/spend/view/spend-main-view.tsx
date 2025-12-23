@@ -18,14 +18,18 @@ import { endpoints } from "src/lib/axios";
 import { toast } from "sonner";
 import { deleteOne } from "src/actions/delete";
 import { INTERNAL_SPEND_COLUMNS } from "src/const/internal-spend";
-import { fDate } from "src/utils/format-time-vi";
+import { fDate, formatDate } from "src/utils/format-time-vi";
 import { useLocation } from "react-router";
 import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 import { INTERNAL_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import { SpendFilterBar } from "../spend-filter";
+import { FilterValues } from "src/types/filter-values";
 
 export function SpendMainView() {
     const location = useLocation();
-
+    const today = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(today.getMonth() - 1);
     const openCrudForm = useBoolean();
     const openDetailsForm = useBoolean();
     const confirmDelRowDialog = useBoolean();
@@ -34,6 +38,11 @@ export function SpendMainView() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
+    const [filters, setFilters] = useState<FilterValues>({
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
+    });
+
     const {
         receiptOrSpendDt,
         receiptOrSpendDtEmpty,
@@ -45,7 +54,11 @@ export function SpendMainView() {
         pageSize: rowsPerPage,
         key: searchText,
         isReceive: false,
-        enabled: true
+        enabled: true,
+        FromDate: filters.fromDate,
+        ToDate: filters.toDate,
+        Month: filters.month,
+        Filter: filters.receiverName
     });
 
     const handleChangePage = (_: unknown, newPage: number) => {
@@ -56,6 +69,21 @@ export function SpendMainView() {
         event: ChangeEvent<HTMLInputElement>
     ) => {
         setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    const handleFilterChange = (values: FilterValues) => {
+        setFilters(values);
+        setPage(0);
+    };
+
+    const handleReset = () => {
+        setFilters({
+            fromDate: formatDate(lastMonth),
+            toDate: formatDate(today),
+            receiverName: undefined,
+            month: undefined
+        });
         setPage(0);
     };
 
@@ -184,6 +212,12 @@ export function SpendMainView() {
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                     searchText={searchText}
                     onSearchChange={setSearchText}
+                    disableDefaultFilter
+                    additionalFilter={
+                        <SpendFilterBar
+                            onFilterChange={handleFilterChange}
+                            onSearching={setSearchText}
+                            onReset={handleReset} />}
                 />
                 {renderForm()}
                 {renderConfirmDeleteRow()}

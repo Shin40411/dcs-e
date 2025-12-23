@@ -7,6 +7,7 @@ type suppliersProps = {
     pageNumber: number,
     pageSize: number,
     key?: string,
+    IsBusiness?: boolean | null,
     enabled?: boolean
 }
 
@@ -17,12 +18,20 @@ const swrOptions: SWRConfiguration = {
 };
 
 
-export function useGetSuppliers({ pageNumber, pageSize, key, enabled = true }: suppliersProps) {
+export function useGetSuppliers({ pageNumber, pageSize, key, IsBusiness, enabled = true }: suppliersProps) {
     let params = '';
 
     if (pageNumber || pageSize) params = `?pageNumber=${pageNumber}&pageSize=${pageSize}&Status=1`;
 
     if (key) params += `&search=${key}`;
+
+    if (IsBusiness !== null) {
+        if (IsBusiness === true) {
+            params += `&IsBusiness=true`;
+        } else if (IsBusiness === false) {
+            params += `&IsBusiness=false`;
+        }
+    }
 
     const url = enabled ? endpoints.suppliers.list(params) : null;
 

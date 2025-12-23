@@ -101,7 +101,15 @@ export function ContractForm({
         status: 1,
         note: "",
         discount: 0,
-        products: [],
+        products: [{
+            id: 0,
+            product: "",
+            unit: "",
+            unitName: "",
+            qty: 1,
+            price: 0,
+            vat: 0,
+        }],
     };
 
     const methods = useForm<ContractFormValues>({
@@ -122,6 +130,39 @@ export function ContractForm({
     } = methods;
 
     const currentLoadRef = useRef<Promise<IContractProduct[]> | null>(null);
+
+    const customerId = methods.watch('customerId');
+
+    const supplierId = methods.watch('supplierId');
+
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "products",
+    });
+
+    const products = useWatch({
+        control,
+        name: "products",
+    }) || [];
+
+    const downPayment = useWatch({
+        control,
+        name: "downPayment"
+    });
+
+    const nextPayment = useWatch({
+        control,
+        name: "nextPayment"
+    });
+
+    const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
+        const qty = Number(item?.qty) || 0;
+        const price = Number(item?.price) || 0;
+        const vat = Number(item?.vat) || 0;
+        return qty * price * (1 + vat / 100);
+    };
+
+    const total = Math.round((products || []).reduce((acc, i) => acc + calcAmount(i), 0));
 
     useEffect(() => {
         if (CopiedContract) {
@@ -184,6 +225,7 @@ export function ContractForm({
         }
 
         if (creatingSupplierContract) {
+            methods.setValue("supplierId", defaultValues.supplierId);
             methods.setValue("customerId", defaultValues.customerId);
             methods.setValue("contractNo", defaultValues.contractNo);
             methods.setValue("deliveryAddress", defaultValues.deliveryAddress);
@@ -247,8 +289,6 @@ export function ContractForm({
         methods.reset
     ]);
 
-    const customerId = methods.watch('customerId');
-
     useEffect(() => {
         if (!customerId) {
             setSelectedCustomer(null);
@@ -260,8 +300,6 @@ export function ContractForm({
             setSelectedCustomer(found);
         }
     }, [customerId]);
-
-    const supplierId = methods.watch('supplierId');
 
     useEffect(() => {
         if (!supplierId) {
@@ -275,10 +313,71 @@ export function ContractForm({
         }
     }, [supplierId]);
 
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: "products",
-    });
+    useEffect(() => {
+        if (total > 0) {
+            const down = Number(downPayment) || 0;
+            const next = Number(nextPayment) || 0;
+
+            if (!down && !next) {
+                const downDefault = Math.floor(total / 2);
+                const nextDefault = total - downDefault; // Đảm bảo tổng chính xác
+                const lastDefault = Math.max(total - downDefault - nextDefault, 0);
+
+                setValue("downPayment", downDefault, { shouldValidate: true });
+                setValue("nextPayment", nextDefault, { shouldValidate: true });
+                setValue("lastPayment", lastDefault, { shouldValidate: true });
+                clearErrors(["downPayment", "nextPayment"]);
+                return;
+            }
+
+            const currentTotal = down + next;
+            const isEvenSplit = Math.abs(down - next) <= 1 && currentTotal > 0;
+
+            if (isEvenSplit && currentTotal !== total) {
+                const downDefault = Math.floor(total / 2);
+                const nextDefault = total - downDefault;
+
+                const isStillEven = Math.abs(downDefault - nextDefault) <= 1;
+
+                if (isStillEven) {
+                    const lastDefault = Math.max(total - downDefault - nextDefault, 0);
+
+                    setValue("downPayment", downDefault, { shouldValidate: true });
+                    setValue("nextPayment", nextDefault, { shouldValidate: true });
+                    setValue("lastPayment", lastDefault, { shouldValidate: true });
+                } else {
+                    // Chia không đều -> dùng tỷ lệ 30/40/30
+                    const downDefault30 = Math.round(total * 0.3);
+                    const nextDefault40 = Math.round(total * 0.4);
+                    const lastDefault30 = Math.max(total - downDefault30 - nextDefault40, 0);
+
+                    setValue("downPayment", downDefault30, { shouldValidate: true });
+                    setValue("nextPayment", nextDefault40, { shouldValidate: true });
+                    setValue("lastPayment", lastDefault30, { shouldValidate: true });
+                }
+
+                clearErrors(["downPayment", "nextPayment"]);
+                return;
+            }
+
+            if (down + next > total) {
+                setError("downPayment", {
+                    type: "manual",
+                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+                });
+                setError("nextPayment", {
+                    type: "manual",
+                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
+                });
+                setValue("lastPayment", 0, { shouldValidate: true });
+            } else {
+                clearErrors(["downPayment", "nextPayment"]);
+
+                const lastDefault = Math.max(total - down - next, 0);
+                setValue("lastPayment", lastDefault, { shouldValidate: true });
+            }
+        }
+    }, [total, downPayment, nextPayment, setError, clearErrors, setValue]);
 
     const onSubmit = handleSubmit(async (data: ContractFormValues) => {
         try {
@@ -437,70 +536,6 @@ export function ContractForm({
         </Box>
     );
 
-    const products = useWatch({
-        control,
-        name: "products",
-    }) || [];
-
-    const downPayment = useWatch({
-        control,
-        name: "downPayment"
-    });
-
-    const nextPayment = useWatch({
-        control,
-        name: "nextPayment"
-    });
-
-    const calcAmount = (item: { qty?: number; price?: number; vat?: number }) => {
-        const qty = Number(item?.qty) || 0;
-        const price = Number(item?.price) || 0;
-        const vat = Number(item?.vat) || 0;
-        return qty * price * (1 + vat / 100);
-    };
-
-    const total = (products || []).reduce((acc, i) => acc + calcAmount(i), 0);
-
-    useEffect(() => {
-        if (total > 0) {
-            const down = Number(downPayment) || 0;
-            const next = Number(nextPayment) || 0;
-
-            // Nếu cả 2 ô đều đang rỗng -> tính mặc định theo % 30/40/30
-            if (!down && !next) {
-                const downDefault = Math.round(total * 0.3);
-                const nextDefault = Math.round(total * 0.4);
-                const lastDefault = Math.max(total - downDefault - nextDefault, 0);
-
-                setValue("downPayment", downDefault, { shouldValidate: true });
-                setValue("nextPayment", nextDefault, { shouldValidate: true });
-                setValue("lastPayment", lastDefault, { shouldValidate: true });
-                clearErrors(["downPayment", "nextPayment"]);
-                return;
-            }
-
-            // Nếu người dùng đã nhập (khác mặc định) thì không auto tính lại nữa
-            if (down + next > total) {
-                setError("downPayment", {
-                    type: "manual",
-                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
-                });
-                setError("nextPayment", {
-                    type: "manual",
-                    message: "Tổng tiền trả trước và trả sau không được vượt quá tổng tiền hợp đồng",
-                });
-            } else {
-                clearErrors(["downPayment", "nextPayment"]);
-                const last = Math.max(total - down - next, 0);
-                const formattedLast = last;
-                const formattedTotal = total;
-                if (formattedLast < formattedTotal) {
-                    setValue("lastPayment", formattedLast, { shouldValidate: true });
-                }
-            }
-        }
-    }, [total, downPayment, nextPayment, setError, clearErrors, setValue]);
-
     const renderDetails = () => (
         <Stack direction={{ xs: "column", sm: "column", md: "column", lg: "row", xl: "row" }} height="100%" spacing={3} sx={{ mt: 1 }}>
             {renderLeftColumn()}
@@ -545,8 +580,7 @@ export function ContractForm({
                                 label={`Chọn nhà cung cấp`}
                                 options={suppliers}
                                 loading={suppliersLoading}
-                                getOptionLabel={(opt) => opt?.name ?
-                                    opt.name :
+                                getOptionLabel={(opt) =>
                                     opt?.companyName ?
                                         opt.companyName : ''}
                                 isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
@@ -555,13 +589,13 @@ export function ContractForm({
                                 fullWidth
                                 onChange={(_, newValue) => {
                                     methods.setValue('supplierId', newValue?.id ?? 0, { shouldValidate: true });
-                                    setCustomerKeyword(newValue?.name ?? '');
+                                    setCustomerKeyword(newValue?.companyName ?? '');
                                 }}
                                 noOptionsText="Không có dữ liệu"
                                 sx={{ flex: 1, minWidth: 200 }}
                                 renderOption={(props, option) => (
                                     <li {...props} key={option.id}>
-                                        {option.name ? option.name : option.companyName}
+                                        {option.companyName ? option.companyName : ""}
                                     </li>
                                 )}
                             />
@@ -746,7 +780,10 @@ export function ContractForm({
                         <Field.VNCurrencyInput
                             label="Còn lại"
                             name="lastPayment"
-                            sx={{ maxWidth: 150 }}
+                            sx={{
+                                maxWidth: 150,
+                                display: 'none'
+                            }}
                             disabled
                         />
                     </Stack>

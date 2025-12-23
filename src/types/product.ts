@@ -102,6 +102,10 @@ export type ProductListData = {
   pageSize: number;
   totalRecord: number;
   totalPages: number;
+  allProduct: number;
+  alMostOutOfStock: number;
+  outOfStock: number;
+  longTermInventory: number;
   items: ProductItem[];
 };
 

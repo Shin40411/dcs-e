@@ -19,6 +19,7 @@ import { useSettingsContext } from "src/components/settings";
 import { QuotationPreview } from "./quotation-preview";
 import { isToday } from "date-fns";
 import NewSticker from "src/components/label/news";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type Props = CardProps & {
     openDeleteDialog: UseBooleanReturn;
@@ -26,6 +27,7 @@ type Props = CardProps & {
     quotate: IQuotationItem;
     onViewDetails: () => void;
     onEditing: () => void;
+    companyInfo: ICompanyInfoItem | null;
 };
 
 const statusMap: { [key: number]: [string, string] } = {
@@ -35,7 +37,7 @@ const statusMap: { [key: number]: [string, string] } = {
     3: ["Đã hoàn thành", "fluent-color:checkmark-circle-16"],
 }
 
-export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails, onEditing, sx, ...other }: Props) {
+export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails, onEditing, companyInfo, sx, ...other }: Props) {
     const menuActions = usePopover();
     const settings = useSettingsContext();
     const statusValue = quotate.status;
@@ -164,7 +166,7 @@ export function QuotationItem({ openDeleteDialog, setId, quotate, onViewDetails,
                         <NewSticker />
                     </Box>
                 )}
-                <QuotationPreview quotation={quotate} />
+                <QuotationPreview quotation={quotate} companyInfo={companyInfo} />
                 <Stack direction={{ md: totalDirection, sm: "column" }} justifyContent={'space-around'} alignContent={"center"} py={1} spacing={1}>
                     <Stack width="50%" direction={"row"} alignContent={"center"} justifyContent={"space-between"}>
                         <Box

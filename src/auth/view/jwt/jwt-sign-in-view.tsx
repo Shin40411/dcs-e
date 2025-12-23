@@ -79,19 +79,9 @@ export function JwtSignInView() {
 
   const renderForm = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Field.Text name="username" label="Tên đăng nhập" />
+      <Field.Text name="username" label="Tài khoản" />
 
       <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
-        {/* <Link
-          component={RouterLink}
-          href="#"
-          variant="body2"
-          color="inherit"
-          sx={{ alignSelf: 'flex-end' }}
-        >
-          Forgot password?
-        </Link> */}
-
         <Field.Text
           name="password"
           label="Mật khẩu"
@@ -114,17 +104,19 @@ export function JwtSignInView() {
         />
       </Box>
 
-      <Button
-        fullWidth
-        color="inherit"
-        size="large"
-        type="submit"
-        variant="contained"
-        loading={isSubmitting}
-        loadingIndicator="Đang xác thực..."
-      >
-        Đăng nhập
-      </Button>
+      <Box width="100%" display="flex" justifyContent="center" mt={2}>
+        <Button
+          color="primary"
+          size="large"
+          type="submit"
+          variant="contained"
+          loading={isSubmitting}
+          loadingIndicator="Đang xác thực..."
+          sx={{ fontSize: 14, borderRadius: 2, width: 0.5 }}
+        >
+          Đăng nhập
+        </Button>
+      </Box>
     </Box>
   );
 
@@ -134,7 +126,7 @@ export function JwtSignInView() {
         icon={
           <Logo disabled />
         }
-        title="Đăng nhập tài khoản"
+        title="Đăng nhập"
         sx={{ textAlign: { xs: 'center', md: 'left' } }}
       />
 

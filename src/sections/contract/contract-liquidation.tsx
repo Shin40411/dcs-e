@@ -8,6 +8,7 @@ import { generatePdfBlob } from "src/utils/generateblob-func";
 import { downloadPdf, printPdf } from "src/utils/random-func";
 import { Iconify } from "src/components/iconify";
 import { useEffect } from "react";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 export function ContractLiquidation() {
     const [searchParams] = useSearchParams();
@@ -115,6 +116,8 @@ export function ContractLiquidation() {
         ],
     });
 
+    const { companyInfoData } = useGetCompanyInfo();
+
     const { contract, contractError } = useGetContract({
         contractId: Number(contractBody.id) || 0,
         pageNumber: 1,
@@ -169,6 +172,7 @@ export function ContractLiquidation() {
                 renderReportNo={contractBody.renderReportNo}
                 paid={report?.[0]?.reports?.[0]?.totalPaid ?? 0}
                 debt={report?.[0]?.reports?.[0]?.debt ?? 0}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -199,6 +203,7 @@ export function ContractLiquidation() {
                 renderReportNo={contractBody.renderReportNo}
                 paid={report?.[0]?.reports?.[0]?.totalPaid ?? 0}
                 debt={report?.[0]?.reports?.[0]?.debt ?? 0}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -250,6 +255,7 @@ export function ContractLiquidation() {
                             renderReportNo={contractBody.renderReportNo}
                             paid={report?.[0]?.reports?.[0]?.totalPaid ?? 0}
                             debt={report?.[0]?.reports?.[0]?.debt ?? 0}
+                            companyInfoData={companyInfoData}
                         />
                     </PDFViewer>
                 </Box>

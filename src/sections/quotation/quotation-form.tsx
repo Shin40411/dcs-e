@@ -78,11 +78,11 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         options: { enabled: !!selectedQuotation?.id }
     });
 
-    const { customers, customersLoading, pagination: CustomerRecords } = useGetCustomers({
+    const { customers, customersLoading, mutation: refetchCustomers } = useGetCustomers({
         pageNumber: 1,
         pageSize: 999,
         key: debouncedCustomerKw,
-        enabled: true
+        enabled: openForm || !!selectedQuotation?.customerId
     });
 
     const [selectedCustomer, setSelectedCustomer] = useState<ICustomerItem | null>(null);
@@ -97,7 +97,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         items: [{
             id: undefined,
             product: "",
-            unit: "0",
+            unit: "",
             unitName: "",
             qty: 1,
             price: 0,
@@ -112,6 +112,17 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         resolver: zodResolver(quotationSchema),
         defaultValues,
     });
+
+    const {
+        reset,
+        watch,
+        setValue,
+        handleSubmit,
+        control,
+        formState: { isSubmitting },
+    } = methods;
+
+    const customerId = watch('customer');
 
     useEffect(() => {
         //copy case
@@ -169,7 +180,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         }
 
         const mappedItems = mapProductsToItems(currentDetails?.products || []);
-
         methods.setValue("customer", selectedQuotation.customerId ?? 0);
         methods.setValue("quotationNo", selectedQuotation.quotationNo);
         methods.setValue("date", selectedQuotation.createdDate ?? null);
@@ -193,8 +203,6 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
 
     }, [selectedQuotation, CopiedQuotation, CurrentQuotation, methods.reset]);
 
-    const customerId = methods.watch('customer');
-
     useEffect(() => {
         if (!customerId) {
             setSelectedCustomer(null);
@@ -205,16 +213,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         if (found) {
             setSelectedCustomer(found);
         }
-    }, [customerId]);
-
-    const {
-        reset,
-        watch,
-        setValue,
-        handleSubmit,
-        control,
-        formState: { isSubmitting },
-    } = methods;
+    }, [customerId, customers]);
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -226,6 +225,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
             const basePayload = {
                 quotationNo: data.quotationNo,
                 customerID: data.customer,
+                createDate: data.date,
                 expiryDate: data.validUntil,
                 discount: data.discount || 0,
                 note: data.notes || '',
@@ -575,6 +575,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                 methodsQuotation={methods}
                 setCustomerKeyword={setCustomerKeyword}
                 setSelectedCustomer={setSelectedCustomer}
+                refetchCustomers={refetchCustomers}
             />
         </Dialog>
     );

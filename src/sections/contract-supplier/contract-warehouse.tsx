@@ -8,10 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, Form } from "src/components/hook-form";
 import { ContractWarehouseTable } from "./contract-warehouse-table";
 import { useEffect, useState } from "react";
-import { createWarehouseExport } from "src/actions/contract";
-import { IContractWarehouseExportDto } from "src/types/warehouseExport";
 import { toast } from "sonner";
-import { mutate } from "swr";
 import { useAuthContext } from "src/auth/hooks";
 import { paths } from "src/routes/paths";
 import { fDate } from "src/utils/format-time-vi";
@@ -39,14 +36,10 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
 
     const {
         remainingProduct: initialProducts,
-        remainingProductEmpty, remainingProductLoading
+        remainingProductEmpty,
+        remainingProductLoading,
+        mutate: refetchRemainProduct
     } = useGetUnImportProduct(selectedContract.id, open);
-
-    useEffect(() => {
-        if (initialProducts && initialProducts.length > 0) {
-            setProducts([...initialProducts]);
-        }
-    }, [initialProducts]);
 
     const [watchTicket, setWatchTicket] = useState(true);
     const [warehouseExportNumber, setWarehouseExportNumber] = useState<string>('');
@@ -54,7 +47,7 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     const defaultValues: ContractWareHouseSchemaType = {
         wareHouseNo: warehouseExportNumber,
         exportDate: today.toISOString(),
-        receiverAddress: "",
+        receiverAddress: "Văn phòng công ty",
         receiverName: "",
         note: "",
     };
@@ -63,11 +56,6 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
         resolver: zodResolver(ContractWareHouseSchema),
         defaultValues
     });
-
-    useEffect(() => {
-        methods.setValue('wareHouseNo', generateWarehouseExport('PN', selectedContract.contractNo, totalRecord));
-        setWarehouseExportNumber(generateWarehouseExport('PN', selectedContract.contractNo, totalRecord));
-    }, [totalRecord, setWarehouseExportNumber]);
 
     const {
         reset,
@@ -153,6 +141,21 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
     });
 
     useEffect(() => {
+        if (initialProducts && initialProducts.length > 0) {
+            setProducts([...initialProducts]);
+        }
+    }, [initialProducts]);
+
+    useEffect(() => {
+        refetchRemainProduct();
+    }, [open]);
+
+    useEffect(() => {
+        methods.setValue('wareHouseNo', generateWarehouseExport('PN', selectedContract.contractNo, totalRecord));
+        setWarehouseExportNumber(generateWarehouseExport('PN', selectedContract.contractNo, totalRecord));
+    }, [totalRecord, setWarehouseExportNumber]);
+
+    useEffect(() => {
         if (warehouseExportNo && exportDate && receiverAddress && receiverName) {
             setWatchTicket(false);
         } else {
@@ -178,7 +181,10 @@ export function ContractWareHouse({ selectedContract, open, onClose }: FileDialo
                 />
             </Stack>
             <Stack direction="row" spacing={3}>
-                <TextField value={selectedContract.companyName} label="Đơn vị giao hàng" disabled
+                <TextField
+                    value={selectedContract.companyName || "Phòng kinh doanh"}
+                    label="Đơn vị giao hàng"
+                    disabled
                     sx={{
                         flex: 1.5,
                         '& .MuiInputBase-root.Mui-disabled': {

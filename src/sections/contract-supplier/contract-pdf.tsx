@@ -13,15 +13,17 @@ import { IContractSupplyForDetail, IContractSupplyItem, ResponseContractSupplier
 import { generatePdfBlob } from "src/utils/generateblob-func";
 import { downloadPdf, printPdf } from "src/utils/random-func";
 import { Iconify } from "src/components/iconify";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type ContractPDFProps = {
     contract: IContractSupplyItem;
     currentStatus: string;
     currentContract?: ResponseContractSupplier<IContractSupplyForDetail>;
     openDetail: boolean;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
-export function ContractPDFViewer({ contract, currentStatus, currentContract, openDetail }: ContractPDFProps) {
+export function ContractPDFViewer({ contract, currentStatus, currentContract, openDetail, companyInfoData }: ContractPDFProps) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,6 +35,7 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract, op
         <ContractPdfDocument
             contract={contract}
             currentContract={currentContract}
+            companyInfoData={companyInfoData}
         />
     ), [contract, currentStatus, currentContract]);
 
@@ -55,6 +58,7 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract, op
             <ContractPdfDocument
                 contract={contract}
                 currentContract={currentContract}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -66,6 +70,7 @@ export function ContractPDFViewer({ contract, currentStatus, currentContract, op
             <ContractPdfDocument
                 contract={contract}
                 currentContract={currentContract}
+                companyInfoData={companyInfoData}
             />
         );
 
@@ -178,9 +183,10 @@ Font.register({
 type ContractPdfDocumentProps = {
     contract?: IContractSupplyItem;
     currentContract?: ResponseContractSupplier<IContractSupplyForDetail>;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
-export function ContractPdfDocument({ contract, currentContract }: ContractPdfDocumentProps) {
+export function ContractPdfDocument({ contract, currentContract, companyInfoData }: ContractPdfDocumentProps) {
     const styles = useStyles();
 
     const {
@@ -218,7 +224,7 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
             title={`Hợp đồng số ${contractNo}`}
         >
             <Page size="A4" style={styles.page}>
-                {renderHeader()}
+                {renderHeader({ companyInfoData })}
                 <View style={styles.body}>
                     {renderTitle(contractNo)}
                     {renderLaw()}
@@ -230,7 +236,8 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
                         position,
                         customerName: supplierName,
                         customerPhone: supplierPhone,
-                        customerTaxCode: taxCode
+                        customerTaxCode: taxCode,
+                        companyInfoData
                     })}
                     {renderRuleOne()}
                     {renderRules({
@@ -250,7 +257,7 @@ export function ContractPdfDocument({ contract, currentContract }: ContractPdfDo
                     })}
                     {/* {renderSigner({ companyName, customerName, position })} */}
                 </View>
-                {renderFooter()}
+                {renderFooter({ companyInfoData })}
             </Page>
         </Document>
     );

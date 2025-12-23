@@ -137,8 +137,6 @@ export function ProductNewEditForm({ open, onClose, selectedId }: Props) {
     formState: { isSubmitting },
   } = methods;
 
-  const values = watch();
-
   const onSubmit = handleSubmit(async (data) => {
     try {
       let imagePayload: string | null = null;

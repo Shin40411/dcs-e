@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useBoolean } from 'minimal-shared/hooks';
 import { FilterValues } from 'src/types/filter-values';
+import { Location } from 'react-router';
+import { useGetCompanyInfo } from 'src/actions/companyInfo';
 
 type Props = {
     onViewDetails: (quotation: IQuotationItem) => void;
@@ -27,6 +29,7 @@ type Props = {
     setPage: (value: any) => void;
     rowsPerPage: number;
     setRowsPerPage: (value: any) => void;
+    location: Location<any>;
 };
 
 export function QuotationCardList({
@@ -36,6 +39,7 @@ export function QuotationCardList({
     setPage,
     rowsPerPage,
     setRowsPerPage,
+    location
 }: Props) {
     const today = new Date();
     const lastMonth = new Date();
@@ -43,13 +47,13 @@ export function QuotationCardList({
     const confirmDelRowDialog = useBoolean();
 
     const [filters, setFilters] = useState<FilterValues>({
-        fromDate: null,
-        toDate: null,
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
     });
 
     const [searchText, setSearchText] = useState("");
 
-    const { quotations, quotationsLoading, pagination, quotationsEmpty } = useGetQuotations({
+    const { quotations, quotationsLoading, pagination, quotationsEmpty, mutation } = useGetQuotations({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText.trim(),
@@ -60,6 +64,8 @@ export function QuotationCardList({
         Status: filters.status
     });
 
+    const { companyInfoData, mutation: refetchCompanyInfo } = useGetCompanyInfo();
+
     const [tableData, setTableData] = useState<IQuotationItem[]>([]);
 
     const [idSelected, setIdSelected] = useState(0);
@@ -67,6 +73,11 @@ export function QuotationCardList({
     useEffect(() => {
         setTableData(quotations);
     }, [quotations]);
+
+    useEffect(() => {
+        mutation();
+        refetchCompanyInfo();
+    }, [location.pathname]);
 
     const handleFilterChange = (values: FilterValues) => {
         setFilters(values);
@@ -193,6 +204,7 @@ export function QuotationCardList({
                                     quotate={q}
                                     onViewDetails={() => onViewDetails(q)}
                                     onEditing={() => onEditing(q)}
+                                    companyInfo={companyInfoData}
                                 />
                             ))}
                     </Box>

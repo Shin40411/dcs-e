@@ -1,4 +1,4 @@
-import { Box, Button, Card, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, Stack } from "@mui/material";
+import { Autocomplete, Box, Button, Card, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, Stack, TextField } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { useBoolean } from "minimal-shared/hooks";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -28,6 +28,7 @@ import { RoleBasedGuard } from "src/auth/guard";
 import { useLocation } from "react-router";
 import ServiceNavTabs from "src/components/tabs/service-nav-tabs";
 import { EMPLOYEE_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data";
+import { useGetDepartments } from "src/actions/department";
 
 export const ChangePassWordAccSchema = zod
     .object({
@@ -73,12 +74,17 @@ export function EmployeeListView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['NHANVIEN.VIEW']);
+    const [selectedDepartment, setSelectedDepartment] = useState("");
 
     const { employees, pagination, employeesLoading, mutation } = useGetEmployees({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
+        filter: selectedDepartment
     });
+
+    const { departments, departmentsLoading, departmentsEmpty } = useGetDepartments({ pageNumber: 1, pageSize: 20 });
+
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -282,6 +288,74 @@ export function EmployeeListView() {
         />
     );
 
+    const renderFilter = () => (
+        <>
+            <Box sx={{ flexGrow: 1 }} />
+            <Stack direction="row" spacing={2}>
+                <Autocomplete
+                    disablePortal
+                    options={departments ?? []}
+                    loading={departmentsLoading}
+                    noOptionsText={
+                        departmentsLoading
+                            ? "Đang tải..."
+                            : departmentsEmpty
+                                ? "Không có phòng ban"
+                                : "Không có kết quả"
+                    }
+                    onChange={(e, value) => {
+                        setSelectedDepartment(value?.name || "");
+                    }}
+                    fullWidth
+                    getOptionLabel={(option) => option?.name ?? ""}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label={departmentsLoading ? <CircularProgress size={20} /> : "Phòng ban"}
+                            InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                    <>
+                                        {params.InputProps.endAdornment}
+                                    </>
+                                ),
+                            }}
+                        />
+                    )}
+                    sx={{
+                        flexGrow: 1,
+                        minWidth: 200,
+                        "&& .MuiTextField-root": {
+                            width: "100% !important",
+                            p: 0
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 56,
+                        },
+                        "& .MuiAutocomplete-inputRoot": {
+                            padding: "0 !important",
+                            height: "100% !important",
+                        },
+                        "& .MuiOutlinedInput-input": {
+                            padding: "8.5px 14px!important",
+                        },
+                        "& .MuiInputLabel-outlined": {
+                            top: "50%",
+                            transform: "translate(14px, -50%) scale(1)",
+                            pointerEvents: "none",
+                        },
+
+                        "& .MuiInputLabel-outlined.MuiInputLabel-shrink": {
+                            top: 0,
+                            transform: "translate(14px, -50%) scale(0.75)",
+                        },
+
+                    }}
+                />
+            </Stack>
+        </>
+    );
+
     return (
         <RoleBasedGuard
             hasContent
@@ -337,6 +411,7 @@ export function EmployeeListView() {
                     searchText={searchText}
                     onSearchChange={setSearchText}
                     openBin={openBin}
+                    additionDefaultFilterSub={renderFilter()}
                 />
                 {renderCRUDForm()}
                 {renderDetails()}

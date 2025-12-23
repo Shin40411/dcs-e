@@ -9,6 +9,7 @@ import { IImportRemainingProduct } from "src/types/contractSupplier";
 import { Iconify } from "src/components/iconify";
 import { generatePdfBlob } from "src/utils/generateblob-func";
 import { downloadPdf, printPdf } from "src/utils/random-func";
+import { useGetCompanyInfo } from "src/actions/companyInfo";
 
 export function ContractWarehousePdf() {
     Font.register({
@@ -106,6 +107,8 @@ export function ContractWarehousePdf() {
         !hookParams.isCreating
     );
 
+    const { companyInfoData } = useGetCompanyInfo();
+
     const mappedProducts = useMemo<IImportRemainingProduct[]>(() => {
         if (isCreating) {
             return remainingProduct || [];
@@ -142,7 +145,7 @@ export function ContractWarehousePdf() {
 
     const handleDownload = async () => {
         const blob = await generatePdfBlob(
-            <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} />
+            <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} companyInfoData={companyInfoData} />
         );
 
         await downloadPdf(blob, `${contractBody.warehouseExportNo}.pdf`);
@@ -150,7 +153,7 @@ export function ContractWarehousePdf() {
 
     const handlePrint = async () => {
         const blob = await generatePdfBlob(
-            <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} />
+            <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} companyInfoData={companyInfoData} />
         );
 
         await printPdf(blob);
@@ -188,7 +191,7 @@ export function ContractWarehousePdf() {
                 </Box>
             </Stack>
             <PDFViewer width="100%" height="100%" style={{ border: "none", overflow: 'hidden' }} showToolbar={false}>
-                <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} />
+                <RenderWarehouseImport contractBody={contractBody} productsUnExported={mappedProducts} companyInfoData={companyInfoData} />
             </PDFViewer>
         </Box>
     );

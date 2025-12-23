@@ -2,20 +2,23 @@ import { pdf } from "@react-pdf/renderer";
 import axiosInstance, { endpoints } from "src/lib/axios";
 import { ContractPdfDocument as ContractSupplier } from "src/sections/contract-supplier/contract-pdf";
 import { ContractPdfDocument as ContractCustomer } from "src/sections/contract/contract-pdf";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 import { IContractData, IContractItem } from "src/types/contract";
 import { IContractSupplyForDetail, IContractSupplyItem, ResponseContractSupplier } from "src/types/contractSupplier";
 
 export async function sendEmailContract({
     email,
     contract,
-    currentContract
+    currentContract,
+    companyInfoData
 }: {
     email: string;
     contract?: IContractItem;
     currentContract?: IContractData;
+    companyInfoData: ICompanyInfoItem | null;
 }) {
     try {
-        const blob = await pdf(<ContractCustomer contract={contract} currentContract={currentContract} />).toBlob();
+        const blob = await pdf(<ContractCustomer contract={contract} currentContract={currentContract} companyInfoData={companyInfoData} />).toBlob();
 
         const formData = new FormData();
         formData.append('email', email);
@@ -37,14 +40,16 @@ export async function sendEmailContract({
 export async function sendEmailSupplierContract({
     email,
     contract,
-    currentContract
+    currentContract,
+    companyInfoData
 }: {
     email: string;
     contract?: IContractSupplyItem;
     currentContract?: ResponseContractSupplier<IContractSupplyForDetail>;
+    companyInfoData: ICompanyInfoItem | null;
 }) {
     try {
-        const blob = await pdf(<ContractSupplier contract={contract} currentContract={currentContract} />).toBlob();
+        const blob = await pdf(<ContractSupplier contract={contract} currentContract={currentContract} companyInfoData={companyInfoData} />).toBlob();
 
         const formData = new FormData();
         formData.append('email', email);

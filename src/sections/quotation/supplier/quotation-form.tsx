@@ -79,7 +79,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         pageNumber: 1,
         pageSize: 999,
         key: debouncedCustomerKw,
-        enabled: true
+        enabled: openForm || !!selectedQuotation?.supplierID
     });
 
     const [selectedCustomer, setSelectedCustomer] = useState<ISuppliersItem | null>(null);
@@ -212,7 +212,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         if (found) {
             setSelectedCustomer(found);
         }
-    }, [customerId]);
+    }, [customerId, suppliers]);
 
     const {
         reset,
@@ -232,6 +232,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
         try {
             const basePayload = {
                 quotationNo: data.quotationNo,
+                createDate: data.date,
                 SupplierID: data.customer,
                 expiryDate: data.validUntil,
                 discount: data.discount || 0,
@@ -327,17 +328,14 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
             {/* Section Thông tin khách hàng */}
             <Box>
                 <Stack direction={{ xs: "column", md: "column", lg: "column", xl: "row" }} gap={2} justifyContent="space-between">
-                    <Typography variant="subtitle2">Thông tin khách hàng</Typography>
+                    <Typography variant="subtitle2">Thông tin nhà cung cấp</Typography>
                     <Stack direction="row" justifyContent="space-between" gap={1} alignItems="center">
                         <Field.Autocomplete
                             name="customer"
                             label="Chọn nhà cung cấp"
                             options={suppliers}
                             loading={suppliersLoading}
-                            getOptionLabel={(opt) => opt?.name ?
-                                opt.name :
-                                opt?.companyName ?
-                                    opt.companyName : ''}
+                            getOptionLabel={(opt) => opt?.companyName ? opt.companyName : ''}
                             isOptionEqualToValue={(opt, val) => opt?.id === val?.id}
                             onInputChange={(_, value) => setCustomerKeyword(value)}
                             value={selectedCustomer}
@@ -350,7 +348,7 @@ export function QuotationForm({ openForm, selectedQuotation, onClose, CopiedQuot
                             sx={{ flex: 1, minWidth: 200 }}
                             renderOption={(props, option) => (
                                 <li {...props} key={option.id}>
-                                    {option.name ? option.name : option.companyName}
+                                    {option.companyName ? option.companyName : ''}
                                 </li>
                             )}
                         />

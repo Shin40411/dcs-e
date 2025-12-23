@@ -8,7 +8,6 @@ import { UseGridTableList } from "src/components/data-grid-table/data-grid-table
 import { Iconify } from "src/components/iconify"
 import { SUPPLIERS_COLUMNS } from "src/const/supplier"
 import { DashboardContent } from "src/layouts/dashboard"
-import { paths } from "src/routes/paths"
 import { ISuppliersItem } from "src/types/suppliers"
 import { SupplierNewEditForm } from "../supplier-new-edit-form"
 import { SupplierDetails } from "../supplier-details"
@@ -23,6 +22,7 @@ import { useCheckPermission } from "src/auth/hooks/use-check-permission"
 import { useLocation } from "react-router"
 import ServiceNavTabs from "src/components/tabs/service-nav-tabs"
 import { CUSTOMER_TAB_DATA } from "src/components/tabs/components/service-nav-tabs-data"
+import { SupplierFilter } from "../supplier-filter"
 
 export function SuppliersListView() {
     const location = useLocation();
@@ -36,12 +36,37 @@ export function SuppliersListView() {
     const [rowsPerPage, setRowsPerPage] = useState(CONFIG.pageSizesGlobal);
     const [searchText, setSearchText] = useState('');
     const { permission } = useCheckPermission(['NHACUNGCAP.VIEW']);
+    const [isBusiness, setIsBusiness] = useState<boolean | null>(null);
 
     const { suppliers, pagination, suppliersLoading, mutation } = useGetSuppliers({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText,
+        IsBusiness: isBusiness !== null && isBusiness === true
+            ? true
+            : isBusiness !== null && isBusiness === false
+                ? false
+                : null,
     });
+
+    const { pagination: { totalRecord: allRecord } } = useGetSuppliers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsBusiness: null
+    });
+
+    const { pagination: { totalRecord: businessRecord } } = useGetSuppliers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsBusiness: true
+    });
+
+    const { pagination: { totalRecord: unBusinessRecord } } = useGetSuppliers({
+        pageNumber: page + 1,
+        pageSize: rowsPerPage,
+        IsBusiness: false
+    });
+
     const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -176,6 +201,13 @@ export function SuppliersListView() {
                     searchText={searchText}
                     onSearchChange={setSearchText}
                     openBin={openBin}
+                    additionDefaultFilter={<SupplierFilter
+                        allRecord={allRecord}
+                        filterState={isBusiness}
+                        onChangeState={setIsBusiness}
+                        businessRecord={businessRecord}
+                        unBusinessRecord={unBusinessRecord}
+                    />}
                 />
                 {renderCRUDForm()}
                 {renderDetails()}

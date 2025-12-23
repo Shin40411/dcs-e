@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { endpoints } from 'src/lib/axios';
 import { deleteOne } from 'src/actions/delete';
 import { FilterValues } from 'src/types/filter-values';
+import { Location } from 'react-router';
+import { useGetCompanyInfo } from 'src/actions/companyInfo';
 
 type Props = {
     onViewDetails: (quotation: IContractItem) => void;
@@ -27,6 +29,7 @@ type Props = {
     setPage: (value: any) => void;
     rowsPerPage: number;
     setRowsPerPage: (value: any) => void;
+    location: Location<any>;
 };
 
 export function ContractCardList({
@@ -36,6 +39,7 @@ export function ContractCardList({
     setPage,
     rowsPerPage,
     setRowsPerPage,
+    location
 }: Props) {
     const today = new Date();
     const lastMonth = new Date();
@@ -43,13 +47,13 @@ export function ContractCardList({
     const confirmDelRowDialog = useBoolean();
 
     const [filters, setFilters] = useState<FilterValues>({
-        fromDate: null,
-        toDate: null,
+        fromDate: formatDate(lastMonth),
+        toDate: formatDate(today),
     });
 
     const [searchText, setSearchText] = useState("");
 
-    const { contracts, contractsLoading, pagination, contractsEmpty } = useGetContracts({
+    const { contracts, contractsLoading, pagination, contractsEmpty, mutate } = useGetContracts({
         pageNumber: page + 1,
         pageSize: rowsPerPage,
         key: searchText.trim(),
@@ -60,9 +64,16 @@ export function ContractCardList({
         Status: filters.status
     });
 
+    const { companyInfoData, mutation: refetchCompanyInfo } = useGetCompanyInfo();
+
     const [tableData, setTableData] = useState<IContractItem[]>([]);
 
     const [idSelected, setIdSelected] = useState(0);
+
+    useEffect(() => {
+        mutate();
+        refetchCompanyInfo();
+    }, [location.pathname]);
 
     useEffect(() => {
         setTableData(contracts);
@@ -192,6 +203,7 @@ export function ContractCardList({
                                     contract={q}
                                     onViewDetails={() => onViewDetails(q)}
                                     onEditing={() => onEditing(q)}
+                                    companyInfo={companyInfoData}
                                 />
                             ))}
                     </Box>

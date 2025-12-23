@@ -19,12 +19,14 @@ export default function ContractItemsTableContent({
     setProductIDSelected,
     setIndexField,
 }: ContractItemsTableContentProps) {
-    const total = fields.reduce((sum, item, index) => {
-        const qty = Number(methods.getValues(`products.${index}.qty`) || 0);
-        const price = Number(methods.getValues(`products.${index}.price`) || 0);
-        const vat = Number(methods.getValues(`products.${index}.vat`) || 0);
-        return sum + calcAmount({ qty, price, vat });
-    }, 0);
+    const stickyRightCell = {
+        position: 'sticky',
+        right: 0,
+        backgroundColor: 'background.paper',
+        '@media (max-width:1848px)': {
+            boxShadow: '-6px 0 8px -4px rgba(0,0,0,0.15)',
+        },
+    };
 
     return (
         <TableContainer component={Paper} sx={{
@@ -82,7 +84,7 @@ export default function ContractItemsTableContent({
                                 </Typography>
                             </TableCell>
 
-                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                            <TableCell sx={{ ...stickyRightCell }}>
                                 <Stack direction="row">
                                     <Tooltip title="Xóa sản phẩm" placement="top" arrow>
                                         <IconButton onClick={() => {

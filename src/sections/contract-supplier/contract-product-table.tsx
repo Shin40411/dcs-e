@@ -39,7 +39,7 @@ export function ContractItemsTable({
         const qty = Number(item?.qty) || 0;
         const price = Number(item?.price) || 0;
         const vat = Number(item?.vat) || 0;
-        return qty * price * (1 + vat / 100);
+        return Math.round(qty * price * (1 + vat / 100));
     };
 
     const total = (items || []).reduce((acc, i) => acc + calcAmount(i), 0);
@@ -187,15 +187,15 @@ export function ContractItemsTable({
                         }}
                     >
                         <Stack direction="column" justifyContent="flex-start" textAlign={'start'}>
-                            <Typography fontWeight={600}>Tổng cộng</Typography>
-                            <Typography fontWeight="bold" whiteSpace="nowrap">
-                                {fCurrency(roundedTotal)}
-                            </Typography>
-                        </Stack>
-                        <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
                             <Typography fontWeight={600}>Bằng chữ</Typography>
                             <Typography fontSize={15}>
                                 {capitalizeFirstLetter(fRenderTextNumber(roundedTotal))}
+                            </Typography>
+                        </Stack>
+                        <Stack direction="column" justifyContent="flex-end" textAlign={'end'}>
+                            <Typography fontWeight={600}>Tổng cộng</Typography>
+                            <Typography fontWeight="bold" whiteSpace="nowrap">
+                                {fCurrency(roundedTotal)}
                             </Typography>
                         </Stack>
                     </Box>

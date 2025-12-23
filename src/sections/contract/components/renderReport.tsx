@@ -10,6 +10,7 @@ import { RenderRuleNameChild } from "../helper/renderRuleNameChild";
 import { capitalizeWords, formatPhoneNumber } from "src/utils/format-string";
 import { generateReportNo } from "src/utils/random-func";
 import { fDate } from "src/utils/format-time-vi";
+import { ICompanyInfoItem } from "src/types/companyInfo";
 
 type RenderProps = {
     contractNo?: string;
@@ -31,6 +32,7 @@ type RenderProps = {
     customerBankNo?: string;
     currentContract?: IContractData;
     renderReportNo: string;
+    companyInfoData: ICompanyInfoItem | null;
 };
 
 export const RenderReport = ({
@@ -52,7 +54,8 @@ export const RenderReport = ({
     customerBank,
     customerBankNo,
     currentContract,
-    renderReportNo
+    renderReportNo,
+    companyInfoData
 }: RenderProps) => {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
@@ -103,7 +106,7 @@ export const RenderReport = ({
     return (
         <Document title={renderReportNo}>
             <Page size="A4" style={styles.page}>
-                {renderHeader()}
+                {renderHeader({ companyInfoData })}
                 <View style={styles.body}>
                     {/* tiêu đề .... */}
                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 5 }}>
@@ -144,7 +147,7 @@ export const RenderReport = ({
                         marginTop: 15,
                     }}>
                         {lawTexts.map((item, index) => {
-                            const parts = item.split(new RegExp(`(${companyName}|CÔNG TY TNHH GIẢI PHÁP DCS)`, "g"));
+                            const parts = item.split(new RegExp(`(${companyName}|${companyInfoData?.name})`, "g"));
 
                             return (
                                 <Text
@@ -158,7 +161,7 @@ export const RenderReport = ({
                                 >
                                     {parts.map((part, i) => (
                                         <Fragment key={i}>
-                                            {part === companyName || part === "CÔNG TY TNHH GIẢI PHÁP DCS" ? (
+                                            {part === companyName || part === companyInfoData?.name ? (
                                                 <Text style={{ fontFamily: "Niramit-Bold" }}>{part}</Text>
                                             ) : (
                                                 <Text
@@ -336,7 +339,7 @@ export const RenderReport = ({
                                         marginLeft: 8,
                                     }}
                                 >
-                                    CÔNG TY TNHH GIẢI PHÁP DCS
+                                    {companyInfoData?.name}
                                 </Text>
                             </View>
 
@@ -737,7 +740,7 @@ export const RenderReport = ({
                                     fontSize: 8
                                 }}
                                 >
-                                    W.  http://dcse.vn   |   E.  lienhe@dcse.vn
+                                    {`W.  ${companyInfoData?.link}   |   E.  ${companyInfoData?.email}`}
                                 </Text>
                                 <View style={{ width: 1, height: '100%', backgroundColor: '#ddd', marginLeft: 4, marginRight: 4 }} />
                                 <Text

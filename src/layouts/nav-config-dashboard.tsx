@@ -237,6 +237,12 @@ export const navData: NavSectionProps['data'] = [
             allowedRoles: ['TOANQUYEN.VIEW', 'PHANQUYEN.VIEW'],
             // caption: 'Chỉ tài khoản cấp super mới xem được trang này.',
           },
+          {
+            title: 'Thông tin công ty',
+            path: paths.dashboard.user.root,
+            icon: <Iconify icon={'streamline-cyber-color:id-card'} />,
+            allowedRoles: ['TOANQUYEN.VIEW'],
+          }
         ]
       },
     ]
