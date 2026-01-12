@@ -97,7 +97,7 @@ export function SpendNewEditForm({ selectedReceipt, open, onClose, mutation, tot
                 reason: data.reason || "",
                 receiptDate: data.receiptDate,
                 targetCode: data.employeeId || "",
-                targetType: spendType === "salary" ? "Salary" : ""
+                targetType: spendType === "salary" ? "Salary" : "Other"
             };
 
             const updateBody: ReceiptAndSpendUpdateDto = {

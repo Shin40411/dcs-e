@@ -32,17 +32,20 @@ export function NavSectionMini({
       {...other}
     >
       <NavUl sx={{ flex: '1 1 auto', gap: 'var(--nav-item-gap)' }}>
-        {data.map((group) => (
-          <Group
-            key={group.subheader ?? group.items[0].title}
-            render={render}
-            cssVars={cssVars}
-            items={group.items}
-            slotProps={slotProps}
-            checkPermissions={checkPermissions}
-            enabledRootRedirect={enabledRootRedirect}
-          />
-        ))}
+        {data.map((group) => {
+          if (!group) return null;
+          return (
+            <Group
+              key={group.subheader ?? group.items[0].title}
+              render={render}
+              cssVars={cssVars}
+              items={group.items}
+              slotProps={slotProps}
+              checkPermissions={checkPermissions}
+              enabledRootRedirect={enabledRootRedirect}
+            />
+          );
+        })}
       </NavUl>
     </Nav>
   );
